@@ -5,6 +5,7 @@ import OrderBook from '../components/trading/OrderBook'
 import TradeHistory from '../components/trading/TradeHistory'
 import OrderForm from '../components/trading/OrderForm'
 import { useTradingStore } from '../store/tradingStore'
+import { ErrorBoundary } from '../components/ui/ErrorBoundary'
 
 type ChartView = 'candles' | 'depth'
 type RightTab = 'book' | 'trades'
@@ -92,17 +93,19 @@ export default function TradingPage() {
         <div className="flex flex-1 min-h-0 overflow-hidden">
           {/* Chart */}
           <div className="flex-1 min-w-0 overflow-hidden" style={{ background: CHART_BG }}>
-            {chartView === 'candles' ? (
-              <CandlestickChart
-                candles={candles}
-                symbol={selectedSymbol}
-                interval={chartInterval}
-                onIntervalChange={setChartInterval}
-                loading={loading}
-              />
-            ) : (
-              <DepthChart orderBook={orderBook} symbol={selectedSymbol} />
-            )}
+            <ErrorBoundary>
+              {chartView === 'candles' ? (
+                <CandlestickChart
+                  candles={candles}
+                  symbol={selectedSymbol}
+                  interval={chartInterval}
+                  onIntervalChange={setChartInterval}
+                  loading={loading}
+                />
+              ) : (
+                <DepthChart orderBook={orderBook} symbol={selectedSymbol} />
+              )}
+            </ErrorBoundary>
           </div>
 
           {/* Right panel: Book + Trades */}
@@ -123,7 +126,9 @@ export default function TradingPage() {
             </div>
 
             <div className="flex-1 overflow-hidden">
-              {rightTab === 'book' ? <OrderBook /> : <TradeHistory />}
+              <ErrorBoundary>
+                {rightTab === 'book' ? <OrderBook /> : <TradeHistory />}
+              </ErrorBoundary>
             </div>
           </div>
         </div>

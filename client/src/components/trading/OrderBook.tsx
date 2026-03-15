@@ -8,7 +8,7 @@ export default function OrderBook() {
   const { orderBook, selectedSymbol, tickers } = useTradingStore()
   const ticker = tickers[selectedSymbol]
 
-  if (!orderBook) {
+  if (!orderBook || !Array.isArray(orderBook.asks) || !Array.isArray(orderBook.bids)) {
     return (
       <div className="flex items-center justify-center h-full text-text-muted text-xs">
         <span className="animate-pulse">Loading…</span>

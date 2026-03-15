@@ -187,7 +187,10 @@ export const useTradingStore = create<TradingState>((set, get) => ({
   },
 
   updateOrderBook: (orderBook) => {
-    set({ orderBook })
+    // Validate shape before storing — malformed API responses must not reach render
+    if (orderBook && Array.isArray(orderBook.asks) && Array.isArray(orderBook.bids)) {
+      set({ orderBook })
+    }
   },
 
   updateRecentTrades: (trades) => {
