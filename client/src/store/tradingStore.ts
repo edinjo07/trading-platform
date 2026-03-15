@@ -203,6 +203,7 @@ export const useTradingStore = create<TradingState>((set, get) => ({
   },
 
   setLiveCandleHistory: (candles) => {
+    if (!Array.isArray(candles) || candles.length === 0) return
     set({ candles, liveCandle: candles[candles.length - 1] ?? null })
   },
 

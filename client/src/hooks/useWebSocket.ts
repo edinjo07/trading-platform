@@ -43,7 +43,9 @@ function startPolling(
     if (!mountedRef.current) return
     try {
       const { data } = await api.get<Candle[]>(`/markets/candles/${encodeURIComponent(symbol)}?interval=1h&limit=300`)
-      if (mountedRef.current) useTradingStore.getState().setLiveCandleHistory(data)
+      if (mountedRef.current && Array.isArray(data) && data.length > 0) {
+        useTradingStore.getState().setLiveCandleHistory(data)
+      }
     } catch { /* ignore */ }
   }
 

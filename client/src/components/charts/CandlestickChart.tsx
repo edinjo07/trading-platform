@@ -104,7 +104,8 @@ export default function CandlestickChart({ candles, symbol, interval, onInterval
 
   // Full data load
   useEffect(() => {
-    if (!candleSeriesRef.current || !volumeSeriesRef.current || candles.length === 0) return
+    if (!candleSeriesRef.current || !volumeSeriesRef.current) return
+    if (!Array.isArray(candles) || candles.length === 0) return
 
     const cData: CandleData[] = candles.map(c => ({
       time: c.time as unknown as number,
