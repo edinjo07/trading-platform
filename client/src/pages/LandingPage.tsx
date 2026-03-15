@@ -83,14 +83,14 @@ const FEATURES = [
 ]
 
 const MARKETS = [
-  { sym: 'BTC/USDT',  name: 'Bitcoin',           price: '67,420.50', chg: '+2.41', up: true,  cat: 'Crypto' },
-  { sym: 'ETH/USDT',  name: 'Ethereum',          price: '3,512.80',  chg: '+1.83', up: true,  cat: 'Crypto' },
-  { sym: 'EUR/USD',   name: 'Euro / US Dollar',  price: '1.08420',   chg: '+0.12', up: true,  cat: 'Forex'  },
-  { sym: 'GBP/USD',   name: 'Pound / US Dollar', price: '1.26350',   chg: '-0.08', up: false, cat: 'Forex'  },
-  { sym: 'AAPL',      name: 'Apple Inc.',        price: '189.24',    chg: '-0.61', up: false, cat: 'Stocks' },
-  { sym: 'NVDA',      name: 'NVIDIA Corp.',      price: '875.40',    chg: '+3.14', up: true,  cat: 'Stocks' },
-  { sym: 'XAU/USD',   name: 'Gold Spot',         price: '2,334.10',  chg: '+0.34', up: true,  cat: 'Commod' },
-  { sym: 'SOL/USDT',  name: 'Solana',            price: '143.20',    chg: '+4.22', up: true,  cat: 'Crypto' },
+  { sym: 'BTC/USDT',  name: 'Bitcoin',           price: '67,420.50', chg: '+2.41', up: true,  cat: 'Crypto', logo: 'https://assets.coingecko.com/coins/images/1/small/bitcoin.png' },
+  { sym: 'ETH/USDT',  name: 'Ethereum',          price: '3,512.80',  chg: '+1.83', up: true,  cat: 'Crypto', logo: 'https://assets.coingecko.com/coins/images/279/small/ethereum.png' },
+  { sym: 'EUR/USD',   name: 'Euro / US Dollar',  price: '1.08420',   chg: '+0.12', up: true,  cat: 'Forex',  logo: 'https://flagcdn.com/w40/eu.png' },
+  { sym: 'GBP/USD',   name: 'Pound / US Dollar', price: '1.26350',   chg: '-0.08', up: false, cat: 'Forex',  logo: 'https://flagcdn.com/w40/gb.png' },
+  { sym: 'AAPL',      name: 'Apple Inc.',        price: '189.24',    chg: '-0.61', up: false, cat: 'Stocks', logo: 'https://logo.clearbit.com/apple.com' },
+  { sym: 'NVDA',      name: 'NVIDIA Corp.',      price: '875.40',    chg: '+3.14', up: true,  cat: 'Stocks', logo: 'https://logo.clearbit.com/nvidia.com' },
+  { sym: 'XAU/USD',   name: 'Gold Spot',         price: '2,334.10',  chg: '+0.34', up: true,  cat: 'Commod', logo: 'https://assets.coingecko.com/coins/images/14/small/xrp-symbol-white-128.png' },
+  { sym: 'SOL/USDT',  name: 'Solana',            price: '143.20',    chg: '+4.22', up: true,  cat: 'Crypto', logo: 'https://assets.coingecko.com/coins/images/4128/small/solana.png' },
 ]
 
 const STEPS = [
@@ -882,6 +882,35 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ── DATA PARTNERS ──────────────────────────────────────────────────── */}
+      <section style={{ background: 'rgba(14,165,233,0.04)', borderTop: '1px solid rgba(14,165,233,0.08)', borderBottom: '1px solid rgba(14,165,233,0.08)', padding: '20px 0' }}>
+        <div className="landing-container">
+          <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-4">
+            <span className="text-text-muted text-xs font-semibold uppercase tracking-widest">Powered by real data from</span>
+            {/* Binance */}
+            <div className="flex items-center gap-2.5 opacity-70 hover:opacity-100 transition-opacity">
+              <img src="https://cryptologos.cc/logos/binance-bnb-logo.png" alt="Binance" width={22} height={22} style={{ borderRadius: 4 }} />
+              <span className="text-white font-bold text-sm tracking-tight">Binance</span>
+            </div>
+            {/* Twelve Data */}
+            <div className="flex items-center gap-2.5 opacity-70 hover:opacity-100 transition-opacity">
+              <div style={{ width: 22, height: 22, borderRadius: 4, background: 'linear-gradient(135deg,#7c3aed,#4f46e5)', display:'flex',alignItems:'center',justifyContent:'center', fontSize: 10, fontWeight: 800, color: '#fff' }}>12</div>
+              <span className="text-white font-bold text-sm tracking-tight">Twelve Data</span>
+            </div>
+            {/* Supabase */}
+            <div className="flex items-center gap-2.5 opacity-70 hover:opacity-100 transition-opacity">
+              <img src="https://avatars.githubusercontent.com/u/54469796" alt="Supabase" width={22} height={22} style={{ borderRadius: 4 }} />
+              <span className="text-white font-bold text-sm tracking-tight">Supabase</span>
+            </div>
+            {/* CoinGecko */}
+            <div className="flex items-center gap-2.5 opacity-70 hover:opacity-100 transition-opacity">
+              <img src="https://static.coingecko.com/s/thumbnail-007177f3eca19695592f0b8b0eabbdae4523e8c2d81234d04c1a35975ce50a7d.png" alt="CoinGecko" width={22} height={22} style={{ borderRadius: 4 }} />
+              <span className="text-white font-bold text-sm tracking-tight">CoinGecko</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ── LIVE MARKETS ───────────────────────────────────────────────────── */}
       <section id="markets" className="landing-section" style={{ paddingTop: 0 }}>
         <div className="landing-container">
@@ -923,9 +952,11 @@ export default function LandingPage() {
                       onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = ''}>
                     <td className="py-3.5 px-5">
                       <div className="flex items-center gap-2.5">
-                        <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold"
+                        <div className="w-7 h-7 rounded-full overflow-hidden flex items-center justify-center flex-shrink-0"
                              style={{ background: m.cat === 'Crypto' ? 'linear-gradient(135deg,#f59e0b,#d97706)' : m.cat === 'Forex' ? 'linear-gradient(135deg,#0ea5e9,#0369a1)' : m.cat === 'Stocks' ? 'linear-gradient(135deg,#8b5cf6,#6d28d9)' : 'linear-gradient(135deg,#f59e0b,#b45309)' }}>
-                          {m.sym[0]}
+                          <img src={m.logo} alt={m.name} width={28} height={28}
+                               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                               onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; (e.currentTarget.parentElement as HTMLElement).innerText = m.sym[0] }} />
                         </div>
                         <span className="font-mono font-bold text-white text-sm">{m.sym}</span>
                       </div>
@@ -1085,9 +1116,16 @@ export default function LandingPage() {
             <div>
               <h4 className="text-white font-semibold text-sm mb-4">Platform</h4>
               <ul className="space-y-2.5">
-                {['Dashboard', 'Trading', 'Portfolio', 'Analytics', 'Scanner'].map(l => (
-                  <li key={l}>
-                    <span className="text-text-secondary text-sm hover:text-white transition-colors cursor-pointer">{l}</span>
+                {([
+                  { label: 'Dashboard',  path: '/dashboard' },
+                  { label: 'WebTrader',  path: '/dashboard/trade' },
+                  { label: 'Portfolio',  path: '/dashboard/portfolio' },
+                  { label: 'Analytics',  path: '/dashboard/analytics' },
+                  { label: 'Scanner',    path: '/dashboard/scanner' },
+                  { label: 'TradePilot', path: '/dashboard/bots' },
+                ] as { label: string; path: string }[]).map(({ label, path }) => (
+                  <li key={label}>
+                    <a href={path} className="text-text-secondary text-sm hover:text-white transition-colors">{label}</a>
                   </li>
                 ))}
               </ul>
@@ -1097,9 +1135,15 @@ export default function LandingPage() {
             <div>
               <h4 className="text-white font-semibold text-sm mb-4">Markets</h4>
               <ul className="space-y-2.5">
-                {['Crypto', 'Forex', 'Stocks', 'Commodities', 'Indices'].map(l => (
-                  <li key={l}>
-                    <span className="text-text-secondary text-sm hover:text-white transition-colors cursor-pointer">{l}</span>
+                {([
+                  { label: 'Crypto',      path: '/dashboard/trade?market=crypto' },
+                  { label: 'Forex',        path: '/dashboard/trade?market=forex' },
+                  { label: 'Stocks',       path: '/dashboard/trade?market=stocks' },
+                  { label: 'Commodities',  path: '/dashboard/trade?market=commodities' },
+                  { label: 'Indices',      path: '/dashboard/trade?market=indices' },
+                ] as { label: string; path: string }[]).map(({ label, path }) => (
+                  <li key={label}>
+                    <a href={path} className="text-text-secondary text-sm hover:text-white transition-colors">{label}</a>
                   </li>
                 ))}
               </ul>
@@ -1109,9 +1153,14 @@ export default function LandingPage() {
             <div>
               <h4 className="text-white font-semibold text-sm mb-4">Legal</h4>
               <ul className="space-y-2.5">
-                {['Terms of Service', 'Privacy Policy', 'Risk Disclosure', 'Cookie Policy'].map(l => (
-                  <li key={l}>
-                    <span className="text-text-secondary text-sm hover:text-white transition-colors cursor-pointer">{l}</span>
+                {([
+                  { label: 'Terms of Service', href: '/terms-of-service.html' },
+                  { label: 'Privacy Policy',   href: '/privacy-policy.html' },
+                  { label: 'Risk Disclosure',  href: '/risk-disclosure.html' },
+                  { label: 'Cookie Policy',    href: '/cookie-policy.html' },
+                ] as { label: string; href: string }[]).map(({ label, href }) => (
+                  <li key={label}>
+                    <a href={href} target="_blank" rel="noreferrer" className="text-text-secondary text-sm hover:text-white transition-colors">{label}</a>
                   </li>
                 ))}
               </ul>

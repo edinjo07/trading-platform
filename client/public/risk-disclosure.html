@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Risk Disclosure — TradeX Pro</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230ea5e9' stroke-width='2.5'><polyline points='22 7 13.5 15.5 8.5 10.5 2 17'/><polyline points='16 7 22 7 22 13'/></svg>" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+      background: #06090f;
+      color: #c8d6e5;
+      line-height: 1.7;
+      font-size: 15px;
+    }
+    a { color: #38bdf8; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    header {
+      position: sticky; top: 0; z-index: 50;
+      background: #08111c;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      padding: 0 24px;
+    }
+    .header-inner {
+      max-width: 900px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 60px;
+    }
+    .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .logo-icon {
+      width: 30px; height: 30px; border-radius: 8px;
+      background: linear-gradient(135deg, #0ea5e9, #0369a1);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .logo-icon svg { width: 16px; height: 16px; stroke: white; }
+    .logo-text { font-weight: 700; font-size: 15px; color: #fff; }
+    .logo-text span { color: #38bdf8; }
+    .back-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      color: #6b8099; font-size: 13px; font-weight: 500;
+      padding: 7px 14px; border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.08);
+      transition: color .15s, border-color .15s;
+    }
+    .back-btn:hover { color: #fff; border-color: rgba(255,255,255,0.2); text-decoration: none; }
+    .hero {
+      background: linear-gradient(180deg, #150b0b 0%, #06090f 100%);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      padding: 64px 24px 48px;
+      text-align: center;
+    }
+    .badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.22);
+      color: #f87171; font-size: 11px; font-weight: 700; letter-spacing: .06em;
+      text-transform: uppercase; padding: 4px 12px; border-radius: 99px;
+      margin-bottom: 18px;
+    }
+    .hero h1 { font-size: clamp(28px, 5vw, 42px); font-weight: 800; color: #fff; margin-bottom: 12px; }
+    .hero p { color: #6b8099; font-size: 15px; }
+    .hero p strong { color: #c8d6e5; }
+    .content { max-width: 900px; margin: 0 auto; padding: 60px 24px 80px; }
+    .toc {
+      background: #0c1928; border: 1px solid rgba(14,165,233,.12);
+      border-radius: 14px; padding: 28px 32px; margin-bottom: 52px;
+    }
+    .toc h2 { font-size: 14px; font-weight: 700; color: #38bdf8; text-transform: uppercase; letter-spacing: .07em; margin-bottom: 16px; }
+    .toc ol { padding-left: 20px; }
+    .toc li { margin-bottom: 8px; }
+    .toc a { color: #94a3b8; font-size: 14px; }
+    .toc a:hover { color: #fff; }
+    .section { margin-bottom: 52px; }
+    .section:last-child { margin-bottom: 0; }
+    .section h2 {
+      font-size: 22px; font-weight: 700; color: #fff;
+      margin-bottom: 16px; padding-top: 10px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .section-num {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 32px; height: 32px; border-radius: 8px; flex-shrink: 0;
+      background: rgba(239,68,68,.12); color: #f87171;
+      font-size: 13px; font-weight: 800;
+    }
+    .section p { color: #94a3b8; margin-bottom: 14px; font-size: 14.5px; }
+    .section p:last-child { margin-bottom: 0; }
+    .section ul { padding-left: 22px; margin-bottom: 14px; }
+    .section li { color: #94a3b8; margin-bottom: 8px; font-size: 14.5px; }
+    .section li::marker { color: #f87171; }
+    .danger {
+      background: rgba(239,68,68,.08); border: 1px solid rgba(239,68,68,.25);
+      border-left: 4px solid #ef4444;
+      border-radius: 0 12px 12px 0; padding: 18px 22px; margin: 20px 0;
+      display: flex; gap: 14px; align-items: flex-start;
+    }
+    .danger p { color: #fca5a5; margin: 0; font-size: 14px; line-height: 1.6; }
+    .danger strong { color: #f87171; }
+    .warning {
+      background: rgba(245,158,11,.08); border: 1px solid rgba(245,158,11,.25);
+      border-radius: 12px; padding: 18px 22px; margin: 20px 0;
+    }
+    .warning p { color: #d97706; margin: 0; font-size: 14px; line-height: 1.6; }
+    .warning strong { color: #fbbf24; }
+    /* Risk grid */
+    .risk-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin: 20px 0; }
+    .risk-card {
+      background: #0a1622; border: 1px solid rgba(239,68,68,.12);
+      border-radius: 12px; padding: 20px;
+    }
+    .risk-card h3 { color: #f87171; font-size: 14px; font-weight: 700; margin-bottom: 8px; }
+    .risk-card p { color: #6b8099; font-size: 13px; line-height: 1.6; margin: 0; }
+    footer {
+      border-top: 1px solid rgba(255,255,255,0.06);
+      background: #040710; padding: 32px 24px; text-align: center;
+    }
+    .footer-inner { max-width: 900px; margin: 0 auto; }
+    .footer-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 20px; margin-bottom: 16px; }
+    .footer-links a { color: #6b8099; font-size: 13px; }
+    .footer-links a:hover { color: #fff; }
+    .footer-copy { color: #3a4a60; font-size: 12px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <a href="/" class="logo">
+      <div class="logo-icon">
+        <svg fill="none" viewBox="0 0 24 24" stroke-width="2.5">
+          <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/>
+          <polyline points="16 7 22 7 22 13"/>
+        </svg>
+      </div>
+      <span class="logo-text">TradeX<span> Pro</span></span>
+    </a>
+    <a href="/" class="back-btn">
+      <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path d="M19 12H5M12 19l-7-7 7-7"/>
+      </svg>
+      Back to Home
+    </a>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="badge">⚠ Important Notice</div>
+  <h1>Risk Disclosure Statement</h1>
+  <p>Last updated: <strong>March 15, 2026</strong> &nbsp;·&nbsp; Please read this document carefully before using the Platform.</p>
+</div>
+
+<main class="content">
+
+  <div class="danger">
+    <p>
+      <strong>IMPORTANT DISCLAIMER:</strong> TradeX Pro is a paper-trading simulation platform for educational purposes only.
+      No real money is used. However, the risk disclosures below apply if you use experience gained here to trade real financial
+      markets. <strong>Real trading involves substantial risk of loss.</strong>
+    </p>
+  </div>
+
+  <nav class="toc">
+    <h2>Table of Contents</h2>
+    <ol>
+      <li><a href="#s1">Nature of the Platform</a></li>
+      <li><a href="#s2">General Investment Risk</a></li>
+      <li><a href="#s3">Cryptocurrency Risk</a></li>
+      <li><a href="#s4">Forex &amp; Currency Risk</a></li>
+      <li><a href="#s5">Equity Market Risk</a></li>
+      <li><a href="#s6">Leverage &amp; Margin Risk</a></li>
+      <li><a href="#s7">Automated Trading Bot Risk</a></li>
+      <li><a href="#s8">Technology &amp; Data Risk</a></li>
+      <li><a href="#s9">Regulatory Risk</a></li>
+      <li><a href="#s10">No Financial Advice</a></li>
+    </ol>
+  </nav>
+
+  <div id="s1" class="section">
+    <h2><span class="section-num">01</span> Nature of the Platform</h2>
+    <p>TradeX Pro operates exclusively as a paper trading simulation environment. All trades are executed using virtual funds with no real monetary value. The Platform is designed to help users:</p>
+    <ul>
+      <li>Learn trading concepts and market mechanics in a risk-free environment</li>
+      <li>Practice and test trading strategies without financial consequences</li>
+      <li>Explore automated trading algorithms and backtesting</li>
+      <li>Understand how different asset classes behave in various market conditions</li>
+    </ul>
+    <div class="warning">
+      <p><strong>Simulation Gap:</strong> Trading in a risk-free simulated environment may not fully replicate the emotional and psychological pressures of real trading. Skills developed in paper trading do not guarantee equivalent performance with real capital.</p>
+    </div>
+  </div>
+
+  <div id="s2" class="section">
+    <h2><span class="section-num">02</span> General Investment Risk</h2>
+    <p>All financial markets involve risk. The following general risks apply to real-world trading of any asset class:</p>
+    <div class="risk-grid">
+      <div class="risk-card">
+        <h3>Market Risk</h3>
+        <p>Asset prices can move against your position at any time, resulting in losses up to or exceeding your initial investment.</p>
+      </div>
+      <div class="risk-card">
+        <h3>Liquidity Risk</h3>
+        <p>Some assets may be difficult to buy or sell quickly at a desired price, especially in volatile or thin markets.</p>
+      </div>
+      <div class="risk-card">
+        <h3>Concentration Risk</h3>
+        <p>Holding large positions in a single asset or sector increases exposure to events affecting that specific area.</p>
+      </div>
+      <div class="risk-card">
+        <h3>Counterparty Risk</h3>
+        <p>The risk that the other party in a financial transaction may default on their obligations.</p>
+      </div>
+      <div class="risk-card">
+        <h3>Operational Risk</h3>
+        <p>Technology failures, system outages, or human error can result in failed or incorrect trade execution.</p>
+      </div>
+      <div class="risk-card">
+        <h3>Systemic Risk</h3>
+        <p>Broad market disruptions, economic crises, or geopolitical events can affect all asset classes simultaneously.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="s3" class="section">
+    <h2><span class="section-num">03</span> Cryptocurrency Risk</h2>
+    <p>Cryptocurrencies are highly speculative and volatile assets subject to unique risks not found in traditional markets:</p>
+    <ul>
+      <li><strong style="color:#c8d6e5;">Extreme Volatility:</strong> Cryptocurrency prices can move 20-50% or more within a single day</li>
+      <li><strong style="color:#c8d6e5;">Regulatory Uncertainty:</strong> Government bans, restrictions, or new regulations can severely impact crypto values</li>
+      <li><strong style="color:#c8d6e5;">Exchange Risk:</strong> Centralized exchanges can be hacked, frozen, or go bankrupt, as has occurred historically</li>
+      <li><strong style="color:#c8d6e5;">Technology Risk:</strong> Smart contract bugs, protocol vulnerabilities, or network attacks can cause total loss</li>
+      <li><strong style="color:#c8d6e5;">24/7 Trading:</strong> Markets never close, meaning dramatic price moves can occur overnight without warning</li>
+      <li><strong style="color:#c8d6e5;">No FDIC Protection:</strong> Cryptocurrency holdings are not insured by government deposit protection schemes</li>
+      <li><strong style="color:#c8d6e5;">Irreversible Transactions:</strong> Blockchain transactions generally cannot be reversed, creating risk of permanent loss</li>
+    </ul>
+    <div class="danger">
+      <p>Past cryptocurrency performance is not indicative of future results. Many cryptocurrencies have lost 90%+ of their value and some have gone to zero.</p>
+    </div>
+  </div>
+
+  <div id="s4" class="section">
+    <h2><span class="section-num">04</span> Forex &amp; Currency Risk</h2>
+    <p>Foreign exchange trading involves the simultaneous buying and selling of currency pairs. Key risks include:</p>
+    <ul>
+      <li>Currency pairs can be affected by economic data, central bank decisions, and geopolitical events</li>
+      <li>Forex markets are highly leveraged; small price moves can result in large gains or losses</li>
+      <li>Interest rate differentials between countries can affect carrying costs of positions</li>
+      <li>Currency interventions by central banks can cause sudden, unexpected price moves</li>
+      <li>Emerging market currencies carry additional political and economic instability risk</li>
+    </ul>
+  </div>
+
+  <div id="s5" class="section">
+    <h2><span class="section-num">05</span> Equity Market Risk</h2>
+    <p>Stock trading carries risks including but not limited to:</p>
+    <ul>
+      <li>Company-specific risk from earnings disappointments, management failures, or scandals</li>
+      <li>Sector-wide downturns from industry disruption or regulatory changes</li>
+      <li>Macroeconomic risk from recessions, inflation, or rising interest rates</li>
+      <li>Earnings announcement or news-driven gap events that bypass stop-loss orders</li>
+      <li>Delisting or bankruptcy resulting in complete loss of investment</li>
+    </ul>
+  </div>
+
+  <div id="s6" class="section">
+    <h2><span class="section-num">06</span> Leverage &amp; Margin Risk</h2>
+    <p>The Platform allows simulation of leveraged trading. In real markets, leverage amplifies both gains and losses:</p>
+    <ul>
+      <li>A 10:1 leverage means a 10% adverse move eliminates 100% of your margin</li>
+      <li>Margin calls may force position closure at unfavorable prices</li>
+      <li>Losses can exceed the initial amount deposited when using leverage</li>
+      <li>Higher leverage dramatically increases the probability of total loss</li>
+    </ul>
+    <div class="danger">
+      <p><strong>Leverage Warning:</strong> In real trading, the majority of retail traders who use leverage lose money. The higher the leverage, the greater the probability of significant losses.</p>
+    </div>
+  </div>
+
+  <div id="s7" class="section">
+    <h2><span class="section-num">07</span> Automated Trading Bot Risk</h2>
+    <p>TradeX Pro includes algorithmic trading bots for simulation purposes. If applied to real trading, automated strategies carry additional risks:</p>
+    <ul>
+      <li><strong style="color:#c8d6e5;">Overfitting:</strong> Strategies that perform well in backtesting or simulation may fail in live markets</li>
+      <li><strong style="color:#c8d6e5;">Market Regime Changes:</strong> An algorithm profitable in trending markets may lose in ranging markets</li>
+      <li><strong style="color:#c8d6e5;">Technical Failure:</strong> Server outages or connectivity issues can leave positions unmanaged</li>
+      <li><strong style="color:#c8d6e5;">Data Quality:</strong> Strategies relying on market data can be affected by bad data or delayed feeds</li>
+      <li><strong style="color:#c8d6e5;">Flash Events:</strong> Automated systems can amplify market dislocations during extreme volatility</li>
+    </ul>
+    <p>No trading algorithm guarantees profits. All strategies carry risk of capital loss.</p>
+  </div>
+
+  <div id="s8" class="section">
+    <h2><span class="section-num">08</span> Technology &amp; Data Risk</h2>
+    <p>Technology-related risks on the Platform include:</p>
+    <ul>
+      <li>Market data displayed may be delayed, incomplete, or temporarily inaccurate</li>
+      <li>Internet connectivity issues can disrupt access to the Platform</li>
+      <li>Server downtime may prevent order execution or access to information</li>
+      <li>Price data in the simulation may not exactly match real-world execution prices</li>
+      <li>WebSocket connections may drop, causing gaps in real-time data feeds</li>
+    </ul>
+  </div>
+
+  <div id="s9" class="section">
+    <h2><span class="section-num">09</span> Regulatory Risk</h2>
+    <p>Financial markets are subject to extensive regulation that can change rapidly:</p>
+    <ul>
+      <li>New regulations can restrict or ban trading in specific asset classes</li>
+      <li>Tax laws affecting capital gains, losses, and reporting obligations vary by jurisdiction and can change</li>
+      <li>AML/KYC requirements may impose restrictions on trading activity</li>
+      <li>Cross-border regulations may restrict access to certain markets for users in specific countries</li>
+    </ul>
+    <p>TradeX Pro is not a licensed broker or financial institution and does not provide regulatory compliance advice. Users engaging in real trading should consult qualified legal and financial advisors regarding applicable regulations in their jurisdiction.</p>
+  </div>
+
+  <div id="s10" class="section">
+    <h2><span class="section-num">10</span> No Financial Advice</h2>
+    <p>Nothing on TradeX Pro constitutes investment advice, financial advice, trading advice, or any other form of professional financial guidance. All content is provided for educational and informational purposes only.</p>
+    <p>You should not make any real-world investment decisions based solely on information, strategies, or simulations provided by this Platform. Always conduct your own research and consult with a qualified, licensed financial advisor before investing real money.</p>
+    <div class="warning">
+      <p><strong>Regulatory Note:</strong> TradeX Pro is not regulated by the SEC, FINRA, FCA, or any other financial regulatory body. We are an educational technology platform, not a brokerage service.</p>
+    </div>
+    <p>For questions about this Risk Disclosure, contact us at <a href="mailto:legal@tradexpro.com">legal@tradexpro.com</a>.</p>
+  </div>
+
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-links">
+      <a href="/terms-of-service.html">Terms of Service</a>
+      <a href="/privacy-policy.html">Privacy Policy</a>
+      <a href="/risk-disclosure.html">Risk Disclosure</a>
+      <a href="/cookie-policy.html">Cookie Policy</a>
+    </div>
+    <p class="footer-copy">© 2026 TradeX Pro. All rights reserved. Paper trading platform — for educational purposes only.</p>
+  </div>
+</footer>
+
+</body>
+</html>

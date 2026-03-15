@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Terms of Service — TradeX Pro</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230ea5e9' stroke-width='2.5'><polyline points='22 7 13.5 15.5 8.5 10.5 2 17'/><polyline points='16 7 22 7 22 13'/></svg>" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+      background: #06090f;
+      color: #c8d6e5;
+      line-height: 1.7;
+      font-size: 15px;
+    }
+    a { color: #38bdf8; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── Header ── */
+    header {
+      position: sticky; top: 0; z-index: 50;
+      background: #08111c;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      padding: 0 24px;
+    }
+    .header-inner {
+      max-width: 900px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 60px;
+    }
+    .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .logo-icon {
+      width: 30px; height: 30px; border-radius: 8px;
+      background: linear-gradient(135deg, #0ea5e9, #0369a1);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .logo-icon svg { width: 16px; height: 16px; color: white; stroke: white; }
+    .logo-text { font-weight: 700; font-size: 15px; color: #fff; }
+    .logo-text span { color: #38bdf8; }
+    .back-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      color: #6b8099; font-size: 13px; font-weight: 500;
+      padding: 7px 14px; border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.08);
+      transition: color .15s, border-color .15s;
+    }
+    .back-btn:hover { color: #fff; border-color: rgba(255,255,255,0.2); text-decoration: none; }
+
+    /* ── Hero ── */
+    .hero {
+      background: linear-gradient(180deg, #0b1728 0%, #06090f 100%);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      padding: 64px 24px 48px;
+      text-align: center;
+    }
+    .badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(14,165,233,.1); border: 1px solid rgba(14,165,233,.22);
+      color: #38bdf8; font-size: 11px; font-weight: 700; letter-spacing: .06em;
+      text-transform: uppercase; padding: 4px 12px; border-radius: 99px;
+      margin-bottom: 18px;
+    }
+    .hero h1 { font-size: clamp(28px, 5vw, 42px); font-weight: 800; color: #fff; margin-bottom: 12px; }
+    .hero p { color: #6b8099; font-size: 15px; }
+    .hero p strong { color: #c8d6e5; }
+
+    /* ── Content ── */
+    .content { max-width: 900px; margin: 0 auto; padding: 60px 24px 80px; }
+
+    /* Table of contents */
+    .toc {
+      background: #0c1928; border: 1px solid rgba(14,165,233,.12);
+      border-radius: 14px; padding: 28px 32px; margin-bottom: 52px;
+    }
+    .toc h2 { font-size: 14px; font-weight: 700; color: #38bdf8; text-transform: uppercase; letter-spacing: .07em; margin-bottom: 16px; }
+    .toc ol { padding-left: 20px; }
+    .toc li { margin-bottom: 8px; }
+    .toc a { color: #94a3b8; font-size: 14px; }
+    .toc a:hover { color: #fff; }
+
+    /* Sections */
+    .section { margin-bottom: 52px; }
+    .section:last-child { margin-bottom: 0; }
+    .section h2 {
+      font-size: 22px; font-weight: 700; color: #fff;
+      margin-bottom: 16px; padding-top: 10px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .section-num {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 32px; height: 32px; border-radius: 8px; flex-shrink: 0;
+      background: rgba(14,165,233,.12); color: #38bdf8;
+      font-size: 13px; font-weight: 800;
+    }
+    .section p { color: #94a3b8; margin-bottom: 14px; font-size: 14.5px; }
+    .section p:last-child { margin-bottom: 0; }
+    .section ul { padding-left: 22px; margin-bottom: 14px; }
+    .section li { color: #94a3b8; margin-bottom: 8px; font-size: 14.5px; }
+    .section li::marker { color: #38bdf8; }
+
+    /* Warning box */
+    .warning {
+      background: rgba(245,158,11,.08); border: 1px solid rgba(245,158,11,.25);
+      border-radius: 12px; padding: 18px 22px; margin: 20px 0;
+      display: flex; gap: 14px; align-items: flex-start;
+    }
+    .warning-icon { font-size: 20px; line-height: 1; margin-top: 2px; flex-shrink: 0; }
+    .warning p { color: #d97706; margin: 0; font-size: 14px; line-height: 1.6; }
+    .warning strong { color: #fbbf24; }
+
+    /* Divider */
+    hr { border: none; border-top: 1px solid rgba(255,255,255,0.06); margin: 52px 0; }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid rgba(255,255,255,0.06);
+      background: #040710; padding: 32px 24px; text-align: center;
+    }
+    .footer-inner { max-width: 900px; margin: 0 auto; }
+    .footer-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 20px; margin-bottom: 16px; }
+    .footer-links a { color: #6b8099; font-size: 13px; }
+    .footer-links a:hover { color: #fff; }
+    .footer-copy { color: #3a4a60; font-size: 12px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <a href="/" class="logo">
+      <div class="logo-icon">
+        <svg fill="none" viewBox="0 0 24 24" stroke-width="2.5">
+          <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/>
+          <polyline points="16 7 22 7 22 13"/>
+        </svg>
+      </div>
+      <span class="logo-text">TradeX<span> Pro</span></span>
+    </a>
+    <a href="/" class="back-btn">
+      <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path d="M19 12H5M12 19l-7-7 7-7"/>
+      </svg>
+      Back to Home
+    </a>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="badge">Legal</div>
+  <h1>Terms of Service</h1>
+  <p>Last updated: <strong>March 15, 2026</strong> &nbsp;·&nbsp; Effective date: <strong>January 1, 2026</strong></p>
+</div>
+
+<main class="content">
+
+  <div class="warning">
+    <div class="warning-icon">⚠️</div>
+    <p>
+      <strong>Educational Platform Notice:</strong> TradeX Pro is a paper-trading platform for educational and practice purposes only.
+      No real money transactions occur. All trades use virtual funds. This is not a licensed brokerage and does not constitute financial advice.
+    </p>
+  </div>
+
+  <nav class="toc">
+    <h2>Table of Contents</h2>
+    <ol>
+      <li><a href="#s1">Acceptance of Terms</a></li>
+      <li><a href="#s2">Description of Service</a></li>
+      <li><a href="#s3">Account Registration</a></li>
+      <li><a href="#s4">Virtual Trading &amp; Paper Funds</a></li>
+      <li><a href="#s5">Prohibited Activities</a></li>
+      <li><a href="#s6">Intellectual Property</a></li>
+      <li><a href="#s7">Disclaimer of Warranties</a></li>
+      <li><a href="#s8">Limitation of Liability</a></li>
+      <li><a href="#s9">Indemnification</a></li>
+      <li><a href="#s10">Termination</a></li>
+      <li><a href="#s11">Changes to Terms</a></li>
+      <li><a href="#s12">Contact Information</a></li>
+    </ol>
+  </nav>
+
+  <div id="s1" class="section">
+    <h2><span class="section-num">01</span> Acceptance of Terms</h2>
+    <p>By accessing or using TradeX Pro ("the Platform", "we", "us", or "our"), you agree to be bound by these Terms of Service ("Terms") and all applicable laws and regulations. If you do not agree with any part of these terms, you may not access or use the Platform.</p>
+    <p>These Terms apply to all visitors, users, and others who access or use the Service. Your continued use of the Platform after any changes to these Terms constitutes your acceptance of the new Terms.</p>
+  </div>
+
+  <div id="s2" class="section">
+    <h2><span class="section-num">02</span> Description of Service</h2>
+    <p>TradeX Pro provides a web-based paper trading simulation platform that allows users to practice trading financial instruments including cryptocurrencies, foreign exchange (forex), equities, and other assets using virtual funds.</p>
+    <p>The Platform provides the following services:</p>
+    <ul>
+      <li>Simulated trading environment with real-time or near-real-time market data</li>
+      <li>Portfolio tracking, analytics, and performance reporting</li>
+      <li>Automated trading bots using strategy algorithms (educational purpose)</li>
+      <li>Market data feeds sourced from third-party providers (Binance, Twelve Data)</li>
+      <li>User account management and trade history</li>
+    </ul>
+    <p>The Platform is intended purely for educational purposes to help users learn and practice trading strategies without financial risk.</p>
+  </div>
+
+  <div id="s3" class="section">
+    <h2><span class="section-num">03</span> Account Registration</h2>
+    <p>To access certain features of the Platform, you must register for an account. By registering, you agree to:</p>
+    <ul>
+      <li>Provide accurate, current, and complete information during registration</li>
+      <li>Maintain and promptly update your account information to keep it accurate and complete</li>
+      <li>Maintain the security and confidentiality of your account credentials</li>
+      <li>Notify us immediately of any unauthorized use of your account</li>
+      <li>Accept responsibility for all activities that occur under your account</li>
+    </ul>
+    <p>You must be at least 18 years old (or the age of majority in your jurisdiction) to create an account. We reserve the right to refuse service, terminate accounts, or remove content at our sole discretion.</p>
+  </div>
+
+  <div id="s4" class="section">
+    <h2><span class="section-num">04</span> Virtual Trading &amp; Paper Funds</h2>
+    <p>All trading activity on TradeX Pro is conducted using virtual funds ("Paper Trading"). These virtual funds have no real monetary value and cannot be withdrawn, exchanged for real currency, or used for any real-world financial transactions.</p>
+    <ul>
+      <li>New accounts receive a starting virtual balance of $100,000 USD equivalent</li>
+      <li>Virtual funds exist solely for simulation and educational purposes</li>
+      <li>Virtual gains and losses do not represent actual financial outcomes</li>
+      <li>Past performance in the simulation environment is not indicative of real market results</li>
+      <li>Market data may be delayed, simulated, or approximated and may not reflect actual current market conditions</li>
+    </ul>
+    <div class="warning">
+      <div class="warning-icon">📢</div>
+      <p>Trading real financial instruments involves substantial risk. Skills developed in a simulated environment may not translate to real trading performance. Always consult a licensed financial advisor before making real investment decisions.</p>
+    </div>
+  </div>
+
+  <div id="s5" class="section">
+    <h2><span class="section-num">05</span> Prohibited Activities</h2>
+    <p>You agree not to engage in any of the following activities:</p>
+    <ul>
+      <li>Using the Platform for any unlawful purpose or in violation of any regulations</li>
+      <li>Attempting to gain unauthorized access to any portion or feature of the Platform</li>
+      <li>Interfering with or disrupting the integrity or performance of the Platform</li>
+      <li>Using automated scripts or bots to scrape data beyond normal API usage</li>
+      <li>Impersonating another person or entity</li>
+      <li>Creating multiple accounts to circumvent restrictions or gain advantage</li>
+      <li>Attempting to manipulate the leaderboard or other competitive features through artificial means</li>
+      <li>Reverse engineering, decompiling, or disassembling any portion of the Platform</li>
+    </ul>
+  </div>
+
+  <div id="s6" class="section">
+    <h2><span class="section-num">06</span> Intellectual Property</h2>
+    <p>The Platform and its original content, features, and functionality are and will remain the exclusive property of TradeX Pro and its licensors. The Platform is protected by copyright, trademark, and other laws. Our trademarks and trade dress may not be used in connection with any product or service without the prior written consent of TradeX Pro.</p>
+    <p>Market data provided through the Platform is sourced from third-party providers (Binance, Twelve Data) and remains the property of those respective providers. Use of such data is subject to the terms of those providers.</p>
+  </div>
+
+  <div id="s7" class="section">
+    <h2><span class="section-num">07</span> Disclaimer of Warranties</h2>
+    <p>The Platform is provided on an "AS IS" and "AS AVAILABLE" basis without any warranties of any kind, either express or implied, including but not limited to:</p>
+    <ul>
+      <li>Implied warranties of merchantability or fitness for a particular purpose</li>
+      <li>Warranties regarding the accuracy, completeness, or timeliness of market data</li>
+      <li>Warranties that the Platform will be uninterrupted, error-free, or secure</li>
+      <li>Warranties that defects will be corrected</li>
+    </ul>
+    <p>We do not warrant that the information on the Platform constitutes investment, financial, tax, legal, or other professional advice. The Platform is for educational and entertainment purposes only.</p>
+  </div>
+
+  <div id="s8" class="section">
+    <h2><span class="section-num">08</span> Limitation of Liability</h2>
+    <p>To the maximum extent permitted by applicable law, TradeX Pro shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including but not limited to:</p>
+    <ul>
+      <li>Loss of profits, revenue, data, or goodwill</li>
+      <li>Service interruptions or data loss</li>
+      <li>Any financial decisions made based on information obtained from the Platform</li>
+      <li>Unauthorized access to or alteration of your account data</li>
+    </ul>
+    <p>In no event shall our aggregate liability exceed the greater of $100 USD or the amounts paid by you in the preceding 12 months for use of the Platform (which, since the Platform is free, would be $0).</p>
+  </div>
+
+  <div id="s9" class="section">
+    <h2><span class="section-num">09</span> Indemnification</h2>
+    <p>You agree to defend, indemnify, and hold harmless TradeX Pro and its affiliates, officers, directors, employees, and agents from and against any claims, liabilities, damages, judgments, awards, losses, costs, expenses, or fees (including reasonable attorneys' fees) arising out of or relating to your violation of these Terms or your use of the Platform.</p>
+  </div>
+
+  <div id="s10" class="section">
+    <h2><span class="section-num">10</span> Termination</h2>
+    <p>We may terminate or suspend your account and access to the Platform immediately, without prior notice or liability, for any reason, including without limitation if you breach these Terms.</p>
+    <p>Upon termination, your right to use the Platform will cease immediately. All provisions of these Terms which by their nature should survive termination shall survive, including ownership provisions, warranty disclaimers, indemnity, and limitations of liability.</p>
+    <p>You may terminate your account at any time by contacting us or using the account deletion feature in your profile settings.</p>
+  </div>
+
+  <div id="s11" class="section">
+    <h2><span class="section-num">11</span> Changes to Terms</h2>
+    <p>We reserve the right to modify or replace these Terms at any time at our sole discretion. We will provide notice of significant changes by updating the "last updated" date at the top of this page and, where appropriate, by sending you a notification.</p>
+    <p>Your continued use of the Platform after any changes constitutes your acceptance of the new Terms. If you do not agree to the modified terms, you should discontinue use of the Platform.</p>
+  </div>
+
+  <div id="s12" class="section">
+    <h2><span class="section-num">12</span> Contact Information</h2>
+    <p>If you have any questions about these Terms of Service, please contact us:</p>
+    <ul>
+      <li><strong style="color:#c8d6e5;">Email:</strong> legal@tradexpro.com</li>
+      <li><strong style="color:#c8d6e5;">Address:</strong> TradeX Pro · 123 Financial District · New York, NY 10004</li>
+    </ul>
+    <p>We aim to respond to all legal inquiries within 5 business days.</p>
+  </div>
+
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-links">
+      <a href="/terms-of-service.html">Terms of Service</a>
+      <a href="/privacy-policy.html">Privacy Policy</a>
+      <a href="/risk-disclosure.html">Risk Disclosure</a>
+      <a href="/cookie-policy.html">Cookie Policy</a>
+    </div>
+    <p class="footer-copy">© 2026 TradeX Pro. All rights reserved. Paper trading platform — for educational purposes only.</p>
+  </div>
+</footer>
+
+</body>
+</html>
