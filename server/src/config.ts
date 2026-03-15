@@ -9,4 +9,9 @@ export const config = {
   corsOrigin: process.env.CORS_ORIGIN || 'http://localhost:3000',
   isProd: process.env.NODE_ENV === 'production',
   twelveDataApiKey: process.env.TWELVE_DATA_API_KEY || '',
+  // Supabase
+  supabaseUrl: process.env.SUPABASE_URL || '',
+  supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY || '',
+  supabaseAnonKey: process.env.SUPABASE_ANON_KEY || '',
+  databaseUrl: process.env.DATABASE_URL || '',
 }

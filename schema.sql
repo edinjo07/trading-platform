@@ -1,0 +1,89 @@
+-- ============================================================
+-- TradeX Pro — Supabase Schema
+-- Run this in the Supabase SQL Editor:
+-- https://supabase.com/dashboard/project/tkplwifmstnkecevgbyi/sql
+-- ============================================================
+
+-- ── Users ────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS users (
+  id            UUID          PRIMARY KEY,
+  email         TEXT          UNIQUE NOT NULL,
+  username      TEXT          NOT NULL,
+  password_hash TEXT          NOT NULL,
+  balance       NUMERIC       NOT NULL DEFAULT 100000,
+  created_at    TIMESTAMPTZ   NOT NULL DEFAULT NOW()
+);
+
+-- ── Orders ───────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS orders (
+  id               UUID          PRIMARY KEY,
+  user_id          UUID          NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  symbol           TEXT          NOT NULL,
+  side             TEXT          NOT NULL CHECK (side IN ('buy','sell')),
+  type             TEXT          NOT NULL,
+  status           TEXT          NOT NULL,
+  quantity         NUMERIC       NOT NULL,
+  price            NUMERIC,
+  stop_price       NUMERIC,
+  filled_quantity  NUMERIC       NOT NULL DEFAULT 0,
+  avg_fill_price   NUMERIC,
+  commission       NUMERIC       NOT NULL DEFAULT 0,
+  slippage         NUMERIC       NOT NULL DEFAULT 0,
+  leverage         NUMERIC       NOT NULL DEFAULT 1,
+  take_profit      NUMERIC,
+  stop_loss        NUMERIC,
+  trailing_offset  NUMERIC,
+  time_in_force    TEXT          NOT NULL DEFAULT 'GTC',
+  notes            TEXT,
+  created_at       TIMESTAMPTZ   NOT NULL DEFAULT NOW(),
+  updated_at       TIMESTAMPTZ   NOT NULL DEFAULT NOW(),
+  filled_at        TIMESTAMPTZ
+);
+
+CREATE INDEX IF NOT EXISTS idx_orders_user_id ON orders(user_id);
+CREATE INDEX IF NOT EXISTS idx_orders_status  ON orders(status);
+
+-- ── Portfolios ───────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS portfolios (
+  user_id             UUID        PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+  cash_balance        NUMERIC     NOT NULL DEFAULT 100000,
+  total_market_value  NUMERIC     NOT NULL DEFAULT 0,
+  total_equity        NUMERIC     NOT NULL DEFAULT 100000,
+  unrealized_pnl      NUMERIC     NOT NULL DEFAULT 0,
+  realized_pnl        NUMERIC     NOT NULL DEFAULT 0,
+  today_pnl           NUMERIC     NOT NULL DEFAULT 0,
+  peak_equity         NUMERIC     NOT NULL DEFAULT 100000,
+  drawdown            NUMERIC     NOT NULL DEFAULT 0,
+  positions           JSONB       NOT NULL DEFAULT '[]'::jsonb,
+  updated_at          TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- ── Trade Journal ────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS trade_journal (
+  id                UUID          PRIMARY KEY,
+  user_id           UUID          NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  order_id          UUID,
+  symbol            TEXT          NOT NULL,
+  side              TEXT          NOT NULL CHECK (side IN ('buy','sell')),
+  quantity          NUMERIC       NOT NULL,
+  entry_price       NUMERIC       NOT NULL,
+  exit_price        NUMERIC,
+  pnl               NUMERIC,
+  net_pnl           NUMERIC,
+  pnl_percent       NUMERIC,
+  commission        NUMERIC       NOT NULL DEFAULT 0,
+  opened_at         TIMESTAMPTZ   NOT NULL,
+  closed_at         TIMESTAMPTZ,
+  holding_period_ms BIGINT,
+  asset_class       TEXT
+);
+
+CREATE INDEX IF NOT EXISTS idx_journal_user_id ON trade_journal(user_id);
+
+-- ── Row Level Security (optional — disable for server-side service role) ──
+-- The server uses the service_role key which bypasses RLS automatically.
+-- Enable RLS if you also expose Supabase directly to the client:
+-- ALTER TABLE users        ENABLE ROW LEVEL SECURITY;
+-- ALTER TABLE orders       ENABLE ROW LEVEL SECURITY;
+-- ALTER TABLE portfolios   ENABLE ROW LEVEL SECURITY;
+-- ALTER TABLE trade_journal ENABLE ROW LEVEL SECURITY;

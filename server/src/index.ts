@@ -4,6 +4,8 @@ import cors from 'cors'
 import helmet from 'helmet'
 import { config } from './config'
 import { initWebSocket } from './websocket/wsServer'
+import { loadFromDB } from './services/dbSync'
+import { users, orders, portfolios, tradeJournal, equityCurve } from './services/tradingEngine'
 import authRoutes from './routes/auth'
 import marketsRoutes from './routes/markets'
 import ordersRoutes from './routes/orders'
@@ -49,10 +51,15 @@ app.use((_req, res) => {
 const server = http.createServer(app)
 initWebSocket(server)
 
-server.listen(config.port, () => {
-  console.log(`\n🚀  TradeX Server running on http://localhost:${config.port}`)
-  console.log(`📡  WebSocket ready at ws://localhost:${config.port}/ws`)
-  console.log(`🌍  Environment: ${config.nodeEnv}\n`)
-})
+// Load persisted data from Supabase, then start listening
+loadFromDB({ users, orders, portfolios, tradeJournal, equityCurve })
+  .catch(e => console.error('[DB] Bootstrap failed:', e))
+  .finally(() => {
+    server.listen(config.port, () => {
+      console.log(`\n🚀  TradeX Server running on http://localhost:${config.port}`)
+      console.log(`📡  WebSocket ready at ws://localhost:${config.port}/ws`)
+      console.log(`🌍  Environment: ${config.nodeEnv}\n`)
+    })
+  })
 
 export default app

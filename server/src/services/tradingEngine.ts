@@ -5,6 +5,7 @@ import {
   Portfolio, Position, User, TradeRecord, PerformanceStats, EquityPoint,
 } from '../types'
 import { getLivePrice, getAssetClass } from './mockDataService'
+import { dbSaveUser, dbSaveOrder, dbSavePortfolio } from './dbSync'
 
 // ---------------------------------------------------------------------------
 // Event bus
@@ -15,11 +16,11 @@ tradeEvents.setMaxListeners(100)
 // ---------------------------------------------------------------------------
 // In-memory stores
 // ---------------------------------------------------------------------------
-const users       = new Map<string, User>()
-const orders      = new Map<string, Order>()
-const portfolios  = new Map<string, Portfolio>()
-const tradeJournal= new Map<string, TradeRecord[]>()   // userId -> trade records
-const equityCurve = new Map<string, EquityPoint[]>()   // userId -> equity points
+export const users       = new Map<string, User>()
+export const orders      = new Map<string, Order>()
+export const portfolios  = new Map<string, Portfolio>()
+export const tradeJournal= new Map<string, TradeRecord[]>()   // userId -> trade records
+export const equityCurve = new Map<string, EquityPoint[]>()   // userId -> equity points
 
 // ---------------------------------------------------------------------------
 // Commission schedule (paper trading — mirrors real broker fee structures)
@@ -84,6 +85,9 @@ export function createUser(user: User): void {
   })
   tradeJournal.set(user.id, [])
   equityCurve.set(user.id, [])
+  // Persist to DB (fire-and-forget)
+  dbSaveUser(user).catch(e => console.error('[DB]', e))
+  dbSavePortfolio(user.id, portfolios.get(user.id)!).catch(e => console.error('[DB]', e))
 }
 
 // ---------------------------------------------------------------------------
@@ -286,6 +290,7 @@ export function createOrder(
   }
 
   orders.set(order.id, order)
+  dbSaveOrder(order).catch(e => console.error('[DB]', e))
 
   if (type === 'market') {
     // Simulate realistic fill latency (50-300ms)
@@ -525,6 +530,10 @@ export function executeOrder(orderId: string, overrideFillPrice?: number): void 
 
   // Record equity point
   recordEquityPoint(order.userId, portfolio)
+
+  // Persist to DB (fire-and-forget)
+  dbSaveOrder(order).catch(e => console.error('[DB]', e))
+  dbSavePortfolio(order.userId, portfolio).catch(e => console.error('[DB]', e))
 
   // Emit events
   tradeEvents.emit('orderFill', {
@@ -816,6 +825,7 @@ export function cancelOrder(orderId: string, userId: string): Order {
 
   order.status    = 'cancelled'
   order.updatedAt = new Date().toISOString()
+  dbSaveOrder(order).catch(e => console.error('[DB]', e))
 
   // Remove from watchers
   const idx = watchers.findIndex(w => w.orderId === orderId)
