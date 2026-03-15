@@ -412,4 +412,7 @@ export function injectRealPrice(symbol: string, price: number): void {
 }
 
 // Auto-connect to live market feeds (Binance WS + Twelve Data WS)
-startRealDataFeeds(injectRealPrice)
+// Skipped on Vercel (serverless) — prices are seeded via REST in api/[...path].ts instead
+if (!process.env.VERCEL) {
+  startRealDataFeeds(injectRealPrice)
+}

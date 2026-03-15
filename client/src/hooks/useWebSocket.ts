@@ -3,6 +3,73 @@ import { useTradingStore } from '../store/tradingStore'
 import { useToastStore } from '../store/toastStore'
 import { useAuthStore } from '../store/authStore'
 import { Ticker, OrderBook, Trade, Candle } from '../types'
+import api from '../api/client'
+
+// ---------------------------------------------------------------------------
+// Polling fallback (used when backend has no WebSocket — e.g. Vercel deploy)
+// ---------------------------------------------------------------------------
+function startPolling(
+  getSymbol: () => string | null,
+  mountedRef: React.MutableRefObject<boolean>
+): () => void {
+  const timers: ReturnType<typeof setInterval>[] = []
+  let lastSymbol: string | null = null
+
+  async function fetchTickers() {
+    if (!mountedRef.current) return
+    try {
+      const { data } = await api.get<Ticker[]>('/markets/tickers')
+      if (mountedRef.current) useTradingStore.getState().updateTickers(data)
+    } catch { /* ignore */ }
+  }
+
+  async function fetchOrderBook(symbol: string) {
+    if (!mountedRef.current) return
+    try {
+      const { data } = await api.get<OrderBook>(`/markets/orderbook/${encodeURIComponent(symbol)}?depth=15`)
+      if (mountedRef.current) useTradingStore.getState().updateOrderBook(data)
+    } catch { /* ignore */ }
+  }
+
+  async function fetchTrades(symbol: string) {
+    if (!mountedRef.current) return
+    try {
+      const { data } = await api.get<Trade[]>(`/markets/trades/${encodeURIComponent(symbol)}?count=30`)
+      if (mountedRef.current) useTradingStore.getState().updateRecentTrades(data)
+    } catch { /* ignore */ }
+  }
+
+  async function fetchCandles(symbol: string) {
+    if (!mountedRef.current) return
+    try {
+      const { data } = await api.get<Candle[]>(`/markets/candles/${encodeURIComponent(symbol)}?interval=1h&limit=300`)
+      if (mountedRef.current) useTradingStore.getState().setLiveCandleHistory(data)
+    } catch { /* ignore */ }
+  }
+
+  // Tickers every 2s
+  fetchTickers()
+  timers.push(setInterval(fetchTickers, 2000))
+
+  // Order book + trades every 2s, and fetch candles on symbol change
+  timers.push(setInterval(() => {
+    const sym = getSymbol()
+    if (!sym) return
+    fetchOrderBook(sym)
+    fetchTrades(sym)
+    // Reload candles when symbol changes
+    if (sym !== lastSymbol) {
+      lastSymbol = sym
+      fetchCandles(sym)
+    }
+  }, 2000))
+
+  console.log('[Poll] REST polling started — WebSocket unavailable on this deployment')
+
+  return () => {
+    timers.forEach(clearInterval)
+  }
+}
 
 function buildWsUrl(token?: string | null): string | null {
   // Use explicit WS URL if configured (production backend), otherwise derive from current host
@@ -21,6 +88,7 @@ export function useWebSocket() {
   const wsRef        = useRef<WebSocket | null>(null)
   const reconnectRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const mountedRef   = useRef(true)
+  const stopPollRef  = useRef<(() => void) | null>(null)
 
   // Keep latest values in refs — reading these inside connect() won't cause dep changes
   const tokenRef       = useRef<string | null>(null)
@@ -62,7 +130,10 @@ export function useWebSocket() {
 
     const wsUrl = buildWsUrl(tokenRef.current)
     if (!wsUrl) {
-      console.log('[WS] No backend URL configured — WebSocket disabled')
+      // No WebSocket backend — fall back to REST polling
+      if (!stopPollRef.current) {
+        stopPollRef.current = startPolling(() => selectedSymRef.current, mountedRef)
+      }
       return
     }
     const ws = new WebSocket(wsUrl)
@@ -134,6 +205,7 @@ export function useWebSocket() {
       mountedRef.current = false
       if (reconnectRef.current) clearTimeout(reconnectRef.current)
       if (wsRef.current) { wsRef.current.onclose = null; wsRef.current.close(); wsRef.current = null }
+      if (stopPollRef.current) { stopPollRef.current(); stopPollRef.current = null }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
