@@ -26,7 +26,8 @@ export const useAuthStore = create<AuthState>((set) => ({
       localStorage.setItem('token', token)
       set({ token, user, loading: false })
     } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error ?? 'Login failed'
+      const raw = (err as { response?: { data?: { error?: unknown; message?: unknown } } })?.response?.data
+      const msg = (typeof raw?.error === 'string' ? raw.error : typeof raw?.message === 'string' ? raw.message : null) ?? 'Login failed'
       set({ error: msg, loading: false })
       throw new Error(msg)
     }
@@ -39,7 +40,8 @@ export const useAuthStore = create<AuthState>((set) => ({
       localStorage.setItem('token', token)
       set({ token, user, loading: false })
     } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error ?? 'Registration failed'
+      const raw = (err as { response?: { data?: { error?: unknown; message?: unknown } } })?.response?.data
+      const msg = (typeof raw?.error === 'string' ? raw.error : typeof raw?.message === 'string' ? raw.message : null) ?? 'Registration failed'
       set({ error: msg, loading: false })
       throw new Error(msg)
     }
