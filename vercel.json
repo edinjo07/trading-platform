@@ -1,6 +1,6 @@
 {
   "installCommand": "npm install",
-  "buildCommand": "cd client && npm run build",
+  "buildCommand": "[ -d client ] && cd client && npm run build || npm run build",
   "outputDirectory": "client/dist",
   "functions": {
     "api/[...path].ts": {
