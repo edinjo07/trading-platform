@@ -27,11 +27,29 @@ export async function register(email: string, username: string, password: string
     password,
     options: { data: { username, balance: 100_000 } },
   })
-  if (error || !data.user) throw new Error(error?.message ?? 'Registration failed')
-  // Supabase may require email confirmation — session can be null
-  const session = data.session
-  const token = session?.access_token ?? ''
-  return { token, user: mapUser(data.user) }
+
+  if (error) {
+    // 429 = Supabase email rate limit (3/hr on free plan)
+    if (error.status === 429 || error.message?.toLowerCase().includes('rate limit')) {
+      throw new Error(
+        'Too many sign-up attempts. Please wait a few minutes and try again, ' +
+        'or ask your admin to disable email confirmation in Supabase.'
+      )
+    }
+    throw new Error(error.message ?? 'Registration failed')
+  }
+
+  if (!data.user) throw new Error('Registration failed')
+
+  // If email confirmation is ON, session will be null until user confirms
+  if (!data.session) {
+    throw new Error(
+      'A confirmation email has been sent to ' + email + '. ' +
+      'Please confirm your email before logging in, or disable email confirmation in Supabase Auth settings.'
+    )
+  }
+
+  return { token: data.session.access_token, user: mapUser(data.user) }
 }
 
 export async function fetchMe(): Promise<User> {
