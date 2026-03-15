@@ -8,7 +8,7 @@ export type ColumnDef<T> = {
   render?: (row: T) => React.ReactNode
 }
 
-export interface AdminListPageProps<T extends Record<string, unknown>> {
+export interface AdminListPageProps<T extends object> {
   title: string
   subtitle?: string
   columns: ColumnDef<T>[]
@@ -117,7 +117,7 @@ function Pagination({
 // ─── Main Component ────────────────────────────────────────────────────────────
 const PER_PAGE = 12
 
-export default function AdminListPage<T extends Record<string, unknown>>({
+export default function AdminListPage<T extends object>({
   title,
   subtitle,
   columns,
@@ -143,8 +143,8 @@ export default function AdminListPage<T extends Record<string, unknown>>({
     }
     if (sortKey) {
       d = [...d].sort((a, b) => {
-        const av = String(a[sortKey] ?? '')
-        const bv = String(b[sortKey] ?? '')
+        const av = String((a as Record<string, unknown>)[sortKey] ?? '')
+        const bv = String((b as Record<string, unknown>)[sortKey] ?? '')
         return sortDir === 'asc' ? av.localeCompare(bv) : bv.localeCompare(av)
       })
     }
@@ -257,7 +257,7 @@ export default function AdminListPage<T extends Record<string, unknown>>({
                       <td key={String(col.key)} className="px-5 py-3 text-text-secondary">
                         {col.render
                           ? col.render(row)
-                          : <span className="text-text-primary">{String(row[col.key as string] ?? '—')}</span>
+                          : <span className="text-text-primary">{String((row as Record<string, unknown>)[col.key as string] ?? '—')}</span>
                         }
                       </td>
                     ))}

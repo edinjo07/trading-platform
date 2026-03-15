@@ -41,7 +41,7 @@ export default function AdminStaffsPage() {
       title="Admin & Staff"
       subtitle="Manage administrator and staff accounts with role-based access"
       rowKey={r => r.id}
-      data={data as unknown as Record<string, unknown>[]}
+      data={data}
       columns={[
         { key: 'id',         header: 'Staff ID',   render: r => <span className="font-mono text-brand-300">{String(r.id)}</span> },
         { key: 'name',       header: 'Name',       render: r => <span className="font-semibold text-text-primary">{String(r.name)}</span> },
