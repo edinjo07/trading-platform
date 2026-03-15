@@ -71,7 +71,9 @@ import APIStatusPage from './pages/admin/server-management/APIStatusPage'
 import ServerInfoPage from './pages/admin/server-management/ServerInfoPage'
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
-  const { user, token } = useAuthStore()
+  const { user, token, loading } = useAuthStore()
+  // Still bootstrapping — don't redirect yet
+  if (loading) return null
   if (!token && !user) return <Navigate to="/login" replace />
   return <>{children}</>
 }
