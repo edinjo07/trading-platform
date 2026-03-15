@@ -2,7 +2,7 @@ import express from 'express'
 import http from 'http'
 import cors from 'cors'
 import helmet from 'helmet'
-import { config } from './config'
+import { config, corsOrigins } from './config'
 import { initWebSocket } from './websocket/wsServer'
 import { loadFromDB } from './services/dbSync'
 import { users, orders, portfolios, tradeJournal, equityCurve } from './services/tradingEngine'
@@ -21,7 +21,7 @@ const app = express()
 
 // Middleware
 app.use(helmet())
-app.use(cors({ origin: config.corsOrigin, credentials: true }))
+app.use(cors({ origin: corsOrigins, credentials: true }))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 

@@ -1,12 +1,16 @@
 import dotenv from 'dotenv'
 dotenv.config()
 
+// CORS_ORIGIN may be a comma-separated list of allowed origins
+const rawOrigins = process.env.CORS_ORIGIN || 'http://localhost:3000,http://localhost:5173'
+export const corsOrigins = rawOrigins.split(',').map(o => o.trim()).filter(Boolean)
+
 export const config = {
   port: parseInt(process.env.PORT || '5000', 10),
   jwtSecret: process.env.JWT_SECRET || 'fallback_secret',
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || '7d',
   nodeEnv: process.env.NODE_ENV || 'development',
-  corsOrigin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+  corsOrigin: corsOrigins,
   isProd: process.env.NODE_ENV === 'production',
   twelveDataApiKey: process.env.TWELVE_DATA_API_KEY || '',
   // Supabase
