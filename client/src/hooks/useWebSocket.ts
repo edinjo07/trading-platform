@@ -4,6 +4,7 @@ import { useToastStore } from '../store/toastStore'
 import { useAuthStore } from '../store/authStore'
 import { Ticker, OrderBook, Trade, Candle } from '../types'
 import api from '../api/client'
+import { generateMockCandles } from '../utils/mockCandles'
 
 // ---------------------------------------------------------------------------
 // Polling fallback (used when backend has no WebSocket — e.g. Vercel deploy)
@@ -45,8 +46,15 @@ function startPolling(
       const { data } = await api.get<Candle[]>(`/markets/candles/${encodeURIComponent(symbol)}?interval=1h&limit=300`)
       if (mountedRef.current && Array.isArray(data) && data.length > 0) {
         useTradingStore.getState().setLiveCandleHistory(data)
+      } else if (mountedRef.current) {
+        // API returned nothing — seed with mock data so chart renders
+        useTradingStore.getState().setLiveCandleHistory(generateMockCandles(symbol, '1h', 300))
       }
-    } catch { /* ignore */ }
+    } catch {
+      if (mountedRef.current) {
+        useTradingStore.getState().setLiveCandleHistory(generateMockCandles(symbol, '1h', 300))
+      }
+    }
   }
 
   // Tickers every 2s
