@@ -75,8 +75,8 @@ export const useTradingStore = create<TradingState>((set, get) => ({
 
   loadSymbols: async () => {
     try {
-      const symbols = await getSymbols()
-      set({ symbols })
+      const result = await getSymbols()
+      set({ symbols: Array.isArray(result) ? result : [] })
     } catch {
       set({ error: 'Failed to load symbols' })
     }
@@ -86,8 +86,8 @@ export const useTradingStore = create<TradingState>((set, get) => ({
     const { selectedSymbol, chartInterval } = get()
     set({ loading: true })
     try {
-      const candles = await getCandles(selectedSymbol, chartInterval, 300)
-      set({ candles, loading: false })
+      const result = await getCandles(selectedSymbol, chartInterval, 300)
+      set({ candles: Array.isArray(result) ? result : [], loading: false })
     } catch {
       set({ error: 'Failed to load candles', loading: false })
     }
@@ -95,8 +95,8 @@ export const useTradingStore = create<TradingState>((set, get) => ({
 
   loadOrders: async () => {
     try {
-      const orders = await getOrders()
-      set({ orders })
+      const result = await getOrders()
+      set({ orders: Array.isArray(result) ? result : [] })
     } catch {
       set({ error: 'Failed to load orders' })
     }
@@ -104,8 +104,11 @@ export const useTradingStore = create<TradingState>((set, get) => ({
 
   loadPortfolio: async () => {
     try {
-      const portfolio = await getPortfolio()
-      set({ portfolio })
+      const result = await getPortfolio()
+      // Only set if result looks like a valid portfolio object
+      if (result && typeof result === 'object' && !Array.isArray(result)) {
+        set({ portfolio: result })
+      }
     } catch {
       set({ error: 'Failed to load portfolio' })
     }
@@ -118,7 +121,11 @@ export const useTradingStore = create<TradingState>((set, get) => ({
         getPerformanceStats(),
         getTradeJournal(),
       ])
-      set({ performanceStats, tradeJournal, analyticsLoading: false })
+      set({
+        performanceStats: (performanceStats && typeof performanceStats === 'object' && !Array.isArray(performanceStats)) ? performanceStats : null,
+        tradeJournal: Array.isArray(tradeJournal) ? tradeJournal : [],
+        analyticsLoading: false,
+      })
     } catch {
       set({ error: 'Failed to load analytics', analyticsLoading: false })
     }
@@ -129,9 +136,11 @@ export const useTradingStore = create<TradingState>((set, get) => ({
       const order = await placeOrder(params)
       set((s) => ({ orders: [order, ...s.orders] }))
       setTimeout(async () => {
-        const portfolio = await getPortfolio()
-        const orders = await getOrders()
-        set({ portfolio, orders })
+        try {
+          const [portfolio, orders] = await Promise.all([getPortfolio(), getOrders()])
+          if (portfolio && typeof portfolio === 'object' && !Array.isArray(portfolio)) set({ portfolio })
+          if (Array.isArray(orders)) set({ orders })
+        } catch { /* ignore refresh errors */ }
       }, 700)
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error ?? 'Order failed'
@@ -143,8 +152,10 @@ export const useTradingStore = create<TradingState>((set, get) => ({
   cancelOrder: async (orderId) => {
     try {
       await cancelOrder(orderId)
-      const orders = await getOrders()
-      set({ orders })
+      try {
+        const orders = await getOrders()
+        if (Array.isArray(orders)) set({ orders })
+      } catch { /* ignore refresh error */ }
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error ?? 'Cancel failed'
       set({ error: msg })
@@ -155,8 +166,11 @@ export const useTradingStore = create<TradingState>((set, get) => ({
     try {
       await closePositionApi(symbol)
       setTimeout(async () => {
-        const [portfolio, orders] = await Promise.all([getPortfolio(), getOrders()])
-        set({ portfolio, orders })
+        try {
+          const [portfolio, orders] = await Promise.all([getPortfolio(), getOrders()])
+          if (portfolio && typeof portfolio === 'object' && !Array.isArray(portfolio)) set({ portfolio })
+          if (Array.isArray(orders)) set({ orders })
+        } catch { /* ignore refresh errors */ }
       }, 800)
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error ?? 'Close position failed'
@@ -166,6 +180,7 @@ export const useTradingStore = create<TradingState>((set, get) => ({
   },
 
   updateTickers: (tickers) => {
+    if (!Array.isArray(tickers)) return
     const tickerMap: Record<string, Ticker> = {}
     for (const t of tickers) tickerMap[t.symbol] = t
     set({ tickers: tickerMap })
@@ -176,6 +191,7 @@ export const useTradingStore = create<TradingState>((set, get) => ({
   },
 
   updateRecentTrades: (trades) => {
+    if (!Array.isArray(trades)) return
     set({ recentTrades: trades.slice(0, 80) })
   },
 

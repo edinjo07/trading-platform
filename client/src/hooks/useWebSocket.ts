@@ -4,9 +4,16 @@ import { useToastStore } from '../store/toastStore'
 import { useAuthStore } from '../store/authStore'
 import { Ticker, OrderBook, Trade, Candle } from '../types'
 
-function buildWsUrl(token?: string | null) {
-  const proto = window.location.protocol === 'https:' ? 'wss' : 'ws'
-  const base = `${proto}://${window.location.host}/ws`
+function buildWsUrl(token?: string | null): string | null {
+  // Use explicit WS URL if configured (production backend), otherwise derive from current host
+  const explicit = import.meta.env.VITE_WS_URL
+  if (!explicit && import.meta.env.PROD) {
+    // No backend URL configured in production — WebSocket unavailable
+    return null
+  }
+  const base = explicit
+    ? explicit.replace(/\/$/, '') + '/ws'
+    : `${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}/ws`
   return token ? `${base}?token=${encodeURIComponent(token)}` : base
 }
 
@@ -53,7 +60,12 @@ export function useWebSocket() {
       wsRef.current = null
     }
 
-    const ws = new WebSocket(buildWsUrl(tokenRef.current))
+    const wsUrl = buildWsUrl(tokenRef.current)
+    if (!wsUrl) {
+      console.log('[WS] No backend URL configured — WebSocket disabled')
+      return
+    }
+    const ws = new WebSocket(wsUrl)
     wsRef.current = ws
 
     ws.onopen = () => {
