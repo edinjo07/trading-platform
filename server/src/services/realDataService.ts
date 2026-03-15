@@ -153,9 +153,47 @@ function startTwelveDataFeed(onPrice: PriceCallback, retryMs = 5000): void {
 }
 
 // ---------------------------------------------------------------------------
+// Seed initial prices from Binance REST API so the GBM simulation starts
+// at the real current market price instead of hardcoded basePrice values.
+// ---------------------------------------------------------------------------
+const BINANCE_SEED_SYMBOLS: Record<string, string> = {
+  BTCUSDT: 'BTC/USDT',
+  ETHUSDT: 'ETH/USDT',
+  SOLUSDT: 'SOL/USDT',
+  BNBUSDT: 'BNB/USDT',
+  XRPUSDT: 'XRP/USDT',
+}
+
+export async function seedInitialPrices(onPrice: PriceCallback): Promise<void> {
+  try {
+    const symbols = Object.keys(BINANCE_SEED_SYMBOLS).join(',')
+    const url = `https://api.binance.com/api/v3/ticker/price?symbols=${encodeURIComponent(JSON.stringify(Object.keys(BINANCE_SEED_SYMBOLS)))}`
+    const resp = await fetch(url, { signal: AbortSignal.timeout(8_000) })
+    if (!resp.ok) {
+      console.warn('[Market] Binance price seed HTTP', resp.status)
+      return
+    }
+    const data = await resp.json() as Array<{ symbol: string; price: string }>
+    if (!Array.isArray(data)) return
+    for (const item of data) {
+      const ourSym = BINANCE_SEED_SYMBOLS[item.symbol]
+      const price = parseFloat(item.price)
+      if (ourSym && price > 0) {
+        onPrice(ourSym, price)
+        console.log(`[Market] 🌱 Seeded ${ourSym} = $${price}`)
+      }
+    }
+  } catch (err: any) {
+    console.warn('[Market] Could not seed initial prices:', err?.message ?? err)
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Public entry point
 // ---------------------------------------------------------------------------
 export function startRealDataFeeds(onPrice: PriceCallback): void {
+  // Seed real current prices immediately (async, before WS connects)
+  seedInitialPrices(onPrice).catch(() => {})
   startBinanceFeed(onPrice)
   startTwelveDataFeed(onPrice)
 }

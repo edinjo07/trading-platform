@@ -260,7 +260,8 @@ export function generateCandles(symbol: string, interval: string, limit = 300): 
   if (!p) return []
 
   const now = Math.floor(Date.now() / ms) * ms
-  let price = p.basePrice
+  // Anchor GBM simulation to the current real price (avoids stale basePrice)
+  let price = getLivePrice(symbol)
 
   // Volatility scaled to candle interval
   const annualBars = (252 * 6.5 * 3600 * 1000) / ms
@@ -394,10 +395,20 @@ export function injectRealPrice(symbol: string, price: number): void {
   const p = PARAMS[symbol]
   if (!state || !p || price <= 0) return
   const rounded = round(price, p.priceDecimals)
-  state.price = rounded
+  state.price   = rounded
   state.high24h = Math.max(state.high24h, rounded)
   state.low24h  = Math.min(state.low24h,  rounded)
   // lastTick intentionally NOT updated — GBM still runs for smooth intra-tick movement
+
+  // ── Also update the live 1-minute candle with the real price ──────────────
+  // This ensures the current bar's close always reflects the real market price
+  // even if the GBM ticker hasn't fired yet since the last real tick.
+  const lc = liveCandles[symbol]
+  if (lc) {
+    lc.close = rounded
+    lc.high  = Math.max(lc.high, rounded)
+    lc.low   = Math.min(lc.low,  rounded)
+  }
 }
 
 // Auto-connect to live market feeds (Binance WS + Twelve Data WS)

@@ -153,11 +153,63 @@ async function fetchFromTwelveData(
 }
 
 // ---------------------------------------------------------------------------
+// Binance — crypto OHLCV klines (free REST API, no key required)
+// ---------------------------------------------------------------------------
+const BINANCE_INTERVAL: Record<string, string> = {
+  '1m': '1m',  '3m': '3m',   '5m': '5m',  '15m': '15m', '30m': '30m',
+  '1h': '1h',  '2h': '2h',   '4h': '4h',  '6h': '6h',   '12h': '12h',
+  '1d': '1d',  '1w': '1w',
+  // legacy aliases
+  '1min': '1m', '5min': '5m', '15min': '15m', '30min': '30m', '1day': '1d', '1week': '1w',
+}
+
+function toBinanceSymbol(symbol: string): string | null {
+  // BTC/USDT → BTCUSDT
+  const m = symbol.match(/^([A-Z0-9]+)\/([A-Z0-9]+)$/)
+  return m ? m[1] + m[2] : null
+}
+
+async function fetchFromBinance(
+  symbol: string,
+  interval: string,
+  limit: number,
+): Promise<Candle[] | null> {
+  const binSym = toBinanceSymbol(symbol)
+  if (!binSym) return null
+  const binInterval = BINANCE_INTERVAL[interval] ?? '1h'
+  const url = `https://api.binance.com/api/v3/klines?symbol=${binSym}&interval=${binInterval}&limit=${Math.min(limit, 1000)}`
+  try {
+    const resp = await fetch(url, { signal: AbortSignal.timeout(10_000) })
+    if (!resp.ok) {
+      console.warn(`[Candles] Binance klines HTTP ${resp.status} for ${symbol}`)
+      return null
+    }
+    // Each row: [openTime, open, high, low, close, volume, closeTime, ...]
+    const data = (await resp.json()) as Array<[number, string, string, string, string, string, ...unknown[]]>
+    if (!Array.isArray(data) || data.length === 0) return null
+    return data.map(k => ({
+      time:   Math.floor(k[0] / 1000),
+      open:   parseFloat(k[1]),
+      high:   parseFloat(k[2]),
+      low:    parseFloat(k[3]),
+      close:  parseFloat(k[4]),
+      volume: parseFloat(k[5]),
+    }))
+  } catch (err: any) {
+    console.warn(`[Candles] Binance fetch error for ${symbol}: ${err?.message ?? err}`)
+    return null
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Public API
 // ---------------------------------------------------------------------------
 /**
- * Returns OHLCV candles for the given symbol. Uses real Twelve Data data when
- * available (with in-memory caching), otherwise falls back to mock generator.
+ * Returns real OHLCV candles:
+ *   • Crypto  → Binance REST klines (free, no auth)
+ *   • Stocks  → Twelve Data REST (needs TWELVE_DATA_API_KEY)
+ *   • Forex   → Twelve Data REST (needs TWELVE_DATA_API_KEY)
+ * Falls back to GBM mock simulation if all real sources fail.
  */
 export async function getCandles(
   symbol: string,
@@ -171,9 +223,18 @@ export async function getCandles(
     return cached.candles
   }
 
-  // Crypto candles come from Binance, not Twelve Data — keep mock for those
-  const isCrypto = symbol.includes('/USDT') || symbol.includes('/BTC')
+  const isCrypto = symbol.includes('USDT') || symbol.includes('/BTC')
 
+  // ── Crypto: Binance REST klines ──────────────────────────────────────────
+  if (isCrypto) {
+    const real = await fetchFromBinance(symbol, interval, limit)
+    if (real && real.length > 0) {
+      cache.set(key, { candles: real, fetchedAt: Date.now() })
+      return real
+    }
+  }
+
+  // ── Stocks / Forex: Twelve Data ──────────────────────────────────────────
   if (!isCrypto && config.twelveDataApiKey) {
     const real = await fetchFromTwelveData(symbol, interval, limit)
     if (real && real.length > 0) {
@@ -182,7 +243,7 @@ export async function getCandles(
     }
   }
 
-  // Fallback: mock GBM simulation
+  // ── Fallback: GBM simulation (anchored to current real price) ────────────
   const mock = generateCandles(symbol, interval, limit)
   cache.set(key, { candles: mock, fetchedAt: Date.now() - cacheTtl(interval) + 10_000 })
   return mock

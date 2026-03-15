@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from 'uuid'
 import { EventEmitter } from 'events'
-import { getLivePrice, marketEvents, generateCandles } from './mockDataService'
+import { getLivePrice, marketEvents } from './mockDataService'
+import { getCandles } from './candleService'
 import { createOrder, getPortfolio } from './tradingEngine'
 import { getSentiment, getCachedSentiment } from './newsService'
 import { Candle } from '../types'
@@ -243,8 +244,9 @@ class BotEngine {
     if (bot.status === 'running' || bot.status === 'warming_up')
       throw new Error('Bot is already running')
 
-    this.warmup(bot)
-    bot.status    = bot.warmupBarsCurrent >= bot.warmupBarsNeeded ? 'running' : 'warming_up'
+    // Start in warming_up; attach listener immediately so live candles
+    // accumulate while the async fetch runs in the background
+    bot.status    = 'warming_up'
     bot.startedAt = new Date().toISOString()
     bot.stoppedAt = undefined
 
@@ -257,9 +259,10 @@ class BotEngine {
     bot.slTpHandle  = setInterval(() => this.checkSlTp(bot), 3000)
     bot.dailyHandle = setInterval(() => this.checkDailyReset(bot), 60_000)
 
-    this.log(bot, 'info',
-      `Bot started — ${bot.warmupBarsCurrent}/${bot.warmupBarsNeeded} warmup bars | ` +
-      `event-driven on ${bot.symbol} 1m candle close`)
+    // Fire async warmup — fetches real Binance klines (crypto) or Twelve Data (stocks/forex)
+    this.warmupAsync(bot)
+
+    this.log(bot, 'info', `Bot started — fetching real historical bars for ${bot.symbol}…`)
 
     // Pre-warm news cache so first candle can check sentiment
     if (bot.params.useNewsFilter) {
@@ -286,19 +289,38 @@ class BotEngine {
 
   // ── Warmup ─────────────────────────────────────────────────────────────────
 
-  private warmup(bot: Bot): void {
+  // ── Async warmup — populates priceBuffer from real OHLCV data ──────────────
+  //   Crypto  → Binance REST klines (free, no auth needed)
+  //   Stocks  → Twelve Data REST (TWELVE_DATA_API_KEY env var)
+  //   Fallback → live candles accumulate organically during warming_up
+  private async warmupAsync(bot: Bot): Promise<void> {
+    const barsNeeded = Math.max(bot.warmupBarsNeeded + 20, 100)
     try {
-      const candles = generateCandles(bot.symbol, '1m', Math.max(bot.warmupBarsNeeded + 20, 100))
-      bot.priceBuffer = candles.map((c: Candle) => c.close)
+      const candles = await getCandles(bot.symbol, '1m', barsNeeded)
+      // Bot may have been stopped while the fetch was in-flight
+      if (bot.status === 'stopped' || bot.status === 'error') return
+      if (candles.length === 0) {
+        this.log(bot, 'warn', 'No historical bars returned — accumulating from live candles')
+        return
+      }
+      // Merge: replace buffer with real history; keep any live bars accumulated so far
+      const livePrices = bot.priceBuffer.slice()  // bars collected during the fetch
+      bot.priceBuffer = [...candles.map(c => c.close), ...livePrices].slice(-500)
       bot.warmupBarsCurrent = bot.priceBuffer.length
       if (bot.warmupBarsCurrent >= bot.warmupBarsNeeded) {
-        this.log(bot, 'info', `Warmup complete — loaded ${bot.warmupBarsCurrent} historical bars`)
+        if (bot.status === 'warming_up') bot.status = 'running'
+        this.log(bot, 'info',
+          `✅ Warmup complete — ${candles.length} real bars loaded for ${bot.symbol}` +
+          (bot.symbol.includes('USDT') ? ' (Binance)' : ' (Twelve Data/fallback)'))
+        this.emit(bot)
       } else {
         this.log(bot, 'warn',
-          `Partial warmup: ${bot.warmupBarsCurrent}/${bot.warmupBarsNeeded} bars — collecting live data`)
+          `Partial warmup: ${bot.warmupBarsCurrent}/${bot.warmupBarsNeeded} bars — collecting live candles`)
       }
     } catch (e: any) {
-      this.log(bot, 'warn', `Could not pre-load bars: ${e.message}`)
+      if (bot.status !== 'stopped' && bot.status !== 'error') {
+        this.log(bot, 'warn', `Warmup fetch failed (${e.message}) — bot will warm up from live candles`)
+      }
     }
   }
 
