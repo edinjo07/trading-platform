@@ -6,7 +6,11 @@ import { formatPrice, formatCurrency } from '../../utils/formatters'
 
 const TICKER_SYMBOLS = ['BTC/USDT', 'ETH/USDT', 'SOL/USDT', 'AAPL', 'NVDA', 'TSLA', 'EUR/USD', 'GBP/USD', 'AMZN', 'META']
 
-export default function Header() {
+interface HeaderProps {
+  onMenuClick: () => void
+}
+
+export default function Header({ onMenuClick }: HeaderProps) {
   const { selectedSymbol, tickers, setSelectedSymbol, symbols } = useTradingStore()
   const { user, logout } = useAuthStore()
   const navigate = useNavigate()
@@ -41,13 +45,26 @@ export default function Header() {
 
   return (
     <header
-      className="flex items-center gap-3 px-4 shrink-0"
+      className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 shrink-0"
       style={{
         background: '#080e1a',
         borderBottom: '1px solid rgba(255,255,255,0.05)',
         height: '56px',
       }}
     >
+      {/* ── Hamburger (mobile/tablet only) ── */}
+      <button
+        onClick={onMenuClick}
+        className="lg:hidden flex items-center justify-center w-9 h-9 rounded-lg shrink-0 text-text-secondary hover:text-white hover:bg-white/[0.06] transition-all"
+        aria-label="Open menu"
+      >
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <line x1="3" y1="6" x2="21" y2="6" />
+          <line x1="3" y1="12" x2="21" y2="12" />
+          <line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      </button>
+
       {/* ── Symbol search ── */}
       <div ref={searchRef} className="relative">
         <div

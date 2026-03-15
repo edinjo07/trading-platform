@@ -272,3 +272,18 @@
   0%, 100% { transform: translateY(-20px); opacity: 1;    }
   50%       { transform: translateY(14px);  opacity: 0.75; }
 }
+
+/* ── Sidebar responsive ─────────────────────────────────────────────────────
+   On desktop (lg+), override the fixed/translate positioning used for the
+   mobile drawer so the sidebar sits naturally in the flex flow.           */
+@media (min-width: 1024px) {
+  .sidebar-aside {
+    position: relative !important;
+    transform: none !important;
+    z-index: auto !important;
+    top: auto !important;
+    left: auto !important;
+    bottom: auto !important;
+    box-shadow: none !important;
+  }
+}
