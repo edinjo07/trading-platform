@@ -5,7 +5,7 @@ import { getOrders, placeOrder, cancelOrder, PlaceOrderParams } from '../api/ord
 import { getPortfolio } from '../api/portfolio'
 import { getPerformanceStats, getTradeJournal } from '../api/analytics'
 import { closePositionApi } from '../api/positions'
-import { generateMockCandles } from '../utils/mockCandles'
+import { generateMockCandles, generateMockSymbols } from '../utils/mockCandles'
 
 interface TradingState {
   // Symbols
@@ -77,9 +77,14 @@ export const useTradingStore = create<TradingState>((set, get) => ({
   loadSymbols: async () => {
     try {
       const result = await getSymbols()
-      set({ symbols: Array.isArray(result) ? result : [] })
+      if (Array.isArray(result) && result.length > 0) {
+        set({ symbols: result })
+      } else {
+        // API unavailable — fall back to built-in symbol catalogue
+        set({ symbols: generateMockSymbols() })
+      }
     } catch {
-      set({ error: 'Failed to load symbols' })
+      set({ symbols: generateMockSymbols() })
     }
   },
 

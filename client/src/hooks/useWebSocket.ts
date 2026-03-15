@@ -4,7 +4,7 @@ import { useToastStore } from '../store/toastStore'
 import { useAuthStore } from '../store/authStore'
 import { Ticker, OrderBook, Trade, Candle } from '../types'
 import api from '../api/client'
-import { generateMockCandles, generateMockOrderBook, generateMockTrades } from '../utils/mockCandles'
+import { generateMockCandles, generateMockOrderBook, generateMockTrades, generateMockTickers } from '../utils/mockCandles'
 
 // ---------------------------------------------------------------------------
 // Polling fallback (used when backend has no WebSocket — e.g. Vercel deploy)
@@ -20,8 +20,14 @@ function startPolling(
     if (!mountedRef.current) return
     try {
       const { data } = await api.get<Ticker[]>('/markets/tickers')
-      if (mountedRef.current) useTradingStore.getState().updateTickers(data)
-    } catch { /* ignore */ }
+      if (mountedRef.current && Array.isArray(data) && data.length > 0) {
+        useTradingStore.getState().updateTickers(data)
+      } else if (mountedRef.current) {
+        useTradingStore.getState().updateTickers(generateMockTickers())
+      }
+    } catch {
+      if (mountedRef.current) useTradingStore.getState().updateTickers(generateMockTickers())
+    }
   }
 
   async function fetchOrderBook(symbol: string) {

@@ -1,4 +1,4 @@
-import { Candle, OrderBook, OrderBookEntry, Trade } from '../types'
+import { Candle, OrderBook, OrderBookEntry, Trade, MarketSymbol, Ticker } from '../types'
 
 // Base prices for common symbols
 const BASE_PRICES: Record<string, number> = {
@@ -95,7 +95,7 @@ export function generateMockOrderBook(symbol: string, levels = 15): OrderBook {
   }
 }
 
-/** Generate a list of recent trades for any symbol. */
+/** Generate mock trades for any symbol. */
 export function generateMockTrades(symbol: string, count = 30): Trade[] {
   const base = BASE_PRICES[symbol] ?? 100
   const trades: Trade[] = []
@@ -114,4 +114,72 @@ export function generateMockTrades(symbol: string, count = 30): Trade[] {
     })
   }
   return trades
+}
+
+// ---------------------------------------------------------------------------
+// Static symbol catalogue (used as fallback when API /markets/symbols fails)
+// ---------------------------------------------------------------------------
+const SYMBOL_META: {
+  symbol: string; name: string; assetClass: 'crypto' | 'stock' | 'forex'
+  base: string; quote: string
+}[] = [
+  { symbol: 'BTC/USDT',  name: 'Bitcoin',        assetClass: 'crypto', base: 'BTC',  quote: 'USDT' },
+  { symbol: 'ETH/USDT',  name: 'Ethereum',        assetClass: 'crypto', base: 'ETH',  quote: 'USDT' },
+  { symbol: 'SOL/USDT',  name: 'Solana',          assetClass: 'crypto', base: 'SOL',  quote: 'USDT' },
+  { symbol: 'BNB/USDT',  name: 'BNB',             assetClass: 'crypto', base: 'BNB',  quote: 'USDT' },
+  { symbol: 'XRP/USDT',  name: 'XRP',             assetClass: 'crypto', base: 'XRP',  quote: 'USDT' },
+  { symbol: 'AAPL',      name: 'Apple Inc.',       assetClass: 'stock',  base: 'AAPL', quote: 'USD'  },
+  { symbol: 'TSLA',      name: 'Tesla Inc.',       assetClass: 'stock',  base: 'TSLA', quote: 'USD'  },
+  { symbol: 'NVDA',      name: 'NVIDIA Corp.',     assetClass: 'stock',  base: 'NVDA', quote: 'USD'  },
+  { symbol: 'MSFT',      name: 'Microsoft Corp.',  assetClass: 'stock',  base: 'MSFT', quote: 'USD'  },
+  { symbol: 'GOOGL',     name: 'Alphabet Inc.',    assetClass: 'stock',  base: 'GOOGL',quote: 'USD'  },
+  { symbol: 'AMZN',      name: 'Amazon.com Inc.',  assetClass: 'stock',  base: 'AMZN', quote: 'USD'  },
+  { symbol: 'META',      name: 'Meta Platforms',   assetClass: 'stock',  base: 'META', quote: 'USD'  },
+  { symbol: 'EUR/USD',   name: 'Euro / US Dollar', assetClass: 'forex',  base: 'EUR',  quote: 'USD'  },
+  { symbol: 'GBP/USD',   name: 'British Pound',    assetClass: 'forex',  base: 'GBP',  quote: 'USD'  },
+  { symbol: 'USD/JPY',   name: 'US Dollar / Yen',  assetClass: 'forex',  base: 'USD',  quote: 'JPY'  },
+  { symbol: 'USD/CHF',   name: 'US Dollar / CHF',  assetClass: 'forex',  base: 'USD',  quote: 'CHF'  },
+  { symbol: 'AUD/USD',   name: 'Australian Dollar',assetClass: 'forex',  base: 'AUD',  quote: 'USD'  },
+  { symbol: 'USD/CAD',   name: 'US Dollar / CAD',  assetClass: 'forex',  base: 'USD',  quote: 'CAD'  },
+  { symbol: 'NZD/USD',   name: 'New Zealand Dollar',assetClass: 'forex', base: 'NZD',  quote: 'USD'  },
+  { symbol: 'EUR/GBP',   name: 'Euro / GBP',       assetClass: 'forex',  base: 'EUR',  quote: 'GBP'  },
+  { symbol: 'EUR/JPY',   name: 'Euro / Yen',       assetClass: 'forex',  base: 'EUR',  quote: 'JPY'  },
+  { symbol: 'GBP/JPY',   name: 'British Pound / Yen',assetClass: 'forex',base: 'GBP',  quote: 'JPY'  },
+]
+
+/** Full list of symbols used as fallback when the API is unreachable. */
+export function generateMockSymbols(): MarketSymbol[] {
+  return SYMBOL_META.map(m => ({
+    symbol: m.symbol,
+    name: m.name,
+    assetClass: m.assetClass,
+    baseAsset: m.base,
+    quoteAsset: m.quote,
+  }))
+}
+
+/** Generate mock tickers for all symbols (used when /markets/tickers returns nothing). */
+export function generateMockTickers(): Ticker[] {
+  return SYMBOL_META.map(m => {
+    const base = BASE_PRICES[m.symbol] ?? 100
+    const noise = 1 + (Math.random() - 0.5) * 0.004
+    const price = +(base * noise).toFixed(base > 100 ? 2 : 5)
+    const changePct = +(((Math.random() - 0.48) * 4)).toFixed(2)
+    const change = +(price * changePct / 100).toFixed(base > 100 ? 2 : 5)
+    const high24h = +(price * (1 + Math.random() * 0.015)).toFixed(base > 100 ? 2 : 5)
+    const low24h  = +(price * (1 - Math.random() * 0.015)).toFixed(base > 100 ? 2 : 5)
+    const volume24h = +(base * (500 + Math.random() * 1000)).toFixed(2)
+    return {
+      symbol: m.symbol,
+      price,
+      change,
+      changePercent: changePct,
+      high24h,
+      low24h,
+      volume24h,
+      timestamp: Date.now(),
+      bid: +(price * 0.9998).toFixed(base > 100 ? 2 : 5),
+      ask: +(price * 1.0002).toFixed(base > 100 ? 2 : 5),
+    }
+  })
 }
