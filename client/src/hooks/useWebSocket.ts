@@ -94,6 +94,12 @@ function startPolling(
   runSymbolFetch()
   timers.push(setInterval(runSymbolFetch, 2000))
 
+  // Portfolio every 5s so Cash Available stays current without WebSocket
+  useTradingStore.getState().loadPortfolio()
+  timers.push(setInterval(() => {
+    if (mountedRef.current) useTradingStore.getState().loadPortfolio()
+  }, 5000))
+
   console.log('[Poll] REST polling started — WebSocket unavailable on this deployment')
 
   return () => {

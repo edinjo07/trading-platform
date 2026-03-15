@@ -193,7 +193,8 @@ export default function OrderForm() {
     if (type === 'stop_limit' && (!stopPrice || parseFloat(stopPrice) <= 0)) { setError('Enter a valid stop trigger price'); return }
     if (type === 'stop_limit' && (!limitPriceForStop || parseFloat(limitPriceForStop) <= 0)) { setError('Enter a valid limit price for stop-limit'); return }
     if (type === 'trailing_stop' && (!trailingOffset || parseFloat(trailingOffset) <= 0 || parseFloat(trailingOffset) > 50)) { setError('Enter trailing offset between 0.01% and 50%'); return }
-    if (side === 'buy' && type === 'market' && marginRequired > cash) { setError('Insufficient cash / margin balance'); return }
+    // Only block client-side when portfolio is loaded; if null, let the server validate
+    if (portfolio !== null && side === 'buy' && type === 'market' && marginRequired > cash) { setError('Insufficient cash / margin balance'); return }
     if (side === 'sell' && leverage <= 1 && !position) { setError('No position to sell'); return }
 
     setSubmitting(true)
