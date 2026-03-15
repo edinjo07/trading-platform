@@ -4,7 +4,7 @@ import { useToastStore } from '../store/toastStore'
 import { useAuthStore } from '../store/authStore'
 import { Ticker, OrderBook, Trade, Candle } from '../types'
 import api from '../api/client'
-import { generateMockCandles } from '../utils/mockCandles'
+import { generateMockCandles, generateMockOrderBook, generateMockTrades } from '../utils/mockCandles'
 
 // ---------------------------------------------------------------------------
 // Polling fallback (used when backend has no WebSocket — e.g. Vercel deploy)
@@ -28,16 +28,28 @@ function startPolling(
     if (!mountedRef.current) return
     try {
       const { data } = await api.get<OrderBook>(`/markets/orderbook/${encodeURIComponent(symbol)}?depth=15`)
-      if (mountedRef.current) useTradingStore.getState().updateOrderBook(data)
-    } catch { /* ignore */ }
+      if (mountedRef.current && data && Array.isArray(data.bids) && data.bids.length > 0) {
+        useTradingStore.getState().updateOrderBook(data)
+      } else if (mountedRef.current) {
+        useTradingStore.getState().updateOrderBook(generateMockOrderBook(symbol))
+      }
+    } catch {
+      if (mountedRef.current) useTradingStore.getState().updateOrderBook(generateMockOrderBook(symbol))
+    }
   }
 
   async function fetchTrades(symbol: string) {
     if (!mountedRef.current) return
     try {
       const { data } = await api.get<Trade[]>(`/markets/trades/${encodeURIComponent(symbol)}?count=30`)
-      if (mountedRef.current) useTradingStore.getState().updateRecentTrades(data)
-    } catch { /* ignore */ }
+      if (mountedRef.current && Array.isArray(data) && data.length > 0) {
+        useTradingStore.getState().updateRecentTrades(data)
+      } else if (mountedRef.current) {
+        useTradingStore.getState().updateRecentTrades(generateMockTrades(symbol))
+      }
+    } catch {
+      if (mountedRef.current) useTradingStore.getState().updateRecentTrades(generateMockTrades(symbol))
+    }
   }
 
   async function fetchCandles(symbol: string) {
@@ -62,17 +74,19 @@ function startPolling(
   timers.push(setInterval(fetchTickers, 2000))
 
   // Order book + trades every 2s, and fetch candles on symbol change
-  timers.push(setInterval(() => {
+  const runSymbolFetch = () => {
     const sym = getSymbol()
     if (!sym) return
     fetchOrderBook(sym)
     fetchTrades(sym)
-    // Reload candles when symbol changes
     if (sym !== lastSymbol) {
       lastSymbol = sym
       fetchCandles(sym)
     }
-  }, 2000))
+  }
+  // Fire immediately so data appears right away, then repeat
+  runSymbolFetch()
+  timers.push(setInterval(runSymbolFetch, 2000))
 
   console.log('[Poll] REST polling started — WebSocket unavailable on this deployment')
 

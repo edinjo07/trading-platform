@@ -1,4 +1,4 @@
-import { Candle } from '../types'
+import { Candle, OrderBook, OrderBookEntry, Trade } from '../types'
 
 // Base prices for common symbols
 const BASE_PRICES: Record<string, number> = {
@@ -54,4 +54,64 @@ export function generateMockCandles(symbol: string, interval: string, count = 30
     price = close
   }
   return candles
+}
+
+/** Generate a realistic-looking order book for any symbol. */
+export function generateMockOrderBook(symbol: string, levels = 15): OrderBook {
+  const base = BASE_PRICES[symbol] ?? 100
+  const tickSize = base > 1000 ? 1 : base > 10 ? 0.01 : base > 1 ? 0.001 : 0.0001
+  const spread = tickSize * 2
+
+  const bids: OrderBookEntry[] = []
+  const asks: OrderBookEntry[] = []
+
+  let midPrice = base * (1 + (Math.random() - 0.5) * 0.001)
+  let bidTotal = 0
+  let askTotal = 0
+
+  for (let i = 0; i < levels; i++) {
+    const bidPrice = +(midPrice - spread / 2 - i * tickSize * (1 + Math.random())).toFixed(
+      base > 100 ? 2 : 5
+    )
+    const bidSize = +(0.1 + Math.random() * (base > 1000 ? 0.5 : 50)).toFixed(4)
+    bidTotal += bidSize
+    bids.push({ price: bidPrice, size: bidSize, total: +bidTotal.toFixed(4) })
+
+    const askPrice = +(midPrice + spread / 2 + i * tickSize * (1 + Math.random())).toFixed(
+      base > 100 ? 2 : 5
+    )
+    const askSize = +(0.1 + Math.random() * (base > 1000 ? 0.5 : 50)).toFixed(4)
+    askTotal += askSize
+    asks.push({ price: askPrice, size: askSize, total: +askTotal.toFixed(4) })
+  }
+
+  return {
+    symbol,
+    bids,
+    asks,
+    timestamp: Date.now(),
+    spread: +(asks[0].price - bids[0].price).toFixed(base > 100 ? 2 : 5),
+    midPrice: +midPrice.toFixed(base > 100 ? 2 : 5),
+  }
+}
+
+/** Generate a list of recent trades for any symbol. */
+export function generateMockTrades(symbol: string, count = 30): Trade[] {
+  const base = BASE_PRICES[symbol] ?? 100
+  const trades: Trade[] = []
+  let price = base * (1 + (Math.random() - 0.5) * 0.002)
+  const now = Date.now()
+
+  for (let i = count - 1; i >= 0; i--) {
+    price = price * (1 + (Math.random() - 0.5) * 0.0005)
+    trades.push({
+      id: `mock-${now}-${i}`,
+      symbol,
+      price: +price.toFixed(base > 100 ? 2 : 5),
+      size: +(0.01 + Math.random() * (base > 1000 ? 0.2 : 20)).toFixed(4),
+      side: Math.random() > 0.5 ? 'buy' : 'sell',
+      timestamp: now - i * 3000,
+    })
+  }
+  return trades
 }
