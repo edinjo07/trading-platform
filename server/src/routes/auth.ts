@@ -8,7 +8,7 @@ const router = Router()
 router.post('/login', async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body
-    if (!email || !password) {
+    if (typeof email !== 'string' || typeof password !== 'string' || !email || !password) {
       return res.status(400).json({ error: 'Email and password required' })
     }
     const sbRes = await fetch(`${config.supabaseUrl}/auth/v1/token?grant_type=password`, {
@@ -29,7 +29,7 @@ router.post('/login', async (req: Request, res: Response) => {
 router.post('/register', async (req: Request, res: Response) => {
   try {
     const { email, username, password } = req.body
-    if (!email || !username || !password) return res.status(400).json({ error: 'All fields are required' })
+    if (typeof email !== 'string' || typeof username !== 'string' || typeof password !== 'string' || !email || !username || !password) return res.status(400).json({ error: 'All fields are required' })
     if (password.length < 6) return res.status(400).json({ error: 'Password must be at least 6 characters' })
     const sbRes = await fetch(`${config.supabaseUrl}/auth/v1/signup`, {
       method: 'POST',
