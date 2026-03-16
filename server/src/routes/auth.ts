@@ -2,11 +2,38 @@ import { Router, Request, Response } from 'express'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { v4 as uuidv4 } from 'uuid'
-import { createClient } from '@supabase/supabase-js'
 import { config } from '../config'
 import { createUser, getUserByEmail, getUserById } from '../services/tradingEngine'
 import { authenticate, AuthRequest } from '../middleware/auth'
-import { dbSaveUser, dbGetUserById } from '../services/dbSync'
+import { dbSaveUser, dbGetUserById, dbGetUserByEmail } from '../services/dbSync'
+
+// Authenticate via Supabase Auth REST API — no SDK import needed
+async function supabaseSignIn(email: string, password: string): Promise<{ id: string; email: string; username?: string; createdAt: string } | null> {
+  try {
+    const res = await fetch(
+      `${config.supabaseUrl}/auth/v1/token?grant_type=password`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': config.supabaseAnonKey,
+        },
+        body: JSON.stringify({ email, password }),
+      }
+    )
+    if (!res.ok) return null
+    const data = await res.json() as { user?: { id: string; email: string; created_at: string; user_metadata?: { username?: string } } }
+    if (!data.user) return null
+    return {
+      id: data.user.id,
+      email: data.user.email,
+      username: data.user.user_metadata?.username,
+      createdAt: data.user.created_at,
+    }
+  } catch {
+    return null
+  }
+}
 
 const router = Router()
 
@@ -63,33 +90,32 @@ router.post('/login', async (req: Request, res: Response) => {
     let skipPasswordCheck = false
 
     if (!user) {
-      // Fallback: try Supabase Auth (for accounts created before custom auth was introduced)
-      try {
-        const sbClient = createClient(config.supabaseUrl, config.supabaseAnonKey)
-        const { data, error } = await sbClient.auth.signInWithPassword({
-          email: email.toLowerCase().trim(),
-          password,
-        })
-        if (!error && data.user) {
-          // Migrate user into custom auth system
-          const passwordHash = await bcrypt.hash(password, 12)
-          const migrated = {
-            id: data.user.id,
-            email: (data.user.email ?? email).toLowerCase().trim(),
-            username:
-              (data.user.user_metadata?.username as string | undefined) ??
-              email.split('@')[0],
-            passwordHash,
-            createdAt: data.user.created_at ?? new Date().toISOString(),
-            balance: 100_000,
-          }
-          createUser(migrated)
-          dbSaveUser(migrated).catch(e => console.error('[DB] migrate user:', e))
-          user = migrated
-          skipPasswordCheck = true
+      // Cold-start: in-memory map may be empty — try loading from custom DB table first
+      const dbUser = await dbGetUserByEmail(email.toLowerCase().trim())
+      if (dbUser) {
+        createUser(dbUser) // re-hydrate memory
+        user = dbUser
+      }
+    }
+
+    if (!user) {
+      // Last resort: account may only exist in Supabase Auth (registered before custom auth)
+      const sbUser = await supabaseSignIn(email.toLowerCase().trim(), password)
+      if (sbUser) {
+        // Migrate into custom auth system so future logins are instant
+        const passwordHash = await bcrypt.hash(password, 12)
+        const migrated = {
+          id: sbUser.id,
+          email: sbUser.email.toLowerCase(),
+          username: sbUser.username ?? email.split('@')[0],
+          passwordHash,
+          createdAt: sbUser.createdAt ?? new Date().toISOString(),
+          balance: 100_000,
         }
-      } catch {
-        // Supabase fallback failed — continue to standard 401 below
+        createUser(migrated)
+        dbSaveUser(migrated).catch(e => console.error('[DB] migrate user:', e))
+        user = migrated
+        skipPasswordCheck = true
       }
     }
 
