@@ -1,4 +1,4 @@
-import { supabase } from '../lib/supabase'
+import api from './client'
 import { User } from '../types'
 
 export interface AuthResponse {
@@ -6,58 +6,21 @@ export interface AuthResponse {
   user: User
 }
 
-function mapUser(sbUser: { id: string; email?: string; user_metadata?: Record<string, unknown> }): User {
-  return {
-    id: sbUser.id,
-    email: sbUser.email ?? '',
-    username: (sbUser.user_metadata?.username as string | undefined) ?? sbUser.email?.split('@')[0] ?? 'Trader',
-    balance: (sbUser.user_metadata?.balance as number | undefined) ?? 100_000,
-  }
-}
-
 export async function login(email: string, password: string): Promise<AuthResponse> {
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-  if (error || !data.session) throw new Error(error?.message ?? 'Login failed')
-  return { token: data.session.access_token, user: mapUser(data.user) }
+  const { data } = await api.post<AuthResponse>('/auth/login', { email, password })
+  return data
 }
 
 export async function register(email: string, username: string, password: string): Promise<AuthResponse> {
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: { data: { username, balance: 100_000 } },
-  })
-
-  if (error) {
-    // 429 = Supabase email rate limit (3/hr on free plan)
-    if (error.status === 429 || error.message?.toLowerCase().includes('rate limit')) {
-      throw new Error(
-        'Too many sign-up attempts. Please wait a few minutes and try again, ' +
-        'or ask your admin to disable email confirmation in Supabase.'
-      )
-    }
-    throw new Error(error.message ?? 'Registration failed')
-  }
-
-  if (!data.user) throw new Error('Registration failed')
-
-  // If email confirmation is ON, session will be null until user confirms
-  if (!data.session) {
-    throw new Error(
-      'A confirmation email has been sent to ' + email + '. ' +
-      'Please confirm your email before logging in, or disable email confirmation in Supabase Auth settings.'
-    )
-  }
-
-  return { token: data.session.access_token, user: mapUser(data.user) }
+  const { data } = await api.post<AuthResponse>('/auth/register', { email, username, password })
+  return data
 }
 
 export async function fetchMe(): Promise<User> {
-  const { data: { user }, error } = await supabase.auth.getUser()
-  if (error || !user) throw new Error('Not authenticated')
-  return mapUser(user)
+  const { data } = await api.get<User>('/auth/me')
+  return data
 }
 
 export async function signOut(): Promise<void> {
-  await supabase.auth.signOut()
+  // JWT is stateless — clearing localStorage on the client is sufficient
 }
