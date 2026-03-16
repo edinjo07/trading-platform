@@ -1,12 +1,31 @@
 import http from 'http'
+import https from 'https'
+import fs from 'fs'
 import { config } from './config'
 import app from './app'
 import { initWebSocket } from './websocket/wsServer'
 import { loadFromDB } from './services/dbSync'
 import { users, orders, portfolios, tradeJournal, equityCurve } from './services/tradingEngine'
 
-// Create HTTP server and attach WebSocket
-const server = http.createServer(app)
+// Use HTTPS when SSL cert/key are provided via environment variables.
+// In production, TLS is terminated by the hosting platform (Vercel/Railway)
+// and this file is not used — HTTPS here is for self-hosted / staging deployments.
+const sslKeyPath  = process.env.SSL_KEY_FILE
+const sslCertPath = process.env.SSL_CERT_FILE
+
+let server: http.Server | https.Server
+if (sslKeyPath && sslCertPath) {
+  const sslOptions = {
+    key:  fs.readFileSync(sslKeyPath),
+    cert: fs.readFileSync(sslCertPath),
+  }
+  server = https.createServer(sslOptions, app)
+} else {
+  if (config.nodeEnv === 'production') {
+    console.warn('[WARN] SSL_KEY_FILE / SSL_CERT_FILE not set — falling back to HTTP. Ensure TLS is terminated by the platform.')
+  }
+  server = http.createServer(app)
+}
 initWebSocket(server)
 
 // Load persisted data from Supabase, then start listening
