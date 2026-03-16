@@ -5,6 +5,7 @@ import {
   getAllTickers,
   generateOrderBook,
   generateRecentTrades,
+  tickSymbol,
 } from '../services/mockDataService'
 import { getCandles } from '../services/candleService'
 
@@ -20,7 +21,11 @@ router.get('/symbols', (_req: Request, res: Response) => {
 })
 
 // GET /api/markets/tickers
+// Each poll advances the GBM simulation so prices move between requests
 router.get('/tickers', (_req: Request, res: Response) => {
+  for (const sym of SYMBOLS) {
+    try { tickSymbol(sym.symbol) } catch { /* ignore unknown */ }
+  }
   return res.json(getAllTickers())
 })
 
@@ -56,6 +61,8 @@ router.get('/orderbook/:symbol', (req: Request, res: Response) => {
     return res.status(404).json({ error: 'Symbol not found' })
   }
 
+  // Tick the symbol so the order book reflects the latest GBM price
+  try { tickSymbol(symbol) } catch { /* ignore */ }
   return res.json(generateOrderBook(symbol, depth))
 })
 
@@ -68,6 +75,7 @@ router.get('/trades/:symbol', (req: Request, res: Response) => {
     return res.status(404).json({ error: 'Symbol not found' })
   }
 
+  try { tickSymbol(symbol) } catch { /* ignore */ }
   return res.json(generateRecentTrades(symbol, count))
 })
 

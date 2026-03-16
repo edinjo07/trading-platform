@@ -6,22 +6,34 @@ import {
   getOrdersByUser,
   executeOrder,
   orders,
+  portfolios,
 } from '../services/tradingEngine'
+import { dbLoadOrders, dbSaveOrder, dbSavePortfolio } from '../services/dbSync'
 import { OrderSide, OrderType, TimeInForce } from '../types'
 
 const router = Router()
 router.use(authenticate)
 
 // GET /api/orders
-router.get('/', (req: AuthRequest, res: Response) => {
+router.get('/', async (req: AuthRequest, res: Response) => {
   const { status } = req.query
-  let orders = getOrdersByUser(req.user!.userId)
-  if (status) orders = orders.filter(o => o.status === status)
-  return res.json(orders)
+  const userId = req.user!.userId
+  let userOrders = getOrdersByUser(userId)
+  // On Vercel, a cold-start container may not have in-memory orders from a prior
+  // request that hit a different container instance. Fall back to the DB.
+  if (userOrders.length === 0 && process.env.VERCEL) {
+    try {
+      const dbOrders = await dbLoadOrders(userId)
+      for (const o of dbOrders) orders.set(o.id, o)
+      userOrders = getOrdersByUser(userId)
+    } catch { /* non-fatal */ }
+  }
+  if (status) userOrders = userOrders.filter(o => o.status === (status as string))
+  return res.json(userOrders)
 })
 
 // POST /api/orders
-router.post('/', (req: AuthRequest, res: Response) => {
+router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const {
       symbol, side, type, quantity, price, stopPrice,
@@ -74,6 +86,16 @@ router.post('/', (req: AuthRequest, res: Response) => {
     if (order.type === 'market' && process.env.VERCEL) {
       executeOrder(order.id)
       const filled = orders.get(order.id)
+      // Await DB writes before responding — Vercel may freeze the container
+      // immediately after res.json(), killing fire-and-forget promises inside
+      // executeOrder before they can complete.
+      const portfolio = portfolios.get(order.userId)
+      await Promise.all([
+        dbSaveOrder(filled ?? order).catch((e: unknown) => console.error('[DB]', e)),
+        portfolio
+          ? dbSavePortfolio(order.userId, portfolio).catch((e: unknown) => console.error('[DB]', e))
+          : Promise.resolve(),
+      ])
       return res.status(201).json(filled ?? order)
     }
 

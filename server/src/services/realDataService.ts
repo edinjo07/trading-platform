@@ -13,7 +13,8 @@
 import WebSocket from 'ws'
 import { config } from '../config'
 
-export type PriceCallback = (symbol: string, price: number) => void
+export type PriceCallback   = (symbol: string, price: number) => void
+export type StatsCallback   = (symbol: string, open: number, high: number, low: number, volume: number) => void
 
 // ---------------------------------------------------------------------------
 // Binance — crypto mapping
@@ -164,23 +165,45 @@ const BINANCE_SEED_SYMBOLS: Record<string, string> = {
   XRPUSDT: 'XRP/USDT',
 }
 
-export async function seedInitialPrices(onPrice: PriceCallback): Promise<void> {
+export async function seedInitialPrices(
+  onPrice: PriceCallback,
+  onStats?: StatsCallback,
+): Promise<void> {
   try {
-    const symbols = Object.keys(BINANCE_SEED_SYMBOLS).join(',')
-    const url = `https://api.binance.com/api/v3/ticker/price?symbols=${encodeURIComponent(JSON.stringify(Object.keys(BINANCE_SEED_SYMBOLS)))}`
+    // Use the 24-hour ticker endpoint so we get the real openPrice, highPrice,
+    // lowPrice and volume — not just the current price. This gives an accurate
+    // 24-hour change % from the very first Vercel cold start.
+    const symbolsJson = JSON.stringify(Object.keys(BINANCE_SEED_SYMBOLS))
+    const url = `https://api.binance.com/api/v3/ticker/24hr?symbols=${encodeURIComponent(symbolsJson)}`
     const resp = await fetch(url, { signal: AbortSignal.timeout(8_000) })
     if (!resp.ok) {
       console.warn('[Market] Binance price seed HTTP', resp.status)
       return
     }
-    const data = await resp.json() as Array<{ symbol: string; price: string }>
+    const data = await resp.json() as Array<{
+      symbol: string
+      lastPrice: string
+      openPrice: string
+      highPrice: string
+      lowPrice: string
+      volume: string
+    }>
     if (!Array.isArray(data)) return
     for (const item of data) {
       const ourSym = BINANCE_SEED_SYMBOLS[item.symbol]
-      const price = parseFloat(item.price)
+      const price = parseFloat(item.lastPrice)
       if (ourSym && price > 0) {
         onPrice(ourSym, price)
         console.log(`[Market] 🌱 Seeded ${ourSym} = $${price}`)
+        if (onStats) {
+          onStats(
+            ourSym,
+            parseFloat(item.openPrice),
+            parseFloat(item.highPrice),
+            parseFloat(item.lowPrice),
+            parseFloat(item.volume),
+          )
+        }
       }
     }
   } catch (err: any) {

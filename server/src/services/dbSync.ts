@@ -160,6 +160,39 @@ export async function dbLoadPortfolio(userId: string): Promise<Portfolio | null>
   }
 }
 
+export async function dbLoadOrders(userId: string): Promise<Order[]> {
+  const { data, error } = await supabase
+    .from('orders')
+    .select('*')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+  if (error || !data) return []
+  return data.map(o => ({
+    id: o.id,
+    userId: o.user_id,
+    symbol: o.symbol,
+    side: o.side,
+    type: o.type,
+    status: o.status,
+    quantity: parseFloat(o.quantity),
+    price: o.price != null ? parseFloat(o.price) : undefined,
+    stopPrice: o.stop_price != null ? parseFloat(o.stop_price) : undefined,
+    filledQuantity: parseFloat(o.filled_quantity ?? 0),
+    avgFillPrice: o.avg_fill_price != null ? parseFloat(o.avg_fill_price) : undefined,
+    commission: parseFloat(o.commission ?? 0),
+    slippage: parseFloat(o.slippage ?? 0),
+    leverage: parseFloat(o.leverage ?? 1),
+    takeProfit: o.take_profit != null ? parseFloat(o.take_profit) : undefined,
+    stopLoss: o.stop_loss != null ? parseFloat(o.stop_loss) : undefined,
+    trailingOffset: o.trailing_offset != null ? parseFloat(o.trailing_offset) : undefined,
+    timeInForce: o.time_in_force ?? 'GTC',
+    notes: o.notes,
+    createdAt: o.created_at,
+    updatedAt: o.updated_at,
+    filledAt: o.filled_at,
+  } as Order))
+}
+
 // ─── Bootstrap — load all data from DB into in-memory maps ───────────────────
 
 export async function loadFromDB(params: {

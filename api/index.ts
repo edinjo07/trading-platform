@@ -16,7 +16,7 @@ import app from '../server/src/app'
 import { loadFromDB } from '../server/src/services/dbSync'
 import { users, orders, portfolios, tradeJournal, equityCurve } from '../server/src/services/tradingEngine'
 import { seedInitialPrices } from '../server/src/services/realDataService'
-import { injectRealPrice } from '../server/src/services/mockDataService'
+import { injectRealPrice, inject24hStats } from '../server/src/services/mockDataService'
 
 let initialized = false
 let lastSeed = 0
@@ -35,7 +35,7 @@ async function initialize(): Promise<void> {
   const now = Date.now()
   if (now - lastSeed > 5_000) {
     try {
-      await seedInitialPrices(injectRealPrice)
+      await seedInitialPrices(injectRealPrice, inject24hStats)
       lastSeed = now
     } catch {
       // non-fatal — serve stale prices

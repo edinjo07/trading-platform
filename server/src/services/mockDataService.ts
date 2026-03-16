@@ -420,6 +420,24 @@ export function injectRealPrice(symbol: string, price: number): void {
   }
 }
 
+/** Inject full 24-hour stats seeded from Binance /ticker/24hr endpoint.
+ *  Sets open24h so the ticker shows an accurate 24-hour change % on cold start. */
+export function inject24hStats(
+  symbol: string,
+  openPrice: number,
+  highPrice: number,
+  lowPrice: number,
+  volume24h: number,
+): void {
+  const state = gbmState[symbol]
+  const p = PARAMS[symbol]
+  if (!state || !p) return
+  if (openPrice > 0) state.open24h  = round(openPrice, p.priceDecimals)
+  if (highPrice  > 0) state.high24h = round(highPrice,  p.priceDecimals)
+  if (lowPrice   > 0) state.low24h  = round(lowPrice,   p.priceDecimals)
+  if (volume24h  > 0) state.volume24h = volume24h
+}
+
 // Auto-connect to live market feeds (Binance WS + Twelve Data WS)
 // Skipped on Vercel (serverless) — prices are seeded via REST in api/[...path].ts instead
 if (!process.env.VERCEL) {
