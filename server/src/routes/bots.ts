@@ -39,10 +39,10 @@ router.post('/', (req: AuthRequest, res) => {
       params:   BotParams
     }
 
-    if (!name?.trim())     throw new Error('name is required')
-    if (!symbol?.trim())   throw new Error('symbol is required')
-    if (!strategy)         throw new Error('strategy is required')
-    if (!params?.tradeSize || params.tradeSize <= 0) throw new Error('tradeSize must be > 0')
+    if (typeof name !== 'string' || !name.trim())     throw new Error('name is required')
+    if (typeof symbol !== 'string' || !symbol.trim()) throw new Error('symbol is required')
+    if (typeof strategy !== 'string' || !strategy)    throw new Error('strategy is required')
+    if (typeof params !== 'object' || params === null || typeof params.tradeSize !== 'number' || params.tradeSize <= 0) throw new Error('tradeSize must be > 0')
 
     const allowed: BotStrategy[] = ['ma_crossover', 'rsi', 'macd', 'momentum']
     if (!allowed.includes(strategy)) throw new Error(`strategy must be one of ${allowed.join(', ')}`)
