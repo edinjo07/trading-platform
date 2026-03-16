@@ -5,21 +5,24 @@
  * dashboard — never committed to source control).
  */
 
-// Non-sensitive defaults only — no secrets here
+// Non-sensitive defaults — no secrets hardcoded
 const NON_SECRET_DEFAULTS: Record<string, string> = {
   NODE_ENV: 'production',
   JWT_EXPIRES_IN: '7d',
   CORS_ORIGIN: 'https://trading-platform-client.vercel.app',
+  // SUPABASE_URL is the public project endpoint (not a secret)
+  SUPABASE_URL: 'https://tkplwifmstnkecevgbyi.supabase.co',
 }
 
 for (const [k, v] of Object.entries(NON_SECRET_DEFAULTS)) {
   if (!process.env[k]) process.env[k] = v
 }
 
-// Secrets must be supplied via environment variables — never hardcoded
+// Secrets must be supplied via Vercel Environment Variables (Project → Settings → Environment Variables).
+// Log a warning but do NOT throw — throwing during module init prevents the function from deploying.
+// Individual service calls will fail with descriptive errors if these are missing.
 const REQUIRED_SECRETS = [
   'JWT_SECRET',
-  'SUPABASE_URL',
   'SUPABASE_ANON_KEY',
   'SUPABASE_SERVICE_ROLE_KEY',
   'DATABASE_URL',
@@ -27,8 +30,8 @@ const REQUIRED_SECRETS = [
 
 const missing = REQUIRED_SECRETS.filter((k) => !process.env[k])
 if (missing.length > 0) {
-  throw new Error(
-    `Missing required environment variables: ${missing.join(', ')}. ` +
+  console.error(
+    `[config] WARNING: Missing environment variables: ${missing.join(', ')}. ` +
     'Set these in the Vercel dashboard under Project → Settings → Environment Variables.',
   )
 }
