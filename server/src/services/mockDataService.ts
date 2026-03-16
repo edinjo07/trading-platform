@@ -62,12 +62,13 @@ const PARAMS: Record<string, InstrumentParams> = {
   GOOGL: { basePrice: 162.40,  annualVol: 0.28, annualDrift: 0.11, priceDecimals: 2, tickSize: 0.01, avgSpread: 0.0001, baseVolume: 2e7  },
   AMZN:  { basePrice: 178.50,  annualVol: 0.30, annualDrift: 0.12, priceDecimals: 2, tickSize: 0.01, avgSpread: 0.0001, baseVolume: 3e7  },
   META:  { basePrice: 495.20,  annualVol: 0.42, annualDrift: 0.18, priceDecimals: 2, tickSize: 0.01, avgSpread: 0.0001, baseVolume: 1.5e7 },
-  // Crypto
-  'BTC/USDT': { basePrice: 68500,  annualVol: 0.70, annualDrift: 0.25, priceDecimals: 1, tickSize: 0.10, avgSpread: 0.0002, baseVolume: 3e10 },
-  'ETH/USDT': { basePrice: 3820,   annualVol: 0.75, annualDrift: 0.20, priceDecimals: 2, tickSize: 0.01, avgSpread: 0.0003, baseVolume: 1.5e10 },
-  'SOL/USDT': { basePrice: 162.50, annualVol: 1.10, annualDrift: 0.30, priceDecimals: 2, tickSize: 0.01, avgSpread: 0.0005, baseVolume: 2e9  },
-  'BNB/USDT': { basePrice: 588.30, annualVol: 0.65, annualDrift: 0.20, priceDecimals: 2, tickSize: 0.01, avgSpread: 0.0003, baseVolume: 8e8  },
-  'XRP/USDT': { basePrice: 0.5920, annualVol: 0.85, annualDrift: 0.15, priceDecimals: 4, tickSize: 0.0001, avgSpread: 0.0005, baseVolume: 5e9  },
+  // Crypto — base prices reflect March 2026 market levels; seedInitialPrices() overrides
+  // these with live Binance data on every Vercel request, so they only matter for cold-start
+  'BTC/USDT': { basePrice: 74_000,  annualVol: 0.70, annualDrift: 0.25, priceDecimals: 1, tickSize: 0.10, avgSpread: 0.0002, baseVolume: 3e10 },
+  'ETH/USDT': { basePrice: 1_900,   annualVol: 0.75, annualDrift: 0.20, priceDecimals: 2, tickSize: 0.01, avgSpread: 0.0003, baseVolume: 1.5e10 },
+  'SOL/USDT': { basePrice: 130.00,  annualVol: 1.10, annualDrift: 0.30, priceDecimals: 2, tickSize: 0.01, avgSpread: 0.0005, baseVolume: 2e9  },
+  'BNB/USDT': { basePrice: 590.00,  annualVol: 0.65, annualDrift: 0.20, priceDecimals: 2, tickSize: 0.01, avgSpread: 0.0003, baseVolume: 8e8  },
+  'XRP/USDT': { basePrice: 2.30,    annualVol: 0.85, annualDrift: 0.15, priceDecimals: 4, tickSize: 0.0001, avgSpread: 0.0005, baseVolume: 5e9  },
   // Forex
   'EUR/USD': { basePrice: 1.0885, annualVol: 0.07, annualDrift: 0.00, priceDecimals: 5, tickSize: 0.00001, avgSpread: 0.00005, baseVolume: 5e11 },
   'GBP/USD': { basePrice: 1.2745, annualVol: 0.08, annualDrift: 0.00, priceDecimals: 5, tickSize: 0.00001, avgSpread: 0.00007, baseVolume: 3e11 },

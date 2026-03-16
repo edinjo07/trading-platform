@@ -20,20 +20,23 @@ let initialized = false
 let lastSeed = 0
 
 async function initialize(): Promise<void> {
-  const now = Date.now()
-  // Re-seed prices every 60 s so they don't go stale on warm containers
-  if (!initialized || now - lastSeed > 60_000) {
-    if (!initialized) {
-      initialized = true
-      try {
-        await loadFromDB({ users, orders, portfolios, tradeJournal, equityCurve })
-      } catch (e) {
-        console.error('[Init] DB bootstrap error:', e)
-      }
+  // DB load: only once per container lifetime
+  if (!initialized) {
+    initialized = true
+    try {
+      await loadFromDB({ users, orders, portfolios, tradeJournal, equityCurve })
+    } catch (e) {
+      console.error('[Init] DB bootstrap error:', e)
     }
+  }
+  // Price seed: re-sync from Binance REST on every request, debounced at 5 s.
+  // Vercel serverless containers don't run the GBM tick loop, so without this
+  // the module carries whatever price it had at module-init (which can be days stale).
+  const now = Date.now()
+  if (now - lastSeed > 5_000) {
     try {
       await seedInitialPrices(injectRealPrice)
-      lastSeed = Date.now()
+      lastSeed = now
     } catch {
       // non-fatal — serve stale prices
     }
