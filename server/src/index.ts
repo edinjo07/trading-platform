@@ -1,4 +1,3 @@
-import http from 'http'
 import https from 'https'
 import fs from 'fs'
 import { config } from './config'
@@ -13,7 +12,7 @@ import { users, orders, portfolios, tradeJournal, equityCurve } from './services
 const sslKeyPath  = process.env.SSL_KEY_FILE
 const sslCertPath = process.env.SSL_CERT_FILE
 
-let server: http.Server | https.Server
+let server: https.Server
 if (sslKeyPath && sslCertPath) {
   const sslOptions = {
     key:  fs.readFileSync(sslKeyPath),
@@ -21,14 +20,11 @@ if (sslKeyPath && sslCertPath) {
   }
   server = https.createServer(sslOptions, app)
 } else {
-  if (config.nodeEnv === 'production') {
-    throw new Error(
-      'SSL_KEY_FILE and SSL_CERT_FILE must be set in production. ' +
-      'If TLS is terminated by the platform (Vercel/Railway), this entry point should not be used.',
-    )
-  }
-  // HTTP is acceptable only in local development — never in production
-  server = http.createServer(app)
+  throw new Error(
+    'SSL_KEY_FILE and SSL_CERT_FILE must be set. ' +
+    'For local development, generate a self-signed certificate. ' +
+    'On Vercel/Railway, TLS is platform-terminated and this entry point is not used.',
+  )
 }
 initWebSocket(server)
 
