@@ -22,8 +22,12 @@ if (sslKeyPath && sslCertPath) {
   server = https.createServer(sslOptions, app)
 } else {
   if (config.nodeEnv === 'production') {
-    console.warn('[WARN] SSL_KEY_FILE / SSL_CERT_FILE not set — falling back to HTTP. Ensure TLS is terminated by the platform.')
+    throw new Error(
+      'SSL_KEY_FILE and SSL_CERT_FILE must be set in production. ' +
+      'If TLS is terminated by the platform (Vercel/Railway), this entry point should not be used.',
+    )
   }
+  // HTTP is acceptable only in local development — never in production
   server = http.createServer(app)
 }
 initWebSocket(server)
