@@ -4,6 +4,8 @@ import {
   createOrder,
   cancelOrder,
   getOrdersByUser,
+  executeOrder,
+  orders,
 } from '../services/tradingEngine'
 import { OrderSide, OrderType, TimeInForce } from '../types'
 
@@ -65,6 +67,15 @@ router.post('/', (req: AuthRequest, res: Response) => {
       notes as string | undefined,
       parsedLeverage,
     )
+
+    // On Vercel serverless: execute market orders synchronously before responding.
+    // The container may be frozen immediately after the response is sent, so
+    // a deferred setTimeout callback would never fire on a different invocation.
+    if (order.type === 'market' && process.env.VERCEL) {
+      executeOrder(order.id)
+      const filled = orders.get(order.id)
+      return res.status(201).json(filled ?? order)
+    }
 
     return res.status(201).json(order)
   } catch (err: unknown) {

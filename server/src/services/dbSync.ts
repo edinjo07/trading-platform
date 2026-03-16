@@ -136,6 +136,30 @@ export async function dbSaveTradeRecord(record: TradeRecord): Promise<void> {
   if (error) console.error('[DB] saveTradeRecord:', error.message)
 }
 
+// ─── Load a single user's portfolio from DB (on-demand fallback) ─────────────
+
+export async function dbLoadPortfolio(userId: string): Promise<Portfolio | null> {
+  const { data, error } = await supabase
+    .from('portfolios')
+    .select('*')
+    .eq('user_id', userId)
+    .single()
+  if (error || !data) return null
+  return {
+    userId: data.user_id,
+    cashBalance: parseFloat(data.cash_balance),
+    totalMarketValue: parseFloat(data.total_market_value ?? 0),
+    totalEquity: parseFloat(data.total_equity ?? data.cash_balance),
+    unrealizedPnl: parseFloat(data.unrealized_pnl ?? 0),
+    realizedPnl: parseFloat(data.realized_pnl ?? 0),
+    todayPnl: parseFloat(data.today_pnl ?? 0),
+    todayPnlPercent: 0,
+    peakEquity: parseFloat(data.peak_equity ?? data.cash_balance),
+    drawdown: parseFloat(data.drawdown ?? 0),
+    positions: data.positions ?? [],
+  }
+}
+
 // ─── Bootstrap — load all data from DB into in-memory maps ───────────────────
 
 export async function loadFromDB(params: {

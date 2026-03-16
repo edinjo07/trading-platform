@@ -11,7 +11,7 @@ interface HeaderProps {
 }
 
 export default function Header({ onMenuClick }: HeaderProps) {
-  const { selectedSymbol, tickers, setSelectedSymbol, symbols } = useTradingStore()
+  const { selectedSymbol, tickers, setSelectedSymbol, symbols, portfolio } = useTradingStore()
   const { user, logout } = useAuthStore()
   const navigate = useNavigate()
   const ticker = tickers[selectedSymbol]
@@ -184,7 +184,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
         <div className="hidden sm:block px-3 py-1.5 rounded-lg text-xs"
              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
           <span className="text-text-secondary">Balance </span>
-          <span className="text-text-primary font-mono font-semibold">{formatCurrency(user?.balance ?? 0)}</span>
+          <span className="text-text-primary font-mono font-semibold">{formatCurrency(portfolio?.cashBalance ?? user?.balance ?? 0)}</span>
         </div>
 
         {/* User avatar */}

@@ -293,9 +293,14 @@ export function createOrder(
   dbSaveOrder(order).catch(e => console.error('[DB]', e))
 
   if (type === 'market') {
-    // Simulate realistic fill latency (50-300ms)
-    const latency = 50 + Math.random() * 250
-    setTimeout(() => executeOrder(order.id), latency)
+    if (!process.env.VERCEL) {
+      // Local dev only: simulate fill latency with setTimeout.
+      // On Vercel serverless the container may be frozen before the callback
+      // fires — the route handler calls executeOrder() synchronously instead.
+      const latency = 50 + Math.random() * 250
+      setTimeout(() => executeOrder(order.id), latency)
+    }
+    // On Vercel: route handler will call executeOrder(order.id) directly.
   } else {
     order.status = 'open'
     order.updatedAt = new Date().toISOString()
