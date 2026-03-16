@@ -1,4 +1,4 @@
-import api from './client'
+import { supabase } from '../lib/supabase'
 import { User } from '../types'
 
 export interface AuthResponse {
@@ -6,21 +6,51 @@ export interface AuthResponse {
   user: User
 }
 
+function mapUser(sbUser: { id: string; email?: string; user_metadata?: Record<string, unknown> }): User {
+  return {
+    id: sbUser.id,
+    email: sbUser.email ?? '',
+    username: (sbUser.user_metadata?.username as string | undefined) ?? sbUser.email?.split('@')[0] ?? 'Trader',
+    balance: (sbUser.user_metadata?.balance as number | undefined) ?? 100_000,
+  }
+}
+
 export async function login(email: string, password: string): Promise<AuthResponse> {
-  const { data } = await api.post<AuthResponse>('/auth/login', { email, password })
-  return data
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+  if (error || !data.session) throw new Error(error?.message ?? 'Login failed')
+  return { token: data.session.access_token, user: mapUser(data.user) }
 }
 
 export async function register(email: string, username: string, password: string): Promise<AuthResponse> {
-  const { data } = await api.post<AuthResponse>('/auth/register', { email, username, password })
-  return data
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: { data: { username, balance: 100_000 } },
+  })
+
+  if (error) {
+    if (error.status === 429 || error.message?.toLowerCase().includes('rate limit')) {
+      throw new Error('Too many sign-up attempts. Please wait a few minutes and try again.')
+    }
+    throw new Error(error.message ?? 'Registration failed')
+  }
+
+  if (!data.user) throw new Error('Registration failed')
+
+  if (!data.session) {
+    throw new Error('Check your email to confirm your account before logging in.')
+  }
+
+  return { token: data.session.access_token, user: mapUser(data.user) }
 }
 
 export async function fetchMe(): Promise<User> {
-  const { data } = await api.get<User>('/auth/me')
-  return data
+  const { data: { user }, error } = await supabase.auth.getUser()
+  if (error || !user) throw new Error('Not authenticated')
+  return mapUser(user)
 }
 
 export async function signOut(): Promise<void> {
-  // JWT is stateless — clearing localStorage on the client is sufficient
+  await supabase.auth.signOut()
 }
+
