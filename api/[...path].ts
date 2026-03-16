@@ -43,8 +43,14 @@ async function initialize(): Promise<void> {
 export default async function handler(req: IncomingMessage, res: ServerResponse) {
   const rawUrl: string = (req as any).url ?? '/'
 
-  // Diagnostic: GET /api/ping (or /ping if Vercel strips the prefix) → confirms function is running
-  if (rawUrl === '/api/ping' || rawUrl === '/ping') {
+  // Always log the incoming URL so it appears in Vercel function logs
+  console.error('[handler] rawUrl:', rawUrl)
+
+  // Diagnostic: GET /api/ping — confirms function is running
+  // Match with or without trailing slash / query string
+  if (rawUrl === '/api/ping' || rawUrl === '/ping' ||
+      rawUrl.startsWith('/api/ping?') || rawUrl.startsWith('/ping?') ||
+      rawUrl === '/api/ping/' || rawUrl === '/ping/') {
     res.writeHead(200, { 'Content-Type': 'application/json' })
     res.end(JSON.stringify({ ok: true, receivedUrl: rawUrl, node: process.version }))
     return
@@ -53,7 +59,11 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
   // Some @vercel/node versions strip the /api prefix from req.url before invoking the handler.
   // Express routes are all mounted at /api/* so we must restore the prefix if it was removed.
   if (!rawUrl.startsWith('/api')) {
-    ;(req as any).url = '/api' + (rawUrl.startsWith('/') ? rawUrl : '/' + rawUrl)
+    const fixed = '/api' + (rawUrl.startsWith('/') ? rawUrl : '/' + rawUrl)
+    ;(req as any).url = fixed
+    // Clear Express's cached parsed URL so it re-parses from the updated req.url
+    ;(req as any)._parsedUrl = null
+    console.error('[handler] fixed url to:', fixed)
   }
 
   await initialize()

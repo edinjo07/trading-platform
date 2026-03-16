@@ -38,9 +38,9 @@ app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString(), env: config.nodeEnv })
 })
 
-// 404 handler
+// 404 handler — includes received path for server-side diagnostics
 app.use((_req, res) => {
-  res.status(404).json({ error: 'Not found' })
+  res.status(404).json({ error: 'Not found', receivedPath: _req.url })
 })
 
 export default app
