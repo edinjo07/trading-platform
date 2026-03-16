@@ -154,7 +154,17 @@ export const useTradingStore = create<TradingState>((set, get) => ({
         } catch { /* ignore refresh errors */ }
       }, 700)
     } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error ?? 'Order failed'
+      // Handle both Axios error shapes and plain Error objects
+      const axiosData = (err as { response?: { data?: unknown } })?.response?.data
+      let msg = 'Order failed'
+      if (axiosData && typeof axiosData === 'object') {
+        const d = axiosData as Record<string, unknown>
+        msg = (typeof d.error === 'string' ? d.error : undefined)
+           ?? (typeof d.message === 'string' ? d.message : undefined)
+           ?? 'Order failed'
+      } else if (err instanceof Error) {
+        msg = err.message
+      }
       set({ error: msg })
       throw new Error(msg)
     }
