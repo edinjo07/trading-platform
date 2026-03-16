@@ -215,10 +215,10 @@ function NewsSentimentPanel({ symbol }: { symbol: string }) {
 // Strategy meta
 // ---------------------------------------------------------------------------
 const STRATEGY_META: Record<BotStrategy, { label: string; color: string; desc: string; icon: string }> = {
-  ma_crossover: { label: 'MA Crossover', color: '#0ea5e9', desc: 'Golden/Death cross of fast & slow moving averages', icon: 'ã€œ' },
-  rsi:          { label: 'RSI',          color: '#8b5cf6', desc: 'Buy oversold, sell overbought using RSI oscillator', icon: 'âŸ³' },
-  macd:         { label: 'MACD',         color: '#06b6d4', desc: 'Signal line crossover with histogram momentum filter', icon: 'â§–' },
-  momentum:     { label: 'Momentum',     color: '#f59e0b', desc: 'Buy breakouts above N-period high, sell breakdowns', icon: 'â–²' },
+  ma_crossover: { label: 'MA Crossover', color: '#0ea5e9', desc: 'Golden/Death cross of fast & slow moving averages', icon: '📈' },
+  rsi:          { label: 'RSI',          color: '#8b5cf6', desc: 'Buy oversold, sell overbought using RSI oscillator', icon: '🔄' },
+  macd:         { label: 'MACD',         color: '#06b6d4', desc: 'Signal line crossover with histogram momentum filter', icon: '📊' },
+  momentum:     { label: 'Momentum',     color: '#f59e0b', desc: 'Buy breakouts above N-period high, sell breakdowns', icon: '▲' },
 }
 
 const LOG_COLORS: Record<string, string> = {
@@ -230,7 +230,7 @@ const LOG_COLORS: Record<string, string> = {
   error:  '#ef4444',
 }
 const LOG_ICONS: Record<string, string> = {
-  info: 'â„¹', signal: 'âš¡', trade: 'ðŸ’¹', risk: 'ðŸ›¡', warn: 'âš ', error: 'âœ—',
+  info: 'ℹ️', signal: '⚡', trade: '💹', risk: '🛡️', warn: '⚠️', error: '✗',
 }
 
 const SYMBOL_LIST = [
@@ -371,7 +371,7 @@ function LogLine({ log }: { log: BotLog }) {
     <div className="flex items-start gap-2 py-1.5 border-b" style={{ borderColor: 'rgba(255,255,255,0.03)' }}>
       <span className="text-xs font-mono shrink-0" style={{ color: '#2d4460', minWidth: 76 }}>{fmtTime(log.ts)}</span>
       <span className="text-xs shrink-0 font-bold uppercase w-14" style={{ color: LOG_COLORS[log.level] ?? '#94a3b8' }}>
-        {LOG_ICONS[log.level] ?? 'â„¹'} {log.level}
+        {LOG_ICONS[log.level] ?? 'ℹ️'} {log.level}
       </span>
       <span className="text-xs break-words" style={{ color: LOG_COLORS[log.level] ?? '#94a3b8', opacity: 0.85 }}>{log.message}</span>
     </div>
