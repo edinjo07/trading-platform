@@ -24,7 +24,9 @@ function randn(): number {
 export function generateMockCandles(symbol: string, interval: string, count = 300): Candle[] {
   const base = BASE_PRICES[symbol] ?? 100
   const step = INTERVAL_SECONDS[interval] ?? 3600
-  const now = Math.floor(Date.now() / step) * step
+  // Date.now() is in milliseconds; convert to seconds first, then align to interval boundary
+  const nowSec = Math.floor(Date.now() / 1000)
+  const now = Math.floor(nowSec / step) * step    // unix seconds aligned to interval
   const startTime = now - step * (count - 1)
 
   // Volatility per candle proportional to interval

@@ -285,11 +285,19 @@ export function generateCandles(symbol: string, interval: string, limit = 300): 
     price = close
   }
 
-  // Stitch the live candle as the last bar
+  // Stitch the live candle prices into the last bar, but keep the formula-computed time.
+  // liveCandles[symbol].time is set at module-init and never updated on Vercel serverless
+  // (no tickSymbol interval runs), so using lc.time would embed a stale cold-start timestamp.
   const lc = liveCandles[symbol]
   if (lc) {
+    const last = candles[candles.length - 1]
     candles[candles.length - 1] = {
-      time: lc.time, open: lc.open, high: lc.high, low: lc.low, close: lc.close, volume: lc.volume,
+      time:   last.time,              // keep the formula-derived current timestamp
+      open:   last.open,
+      high:   Math.max(last.high, lc.high),
+      low:    Math.min(last.low, lc.low),
+      close:  lc.close,              // real live price as close
+      volume: lc.volume || last.volume,
     }
   }
 

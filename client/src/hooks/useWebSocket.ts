@@ -60,17 +60,18 @@ function startPolling(
 
   async function fetchCandles(symbol: string) {
     if (!mountedRef.current) return
+    const interval = useTradingStore.getState().chartInterval || '1h'
     try {
-      const { data } = await api.get<Candle[]>(`/markets/candles/${encodeURIComponent(symbol)}?interval=1h&limit=300`)
+      const { data } = await api.get<Candle[]>(`/markets/candles/${encodeURIComponent(symbol)}?interval=${interval}&limit=300`)
       if (mountedRef.current && Array.isArray(data) && data.length > 0) {
         useTradingStore.getState().setLiveCandleHistory(data)
       } else if (mountedRef.current) {
         // API returned nothing — seed with mock data so chart renders
-        useTradingStore.getState().setLiveCandleHistory(generateMockCandles(symbol, '1h', 300))
+        useTradingStore.getState().setLiveCandleHistory(generateMockCandles(symbol, interval, 300))
       }
     } catch {
       if (mountedRef.current) {
-        useTradingStore.getState().setLiveCandleHistory(generateMockCandles(symbol, '1h', 300))
+        useTradingStore.getState().setLiveCandleHistory(generateMockCandles(symbol, interval, 300))
       }
     }
   }
