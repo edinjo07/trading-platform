@@ -41,6 +41,21 @@ async function initialize(): Promise<void> {
 }
 
 export default async function handler(req: IncomingMessage, res: ServerResponse) {
+  const rawUrl: string = (req as any).url ?? '/'
+
+  // Diagnostic: GET /api/ping (or /ping if Vercel strips the prefix) → confirms function is running
+  if (rawUrl === '/api/ping' || rawUrl === '/ping') {
+    res.writeHead(200, { 'Content-Type': 'application/json' })
+    res.end(JSON.stringify({ ok: true, receivedUrl: rawUrl, node: process.version }))
+    return
+  }
+
+  // Some @vercel/node versions strip the /api prefix from req.url before invoking the handler.
+  // Express routes are all mounted at /api/* so we must restore the prefix if it was removed.
+  if (!rawUrl.startsWith('/api')) {
+    ;(req as any).url = '/api' + (rawUrl.startsWith('/') ? rawUrl : '/' + rawUrl)
+  }
+
   await initialize()
   // Express app is a valid (req, res, next) handler — works as a serverless function
   return new Promise<void>((resolve) => {
