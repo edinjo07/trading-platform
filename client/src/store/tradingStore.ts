@@ -148,6 +148,15 @@ export const useTradingStore = create<TradingState>((set, get) => ({
           if (incoming.updatedAt && current.updatedAt) {
             if (incoming.updatedAt < current.updatedAt) return
           }
+
+          // Guard 4: incoming claims no open positions but market value says
+          // otherwise (totalEquity > cashBalance), and we already have
+          // positions in state. The JSONB positions column was probably not
+          // saved/returned; keep current positions to avoid a blank table.
+          const incomingHasMissingPositions =
+            (!incoming.positions || incoming.positions.length === 0) &&
+            incoming.totalEquity > incoming.cashBalance + 0.01
+          if (incomingHasMissingPositions && current.positions.length > 0) return
         }
 
         set({ portfolio: incoming })
@@ -244,6 +253,9 @@ export const useTradingStore = create<TradingState>((set, get) => ({
       // Delayed sync: pull authoritative state from server after DB write completes.
       // Accept any response with a DB-confirmed updatedAt (bypass the staleness
       // guard used for routine polling — we know an order just executed).
+      // Exception: if the DB returns empty positions but the current store has
+      // positions (our optimistic update is more accurate than the DB in this window),
+      // keep the current positions and only update financials.
       setTimeout(async () => {
         try {
           const [portfolio, fetchedOrders] = await Promise.all([getPortfolio(), getOrders()])
@@ -251,7 +263,27 @@ export const useTradingStore = create<TradingState>((set, get) => ({
             const incoming = portfolio as Portfolio
             // Always accept DB-confirmed data after a known order placement
             if (incoming.updatedAt) {
-              set({ portfolio: incoming })
+              const currentPortfolio = get().portfolio
+              // If the server doesn't have positions yet (DB write still in-flight or
+              // JSONB blob lost) but we have optimistic positions, merge: use DB
+              // financials for cash/equity but keep our known positions.
+              const serverMissingPositions =
+                (!incoming.positions || incoming.positions.length === 0) &&
+                (currentPortfolio?.positions ?? []).length > 0
+              if (serverMissingPositions && currentPortfolio) {
+                set({
+                  portfolio: {
+                    ...incoming,
+                    positions:        currentPortfolio.positions,
+                    totalMarketValue: currentPortfolio.totalMarketValue,
+                    // Recalculate equity from DB cash + our known market value
+                    totalEquity: parseFloat((incoming.cashBalance + currentPortfolio.totalMarketValue).toFixed(2)),
+                    unrealizedPnl: currentPortfolio.unrealizedPnl,
+                  }
+                })
+              } else {
+                set({ portfolio: incoming })
+              }
             }
           }
           // Only replace orders list if the server has a non-empty result or we

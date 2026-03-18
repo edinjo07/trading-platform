@@ -4,7 +4,7 @@
  * so the in-memory engine never blocks on DB I/O.
  */
 import { supabase } from '../db'
-import { User, Order, Portfolio, TradeRecord, EquityPoint } from '../types'
+import { User, Order, Portfolio, Position, TradeRecord, EquityPoint } from '../types'
 
 // ─── Retry helper ─────────────────────────────────────────────────────────────
 // Supabase free tier has occasional transient connection hiccups.  A single
@@ -210,6 +210,109 @@ export async function dbLoadPortfolio(userId: string): Promise<Portfolio | null>
       updatedAt: data.updated_at ?? undefined,
     }
   })
+}
+
+// ─── Rebuild positions from order history ────────────────────────────────────
+//
+// Called when the portfolios.positions JSONB blob is empty but the portfolio's
+// totalMarketValue > cashBalance, indicating positions exist but weren't saved.
+// Processes filled orders chronologically to compute net open positions and
+// their average cost, ready for refreshPortfolio() to add live prices.
+
+export function rebuildPositionsFromOrders(orders: Order[]): Position[] {
+  interface PosEntry {
+    symbol:    string
+    side:      'long' | 'short'
+    quantity:  number
+    totalCost: number  // qty * avgFillPrice (running sum for avg-cost calc)
+    openedAt:  string
+    leverage:  number
+    margin:    number  // cash locked up (totalCost / leverage)
+  }
+
+  const posMap = new Map<string, PosEntry>()
+
+  // Process oldest fills first so average-cost arithmetic is correct
+  const filled = orders
+    .filter(o => o.status === 'filled' && (o.filledQuantity ?? 0) > 0)
+    .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+
+  for (const ord of filled) {
+    const qty      = ord.filledQuantity!
+    const price    = ord.avgFillPrice ?? 0
+    const notional = qty * price
+    const lev      = ord.leverage ?? 1
+    const margin   = notional / lev
+    const key      = ord.symbol
+    const pos      = posMap.get(key)
+
+    if (ord.side === 'buy') {
+      if (pos?.side === 'short') {
+        // Closing (or reducing) a short
+        const rem = parseFloat((pos.quantity - qty).toFixed(8))
+        if (rem <= 1e-8) {
+          posMap.delete(key)
+        } else {
+          const frac      = rem / pos.quantity
+          pos.quantity    = rem
+          pos.totalCost   = parseFloat((pos.totalCost * frac).toFixed(8))
+          pos.margin      = parseFloat((pos.margin    * frac).toFixed(8))
+        }
+      } else {
+        // Opening / adding to long
+        if (pos) {
+          pos.quantity  = parseFloat((pos.quantity  + qty     ).toFixed(8))
+          pos.totalCost = parseFloat((pos.totalCost + notional).toFixed(8))
+          pos.margin    = parseFloat((pos.margin    + margin  ).toFixed(8))
+        } else {
+          posMap.set(key, {
+            symbol: ord.symbol, side: 'long', quantity: qty, totalCost: notional,
+            openedAt: ord.filledAt ?? ord.createdAt, leverage: lev, margin,
+          })
+        }
+      }
+    } else if (ord.side === 'sell') {
+      if (pos?.side === 'long') {
+        // Closing (or reducing) a long
+        const rem = parseFloat((pos.quantity - qty).toFixed(8))
+        if (rem <= 1e-8) {
+          posMap.delete(key)
+        } else {
+          const frac      = rem / pos.quantity
+          pos.quantity    = rem
+          pos.totalCost   = parseFloat((pos.totalCost * frac).toFixed(8))
+          pos.margin      = parseFloat((pos.margin    * frac).toFixed(8))
+        }
+      } else {
+        // Opening / adding to short
+        if (pos) {
+          pos.quantity  = parseFloat((pos.quantity  + qty     ).toFixed(8))
+          pos.totalCost = parseFloat((pos.totalCost + notional).toFixed(8))
+          pos.margin    = parseFloat((pos.margin    + margin  ).toFixed(8))
+        } else {
+          posMap.set(key, {
+            symbol: ord.symbol, side: 'short', quantity: qty, totalCost: notional,
+            openedAt: ord.filledAt ?? ord.createdAt, leverage: lev, margin,
+          })
+        }
+      }
+    }
+  }
+
+  return [...posMap.values()].map(p => ({
+    symbol:               p.symbol,
+    quantity:             parseFloat(p.quantity.toFixed(8)),
+    avgCost:              parseFloat((p.totalCost / p.quantity).toFixed(6)),
+    currentPrice:         0,  // refreshPortfolio() will fill this in
+    marketValue:          0,
+    unrealizedPnl:        0,
+    unrealizedPnlPercent: 0,
+    side:                 p.side,
+    openedAt:             p.openedAt,
+    leverage:             p.leverage,
+    margin:               parseFloat(p.margin.toFixed(2)),
+    notionalValue:        parseFloat(p.totalCost.toFixed(2)),
+  }))
 }
 
 export async function dbLoadOrders(userId: string): Promise<Order[]> {

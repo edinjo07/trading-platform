@@ -1,7 +1,7 @@
 import { Router, Response } from 'express'
 import { authenticate, AuthRequest } from '../middleware/auth'
 import { getPortfolio, portfolios, refreshPortfolio } from '../services/tradingEngine'
-import { dbLoadPortfolio, dbEnsureUser } from '../services/dbSync'
+import { dbLoadPortfolio, dbLoadOrders, dbEnsureUser, rebuildPositionsFromOrders } from '../services/dbSync'
 
 const router = Router()
 router.use(authenticate)
@@ -32,6 +32,25 @@ router.get('/', async (req: AuthRequest, res: Response) => {
     const dbPortfolio = await dbLoadPortfolio(userId)
 
     if (dbPortfolio) {
+      // Guard: if the positions JSONB blob is missing or empty but the portfolio's
+      // financial figures indicate open positions exist (totalMarketValue > 0, or
+      // totalEquity > cashBalance), rebuild positions from the filled orders table.
+      // This self-heals the common case where dbSavePortfolio ran but
+      // Supabase silently dropped the positions column value.
+      const posArr = Array.isArray(dbPortfolio.positions) ? dbPortfolio.positions : []
+      if (posArr.length === 0 && dbPortfolio.totalEquity > dbPortfolio.cashBalance + 0.01) {
+        try {
+          const filledOrders = await dbLoadOrders(userId)
+          const rebuilt = rebuildPositionsFromOrders(filledOrders)
+          if (rebuilt.length > 0) {
+            dbPortfolio.positions = rebuilt
+            console.log(`[Portfolio] Rebuilt ${rebuilt.length} position(s) from orders for ${userId}`)
+          }
+        } catch (e) {
+          console.warn('[Portfolio] Failed to rebuild positions from orders:', e)
+        }
+      }
+
       // Sync the warm-cache so in-process calls (e.g. createOrder) see the
       // real balance, then refresh position prices before responding.
       portfolios.set(userId, dbPortfolio)
