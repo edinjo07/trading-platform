@@ -347,6 +347,45 @@ export const useTradingStore = create<TradingState>((set, get) => ({
     if (!Array.isArray(tickers)) return
     const tickerMap: Record<string, Ticker> = {}
     for (const t of tickers) tickerMap[t.symbol] = t
+
+    // Recompute open position mark-to-market values using the latest prices
+    const portfolio = get().portfolio
+    if (portfolio && portfolio.positions.length > 0) {
+      const updatedPositions = portfolio.positions.map((pos) => {
+        const ticker = tickerMap[pos.symbol]
+        if (!ticker) return pos
+        const markPrice = ticker.price
+        const leverage = pos.leverage ?? 1
+        const notionalValue = pos.quantity * markPrice * leverage
+        const unrealizedPnl = pos.side === 'long'
+          ? (markPrice - pos.avgCost) * pos.quantity * leverage
+          : (pos.avgCost - markPrice) * pos.quantity * leverage
+        const costBasis = pos.avgCost * pos.quantity
+        const unrealizedPnlPercent = costBasis !== 0 ? (unrealizedPnl / costBasis) * 100 : 0
+        return {
+          ...pos,
+          currentPrice: markPrice,
+          marketValue: notionalValue,
+          notionalValue,
+          unrealizedPnl: parseFloat(unrealizedPnl.toFixed(2)),
+          unrealizedPnlPercent: parseFloat(unrealizedPnlPercent.toFixed(2)),
+        }
+      })
+      const totalMarketValue = parseFloat(updatedPositions.reduce((s, p) => s + p.marketValue, 0).toFixed(2))
+      const totalUnrealizedPnl = parseFloat(updatedPositions.reduce((s, p) => s + p.unrealizedPnl, 0).toFixed(2))
+      set({
+        tickers: tickerMap,
+        portfolio: {
+          ...portfolio,
+          positions: updatedPositions,
+          totalMarketValue,
+          totalEquity: parseFloat((portfolio.cashBalance + totalMarketValue).toFixed(2)),
+          unrealizedPnl: totalUnrealizedPnl,
+        },
+      })
+      return
+    }
+
     set({ tickers: tickerMap })
   },
 
