@@ -328,7 +328,28 @@ export const useTradingStore = create<TradingState>((set, get) => ({
 
   closePosition: async (symbol) => {
     try {
+      // Optimistically remove the position from the UI immediately
+      const current = get().portfolio
+      if (current) {
+        const closedPos = current.positions.find(p => p.symbol === symbol)
+        const newPositions = current.positions.filter(p => p.symbol !== symbol)
+        const newMarketValue = parseFloat(newPositions.reduce((s, p) => s + p.marketValue, 0).toFixed(2))
+        const returnedCash = closedPos ? parseFloat((current.cashBalance + closedPos.marketValue).toFixed(2)) : current.cashBalance
+        set({
+          portfolio: {
+            ...current,
+            positions: newPositions,
+            totalMarketValue: newMarketValue,
+            cashBalance: returnedCash,
+            totalEquity: parseFloat((returnedCash + newMarketValue).toFixed(2)),
+            unrealizedPnl: parseFloat(newPositions.reduce((s, p) => s + p.unrealizedPnl, 0).toFixed(2)),
+          }
+        })
+      }
+
       await closePositionApi(symbol)
+
+      // Sync authoritative state from server after DB write completes
       setTimeout(async () => {
         try {
           const [portfolio, orders] = await Promise.all([getPortfolio(), getOrders()])
@@ -337,6 +358,11 @@ export const useTradingStore = create<TradingState>((set, get) => ({
         } catch { /* ignore refresh errors */ }
       }, 800)
     } catch (err: unknown) {
+      // Revert optimistic update on failure
+      const current = get().portfolio
+      if (current) {
+        try { const p = await getPortfolio(); if (p) set({ portfolio: p as typeof current }) } catch { /* ignore */ }
+      }
       const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error ?? 'Close position failed'
       set({ error: msg })
       throw new Error(msg)
