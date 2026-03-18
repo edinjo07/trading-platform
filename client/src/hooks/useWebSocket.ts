@@ -189,14 +189,19 @@ export function useWebSocket() {
     reconnectRef.current = setTimeout(connectFn, delay)
   }, [])
 
-  const MAX_WS_RETRIES = 3
+  // When an explicit WS endpoint is configured (VITE_WS_URL — e.g. Railway) we know
+  // WebSocket WILL work; transient failures on cold-start should be retried indefinitely.
+  // When WS is derived from window.location.host (e.g. Vercel serverless) we give up
+  // after a few attempts and fall back to REST polling permanently.
+  const HAS_EXPLICIT_WS = Boolean(import.meta.env.VITE_WS_URL)
+  const MAX_WS_RETRIES  = HAS_EXPLICIT_WS ? Number.MAX_SAFE_INTEGER : 3
 
   const connect = useCallback(() => {
     if (!mountedRef.current) return
 
-    // After MAX_WS_RETRIES consecutive failures (e.g. Vercel — no WS support),
+    // After MAX_WS_RETRIES consecutive failures on a same-host endpoint (e.g. Vercel),
     // stop trying and stay on REST polling indefinitely.
-    if (retryCountRef.current >= MAX_WS_RETRIES) {
+    if (!HAS_EXPLICIT_WS && retryCountRef.current >= MAX_WS_RETRIES) {
       if (!stopPollRef.current) {
         stopPollRef.current = startPolling(() => selectedSymRef.current, mountedRef)
       }
@@ -289,14 +294,26 @@ export function useWebSocket() {
       // onclose fires right after onerror - null it to prevent double-reconnect
       ws.onclose = null
       ws.close()
-      // Log once on the first failure so there's still a visible indicator
-      if (retryCountRef.current === 0) {
-        console.info('[WS] WebSocket unavailable — using REST polling fallback')
+
+      const failCount = retryCountRef.current
+
+      if (HAS_EXPLICIT_WS) {
+        // Explicit endpoint (Railway etc.): transient failures are expected on cold start.
+        // Stay silent for the first couple of attempts; only start polling after 2+ failures
+        // so the brief retry gap doesn't show blank data.
+        if (failCount >= 2 && !stopPollRef.current) {
+          stopPollRef.current = startPolling(() => selectedSymRef.current, mountedRef)
+        }
+      } else {
+        // Same-host endpoint (Vercel etc.): WS likely not supported — start polling now.
+        if (failCount === 0) {
+          console.info('[WS] WebSocket unavailable — using REST polling fallback')
+        }
+        if (!stopPollRef.current) {
+          stopPollRef.current = startPolling(() => selectedSymRef.current, mountedRef)
+        }
       }
-      // Start polling immediately so live data keeps working during reconnect
-      if (!stopPollRef.current) {
-        stopPollRef.current = startPolling(() => selectedSymRef.current, mountedRef)
-      }
+
       scheduleReconnect(connect)
     }
   }, [scheduleReconnect]) // stable - all state read via refs
