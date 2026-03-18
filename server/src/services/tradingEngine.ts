@@ -5,7 +5,7 @@ import {
   Portfolio, Position, User, TradeRecord, PerformanceStats, EquityPoint,
 } from '../types'
 import { getLivePrice, getAssetClass } from './mockDataService'
-import { dbSaveUser, dbSaveOrder, dbSavePortfolio } from './dbSync'
+import { dbSaveUser } from './dbSync'
 
 // ---------------------------------------------------------------------------
 // Event bus
@@ -85,9 +85,8 @@ export function createUser(user: User): void {
   })
   tradeJournal.set(user.id, [])
   equityCurve.set(user.id, [])
-  // Persist to DB (fire-and-forget)
-  dbSaveUser(user).catch(e => console.error('[DB]', e))
-  dbSavePortfolio(user.id, portfolios.get(user.id)!).catch(e => console.error('[DB]', e))
+  // Persist new user to DB.  Portfolio row is created on first order placement.
+  dbSaveUser(user).catch(e => console.error('[DB] dbSaveUser:', e))
 }
 
 // ---------------------------------------------------------------------------
@@ -290,7 +289,12 @@ export function createOrder(
   }
 
   orders.set(order.id, order)
-  dbSaveOrder(order).catch(e => console.error('[DB]', e))
+  // NOTE: We do NOT fire-and-forget dbSaveOrder here with status='pending'.
+  // The route handler (orders.ts) awaits dbSaveOrder AFTER executeOrder sets
+  // the status to 'filled'.  A premature 'pending' save arriving at Supabase
+  // AFTER the 'filled' save would revert the order — causing it to "disappear"
+  // from the client's perspective.  The route handler is the single owner of
+  // DB persistence for every order lifecycle event.
 
   if (type === 'market') {
     if (!process.env.VERCEL) {
@@ -536,9 +540,9 @@ export function executeOrder(orderId: string, overrideFillPrice?: number): void 
   // Record equity point
   recordEquityPoint(order.userId, portfolio)
 
-  // Persist to DB (fire-and-forget)
-  dbSaveOrder(order).catch(e => console.error('[DB]', e))
-  dbSavePortfolio(order.userId, portfolio).catch(e => console.error('[DB]', e))
+  // DB persistence is handled exclusively by the route handler (orders.ts).
+  // No fire-and-forget saves here — concurrent writes race against the route
+  // handler's awaited saves and can cause non-deterministic results in Supabase.
 
   // Emit events
   tradeEvents.emit('orderFill', {

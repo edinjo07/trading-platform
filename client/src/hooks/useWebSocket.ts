@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from 'react'
+﻿import { useEffect, useRef, useCallback } from 'react'
 import { useTradingStore } from '../store/tradingStore'
 import { useToastStore } from '../store/toastStore'
 import { useAuthStore } from '../store/authStore'
@@ -7,11 +7,53 @@ import api from '../api/client'
 import { generateMockCandles, generateMockOrderBook, generateMockTrades, generateMockTickers } from '../utils/mockCandles'
 
 // ---------------------------------------------------------------------------
-// Polling fallback (used when backend has no WebSocket — e.g. Vercel deploy)
+// WebSocket URL resolution
+// ---------------------------------------------------------------------------
+// Priority:
+//   1. VITE_WS_URL  - explicit wss:// endpoint
+//   2. VITE_API_URL - derive wss:// only if it is an absolute HTTP URL
+//   3. Fallback     - derive from current page host (works in dev + prod)
+//
+// Always returns a string. Polling starts as a live-data fallback whenever
+// the connection fails or drops (see onerror / onclose handlers).
+// ---------------------------------------------------------------------------
+function buildWsUrl(token?: string | null): string {
+  const explicitWs = import.meta.env.VITE_WS_URL as string | undefined
+  const apiUrl     = import.meta.env.VITE_API_URL as string | undefined
+
+  let base: string
+
+  if (explicitWs) {
+    // Explicit WS URL - normalise trailing /ws
+    base = explicitWs.replace(/\/+$/, '').replace(/\/ws$/, '') + '/ws'
+  } else if (apiUrl && /^https?:\/\//i.test(apiUrl)) {
+    // Absolute API URL only - derive WS URL:
+    //   https://backend.railway.app/api -> wss://backend.railway.app/ws
+    //   http://localhost:5000/api       -> ws://localhost:5000/ws
+    // Relative VITE_API_URL values (e.g. '/api') are intentionally skipped
+    // because WebSocket requires an absolute URL.
+    base = apiUrl
+      .replace(/^https:\/\//, 'wss://')
+      .replace(/^http:\/\//, 'ws://')
+      .replace(/\/api\/?$/, '')
+      .replace(/\/+$/, '') + '/ws'
+  } else {
+    // Dev: Vite proxies /ws -> ws://localhost:5000.
+    // Prod with no separate backend: same host, WS upgrade will fail and
+    // onerror starts polling as a fallback immediately.
+    const proto = window.location.protocol === 'https:' ? 'wss' : 'ws'
+    base = `${proto}://${window.location.host}/ws`
+  }
+
+  return token ? `${base}?token=${encodeURIComponent(token)}` : base
+}
+
+// ---------------------------------------------------------------------------
+// REST polling fallback - used when WebSocket is unavailable or disconnected
 // ---------------------------------------------------------------------------
 function startPolling(
   getSymbol: () => string | null,
-  mountedRef: React.MutableRefObject<boolean>
+  mountedRef: React.MutableRefObject<boolean>,
 ): () => void {
   const timers: ReturnType<typeof setInterval>[] = []
   let lastSymbol: string | null = null
@@ -20,10 +62,10 @@ function startPolling(
     if (!mountedRef.current) return
     try {
       const { data } = await api.get<Ticker[]>('/markets/tickers')
-      if (mountedRef.current && Array.isArray(data) && data.length > 0) {
-        useTradingStore.getState().updateTickers(data)
-      } else if (mountedRef.current) {
-        useTradingStore.getState().updateTickers(generateMockTickers())
+      if (mountedRef.current) {
+        useTradingStore.getState().updateTickers(
+          Array.isArray(data) && data.length > 0 ? data : generateMockTickers(),
+        )
       }
     } catch {
       if (mountedRef.current) useTradingStore.getState().updateTickers(generateMockTickers())
@@ -34,10 +76,12 @@ function startPolling(
     if (!mountedRef.current) return
     try {
       const { data } = await api.get<OrderBook>(`/markets/orderbook/${encodeURIComponent(symbol)}?depth=15`)
-      if (mountedRef.current && data && Array.isArray(data.bids) && data.bids.length > 0) {
-        useTradingStore.getState().updateOrderBook(data)
-      } else if (mountedRef.current) {
-        useTradingStore.getState().updateOrderBook(generateMockOrderBook(symbol))
+      if (mountedRef.current) {
+        useTradingStore.getState().updateOrderBook(
+          data && Array.isArray(data.bids) && data.bids.length > 0
+            ? data
+            : generateMockOrderBook(symbol),
+        )
       }
     } catch {
       if (mountedRef.current) useTradingStore.getState().updateOrderBook(generateMockOrderBook(symbol))
@@ -48,10 +92,10 @@ function startPolling(
     if (!mountedRef.current) return
     try {
       const { data } = await api.get<Trade[]>(`/markets/trades/${encodeURIComponent(symbol)}?count=30`)
-      if (mountedRef.current && Array.isArray(data) && data.length > 0) {
-        useTradingStore.getState().updateRecentTrades(data)
-      } else if (mountedRef.current) {
-        useTradingStore.getState().updateRecentTrades(generateMockTrades(symbol))
+      if (mountedRef.current) {
+        useTradingStore.getState().updateRecentTrades(
+          Array.isArray(data) && data.length > 0 ? data : generateMockTrades(symbol),
+        )
       }
     } catch {
       if (mountedRef.current) useTradingStore.getState().updateRecentTrades(generateMockTrades(symbol))
@@ -63,11 +107,12 @@ function startPolling(
     const interval = useTradingStore.getState().chartInterval || '1h'
     try {
       const { data } = await api.get<Candle[]>(`/markets/candles/${encodeURIComponent(symbol)}?interval=${interval}&limit=300`)
-      if (mountedRef.current && Array.isArray(data) && data.length > 0) {
-        useTradingStore.getState().setLiveCandleHistory(data)
-      } else if (mountedRef.current) {
-        // API returned nothing — seed with mock data so chart renders
-        useTradingStore.getState().setLiveCandleHistory(generateMockCandles(symbol, interval, 300))
+      if (mountedRef.current) {
+        useTradingStore.getState().setLiveCandleHistory(
+          Array.isArray(data) && data.length > 0
+            ? data
+            : generateMockCandles(symbol, interval, 300),
+        )
       }
     } catch {
       if (mountedRef.current) {
@@ -80,7 +125,7 @@ function startPolling(
   fetchTickers()
   timers.push(setInterval(fetchTickers, 2000))
 
-  // Order book + trades every 2s, and fetch candles on symbol change
+  // Order book, trades, candles every 2s (candles only re-fetched on symbol change)
   const runSymbolFetch = () => {
     const sym = getSymbol()
     if (!sym) return
@@ -91,49 +136,36 @@ function startPolling(
       fetchCandles(sym)
     }
   }
-  // Fire immediately so data appears right away, then repeat
   runSymbolFetch()
   timers.push(setInterval(runSymbolFetch, 2000))
 
-  // Portfolio every 5s so Cash Available stays current without WebSocket
+  // Portfolio + orders every 5s
   useTradingStore.getState().loadPortfolio()
+  useTradingStore.getState().loadOrders()
   timers.push(setInterval(() => {
-    if (mountedRef.current) useTradingStore.getState().loadPortfolio()
+    if (!mountedRef.current) return
+    useTradingStore.getState().loadPortfolio()
+    useTradingStore.getState().loadOrders()
   }, 5000))
 
-  console.log('[Poll] REST polling started — WebSocket unavailable on this deployment')
-
-  return () => {
-    timers.forEach(clearInterval)
-  }
+  return () => timers.forEach(clearInterval)
 }
 
-function buildWsUrl(token?: string | null): string | null {
-  // Use explicit WS URL if configured (production backend), otherwise derive from current host
-  const explicit = import.meta.env.VITE_WS_URL
-  if (!explicit && import.meta.env.PROD) {
-    // No backend URL configured in production — WebSocket unavailable
-    return null
-  }
-  const base = explicit
-    ? explicit.replace(/\/$/, '') + '/ws'
-    : `${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}/ws`
-  return token ? `${base}?token=${encodeURIComponent(token)}` : base
-}
-
+// ---------------------------------------------------------------------------
+// Hook
+// ---------------------------------------------------------------------------
 export function useWebSocket() {
-  const wsRef        = useRef<WebSocket | null>(null)
-  const reconnectRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const mountedRef   = useRef(true)
-  const stopPollRef  = useRef<(() => void) | null>(null)
+  const wsRef         = useRef<WebSocket | null>(null)
+  const reconnectRef  = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const retryCountRef = useRef(0)
+  const mountedRef    = useRef(true)
+  const stopPollRef   = useRef<(() => void) | null>(null)
 
-  // Keep latest values in refs — reading these inside connect() won't cause dep changes
   const tokenRef       = useRef<string | null>(null)
   const selectedSymRef = useRef<string | null>(null)
   const prevSymbolRef  = useRef<string | null>(null)
   const tokenAtMount   = useRef<string | null>(null)
 
-  // Pull token + symbol from store (for syncing into refs only)
   const token          = useAuthStore(s => s.token)
   const selectedSymbol = useTradingStore(s => s.selectedSymbol)
 
@@ -146,39 +178,35 @@ export function useWebSocket() {
     }
   }, [])
 
-  const subscribe = useCallback((channel: string) => {
-    send({ type: 'subscribe', payload: { channel } })
-  }, [send])
+  const subscribe   = useCallback((ch: string) => send({ type: 'subscribe',   payload: { channel: ch } }), [send])
+  const unsubscribe = useCallback((ch: string) => send({ type: 'unsubscribe', payload: { channel: ch } }), [send])
 
-  const unsubscribe = useCallback((channel: string) => {
-    send({ type: 'unsubscribe', payload: { channel } })
-  }, [send])
+  // Exponential backoff: 1s, 2s, 4s ... capped at 30s
+  const scheduleReconnect = useCallback((connectFn: () => void) => {
+    if (!mountedRef.current) return
+    const delay = Math.min(1000 * 2 ** retryCountRef.current, 30_000)
+    retryCountRef.current += 1
+    reconnectRef.current = setTimeout(connectFn, delay)
+  }, [])
 
-  // STABLE connect — zero changing deps; reads everything via refs
   const connect = useCallback(() => {
     if (!mountedRef.current) return
+
     if (reconnectRef.current) { clearTimeout(reconnectRef.current); reconnectRef.current = null }
-    if (wsRef.current) {
-      wsRef.current.onclose = null
-      wsRef.current.onerror = null
-      wsRef.current.close()
-      wsRef.current = null
-    }
+    if (wsRef.current) { wsRef.current.onclose = null; wsRef.current.onerror = null; wsRef.current.close(); wsRef.current = null }
 
     const wsUrl = buildWsUrl(tokenRef.current)
-    if (!wsUrl) {
-      // No WebSocket backend — fall back to REST polling
-      if (!stopPollRef.current) {
-        stopPollRef.current = startPolling(() => selectedSymRef.current, mountedRef)
-      }
-      return
-    }
     const ws = new WebSocket(wsUrl)
     wsRef.current = ws
 
     ws.onopen = () => {
       if (!mountedRef.current) return
+      retryCountRef.current = 0   // reset backoff on successful connect
       console.log('[WS] Connected')
+
+      // WS is healthy - stop polling fallback
+      if (stopPollRef.current) { stopPollRef.current(); stopPollRef.current = null }
+
       const sym = selectedSymRef.current
       if (sym) {
         ws.send(JSON.stringify({ type: 'subscribe', payload: { channel: `orderbook:${sym}` } }))
@@ -186,56 +214,71 @@ export function useWebSocket() {
         ws.send(JSON.stringify({ type: 'subscribe', payload: { channel: `candle:${sym}` } }))
       }
       prevSymbolRef.current = sym
+
+      // Ensure portfolio + orders are fresh on (re)connect
+      useTradingStore.getState().loadPortfolio()
+      useTradingStore.getState().loadOrders()
     }
 
     ws.onmessage = (event) => {
       if (!mountedRef.current) return
       try {
-        const { type, payload } = JSON.parse(event.data)
-        // Always read directly from store to avoid stale closures
+        const { type, payload } = JSON.parse(event.data as string)
         const s = useTradingStore.getState()
         const t = useToastStore.getState()
 
-        if (type === 'tickers') {
-          s.updateTickers(payload as Ticker[])
-        } else if (type === 'orderbook') {
-          s.updateOrderBook(payload as OrderBook)
-        } else if (type === 'trades') {
-          s.updateRecentTrades(payload as Trade[])
-        } else if (type === 'trade') {
-          s.addRecentTrade(payload as Trade)
-        } else if (type === 'candle_history') {
+        if      (type === 'tickers')                          s.updateTickers(payload as Ticker[])
+        else if (type === 'orderbook')                        s.updateOrderBook(payload as OrderBook)
+        else if (type === 'trades')                           s.updateRecentTrades(payload as Trade[])
+        else if (type === 'trade')                            s.addRecentTrade(payload as Trade)
+        else if (type === 'candle_history') {
           const { symbol, candles } = payload as { symbol: string; candles: Candle[] }
           if (symbol === s.selectedSymbol) s.setLiveCandleHistory(candles)
-        } else if (type === 'candle_update' || type === 'candle_closed') {
+        }
+        else if (type === 'candle_update' || type === 'candle_closed') {
           const { symbol, candle } = payload as { symbol: string; candle: Candle }
           if (symbol === s.selectedSymbol) s.updateLiveCandle(candle)
-        } else if (type === 'order_fill') {
+        }
+        else if (type === 'order_fill') {
           const { symbol, side, quantity, fillPrice } = payload as {
             symbol: string; side: string; quantity: number; fillPrice: number
           }
           t.addToast({
-            title: 'Order Filled',
+            title:   'Order Filled',
             message: `${side.toUpperCase()} ${quantity} ${symbol} @ $${fillPrice.toLocaleString()}`,
             variant: side === 'buy' ? 'success' : 'info',
           })
           setTimeout(() => { s.loadOrders(); s.loadPortfolio() }, 300)
         }
-      } catch { /* ignore parse errors */ }
+      } catch { /* ignore malformed messages */ }
     }
 
     ws.onclose = () => {
       if (!mountedRef.current) return
-      console.log('[WS] Disconnected — reconnecting in 3s')
-      reconnectRef.current = setTimeout(connect, 3000)
+      // WS dropped - start polling immediately so live data keeps working
+      if (!stopPollRef.current) {
+        stopPollRef.current = startPolling(() => selectedSymRef.current, mountedRef)
+      }
+      const delay = Math.min(1000 * 2 ** retryCountRef.current, 30_000)
+      console.log(`[WS] Disconnected - reconnecting in ${delay / 1000}s`)
+      scheduleReconnect(connect)
     }
 
-    ws.onerror = () => { ws.onclose = null; ws.close() }
-  }, []) // ← intentionally stable: no deps
+    ws.onerror = () => {
+      // onclose fires right after onerror - null it to prevent double-reconnect
+      ws.onclose = null
+      ws.close()
+      // Start polling immediately so live data keeps working during reconnect
+      if (!stopPollRef.current) {
+        stopPollRef.current = startPolling(() => selectedSymRef.current, mountedRef)
+      }
+      scheduleReconnect(connect)
+    }
+  }, [scheduleReconnect]) // stable - all state read via refs
 
   // Connect once on mount
   useEffect(() => {
-    mountedRef.current = true
+    mountedRef.current   = true
     tokenAtMount.current = tokenRef.current
     connect()
     return () => {
@@ -247,16 +290,17 @@ export function useWebSocket() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // Reconnect only when auth token actually changes (login/logout)
+  // Reconnect when auth token changes (login / logout)
   useEffect(() => {
-    if (tokenAtMount.current === undefined) return // first render
+    if (tokenAtMount.current === undefined) return
     if (token !== tokenAtMount.current) {
       tokenAtMount.current = token
+      retryCountRef.current = 0
       connect()
     }
   }, [token, connect])
 
-  // Symbol change: swap subscriptions without full reconnect
+  // Symbol change: swap channel subscriptions without full reconnect
   useEffect(() => {
     const prev = prevSymbolRef.current
     if (prev && prev !== selectedSymbol) {

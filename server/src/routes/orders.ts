@@ -8,33 +8,64 @@ import {
   orders,
   portfolios,
 } from '../services/tradingEngine'
-import { dbLoadOrders, dbSaveOrder, dbSavePortfolio } from '../services/dbSync'
+import { dbLoadOrders, dbLoadPortfolio, dbSaveOrder, dbSavePortfolio, dbEnsureUser } from '../services/dbSync'
 import { OrderSide, OrderType, TimeInForce } from '../types'
 
 const router = Router()
 router.use(authenticate)
 
 // GET /api/orders
+// ─── Design rule ────────────────────────────────────────────────────────────
+// Always read from DB (Supabase is the single source of truth).
+// The in-memory map is updated after load so other in-process calls
+// (e.g. executeOrder) can see the latest state within the same request.
+// ─────────────────────────────────────────────────────────────────────────────
 router.get('/', async (req: AuthRequest, res: Response) => {
   const { status } = req.query
   const userId = req.user!.userId
-  let userOrders = getOrdersByUser(userId)
-  // On Vercel, a cold-start container may not have in-memory orders from a prior
-  // request that hit a different container instance. Fall back to the DB.
-  if (userOrders.length === 0 && process.env.VERCEL) {
-    try {
-      const dbOrders = await dbLoadOrders(userId)
-      for (const o of dbOrders) orders.set(o.id, o)
-      userOrders = getOrdersByUser(userId)
-    } catch { /* non-fatal */ }
+  try {
+    const dbOrders = await dbLoadOrders(userId)
+    // Sync into in-memory map so the watcher system stays consistent
+    for (const o of dbOrders) orders.set(o.id, o)
+    const result = status
+      ? dbOrders.filter(o => o.status === (status as string))
+      : dbOrders
+    return res.json(result)
+  } catch (err) {
+    // DB unavailable — return 503 so the client KEEPS its existing orders list
+    // instead of overwriting it with an empty array from a cold container.
+    console.error('[Orders] DB read failed:', err)
+    return res.status(503).json({ error: 'Orders service temporarily unavailable' })
   }
-  if (status) userOrders = userOrders.filter(o => o.status === (status as string))
-  return res.json(userOrders)
 })
 
 // POST /api/orders
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
+    const userId = req.user!.userId
+
+    // Step 1: ensure user row exists in public.users BEFORE any DB write.
+    // Orders and portfolios both have FK REFERENCES users(id); without this row
+    // every dbSaveOrder / dbSavePortfolio call fails with a FK violation.
+    // Do NOT swallow the error — a failed dbEnsureUser means DB saves will fail too.
+    try {
+      await dbEnsureUser(userId, req.user!.email)
+    } catch (e) {
+      console.error('[Orders] dbEnsureUser failed:', e)
+      return res.status(503).json({ error: 'Failed to initialise user account. Please retry.' })
+    }
+
+    // Step 2: Always reload the portfolio from DB so the balance check in
+    // createOrder uses the real balance — not a stale in-memory value from a
+    // request that ran in a different Vercel container.
+    try {
+      const dbPort = await dbLoadPortfolio(userId)
+      if (dbPort) portfolios.set(userId, dbPort)
+    } catch (e) {
+      console.error('[Orders] Failed to load portfolio from DB:', e)
+      return res.status(503).json({ error: 'Unable to read account balance. Please retry.' })
+    }
+
     const {
       symbol, side, type, quantity, price, stopPrice,
       timeInForce, takeProfit, stopLoss, trailingOffset, notes, leverage,
@@ -65,7 +96,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     const parsedLeverage = leverage ? parseFloat(leverage) : 1
 
     const order = createOrder(
-      req.user!.userId,
+      userId,
       symbol,
       side as OrderSide,
       type as OrderType,
@@ -80,26 +111,46 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       parsedLeverage,
     )
 
-    // On Vercel serverless: execute market orders synchronously before responding.
-    // The container may be frozen immediately after the response is sent, so
-    // a deferred setTimeout callback would never fire on a different invocation.
-    if (order.type === 'market' && process.env.VERCEL) {
+    // Step 3: execute market orders and persist to DB synchronously.
+    // This must happen BEFORE res.json() because:
+    //   - On Vercel, the container is frozen immediately after the response,
+    //     so any fire-and-forget promises would never run.
+    //   - On Railway/local, synchronous persistence ensures the next
+    //     GET /orders request (triggered 1.5s later by the client) always
+    //     finds the order in DB even if that request lands on a fresh process.
+    if (order.type === 'market') {
       executeOrder(order.id)
-      const filled = orders.get(order.id)
-      // Await DB writes before responding — Vercel may freeze the container
-      // immediately after res.json(), killing fire-and-forget promises inside
-      // executeOrder before they can complete.
-      const portfolio = portfolios.get(order.userId)
-      await Promise.all([
-        dbSaveOrder(filled ?? order).catch((e: unknown) => console.error('[DB]', e)),
-        portfolio
-          ? dbSavePortfolio(order.userId, portfolio).catch((e: unknown) => console.error('[DB]', e))
-          : Promise.resolve(),
-      ])
-      return res.status(201).json(filled ?? order)
     }
 
-    return res.status(201).json(order)
+    const filled    = orders.get(order.id)
+    const portfolio = portfolios.get(userId)
+
+    const dbSaves: Promise<void>[] = [
+      dbSaveOrder(filled ?? order).catch((e: unknown) => {
+        console.error('[DB] Failed to save order:', e)
+        throw e
+      }),
+    ]
+    if (portfolio) {
+      dbSaves.push(
+        dbSavePortfolio(userId, portfolio).catch((e: unknown) => {
+          console.error('[DB] Failed to save portfolio:', e)
+          throw e
+        }),
+      )
+    }
+
+    try {
+      await Promise.all(dbSaves)
+    } catch (err) {
+      console.error('[Orders] DB persistence failed — rolling back in-memory state:', err)
+      // Remove the order from the in-memory map so the state stays consistent
+      // with what is (not) in the DB.
+      orders.delete(order.id)
+      return res.status(503).json({ error: 'Order could not be saved. Please retry.' })
+    }
+
+    return res.status(201).json(filled ?? order)
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Failed to create order'
     return res.status(400).json({ error: message })
@@ -107,9 +158,17 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 })
 
 // DELETE /api/orders/:id
-router.delete('/:id', (req: AuthRequest, res: Response) => {
+router.delete('/:id', async (req: AuthRequest, res: Response) => {
   try {
     const order = cancelOrder(req.params.id, req.user!.userId)
+    // Await the DB write — fire-and-forget would leave the order as 'open' in DB
+    // if the container is frozen before the promise resolves (Vercel behaviour).
+    try {
+      await dbSaveOrder(order)
+    } catch (e) {
+      console.error('[DB] Failed to save cancelled order:', e)
+      // Non-fatal: in-memory state is already cancelled; DB will sync on next poll
+    }
     return res.json(order)
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Failed to cancel order'

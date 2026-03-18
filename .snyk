@@ -1,0 +1,20 @@
+# Snyk (https://snyk.io) policy file
+version: v1.25.0
+
+ignore: {}
+
+exclude:
+  code:
+    # server/src/index.ts — CWE-319 HTTP cleartext (local dev only)
+    #
+    # The `else` branch in index.ts uses Express's app.listen() which
+    # internally creates an HTTP server. This path is:
+    #   1. Explicitly guarded by `config.nodeEnv !== 'production'`
+    #   2. Only reachable on a developer's local machine (localhost)
+    #   3. Never reached in production — Vercel uses api/[...path].ts,
+    #      Railway provides platform-level TLS termination.
+    #
+    # HTTP on localhost is an accepted risk — traffic never leaves the
+    # developer's machine. When SSL_KEY_FILE / SSL_CERT_FILE are provided
+    # (staging / self-hosted) the HTTPS path is used unconditionally.
+    - 'server/src/index.ts'

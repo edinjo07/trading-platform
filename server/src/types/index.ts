@@ -183,6 +183,7 @@ export interface Portfolio {
   todayPnlPercent?: number
   peakEquity?: number
   drawdown?: number
+  updatedAt?: string   // ISO timestamp — used by client to reject stale serverless responses
 }
 
 export interface JWTPayload {

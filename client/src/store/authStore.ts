@@ -23,18 +23,33 @@ interface AuthState {
   loadUser: () => Promise<void>
 }
 
-export const useAuthStore = create<AuthState>((set) => {
-  // Restore session on page load
-  supabase.auth.getSession().then(({ data: { session } }) => {
-    if (session?.user) {
-      localStorage.setItem('token', session.access_token)
-      set({ user: mapSupabaseUser(session.user), token: session.access_token })
-    }
-  })
+export const useAuthStore = create<AuthState>((set, get) => {
+  // Initialize session on store creation
+  let initialized = false
 
-  // Keep token in sync when Supabase auto-refreshes it
+  const initSession = async () => {
+    if (initialized) return
+    initialized = true
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session?.user && session.access_token) {
+        localStorage.setItem('token', session.access_token)
+        set({ user: mapSupabaseUser(session.user), token: session.access_token })
+      } else {
+        localStorage.removeItem('token')
+        set({ user: null, token: null })
+      }
+    } catch (err) {
+      console.warn('[Auth] Failed to restore session:', err)
+      localStorage.removeItem('token')
+      set({ user: null, token: null })
+    }
+  }
+
+  // Listen for auth state changes
   supabase.auth.onAuthStateChange((_event, session) => {
-    if (session?.user) {
+    if (session?.user && session.access_token) {
       localStorage.setItem('token', session.access_token)
       set({ user: mapSupabaseUser(session.user), token: session.access_token })
     } else if (_event === 'SIGNED_OUT') {
@@ -42,6 +57,9 @@ export const useAuthStore = create<AuthState>((set) => {
       set({ user: null, token: null })
     }
   })
+
+  // Initialize on first use
+  initSession()
 
   return {
     user: null,
@@ -86,7 +104,7 @@ export const useAuthStore = create<AuthState>((set) => {
       set({ loading: true })
       try {
         const { data: { session } } = await supabase.auth.getSession()
-        if (session?.user) {
+        if (session?.user && session.access_token) {
           localStorage.setItem('token', session.access_token)
           set({ user: mapSupabaseUser(session.user), token: session.access_token, loading: false })
         } else {

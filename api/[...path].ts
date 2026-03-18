@@ -17,19 +17,24 @@ import { users, orders, portfolios, tradeJournal, equityCurve } from '../server/
 import { seedInitialPrices } from '../server/src/services/realDataService'
 import { injectRealPrice } from '../server/src/services/mockDataService'
 
-let initialized = false
+// Use a shared Promise instead of a boolean flag so that concurrent requests
+// (ticker poll, portfolio poll, orders poll all firing at page-load time)
+// all await the SAME loadFromDB call instead of the 2nd-Nth requests seeing
+// initialized=true and running against empty in-memory maps.
+let initPromise: Promise<void> | null = null
 let lastSeed = 0
 
 async function initialize(): Promise<void> {
-  // DB load: only once per container lifetime
-  if (!initialized) {
-    initialized = true
-    try {
-      await loadFromDB({ users, orders, portfolios, tradeJournal, equityCurve })
-    } catch (e) {
-      console.error('[Init] DB bootstrap error:', e)
-    }
+  if (!initPromise) {
+    initPromise = loadFromDB({ users, orders, portfolios, tradeJournal, equityCurve })
+      .then(() => console.log('[Init] ✓ DB bootstrap complete'))
+      .catch(e => {
+        console.error('[Init] DB bootstrap error:', e)
+        // Reset so next request retries rather than waiting on a failed promise
+        initPromise = null
+      })
   }
+  await initPromise
   // Price seed: re-sync from Binance REST on every request, debounced at 5 s.
   const now = Date.now()
   if (now - lastSeed > 5_000) {

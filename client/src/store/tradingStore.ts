@@ -107,9 +107,16 @@ export const useTradingStore = create<TradingState>((set, get) => ({
   loadOrders: async () => {
     try {
       const result = await getOrders()
-      set({ orders: Array.isArray(result) ? result : [] })
+      if (!Array.isArray(result)) return
+      // If the server returns an empty array but we already have orders in state,
+      // keep the existing state — a 200 [] response right after order placement
+      // would otherwise wipe the optimistically-added order from the UI.
+      // The 5-second polling loop will eventually reconcile once the DB confirms.
+      const current = get().orders
+      if (result.length === 0 && current.length > 0) return
+      set({ orders: result })
     } catch {
-      set({ error: 'Failed to load orders' })
+      // 503 / network error — keep existing orders list
     }
   },
 
@@ -118,10 +125,23 @@ export const useTradingStore = create<TradingState>((set, get) => ({
       const result = await getPortfolio()
       // Only set if result looks like a valid portfolio object
       if (result && typeof result === 'object' && !Array.isArray(result)) {
-        set({ portfolio: result })
+        const incoming = result as Portfolio
+        const current  = get().portfolio
+
+        if (current) {
+          // ── Timestamp guard (primary) ──────────────────────────────────────
+          // Both the portfolio route and dbSavePortfolio stamp updated_at.
+          // If the incoming response is older than what we already have, it's
+          // from a stale cold-start container — discard it.
+          if (incoming.updatedAt && current.updatedAt) {
+            if (incoming.updatedAt < current.updatedAt) return
+          }
+        }
+
+        set({ portfolio: incoming })
       }
     } catch {
-      set({ error: 'Failed to load portfolio' })
+      // 503 / network error → keep existing portfolio state, don't reset
     }
   },
 
@@ -146,13 +166,37 @@ export const useTradingStore = create<TradingState>((set, get) => ({
     try {
       const order = await placeOrder(params)
       set((s) => ({ orders: [order, ...s.orders] }))
+
+      // Immediately fetch the authoritative portfolio from the server.
+      // The POST /api/orders handler awaits all DB writes before responding, so
+      // by the time we get here the DB already reflects the filled order.
+      // We only refresh portfolio here (the order itself is already in state from
+      // the POST response). A second full refresh 3s later syncs everything.
+      const refreshPortfolio = async () => {
+        try {
+          const portfolio = await getPortfolio()
+          if (portfolio && typeof portfolio === 'object' && !Array.isArray(portfolio)) {
+            set({ portfolio: portfolio as Portfolio })
+          }
+        } catch { /* ignore refresh errors */ }
+      }
+      await refreshPortfolio()           // immediate — DB is already updated
       setTimeout(async () => {
         try {
-          const [portfolio, orders] = await Promise.all([getPortfolio(), getOrders()])
-          if (portfolio && typeof portfolio === 'object' && !Array.isArray(portfolio)) set({ portfolio })
-          if (Array.isArray(orders)) set({ orders })
-        } catch { /* ignore refresh errors */ }
-      }, 700)
+          const [portfolio, fetchedOrders] = await Promise.all([getPortfolio(), getOrders()])
+          if (portfolio && typeof portfolio === 'object' && !Array.isArray(portfolio)) {
+            set({ portfolio: portfolio as Portfolio })
+          }
+          // Only replace orders list if the server has a non-empty result or we
+          // have no orders yet — never wipe a known order with an empty array.
+          if (Array.isArray(fetchedOrders)) {
+            const current = get().orders
+            if (fetchedOrders.length > 0 || current.length === 0) {
+              set({ orders: fetchedOrders })
+            }
+          }
+        } catch { /* ignore errors */ }
+      }, 3000)
     } catch (err: unknown) {
       // Handle both Axios error shapes and plain Error objects
       const axiosData = (err as { response?: { data?: unknown } })?.response?.data

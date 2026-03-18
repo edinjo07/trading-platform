@@ -6,7 +6,46 @@
 import { supabase } from '../db'
 import { User, Order, Portfolio, TradeRecord, EquityPoint } from '../types'
 
+// ─── Retry helper ─────────────────────────────────────────────────────────────
+// Supabase free tier has occasional transient connection hiccups.  A single
+// retry with a 500ms pause recovers from most of them without exposing the
+// error to the caller.
+async function dbRetry<T>(fn: () => Promise<T>): Promise<T> {
+  try {
+    return await fn()
+  } catch {
+    await new Promise(r => setTimeout(r, 500))
+    return await fn()  // throws if second attempt also fails
+  }
+}
+
 // ─── Users ────────────────────────────────────────────────────────────────────
+
+/**
+ * Ensure a user stub exists in public.users for FK constraints.
+ * Users who authenticate via Supabase Auth are NOT automatically added to this
+ * table — this function inserts a minimal row on first access so that orders
+ * and portfolios (which REFERENCES users(id)) can be persisted.
+ * Uses ignoreDuplicates so existing rows are never overwritten.
+ */
+export async function dbEnsureUser(userId: string, email: string, username?: string): Promise<void> {
+  // Guard against empty strings — `email.split('@')[0]` returns '' for '',
+  // and '' ?? 'Trader' still returns '' because ?? only checks null/undefined.
+  const safeEmail    = email    || `${userId}@unknown.invalid`
+  const safeUsername = username || email.split('@')[0] || `user_${userId.slice(0, 8)}`
+  const { error } = await supabase.from('users').upsert(
+    {
+      id: userId,
+      email: safeEmail,
+      username: safeUsername,
+      password_hash: '$supabase_auth$', // placeholder — password is managed by Supabase Auth
+      balance: 100_000,
+      created_at: new Date().toISOString(),
+    },
+    { onConflict: 'id', ignoreDuplicates: true },
+  )
+  if (error) console.error('[DB] ensureUser:', error.message)
+}
 
 export async function dbSaveUser(user: User): Promise<void> {
   const { error } = await supabase.from('users').upsert(
@@ -137,60 +176,78 @@ export async function dbSaveTradeRecord(record: TradeRecord): Promise<void> {
 }
 
 // ─── Load a single user's portfolio from DB (on-demand fallback) ─────────────
+//
+// IMPORTANT: use .maybeSingle() NOT .single().
+// .single() converts a 0-row result into a PostgREST error (PGRST116), which
+// is indistinguishable from a real DB failure.  With .maybeSingle(), a missing
+// row returns { data: null, error: null } — we can treat that as "new user".
+// Any remaining error is a genuine DB problem and must be thrown so the caller
+// can return 503 instead of silently falling back to the $100k default.
 
 export async function dbLoadPortfolio(userId: string): Promise<Portfolio | null> {
-  const { data, error } = await supabase
-    .from('portfolios')
-    .select('*')
-    .eq('user_id', userId)
-    .single()
-  if (error || !data) return null
-  return {
-    userId: data.user_id,
-    cashBalance: parseFloat(data.cash_balance),
-    totalMarketValue: parseFloat(data.total_market_value ?? 0),
-    totalEquity: parseFloat(data.total_equity ?? data.cash_balance),
-    unrealizedPnl: parseFloat(data.unrealized_pnl ?? 0),
-    realizedPnl: parseFloat(data.realized_pnl ?? 0),
-    todayPnl: parseFloat(data.today_pnl ?? 0),
-    todayPnlPercent: 0,
-    peakEquity: parseFloat(data.peak_equity ?? data.cash_balance),
-    drawdown: parseFloat(data.drawdown ?? 0),
-    positions: data.positions ?? [],
-  }
+  return dbRetry(async () => {
+    const { data, error } = await supabase
+      .from('portfolios')
+      .select('*')
+      .eq('user_id', userId)
+      .maybeSingle()  // null data + no error = row not found (new user)
+    if (error) {
+      throw new Error(`[DB] loadPortfolio: ${error.message}`)
+    }
+    if (!data) return null   // genuine new user — no portfolio row yet
+    return {
+      userId: data.user_id,
+      cashBalance: parseFloat(data.cash_balance),
+      totalMarketValue: parseFloat(data.total_market_value ?? 0),
+      totalEquity: parseFloat(data.total_equity ?? data.cash_balance),
+      unrealizedPnl: parseFloat(data.unrealized_pnl ?? 0),
+      realizedPnl: parseFloat(data.realized_pnl ?? 0),
+      todayPnl: parseFloat(data.today_pnl ?? 0),
+      todayPnlPercent: 0,
+      peakEquity: parseFloat(data.peak_equity ?? data.cash_balance),
+      drawdown: parseFloat(data.drawdown ?? 0),
+      positions: data.positions ?? [],
+      updatedAt: data.updated_at ?? undefined,
+    }
+  })
 }
 
 export async function dbLoadOrders(userId: string): Promise<Order[]> {
-  const { data, error } = await supabase
-    .from('orders')
-    .select('*')
-    .eq('user_id', userId)
-    .order('created_at', { ascending: false })
-  if (error || !data) return []
-  return data.map(o => ({
-    id: o.id,
-    userId: o.user_id,
-    symbol: o.symbol,
-    side: o.side,
-    type: o.type,
-    status: o.status,
-    quantity: parseFloat(o.quantity),
-    price: o.price != null ? parseFloat(o.price) : undefined,
-    stopPrice: o.stop_price != null ? parseFloat(o.stop_price) : undefined,
-    filledQuantity: parseFloat(o.filled_quantity ?? 0),
-    avgFillPrice: o.avg_fill_price != null ? parseFloat(o.avg_fill_price) : undefined,
-    commission: parseFloat(o.commission ?? 0),
-    slippage: parseFloat(o.slippage ?? 0),
-    leverage: parseFloat(o.leverage ?? 1),
-    takeProfit: o.take_profit != null ? parseFloat(o.take_profit) : undefined,
-    stopLoss: o.stop_loss != null ? parseFloat(o.stop_loss) : undefined,
-    trailingOffset: o.trailing_offset != null ? parseFloat(o.trailing_offset) : undefined,
-    timeInForce: o.time_in_force ?? 'GTC',
-    notes: o.notes,
-    createdAt: o.created_at,
-    updatedAt: o.updated_at,
-    filledAt: o.filled_at,
-  } as Order))
+  return dbRetry(async () => {
+    const { data, error } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+    if (error) {
+      throw new Error(`[DB] loadOrders: ${error.message}`)
+    }
+    if (!data) return []
+    return data.map(o => ({
+      id: o.id,
+      userId: o.user_id,
+      symbol: o.symbol,
+      side: o.side,
+      type: o.type,
+      status: o.status,
+      quantity: parseFloat(o.quantity),
+      price: o.price != null ? parseFloat(o.price) : undefined,
+      stopPrice: o.stop_price != null ? parseFloat(o.stop_price) : undefined,
+      filledQuantity: parseFloat(o.filled_quantity ?? 0),
+      avgFillPrice: o.avg_fill_price != null ? parseFloat(o.avg_fill_price) : undefined,
+      commission: parseFloat(o.commission ?? 0),
+      slippage: parseFloat(o.slippage ?? 0),
+      leverage: parseFloat(o.leverage ?? 1),
+      takeProfit: o.take_profit != null ? parseFloat(o.take_profit) : undefined,
+      stopLoss: o.stop_loss != null ? parseFloat(o.stop_loss) : undefined,
+      trailingOffset: o.trailing_offset != null ? parseFloat(o.trailing_offset) : undefined,
+      timeInForce: o.time_in_force ?? 'GTC',
+      notes: o.notes,
+      createdAt: o.created_at,
+      updatedAt: o.updated_at,
+      filledAt: o.filled_at,
+    } as Order))
+  })
 }
 
 // ─── Bootstrap — load all data from DB into in-memory maps ───────────────────
@@ -271,6 +328,7 @@ export async function loadFromDB(params: {
         peakEquity: parseFloat(p.peak_equity),
         drawdown: parseFloat(p.drawdown),
         positions: p.positions ?? [],
+        updatedAt: p.updated_at ?? undefined,
       })
       if (!tradeJournal.has(p.user_id)) tradeJournal.set(p.user_id, [])
       if (!equityCurve.has(p.user_id)) equityCurve.set(p.user_id, [])

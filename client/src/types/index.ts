@@ -122,6 +122,7 @@ export interface Portfolio {
   todayPnlPercent?: number
   peakEquity?: number
   drawdown?: number
+  updatedAt?: string   // ISO timestamp — used to reject stale cold-start container responses
 }
 
 // ---------------------------------------------------------------------------
