@@ -129,12 +129,22 @@ export const useTradingStore = create<TradingState>((set, get) => ({
         const current  = get().portfolio
 
         if (current) {
-          // Guard 1: server returned a cold-start default (no updatedAt) but we
-          // already have DB-confirmed data — discard to avoid overwriting real
-          // balance with the $100k default from a fresh stateless container.
+          // Guard 1: incoming is a plain cold-start default ($100k, no positions,
+          // no updatedAt). Reject it if we have any real state — placed orders,
+          // open positions, actual cash balance, or a previous DB-confirmed timestamp.
+          const incomingIsDefault = !incoming.updatedAt &&
+            incoming.cashBalance >= 99_999.99 &&
+            (!incoming.positions || incoming.positions.length === 0)
+          const currentHasRealData = current.positions.length > 0 ||
+            current.cashBalance < 99_999.99 ||
+            !!current.updatedAt
+          if (incomingIsDefault && currentHasRealData) return
+
+          // Guard 2: server returned unconfirmed data (no updatedAt) but we have
+          // a DB-confirmed timestamp — discard cold-start Default.
           if (!incoming.updatedAt && current.updatedAt) return
 
-          // Guard 2: incoming is older than what we already have.
+          // Guard 3: incoming is older than what we already have.
           if (incoming.updatedAt && current.updatedAt) {
             if (incoming.updatedAt < current.updatedAt) return
           }
@@ -222,7 +232,10 @@ export const useTradingStore = create<TradingState>((set, get) => ({
               totalMarketValue: newMarketValue,
               totalEquity:      parseFloat((newCash + newMarketValue).toFixed(2)),
               positions:        newPositions,
-              // Keep existing updatedAt — do not overwrite with client time
+              // Stamp client-side updatedAt so loadPortfolio Guards 1 & 2 protect
+              // this optimistic state from being overwritten by the cold-start
+              // $100k default on subsequent 5s polls (when DB save is slow/failed).
+              updatedAt: new Date().toISOString(),
             }
           })
         }
