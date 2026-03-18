@@ -362,7 +362,12 @@ export default function AnalyticsPage() {
     )
   }
 
-  const empty = !stats || stats.totalTrades === 0
+  const hasClosedTrades = stats && stats.totalTrades > 0
+  const hasAnyTrades    = trades && trades.length > 0
+  // Show the "No trades yet" splash only when there are genuinely no journal
+  // entries at all.  An open position (buy executed, not yet closed) has
+  // closedAt=undefined and counts toward hasAnyTrades but not hasClosedTrades.
+  const empty = !hasClosedTrades && !hasAnyTrades
 
   return (
     <div className="flex flex-col h-full overflow-y-auto" style={{ background: '#06090f' }}>
@@ -394,6 +399,8 @@ export default function AnalyticsPage() {
           </div>
         ) : (
           <>
+            {/* Stats & charts — only visible once a position has been closed */}
+            {hasClosedTrades ? (<>
             {/* KPI cards */}
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
               <StatCard label="Net P&L" value={formatPnl(stats!.netProfit)} color={pnlColor(stats!.netProfit)}
@@ -444,8 +451,21 @@ export default function AnalyticsPage() {
 
             {/* P&L Calendar */}
             <PnlCalendar trades={trades} />
+            </>) : (
+              /* No closed trades yet but open positions exist — show banner above journal */
+              <div className="rounded-xl p-6 flex items-center gap-4"
+                   style={{ background: '#0c1829', border: '1px solid rgba(255,255,255,0.07)' }}>
+                <svg className="w-8 h-8 shrink-0 text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                </svg>
+                <div>
+                  <p className="text-text-primary font-semibold text-sm">Position open — stats available after closing</p>
+                  <p className="text-text-muted text-xs mt-0.5">Performance metrics (win rate, P&amp;L, Sharpe ratio) are calculated on completed round-trip trades. Close your position to unlock analytics.</p>
+                </div>
+              </div>
+            )}
 
-            {/* Trade journal */}
+            {/* Trade journal — always shown when there are any entries */}
             <div className="rounded-xl overflow-hidden" style={{ background: '#0c1829', border: '1px solid rgba(255,255,255,0.07)' }}>
               <div className="px-5 py-4 flex items-center justify-between" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
                 <h3 className="text-sm font-semibold text-text-primary">Trade Journal</h3>

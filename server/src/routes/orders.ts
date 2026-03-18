@@ -7,8 +7,9 @@ import {
   executeOrder,
   orders,
   portfolios,
+  tradeJournal,
 } from '../services/tradingEngine'
-import { dbLoadOrders, dbLoadPortfolio, dbSaveOrder, dbSavePortfolio, dbEnsureUser } from '../services/dbSync'
+import { dbLoadOrders, dbLoadPortfolio, dbSaveOrder, dbSavePortfolio, dbSaveTradeRecord, dbEnsureUser } from '../services/dbSync'
 import { OrderSide, OrderType, TimeInForce } from '../types'
 
 const router = Router()
@@ -134,6 +135,18 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       dbSaves.push(
         dbSavePortfolio(userId, portfolio).catch((e: unknown) => {
           console.warn('[DB] Failed to save portfolio:', e)
+        }),
+      )
+    }
+
+    // Persist any trade journal entry created/updated by executeOrder.
+    // A market buy that opens a long pushes a record with orderId === order.id.
+    const filledOrderId = (filled ?? order).id
+    const newJournalEntry = (tradeJournal.get(userId) ?? []).find(t => t.orderId === filledOrderId)
+    if (newJournalEntry) {
+      dbSaves.push(
+        dbSaveTradeRecord(newJournalEntry).catch((e: unknown) => {
+          console.warn('[DB] Failed to save trade record:', e)
         }),
       )
     }

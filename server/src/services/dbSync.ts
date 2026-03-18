@@ -353,6 +353,38 @@ export async function dbLoadOrders(userId: string): Promise<Order[]> {
   })
 }
 
+// ─── Load a single user's trade journal from DB ─────────────────────────────
+
+export async function dbLoadTradeJournal(userId: string): Promise<TradeRecord[]> {
+  return dbRetry(async () => {
+    const { data, error } = await supabase
+      .from('trade_journal')
+      .select('*')
+      .eq('user_id', userId)
+      .order('opened_at', { ascending: false })
+    if (error) throw new Error(`[DB] loadTradeJournal: ${error.message}`)
+    if (!data) return []
+    return data.map(t => ({
+      id: t.id,
+      userId: t.user_id,
+      orderId: t.order_id ?? '',
+      symbol: t.symbol,
+      side: t.side as 'buy' | 'sell',
+      quantity: parseFloat(t.quantity),
+      entryPrice: parseFloat(t.entry_price),
+      exitPrice: t.exit_price != null ? parseFloat(t.exit_price) : undefined,
+      pnl: t.pnl != null ? parseFloat(t.pnl) : undefined,
+      netPnl: t.net_pnl != null ? parseFloat(t.net_pnl) : undefined,
+      pnlPercent: t.pnl_percent != null ? parseFloat(t.pnl_percent) : undefined,
+      commission: parseFloat(t.commission ?? 0),
+      openedAt: t.opened_at,
+      closedAt: t.closed_at ?? undefined,
+      holdingPeriodMs: t.holding_period_ms != null ? parseInt(t.holding_period_ms) : undefined,
+      assetClass: t.asset_class ?? 'stock',
+    } as TradeRecord))
+  })
+}
+
 // ─── Bootstrap — load all data from DB into in-memory maps ───────────────────
 
 export async function loadFromDB(params: {
