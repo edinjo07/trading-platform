@@ -10,7 +10,7 @@ export interface AuthRequest extends Request {
 // In-process cache for Supabase token verifications to avoid hitting the API on every request
 const sbCache = new Map<string, { payload: JWTPayload; exp: number }>()
 
-async function verifySupabaseToken(token: string): Promise<JWTPayload | null> {
+export async function verifySupabaseToken(token: string): Promise<JWTPayload | null> {
   const now = Date.now()
   const cached = sbCache.get(token)
   if (cached && cached.exp > now) return cached.payload

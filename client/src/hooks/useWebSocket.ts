@@ -204,6 +204,10 @@ export function useWebSocket() {
     }
 
     if (reconnectRef.current) { clearTimeout(reconnectRef.current); reconnectRef.current = null }
+
+    // Don't abort a connection that's still being established
+    if (wsRef.current?.readyState === WebSocket.CONNECTING) return
+
     if (wsRef.current) { wsRef.current.onclose = null; wsRef.current.onerror = null; wsRef.current.close(); wsRef.current = null }
 
     const wsUrl = buildWsUrl(tokenRef.current)
@@ -214,6 +218,12 @@ export function useWebSocket() {
       if (!mountedRef.current) return
       retryCountRef.current = 0   // reset backoff on successful connect
       console.log('[WS] Connected')
+
+      // If the token loaded after we started connecting, authenticate via message
+      const currentToken = tokenRef.current
+      if (currentToken && !wsUrl.includes('token=')) {
+        ws.send(JSON.stringify({ type: 'auth', payload: { token: currentToken } }))
+      }
 
       // WS is healthy - stop polling fallback
       if (stopPollRef.current) { stopPollRef.current(); stopPollRef.current = null }
@@ -311,7 +321,16 @@ export function useWebSocket() {
     if (token !== tokenAtMount.current) {
       tokenAtMount.current = token
       retryCountRef.current = 0
-      connect()
+      const state = wsRef.current?.readyState
+      if (state === WebSocket.OPEN) {
+        // Already open — re-authenticate in-place without disrupting the connection
+        if (token) wsRef.current!.send(JSON.stringify({ type: 'auth', payload: { token } }))
+      } else if (state !== WebSocket.CONNECTING) {
+        // Closed or no connection — start fresh with the new token
+        connect()
+      }
+      // If CONNECTING, the CONNECTING guard in connect() lets it establish;
+      // the onopen handler will then send the 'auth' message with the current token.
     }
   }, [token, connect])
 

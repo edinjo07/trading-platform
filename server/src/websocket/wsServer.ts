@@ -15,6 +15,7 @@ import { tradeEvents } from '../services/tradingEngine'
 import { botEvents } from '../services/botEngine'
 import { config } from '../config'
 import { JWTPayload } from '../types'
+import { verifySupabaseToken } from '../middleware/auth'
 
 // ---------------------------------------------------------------------------
 // Client registry
@@ -94,20 +95,27 @@ export function initWebSocket(server: Server): WebSocketServer {
   const wss = new WebSocketServer({ server, path: '/ws' })
 
   wss.on('connection', (ws, req) => {
-    // Optional JWT auth via query param ?token=xxx
-    let userId: string | undefined
-    try {
-      const url = new URL(req.url ?? '', 'http://localhost')
-      const token = url.searchParams.get('token')
-      if (token) {
-        const decoded = jwt.verify(token, config.jwtSecret) as JWTPayload
-        userId = decoded.userId
-      }
-    } catch { /* unauthenticated connection */ }
-
-    const client: Client = { ws, subscriptions: new Set(), userId }
+    const client: Client = { ws, subscriptions: new Set() }
     clients.add(client)
-    if (userId) registerUserClient(userId, client)
+
+    // Resolve auth asynchronously — handles custom HS256 and Supabase ES256 tokens
+    ;(async () => {
+      try {
+        const url = new URL(req.url ?? '', 'http://localhost')
+        const token = url.searchParams.get('token')
+        if (!token) return
+        try {
+          // Fast path: custom HS256 token (no network call)
+          const decoded = jwt.verify(token, config.jwtSecret) as Record<string, unknown>
+          const uid = (decoded.userId ?? decoded.sub) as string | undefined
+          if (uid) { client.userId = uid; registerUserClient(uid, client) }
+        } catch {
+          // Slow path: Supabase ES256 token — verify via Supabase API
+          const payload = await verifySupabaseToken(token)
+          if (payload?.userId) { client.userId = payload.userId; registerUserClient(payload.userId, client) }
+        }
+      } catch { /* unauthenticated */ }
+    })()
 
     ws.on('message', (data) => {
       try {
@@ -134,16 +142,29 @@ export function initWebSocket(server: Server): WebSocketServer {
           const channel = payload?.channel as string
           if (channel) client.subscriptions.delete(channel)
         } else if (type === 'auth') {
-          // Late auth
-          try {
-            const token = payload?.token as string
-            const decoded = jwt.verify(token, config.jwtSecret) as JWTPayload
-            client.userId = decoded.userId
-            registerUserClient(decoded.userId, client)
-            send(ws, 'auth_ok', { userId: decoded.userId })
-          } catch {
-            send(ws, 'auth_error', { message: 'Invalid token' })
-          }
+          // Late auth — async to handle Supabase ES256 tokens
+          ;(async () => {
+            try {
+              const token = payload?.token as string
+              let uid: string | undefined
+              try {
+                const decoded = jwt.verify(token, config.jwtSecret) as Record<string, unknown>
+                uid = (decoded.userId ?? decoded.sub) as string | undefined
+              } catch {
+                const sb = await verifySupabaseToken(token)
+                uid = sb?.userId
+              }
+              if (uid) {
+                client.userId = uid
+                registerUserClient(uid, client)
+                send(ws, 'auth_ok', { userId: uid })
+              } else {
+                send(ws, 'auth_error', { message: 'Invalid token' })
+              }
+            } catch {
+              send(ws, 'auth_error', { message: 'Invalid token' })
+            }
+          })()
         }
       } catch { /* ignore malformed */ }
     })
