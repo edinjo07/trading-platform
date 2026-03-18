@@ -32,8 +32,10 @@ const BINANCE_URL = `wss://stream.binance.com:9443/stream?streams=${BINANCE_STRE
 function startBinanceFeed(onPrice: PriceCallback, retryMs = 3000): void {
   let ws: WebSocket
   let retryDelay = retryMs
+  let gaveUp = false
 
   function connect() {
+    if (gaveUp) return
     ws = new WebSocket(BINANCE_URL)
 
     ws.on('open', () => {
@@ -55,6 +57,7 @@ function startBinanceFeed(onPrice: PriceCallback, retryMs = 3000): void {
     })
 
     ws.on('close', () => {
+      if (gaveUp) return
       console.warn(`[Market] ⚠️  Binance WebSocket closed — retrying in ${retryDelay / 1000}s`)
       setTimeout(connect, retryDelay)
       retryDelay = Math.min(retryDelay * 2, 60_000)
@@ -62,6 +65,10 @@ function startBinanceFeed(onPrice: PriceCallback, retryMs = 3000): void {
 
     ws.on('error', (err: Error) => {
       console.error('[Market] Binance WS error:', err.message)
+      if (err.message.includes('451')) {
+        console.warn('[Market] Binance geo-blocked (HTTP 451) — crypto will use GBM simulation')
+        gaveUp = true
+      }
       // 'close' fires after 'error', so reconnect is handled there
     })
   }
@@ -165,6 +172,37 @@ const BINANCE_SEED_SYMBOLS: Record<string, string> = {
   XRPUSDT: 'XRP/USDT',
 }
 
+// CoinGecko id → our symbol (used as fallback when Binance is geo-blocked)
+const COINGECKO_TO_SYMBOL: Record<string, string> = {
+  bitcoin:     'BTC/USDT',
+  ethereum:    'ETH/USDT',
+  solana:      'SOL/USDT',
+  binancecoin: 'BNB/USDT',
+  ripple:      'XRP/USDT',
+}
+
+async function seedFromCoinGecko(onPrice: PriceCallback): Promise<void> {
+  try {
+    const ids = Object.keys(COINGECKO_TO_SYMBOL).join(',')
+    const url = `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd`
+    const resp = await fetch(url, { signal: AbortSignal.timeout(8_000) })
+    if (!resp.ok) {
+      console.warn('[Market] CoinGecko seed HTTP', resp.status)
+      return
+    }
+    const data = await resp.json() as Record<string, { usd: number }>
+    for (const [id, vals] of Object.entries(data)) {
+      const ourSym = COINGECKO_TO_SYMBOL[id]
+      if (ourSym && vals.usd > 0) {
+        onPrice(ourSym, vals.usd)
+        console.log(`[Market] 🌱 Seeded ${ourSym} = $${vals.usd} (CoinGecko)`)
+      }
+    }
+  } catch (err: unknown) {
+    console.warn('[Market] CoinGecko seed failed:', err instanceof Error ? err.message : err)
+  }
+}
+
 export async function seedInitialPrices(
   onPrice: PriceCallback,
   onStats?: StatsCallback,
@@ -172,12 +210,14 @@ export async function seedInitialPrices(
   try {
     // Use the 24-hour ticker endpoint so we get the real openPrice, highPrice,
     // lowPrice and volume — not just the current price. This gives an accurate
-    // 24-hour change % from the very first Vercel cold start.
+    // 24-hour change % from the very first cold start.
     const symbolsJson = JSON.stringify(Object.keys(BINANCE_SEED_SYMBOLS))
     const url = `https://api.binance.com/api/v3/ticker/24hr?symbols=${encodeURIComponent(symbolsJson)}`
     const resp = await fetch(url, { signal: AbortSignal.timeout(8_000) })
     if (!resp.ok) {
       console.warn('[Market] Binance price seed HTTP', resp.status)
+      // Binance is geo-blocked on some hosting platforms — fall back to CoinGecko
+      if (resp.status === 451) await seedFromCoinGecko(onPrice)
       return
     }
     const data = await resp.json() as Array<{
@@ -206,8 +246,8 @@ export async function seedInitialPrices(
         }
       }
     }
-  } catch (err: any) {
-    console.warn('[Market] Could not seed initial prices:', err?.message ?? err)
+  } catch (err: unknown) {
+    console.warn('[Market] Could not seed initial prices:', err instanceof Error ? err.message : err)
   }
 }
 
