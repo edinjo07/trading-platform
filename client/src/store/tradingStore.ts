@@ -171,9 +171,12 @@ export const useTradingStore = create<TradingState>((set, get) => ({
       // Add order to list immediately
       set((s) => ({ orders: [order, ...s.orders] }))
 
-      // Optimistically update cash balance from the fill so the UI is correct
-      // immediately — even if the server refresh returns a stale cold-start
-      // default from a fresh stateless Vercel container.
+      // Optimistically update state from the fill response so the UI is
+      // correct immediately without waiting for the server sync.
+      // Do NOT stamp a client-side updatedAt — the routine loadPortfolio
+      // staleness guard compares against the DB timestamp, and a client
+      // timestamp would be newer than the DB's, causing the 1.5s sync to
+      // be rejected and positions never appearing.
       if (order.status === 'filled' && order.avgFillPrice != null) {
         const current = get().portfolio
         if (current) {
@@ -181,32 +184,61 @@ export const useTradingStore = create<TradingState>((set, get) => ({
           const cost = order.side === 'buy'
             ? qty * order.avgFillPrice + (order.commission ?? 0)
             : -(qty * order.avgFillPrice - (order.commission ?? 0))
+          const newCash = parseFloat((current.cashBalance - cost).toFixed(2))
+
+          // Build updated positions array
+          let newPositions = [...current.positions]
+          if (order.side === 'buy') {
+            const existingIdx = newPositions.findIndex(p => p.symbol === order.symbol && p.side === 'long')
+            if (existingIdx >= 0) {
+              const pos = newPositions[existingIdx]
+              const newQty = pos.quantity + qty
+              const newAvgCost = (pos.avgCost * pos.quantity + order.avgFillPrice * qty) / newQty
+              newPositions[existingIdx] = { ...pos, quantity: newQty, avgCost: newAvgCost,
+                currentPrice: order.avgFillPrice, marketValue: newQty * order.avgFillPrice,
+                unrealizedPnl: 0, unrealizedPnlPercent: 0 }
+            } else {
+              newPositions.push({ symbol: order.symbol, quantity: qty, avgCost: order.avgFillPrice,
+                currentPrice: order.avgFillPrice, marketValue: qty * order.avgFillPrice,
+                unrealizedPnl: 0, unrealizedPnlPercent: 0, side: 'long', openedAt: new Date().toISOString(),
+                leverage: 1, margin: qty * order.avgFillPrice, notionalValue: qty * order.avgFillPrice })
+            }
+          } else if (order.side === 'sell') {
+            const existingIdx = newPositions.findIndex(p => p.symbol === order.symbol && p.side === 'long')
+            if (existingIdx >= 0) {
+              const pos = newPositions[existingIdx]
+              const remaining = pos.quantity - qty
+              if (remaining <= 0.000001) newPositions.splice(existingIdx, 1)
+              else newPositions[existingIdx] = { ...pos, quantity: remaining,
+                marketValue: remaining * order.avgFillPrice }
+            }
+          }
+
+          const newMarketValue = parseFloat(newPositions.reduce((s, p) => s + p.marketValue, 0).toFixed(2))
           set({
             portfolio: {
               ...current,
-              cashBalance: current.cashBalance - cost,
-              // Stamp a client-side updatedAt so loadPortfolio's staleness guard
-              // can reject cold-start $100k defaults from the server.
-              updatedAt: new Date().toISOString(),
+              cashBalance:      newCash,
+              totalMarketValue: newMarketValue,
+              totalEquity:      parseFloat((newCash + newMarketValue).toFixed(2)),
+              positions:        newPositions,
+              // Keep existing updatedAt — do not overwrite with client time
             }
           })
         }
       }
 
       // Delayed sync: pull authoritative state from server after DB write completes.
-      // Only accept portfolio responses that have a DB-confirmed timestamp.
+      // Accept any response with a DB-confirmed updatedAt (bypass the staleness
+      // guard used for routine polling — we know an order just executed).
       setTimeout(async () => {
         try {
           const [portfolio, fetchedOrders] = await Promise.all([getPortfolio(), getOrders()])
           if (portfolio && typeof portfolio === 'object' && !Array.isArray(portfolio)) {
             const incoming = portfolio as Portfolio
-            const current  = get().portfolio
-            // Only accept if it came from DB (has updatedAt) or we have no data yet
-            if (incoming.updatedAt || !current) {
-              if (!current || !incoming.updatedAt || !current.updatedAt ||
-                  incoming.updatedAt >= current.updatedAt) {
-                set({ portfolio: incoming })
-              }
+            // Always accept DB-confirmed data after a known order placement
+            if (incoming.updatedAt) {
+              set({ portfolio: incoming })
             }
           }
           // Only replace orders list if the server has a non-empty result or we
