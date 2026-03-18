@@ -5,7 +5,7 @@ import {
   Portfolio, Position, User, TradeRecord, PerformanceStats, EquityPoint,
 } from '../types'
 import { getLivePrice, getAssetClass } from './mockDataService'
-import { dbSaveUser } from './dbSync'
+import { dbSaveUser, dbSaveOrder } from './dbSync'
 
 // ---------------------------------------------------------------------------
 // Event bus
@@ -834,7 +834,7 @@ export function cancelOrder(orderId: string, userId: string): Order {
 
   order.status    = 'cancelled'
   order.updatedAt = new Date().toISOString()
-  dbSaveOrder(order).catch(e => console.error('[DB]', e))
+  dbSaveOrder(order).catch((e: unknown) => console.error('[DB]', e))
 
   // Remove from watchers
   const idx = watchers.findIndex(w => w.orderId === orderId)
