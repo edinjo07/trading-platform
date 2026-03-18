@@ -189,8 +189,19 @@ export function useWebSocket() {
     reconnectRef.current = setTimeout(connectFn, delay)
   }, [])
 
+  const MAX_WS_RETRIES = 3
+
   const connect = useCallback(() => {
     if (!mountedRef.current) return
+
+    // After MAX_WS_RETRIES consecutive failures (e.g. Vercel — no WS support),
+    // stop trying and stay on REST polling indefinitely.
+    if (retryCountRef.current >= MAX_WS_RETRIES) {
+      if (!stopPollRef.current) {
+        stopPollRef.current = startPolling(() => selectedSymRef.current, mountedRef)
+      }
+      return
+    }
 
     if (reconnectRef.current) { clearTimeout(reconnectRef.current); reconnectRef.current = null }
     if (wsRef.current) { wsRef.current.onclose = null; wsRef.current.onerror = null; wsRef.current.close(); wsRef.current = null }
@@ -259,15 +270,19 @@ export function useWebSocket() {
       if (!stopPollRef.current) {
         stopPollRef.current = startPolling(() => selectedSymRef.current, mountedRef)
       }
-      const delay = Math.min(1000 * 2 ** retryCountRef.current, 30_000)
-      console.log(`[WS] Disconnected - reconnecting in ${delay / 1000}s`)
-      scheduleReconnect(connect)
+      if (retryCountRef.current < MAX_WS_RETRIES) {
+        scheduleReconnect(connect)
+      }
     }
 
     ws.onerror = () => {
       // onclose fires right after onerror - null it to prevent double-reconnect
       ws.onclose = null
       ws.close()
+      // Log once on the first failure so there's still a visible indicator
+      if (retryCountRef.current === 0) {
+        console.info('[WS] WebSocket unavailable — using REST polling fallback')
+      }
       // Start polling immediately so live data keeps working during reconnect
       if (!stopPollRef.current) {
         stopPollRef.current = startPolling(() => selectedSymRef.current, mountedRef)
