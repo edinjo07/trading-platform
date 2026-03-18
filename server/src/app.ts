@@ -21,6 +21,14 @@ app.use(cors({ origin: corsOrigins, credentials: true }))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
+// Disable HTTP caching for all API responses so polls always get fresh data.
+// Without this, browsers return 304 Not Modified and serve stale order/portfolio
+// state from their cache, causing orders to appear to disappear after placement.
+app.use('/api', (_req, res, next) => {
+  res.setHeader('Cache-Control', 'no-store')
+  next()
+})
+
 // Routes
 app.use('/api/auth', authRoutes)
 app.use('/api/markets', marketsRoutes)
