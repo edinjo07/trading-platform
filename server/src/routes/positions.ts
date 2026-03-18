@@ -1,6 +1,6 @@
 import { Router, Response } from 'express'
 import { authenticate, AuthRequest } from '../middleware/auth'
-import { getPortfolio, closePosition, portfolios, refreshPortfolio } from '../services/tradingEngine'
+import { getPortfolio, closePosition, executeOrder, portfolios, orders, refreshPortfolio } from '../services/tradingEngine'
 import { dbLoadPortfolio, dbSaveOrder, dbSavePortfolio, dbEnsureUser } from '../services/dbSync'
 
 const router = Router()
@@ -36,10 +36,15 @@ router.delete('/:symbol', async (req: AuthRequest, res: Response) => {
 
     const order = closePosition(userId, symbol)
 
-    // Persist the closing sell order + updated portfolio
-    const portfolio = portfolios.get(userId)
+    // Execute the sell immediately (closePosition only creates the order;
+    // without this the position stays open until the tick loop fires it)
+    executeOrder(order.id)
+
+    // Now the sell has filled — grab the fresh order and portfolio states
+    const filledOrder = orders.get(order.id) ?? order
+    const portfolio   = portfolios.get(userId)
     const saves: Promise<void>[] = [
-      dbSaveOrder(order).catch((e: unknown) => console.error('[Positions] save order failed:', e)),
+      dbSaveOrder(filledOrder).catch((e: unknown) => console.error('[Positions] save order failed:', e)),
     ]
     if (portfolio) {
       saves.push(dbSavePortfolio(userId, portfolio).catch((e: unknown) => console.error('[Positions] save portfolio failed:', e)))
