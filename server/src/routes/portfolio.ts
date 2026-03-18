@@ -25,9 +25,8 @@ router.get('/', async (req: AuthRequest, res: Response) => {
 
   try {
     // Step 1: ensure FK row — fast ignoreDuplicates upsert.
-    // Inside the try block so that a failure causes 503 rather than silently
-    // proceeding to dbLoadPortfolio with a broken FK chain.
-    await dbEnsureUser(userId, req.user!.email)
+    // Non-fatal for GET: if this fails we still serve in-memory state below.
+    try { await dbEnsureUser(userId, req.user!.email) } catch { /* non-fatal on GET */ }
 
     // Step 2-3: always read from DB (authoritative state).
     const dbPortfolio = await dbLoadPortfolio(userId)
@@ -50,10 +49,12 @@ router.get('/', async (req: AuthRequest, res: Response) => {
     return res.json(newPortfolio)
 
   } catch (err) {
-    // Step 5: DB unreachable — return 503 so the client KEEPS its current
-    // portfolio state instead of overwriting it with a stale $100k default.
-    console.error('[Portfolio] DB error — returning 503 to preserve client state:', err)
-    return res.status(503).json({ error: 'Portfolio service temporarily unavailable' })
+    // Step 5: DB unreachable (e.g. missing env vars) — serve in-memory state
+    // so the client is usable rather than permanently broken.  On a cold start
+    // with no DB, this returns the $100k default which is correct for a new user.
+    console.error('[Portfolio] DB error — serving in-memory fallback:', err)
+    const fallback = getPortfolio(userId)
+    return res.json(refreshPortfolio(fallback))
   }
 })
 

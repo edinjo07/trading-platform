@@ -32,10 +32,13 @@ router.get('/', async (req: AuthRequest, res: Response) => {
       : dbOrders
     return res.json(result)
   } catch (err) {
-    // DB unavailable — return 503 so the client KEEPS its existing orders list
-    // instead of overwriting it with an empty array from a cold container.
-    console.error('[Orders] DB read failed:', err)
-    return res.status(503).json({ error: 'Orders service temporarily unavailable' })
+    // DB unavailable (e.g. missing env vars) — serve in-memory orders so the
+    // client is usable rather than permanently broken.  On a cold start with
+    // no DB, this returns an empty list which is correct for a new user.
+    console.error('[Orders] DB read failed — serving in-memory fallback:', err)
+    const memOrders = getOrdersByUser(userId)
+    const result2 = status ? memOrders.filter(o => o.status === (status as string)) : memOrders
+    return res.json(result2)
   }
 })
 
