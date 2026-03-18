@@ -129,10 +129,12 @@ export const useTradingStore = create<TradingState>((set, get) => ({
         const current  = get().portfolio
 
         if (current) {
-          // ── Timestamp guard (primary) ──────────────────────────────────────
-          // Both the portfolio route and dbSavePortfolio stamp updated_at.
-          // If the incoming response is older than what we already have, it's
-          // from a stale cold-start container — discard it.
+          // Guard 1: server returned a cold-start default (no updatedAt) but we
+          // already have DB-confirmed data — discard to avoid overwriting real
+          // balance with the $100k default from a fresh stateless container.
+          if (!incoming.updatedAt && current.updatedAt) return
+
+          // Guard 2: incoming is older than what we already have.
           if (incoming.updatedAt && current.updatedAt) {
             if (incoming.updatedAt < current.updatedAt) return
           }
@@ -165,27 +167,47 @@ export const useTradingStore = create<TradingState>((set, get) => ({
   placeOrder: async (params) => {
     try {
       const order = await placeOrder(params)
+
+      // Add order to list immediately
       set((s) => ({ orders: [order, ...s.orders] }))
 
-      // Immediately fetch the authoritative portfolio from the server.
-      // The POST /api/orders handler awaits all DB writes before responding, so
-      // by the time we get here the DB already reflects the filled order.
-      // We only refresh portfolio here (the order itself is already in state from
-      // the POST response). A second full refresh 3s later syncs everything.
-      const refreshPortfolio = async () => {
-        try {
-          const portfolio = await getPortfolio()
-          if (portfolio && typeof portfolio === 'object' && !Array.isArray(portfolio)) {
-            set({ portfolio: portfolio as Portfolio })
-          }
-        } catch { /* ignore refresh errors */ }
+      // Optimistically update cash balance from the fill so the UI is correct
+      // immediately — even if the server refresh returns a stale cold-start
+      // default from a fresh stateless Vercel container.
+      if (order.status === 'filled' && order.avgFillPrice != null) {
+        const current = get().portfolio
+        if (current) {
+          const qty  = order.filledQuantity ?? order.quantity
+          const cost = order.side === 'buy'
+            ? qty * order.avgFillPrice + (order.commission ?? 0)
+            : -(qty * order.avgFillPrice - (order.commission ?? 0))
+          set({
+            portfolio: {
+              ...current,
+              cashBalance: current.cashBalance - cost,
+              // Stamp a client-side updatedAt so loadPortfolio's staleness guard
+              // can reject cold-start $100k defaults from the server.
+              updatedAt: new Date().toISOString(),
+            }
+          })
+        }
       }
-      await refreshPortfolio()           // immediate — DB is already updated
+
+      // Delayed sync: pull authoritative state from server after DB write completes.
+      // Only accept portfolio responses that have a DB-confirmed timestamp.
       setTimeout(async () => {
         try {
           const [portfolio, fetchedOrders] = await Promise.all([getPortfolio(), getOrders()])
           if (portfolio && typeof portfolio === 'object' && !Array.isArray(portfolio)) {
-            set({ portfolio: portfolio as Portfolio })
+            const incoming = portfolio as Portfolio
+            const current  = get().portfolio
+            // Only accept if it came from DB (has updatedAt) or we have no data yet
+            if (incoming.updatedAt || !current) {
+              if (!current || !incoming.updatedAt || !current.updatedAt ||
+                  incoming.updatedAt >= current.updatedAt) {
+                set({ portfolio: incoming })
+              }
+            }
           }
           // Only replace orders list if the server has a non-empty result or we
           // have no orders yet — never wipe a known order with an empty array.
@@ -196,7 +218,7 @@ export const useTradingStore = create<TradingState>((set, get) => ({
             }
           }
         } catch { /* ignore errors */ }
-      }, 3000)
+      }, 1500)
     } catch (err: unknown) {
       // Handle both Axios error shapes and plain Error objects
       const axiosData = (err as { response?: { data?: unknown } })?.response?.data
