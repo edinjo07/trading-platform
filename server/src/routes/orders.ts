@@ -25,7 +25,23 @@ router.get('/', async (req: AuthRequest, res: Response) => {
   const { status } = req.query
   const userId = req.user!.userId
   try {
-    const dbOrders = await dbLoadOrders(userId)
+    let dbOrders = await dbLoadOrders(userId)
+
+    // DB returned nothing but in-memory has orders for this user.
+    // This happens when the schema was created AFTER orders were already placed
+    // (orders lived only in-memory). Backfill them to DB now so they survive
+    // future restarts, then serve from memory.
+    if (dbOrders.length === 0) {
+      const memOrders = getOrdersByUser(userId)
+      if (memOrders.length > 0) {
+        console.log(`[Orders] Backfilling ${memOrders.length} in-memory order(s) to DB for ${userId}`)
+        for (const o of memOrders) {
+          dbSaveOrder(o).catch((e: unknown) => console.error('[Orders] backfill save failed:', e))
+        }
+        dbOrders = memOrders
+      }
+    }
+
     // Sync into in-memory map so the watcher system stays consistent
     for (const o of dbOrders) orders.set(o.id, o)
     const result = status

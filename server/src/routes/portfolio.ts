@@ -1,7 +1,7 @@
 import { Router, Response } from 'express'
 import { authenticate, AuthRequest } from '../middleware/auth'
 import { getPortfolio, portfolios, refreshPortfolio } from '../services/tradingEngine'
-import { dbLoadPortfolio, dbLoadOrders, dbEnsureUser, rebuildPositionsFromOrders } from '../services/dbSync'
+import { dbLoadPortfolio, dbLoadOrders, dbEnsureUser, dbSavePortfolio, rebuildPositionsFromOrders } from '../services/dbSync'
 
 const router = Router()
 router.use(authenticate)
@@ -58,14 +58,19 @@ router.get('/', async (req: AuthRequest, res: Response) => {
       return res.json(fresh)
     }
 
-    // Step 4: first-time user — no portfolio row in DB yet.
-    // Return the $100k default WITHOUT writing to DB.  The portfolio row is
-    // created on first order placement (orders.ts awaits dbSavePortfolio after
-    // executeOrder).  Writing here would corrupt an existing portfolio if
-    // maybeSingle ever returns null under load (e.g. Supabase rate-limits
-    // the read but not the write that follows).
-    const newPortfolio = getPortfolio(userId)
-    return res.json(newPortfolio)
+    // Step 4: no portfolio row in DB yet.
+    // Check in-memory: if this user has a non-default portfolio (balance changed
+    // or positions exist), the schema was created AFTER they started trading.
+    // Backfill to DB now so data survives the next restart, then return it.
+    const memPortfolio = getPortfolio(userId)
+    const hasRealData = memPortfolio.cashBalance < 99_999.99 || memPortfolio.positions.length > 0
+    if (hasRealData) {
+      console.log(`[Portfolio] Backfilling in-memory portfolio to DB for ${userId}`)
+      dbSavePortfolio(userId, memPortfolio).catch((e: unknown) =>
+        console.error('[Portfolio] backfill save failed:', e)
+      )
+    }
+    return res.json(memPortfolio)
 
   } catch (err) {
     // Step 5: DB unreachable (e.g. missing env vars) — serve in-memory state
