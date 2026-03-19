@@ -80,6 +80,39 @@ CREATE TABLE IF NOT EXISTS trade_journal (
 
 CREATE INDEX IF NOT EXISTS idx_journal_user_id ON trade_journal(user_id);
 
+-- ── Bots ─────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS bots (
+  id                    UUID        PRIMARY KEY,
+  user_id               UUID        NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  name                  TEXT        NOT NULL,
+  symbol                TEXT        NOT NULL,
+  strategy              TEXT        NOT NULL,
+  params                JSONB       NOT NULL DEFAULT '{}',
+  status                TEXT        NOT NULL DEFAULT 'idle',
+  position              TEXT        NOT NULL DEFAULT 'none',
+  trades                INT         NOT NULL DEFAULT 0,
+  wins                  INT         NOT NULL DEFAULT 0,
+  losses                INT         NOT NULL DEFAULT 0,
+  pnl                   NUMERIC     NOT NULL DEFAULT 0,
+  peak_pnl              NUMERIC     NOT NULL DEFAULT 0,
+  max_drawdown          NUMERIC     NOT NULL DEFAULT 0,
+  equity_curve          JSONB       NOT NULL DEFAULT '[]'::jsonb,
+  daily_trades          INT         NOT NULL DEFAULT 0,
+  daily_loss            NUMERIC     NOT NULL DEFAULT 0,
+  daily_reset_date      TEXT        NOT NULL DEFAULT '',
+  warmup_bars_needed    INT         NOT NULL DEFAULT 0,
+  warmup_bars_current   INT         NOT NULL DEFAULT 0,
+  logs                  JSONB       NOT NULL DEFAULT '[]'::jsonb,
+  risk_accepted         BOOLEAN,
+  risk_accepted_at      TIMESTAMPTZ,
+  created_at            TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  started_at            TIMESTAMPTZ,
+  stopped_at            TIMESTAMPTZ,
+  updated_at            TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_bots_user_id ON bots(user_id);
+
 -- ── Row Level Security (optional — disable for server-side service role) ──
 -- The server uses the service_role key which bypasses RLS automatically.
 -- Enable RLS if you also expose Supabase directly to the client:

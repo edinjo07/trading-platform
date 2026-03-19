@@ -505,3 +505,98 @@ export async function loadFromDB(params: {
     console.log(`[DB] ✓ ${journalData?.length ?? 0} trade records loaded`)
   }
 }
+
+// ─── Bots ─────────────────────────────────────────────────────────────────────
+
+// Minimal shape needed for DB persistence — avoids importing Bot from botEngine
+export interface BotRow {
+  id: string; userId: string; name: string; symbol: string
+  strategy: string; params: object; status: string; position: string
+  trades: number; wins: number; losses: number; pnl: number
+  peakPnl: number; maxDrawdown: number
+  equityCurve: { ts: number; pnl: number }[]
+  dailyTrades: number; dailyLoss: number; dailyResetDate: string
+  warmupBarsNeeded: number; warmupBarsCurrent: number
+  logs: { ts: string; level: string; message: string }[]
+  riskAccepted?: boolean; riskAcceptedAt?: string
+  createdAt: string; startedAt?: string; stoppedAt?: string
+}
+
+export async function dbSaveBot(bot: BotRow): Promise<void> {
+  const { error } = await supabase.from('bots').upsert(
+    {
+      id:                   bot.id,
+      user_id:              bot.userId,
+      name:                 bot.name,
+      symbol:               bot.symbol,
+      strategy:             bot.strategy,
+      params:               bot.params,
+      status:               bot.status,
+      position:             bot.position,
+      trades:               bot.trades,
+      wins:                 bot.wins,
+      losses:               bot.losses,
+      pnl:                  bot.pnl,
+      peak_pnl:             bot.peakPnl,
+      max_drawdown:         bot.maxDrawdown,
+      equity_curve:         bot.equityCurve,
+      daily_trades:         bot.dailyTrades,
+      daily_loss:           bot.dailyLoss,
+      daily_reset_date:     bot.dailyResetDate,
+      warmup_bars_needed:   bot.warmupBarsNeeded,
+      warmup_bars_current:  bot.warmupBarsCurrent,
+      logs:                 bot.logs.slice(-200),  // cap at 200 entries
+      risk_accepted:        bot.riskAccepted ?? null,
+      risk_accepted_at:     bot.riskAcceptedAt ?? null,
+      created_at:           bot.createdAt,
+      started_at:           bot.startedAt ?? null,
+      stopped_at:           bot.stoppedAt ?? null,
+      updated_at:           new Date().toISOString(),
+    },
+    { onConflict: 'id' },
+  )
+  if (error) console.error('[DB] saveBot:', error.message)
+}
+
+export async function dbDeleteBot(botId: string): Promise<void> {
+  const { error } = await supabase.from('bots').delete().eq('id', botId)
+  if (error) console.error('[DB] deleteBot:', error.message)
+}
+
+export async function dbLoadAllBots(): Promise<BotRow[]> {
+  return dbRetry(async () => {
+    const { data, error } = await supabase
+      .from('bots')
+      .select('*')
+      .order('created_at', { ascending: true })
+    if (error) throw new Error(`[DB] loadBots: ${error.message}`)
+    return (data ?? []).map(b => ({
+      id:                  b.id,
+      userId:              b.user_id,
+      name:                b.name,
+      symbol:              b.symbol,
+      strategy:            b.strategy,
+      params:              b.params ?? {},
+      status:              b.status,
+      position:            b.position,
+      trades:              b.trades ?? 0,
+      wins:                b.wins ?? 0,
+      losses:              b.losses ?? 0,
+      pnl:                 parseFloat(b.pnl ?? 0),
+      peakPnl:             parseFloat(b.peak_pnl ?? 0),
+      maxDrawdown:         parseFloat(b.max_drawdown ?? 0),
+      equityCurve:         b.equity_curve ?? [],
+      dailyTrades:         b.daily_trades ?? 0,
+      dailyLoss:           parseFloat(b.daily_loss ?? 0),
+      dailyResetDate:      b.daily_reset_date ?? '',
+      warmupBarsNeeded:    b.warmup_bars_needed ?? 0,
+      warmupBarsCurrent:   b.warmup_bars_current ?? 0,
+      logs:                b.logs ?? [],
+      riskAccepted:        b.risk_accepted ?? undefined,
+      riskAcceptedAt:      b.risk_accepted_at ?? undefined,
+      createdAt:           b.created_at,
+      startedAt:           b.started_at ?? undefined,
+      stoppedAt:           b.stopped_at ?? undefined,
+    } as BotRow))
+  })
+}

@@ -327,7 +327,7 @@ function BotCard({ bot, selected, onClick }: { bot: Bot; selected: boolean; onCl
       {bot.status === 'warming_up' && (
         <div className="mb-2">
           <div className="flex justify-between text-xs mb-1" style={{ color: '#38bdf8' }}>
-            <span>Warming upâ€¦</span>
+            <span>Warming up…</span>
             <span>{bot.warmupBarsCurrent}/{bot.warmupBarsNeeded} bars</span>
           </div>
           <div className="h-1 rounded-full" style={{ background: 'rgba(56,189,248,0.15)' }}>
@@ -458,7 +458,7 @@ function CreateBotModal({ onClose, onCreate }: { onClose: () => void; onCreate: 
             </div>
             <h2 className="text-base font-bold text-white">Deploy New TradePilot Bot</h2>
           </div>
-          <button onClick={onClose} className="text-text-muted hover:text-white transition-colors text-xl leading-none">Ã—</button>
+          <button onClick={onClose} className="text-text-muted hover:text-white transition-colors text-xl leading-none">×</button>
         </div>
 
         {/* Tabs */}
@@ -470,7 +470,7 @@ function CreateBotModal({ onClose, onCreate }: { onClose: () => void; onCreate: 
                       color: tab === t ? '#0ea5e9' : '#4b6280',
                       borderBottom: tab === t ? '2px solid #0ea5e9' : '2px solid transparent',
                     }}>
-              {t === 'strategy' ? 'âš™ Strategy' : 'ðŸ›¡ Risk'}
+              {t === 'strategy' ? '⚙ Strategy' : '🛡 Risk'}
             </button>
           ))}
         </div>
@@ -630,11 +630,13 @@ function CreateBotModal({ onClose, onCreate }: { onClose: () => void; onCreate: 
                 <div className="rounded-xl p-3 text-xs space-y-1"
                      style={{ background: 'rgba(14,165,233,0.06)', border: '1px solid rgba(14,165,233,0.15)' }}>
                   <p className="font-semibold mb-1.5" style={{ color: '#38bdf8' }}>Active risk rules:</p>
-                  {slPct && <p style={{ color: '#94a3b8' }}>ðŸ”´ Stop loss at <span className="text-white font-semibold">{slPct}%</span> below entry</p>}
-                  {tpPct && <p style={{ color: '#94a3b8' }}>ðŸŸ¡ Take profit at <span className="text-white font-semibold">{tpPct}%</span> above entry</p>}
-                  {maxDL && <p style={{ color: '#94a3b8' }}>ðŸ›¡ Pause after <span className="text-white font-semibold">${maxDL}</span> daily loss</p>}
-                  {maxDT && <p style={{ color: '#94a3b8' }}>â± Cap at <span className="text-white font-semibold">{maxDT}</span> trades/day</p>}
-                  {confirmB > 1 && <p style={{ color: '#94a3b8' }}>âš¡ Require <span className="text-white font-semibold">{confirmB}</span> consecutive signals</p>}                  {useNewsFilter  && <p style={{ color: '#38bdf8' }}>📰 News sentiment filter enabled (blocks bearish buys)</p>}                </div>
+                  {slPct && <p style={{ color: '#94a3b8' }}>🔴 Stop loss at <span className="text-white font-semibold">{slPct}%</span> below entry</p>}
+                  {tpPct && <p style={{ color: '#94a3b8' }}>🟡 Take profit at <span className="text-white font-semibold">{tpPct}%</span> above entry</p>}
+                  {maxDL && <p style={{ color: '#94a3b8' }}>🛡 Pause after <span className="text-white font-semibold">${maxDL}</span> daily loss</p>}
+                  {maxDT && <p style={{ color: '#94a3b8' }}>⏱ Cap at <span className="text-white font-semibold">{maxDT}</span> trades/day</p>}
+                  {confirmB > 1 && <p style={{ color: '#94a3b8' }}>⚡ Require <span className="text-white font-semibold">{confirmB}</span> consecutive signals</p>}
+                  {useNewsFilter  && <p style={{ color: '#38bdf8' }}>📰 News sentiment filter enabled (blocks bearish buys)</p>}
+                </div>
               )}
             </div>
           )}
@@ -644,7 +646,7 @@ function CreateBotModal({ onClose, onCreate }: { onClose: () => void; onCreate: 
           <div className="flex gap-3 pt-1">
             <button type="button" onClick={onClose} className="flex-1 btn-outline py-2.5 rounded-xl text-sm font-semibold">Cancel</button>
             <button type="submit" disabled={loading} className="flex-1 btn-primary py-2.5 rounded-xl text-sm font-semibold">
-              {loading ? 'Deployingâ€¦' : 'Deploy Bot'}
+              {loading ? 'Deploying…' : 'Deploy Bot'}
             </button>
           </div>
         </form>
@@ -786,7 +788,7 @@ export default function BotsPage() {
         {/* Bot list */}
         <div className="w-72 flex-shrink-0 overflow-y-auto border-r p-3 space-y-2.5"
              style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
-          {loading && <div className="text-center py-10 text-text-muted text-sm">Loading botsâ€¦</div>}
+          {loading && <div className="text-center py-10 text-text-muted text-sm">Loading bots…</div>}
           {!loading && bots.length === 0 && (
             <div className="text-center py-12 px-4">
               <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4"
@@ -823,8 +825,8 @@ export default function BotsPage() {
                   </span>
                 </div>
                 <p className="text-xs text-text-muted mt-0.5">
-                  {selected.symbol} Â· Created {fmtDate(selected.createdAt)}
-                  {selected.startedAt && ` Â· Started ${fmtDate(selected.startedAt)}`}
+                  {selected.symbol} · Created {fmtDate(selected.createdAt)}
+                  {selected.startedAt && ` · Started ${fmtDate(selected.startedAt)}`}
                 </p>
               </div>
               <div className="flex items-center gap-2">
@@ -833,14 +835,14 @@ export default function BotsPage() {
                           className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-semibold"
                           style={{ background: '#00c87818', border: '1px solid #00c87840', color: '#00c878' }}>
                     <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
-                    {actionId === selected.id ? 'Startingâ€¦' : selected.status === 'paused' ? 'Resume' : 'Start'}
+                    {actionId === selected.id ? 'Starting…' : selected.status === 'paused' ? 'Resume' : 'Start'}
                   </button>
                 ) : (
                   <button onClick={() => handleStop(selected)} disabled={!!actionId}
                           className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-semibold"
                           style={{ background: '#f59e0b18', border: '1px solid #f59e0b40', color: '#f59e0b' }}>
                     <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
-                    {actionId === selected.id ? 'Stoppingâ€¦' : 'Stop'}
+                    {actionId === selected.id ? 'Stopping…' : 'Stop'}
                   </button>
                 )}
                 <button onClick={() => handleDelete(selected)} disabled={!!actionId}
@@ -858,7 +860,7 @@ export default function BotsPage() {
             {selected.status === 'warming_up' && (
               <div className="px-6 py-2.5 border-b" style={{ borderColor: 'rgba(255,255,255,0.05)', background: 'rgba(56,189,248,0.04)' }}>
                 <div className="flex justify-between text-xs mb-1.5" style={{ color: '#38bdf8' }}>
-                  <span>â³ Loading historical bars for indicator warmupâ€¦</span>
+                  <span>⏳ Loading historical bars for indicator warmup…</span>
                   <span>{selected.warmupBarsCurrent}/{selected.warmupBarsNeeded}</span>
                 </div>
                 <div className="h-1.5 rounded-full" style={{ background: 'rgba(56,189,248,0.12)' }}>
@@ -871,7 +873,7 @@ export default function BotsPage() {
             {/* Metrics */}
             <div className="grid grid-cols-7 gap-px border-b" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
               {[
-                { label: 'Position',     value: selected.position === 'long' ? 'â— LONG' : 'â—‹ FLAT', color: selected.position === 'long' ? '#00c878' : '#64748b' },
+                { label: 'Position',     value: selected.position === 'long' ? '● LONG' : '○ FLAT', color: selected.position === 'long' ? '#00c878' : '#64748b' },
                 { label: 'Total P&L',    value: $pnl(selected.pnl),          color: selected.pnl >= 0 ? '#00c878' : '#ef4444' },
                 { label: 'Max DD',       value: selected.maxDrawdown > 0 ? `-${selected.maxDrawdown.toFixed(1)}%` : '--', color: '#ef4444' },
                 { label: 'Trades',       value: selected.trades,              color: '#f59e0b' },
@@ -892,8 +894,8 @@ export default function BotsPage() {
                    style={{ borderColor: 'rgba(255,255,255,0.05)', background: 'rgba(0,200,120,0.04)' }}>
                 <span style={{ color: '#64748b' }}>Active trade:</span>
                 {selected.currentEntryPrice && <span>Entry: <span className="font-bold text-white">{selected.currentEntryPrice.toFixed(5)}</span></span>}
-                {selected.currentSL && <span style={{ color: '#f43f5e' }}>ðŸ”´ SL: <span className="font-bold">{selected.currentSL.toFixed(5)}</span></span>}
-                {selected.currentTP && <span style={{ color: '#fbbf24' }}>ðŸŸ¡ TP: <span className="font-bold">{selected.currentTP.toFixed(5)}</span></span>}
+                {selected.currentSL && <span style={{ color: '#f43f5e' }}>🔴 SL: <span className="font-bold">{selected.currentSL.toFixed(5)}</span></span>}
+                {selected.currentTP && <span style={{ color: '#fbbf24' }}>🟡 TP: <span className="font-bold">{selected.currentTP.toFixed(5)}</span></span>}
               </div>
             )}
 

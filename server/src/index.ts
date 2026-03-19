@@ -6,6 +6,7 @@ import app from './app'
 import { initWebSocket } from './websocket/wsServer'
 import { loadFromDB } from './services/dbSync'
 import { users, orders, portfolios, tradeJournal, equityCurve } from './services/tradingEngine'
+import { botEngine } from './services/botEngine'
 
 // ---------------------------------------------------------------------------
 // Server startup
@@ -39,6 +40,7 @@ const server = createServer()
 initWebSocket(server)
 
 loadFromDB({ users, orders, portfolios, tradeJournal, equityCurve })
+  .then(() => botEngine.loadFromDB())
   .catch(e => console.error('[DB] Bootstrap failed:', e))
   .finally(() => {
     server.listen(config.port, () => {

@@ -4,6 +4,7 @@ import { getLivePrice, marketEvents } from './mockDataService'
 import { getCandles } from './candleService'
 import { createOrder, getPortfolio } from './tradingEngine'
 import { getSentiment, getCachedSentiment } from './newsService'
+import { dbSaveBot, dbDeleteBot, dbLoadAllBots, BotRow } from './dbSync'
 import { Candle } from '../types'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -225,6 +226,7 @@ class BotEngine {
       (params.stopLossPercent   ? ` | SL=${params.stopLossPercent}%`   : '') +
       (params.takeProfitPercent ? ` | TP=${params.takeProfitPercent}%` : '') +
       ` | warmup=${needed} bars`)
+    dbSaveBot(this.toRow(bot)).catch(e => console.error('[Bot] save on create:', e))
     return bot
   }
 
@@ -285,6 +287,7 @@ class BotEngine {
     const bot = this.getOwned(id, userId)
     this.halt(bot, 'stopped')
     this.bots.delete(id)
+    dbDeleteBot(id).catch(e => console.error('[Bot] delete from DB:', e))
   }
 
   // ── Warmup ─────────────────────────────────────────────────────────────────
@@ -543,10 +546,12 @@ class BotEngine {
     if (bot.slTpHandle)    { clearInterval(bot.slTpHandle);  bot.slTpHandle  = undefined }
     if (bot.dailyHandle)   { clearInterval(bot.dailyHandle); bot.dailyHandle = undefined }
     bot.status = status; bot.stoppedAt = new Date().toISOString()
+    dbSaveBot(this.toRow(bot)).catch(e => console.error('[Bot] save on halt:', e))
   }
 
   private emit(bot: Bot): void {
     botEvents.emit('botUpdate', bot.userId, bot.id, this.wireView(bot))
+    dbSaveBot(this.toRow(bot)).catch(e => console.error('[Bot] save on emit:', e))
   }
 
   private getOwned(id: string, userId: string): Bot {
@@ -559,6 +564,56 @@ class BotEngine {
   private wireView(bot: Bot): Bot {
     const { candleHandler, slTpHandle, dailyHandle, priceBuffer, pendingSignal, pendingSignalBars, ...rest } = bot
     return { ...rest, priceBuffer: [], pendingSignal: null, pendingSignalBars: 0 } as Bot
+  }
+
+  private toRow(bot: Bot): BotRow {
+    return {
+      id: bot.id, userId: bot.userId, name: bot.name,
+      symbol: bot.symbol, strategy: bot.strategy, params: bot.params,
+      status: bot.status, position: bot.position,
+      trades: bot.trades, wins: bot.wins, losses: bot.losses,
+      pnl: bot.pnl, peakPnl: bot.peakPnl, maxDrawdown: bot.maxDrawdown,
+      equityCurve: bot.equityCurve ?? [],
+      dailyTrades: bot.dailyTrades, dailyLoss: bot.dailyLoss,
+      dailyResetDate: bot.dailyResetDate,
+      warmupBarsNeeded: bot.warmupBarsNeeded, warmupBarsCurrent: bot.warmupBarsCurrent,
+      logs: bot.logs ?? [],
+      riskAccepted: bot.riskAccepted, riskAcceptedAt: bot.riskAcceptedAt,
+      createdAt: bot.createdAt, startedAt: bot.startedAt, stoppedAt: bot.stoppedAt,
+    }
+  }
+
+  // ── Restore from DB on server startup ─────────────────────────────────────
+  async loadFromDB(): Promise<void> {
+    try {
+      const rows = await dbLoadAllBots()
+      for (const row of rows) {
+        if (this.bots.has(row.id)) continue  // already in memory
+        const needed = row.warmupBarsNeeded || barsNeeded(row.strategy as BotStrategy, row.params as BotParams)
+        const bot: Bot = {
+          id: row.id, userId: row.userId, name: row.name,
+          symbol: row.symbol, strategy: row.strategy as BotStrategy,
+          params: row.params as BotParams,
+          // Restore persisted stats; reset transient runtime state to 'idle'
+          // so user must explicitly Start the bot after a cold start
+          status: 'idle', position: 'none',
+          createdAt: row.createdAt, startedAt: row.startedAt, stoppedAt: row.stoppedAt,
+          trades: row.trades, wins: row.wins, losses: row.losses,
+          pnl: row.pnl, peakPnl: row.peakPnl, maxDrawdown: row.maxDrawdown,
+          equityCurve: row.equityCurve ?? [],
+          dailyTrades: row.dailyTrades, dailyLoss: row.dailyLoss,
+          dailyResetDate: row.dailyResetDate || today(),
+          warmupBarsNeeded: needed, warmupBarsCurrent: 0,
+          logs: (row.logs ?? []).slice(-50),
+          riskAccepted: row.riskAccepted, riskAcceptedAt: row.riskAcceptedAt,
+          priceBuffer: [], pendingSignal: null, pendingSignalBars: 0,
+        }
+        this.bots.set(bot.id, bot)
+      }
+      if (rows.length > 0) console.log(`[Bot] ✓ ${rows.length} bot(s) restored from DB`)
+    } catch (e: unknown) {
+      console.error('[Bot] loadFromDB failed:', e)
+    }
   }
 }
 
