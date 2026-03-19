@@ -298,22 +298,45 @@ const COINGECKO_TO_SYMBOL: Record<string, string> = {
   dash:         'DSHUSD',
 }
 
-async function seedFromCoinGecko(onPrice: PriceCallback): Promise<void> {
+// CoinGecko /coins/markets response shape
+interface CoinGeckoMarket {
+  id: string
+  current_price: number
+  high_24h: number
+  low_24h: number
+  price_change_percentage_24h: number
+  total_volume: number
+}
+
+async function seedFromCoinGecko(
+  onPrice: PriceCallback,
+  onStats?: StatsCallback,
+): Promise<void> {
   try {
     const ids = Object.keys(COINGECKO_TO_SYMBOL).join(',')
-    const url = `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd`
-    const resp = await fetch(url, { signal: AbortSignal.timeout(8_000) })
+    // /coins/markets gives current price + 24h high/low/vol/change in one call
+    const url = `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${ids}&order=market_cap_desc&per_page=100&page=1`
+    const resp = await fetch(url, { signal: AbortSignal.timeout(10_000) })
     if (!resp.ok) {
       console.warn('[Market] CoinGecko seed HTTP', resp.status)
       return
     }
-    const data = await resp.json() as Record<string, { usd: number }>
-    for (const [id, vals] of Object.entries(data)) {
-      const ourSym = COINGECKO_TO_SYMBOL[id]
-      if (ourSym && vals.usd > 0) {
-        onPrice(ourSym, vals.usd)
-        console.log(`[Market] 🌱 Seeded ${ourSym} = $${vals.usd} (CoinGecko)`)
+    const data = await resp.json() as CoinGeckoMarket[]
+    for (const item of data) {
+      const ourSym = COINGECKO_TO_SYMBOL[item.id]
+      if (!ourSym || !(item.current_price > 0)) continue
+      onPrice(ourSym, item.current_price)
+      if (onStats) {
+        const pct = item.price_change_percentage_24h ?? 0
+        const openPrice = pct !== 0
+          ? item.current_price / (1 + pct / 100)
+          : item.current_price
+        onStats(ourSym, openPrice, item.high_24h, item.low_24h, item.total_volume)
       }
+      console.log(
+        `[Market] 🌱 Seeded ${ourSym} = $${item.current_price}` +
+        ` (24h: ${(item.price_change_percentage_24h ?? 0).toFixed(2)}%, CoinGecko)`,
+      )
     }
   } catch (err: unknown) {
     console.warn('[Market] CoinGecko seed failed:', err instanceof Error ? err.message : err)
@@ -332,9 +355,9 @@ export async function seedInitialPrices(
     const url = `https://api.binance.com/api/v3/ticker/24hr?symbols=${encodeURIComponent(symbolsJson)}`
     const resp = await fetch(url, { signal: AbortSignal.timeout(8_000) })
     if (!resp.ok) {
-      console.warn('[Market] Binance price seed HTTP', resp.status)
-      // Binance is geo-blocked on some hosting platforms — fall back to CoinGecko
-      if (resp.status === 451) await seedFromCoinGecko(onPrice)
+      console.warn('[Market] Binance price seed HTTP', resp.status, '— falling back to CoinGecko')
+      // Always fall back to CoinGecko on any Binance failure (geo-block, rate limit, etc.)
+      await seedFromCoinGecko(onPrice, onStats)
       return
     }
     const data = await resp.json() as Array<{
@@ -380,7 +403,7 @@ let restPollRunning = false
 function startRestPolling(onPrice: PriceCallback, onStats?: StatsCallback): void {
   if (restPollRunning) return
   restPollRunning = true
-  console.log('[Market] 🔄 Starting REST polling fallback (every 15 s)')
+  console.log('[Market] 🔄 Starting REST polling fallback (every 10 s)')
 
   async function pollBinanceRest(): Promise<boolean> {
     try {
@@ -411,13 +434,22 @@ function startRestPolling(onPrice: PriceCallback, onStats?: StatsCallback): void
   async function pollCoinGecko(): Promise<void> {
     try {
       const ids = Object.keys(COINGECKO_TO_SYMBOL).join(',')
-      const url = `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd`
-      const resp = await fetch(url, { signal: AbortSignal.timeout(8_000) })
+      // Use /coins/markets to also get 24h open/high/low/vol so change % stays accurate
+      const url = `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${ids}&order=market_cap_desc&per_page=100&page=1`
+      const resp = await fetch(url, { signal: AbortSignal.timeout(10_000) })
       if (!resp.ok) return
-      const data = await resp.json() as Record<string, { usd: number }>
-      for (const [id, vals] of Object.entries(data)) {
-        const ourSym = COINGECKO_TO_SYMBOL[id]
-        if (ourSym && vals.usd > 0) onPrice(ourSym, vals.usd)
+      const data = await resp.json() as CoinGeckoMarket[]
+      for (const item of data) {
+        const ourSym = COINGECKO_TO_SYMBOL[item.id]
+        if (!ourSym || !(item.current_price > 0)) continue
+        onPrice(ourSym, item.current_price)
+        if (onStats) {
+          const pct = item.price_change_percentage_24h ?? 0
+          const openPrice = pct !== 0
+            ? item.current_price / (1 + pct / 100)
+            : item.current_price
+          onStats(ourSym, openPrice, item.high_24h, item.low_24h, item.total_volume)
+        }
       }
     } catch { /* silent */ }
   }
@@ -427,9 +459,9 @@ function startRestPolling(onPrice: PriceCallback, onStats?: StatsCallback): void
     if (!binanceOk) await pollCoinGecko()
   }
 
-  // First poll immediately, then every 15 s
+  // First poll immediately, then every 10 s (reduced from 15 s to limit drift between polls)
   poll().catch(() => {})
-  setInterval(() => { poll().catch(() => {}) }, 15_000)
+  setInterval(() => { poll().catch(() => {}) }, 10_000)
 }
 
 // ---------------------------------------------------------------------------

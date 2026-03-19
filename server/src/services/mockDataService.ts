@@ -460,12 +460,15 @@ export function tickSymbol(symbol: string): { trade: Trade; candleUpdate: LiveCa
   let newPrice = round(state.price * Math.exp(ret), p.priceDecimals)
 
   // ── Mean-revert toward real price when available ──────────────────────
-  // If a real price was injected within the last 30 s, pull the GBM
-  // price strongly toward the real anchor so it never drifts far.
+  // Use a time-weighted blend so fresh real data dominates almost entirely.
+  // < 5 s old  → 99 % real (barely perceptible GBM micro-tick)
+  // 5–15 s old → 95 % real (slight natural-looking drift between polls)
+  // 15–30 s old→ 88 % real (broader spread but still anchored)
+  // > 30 s     → pure GBM (no real anchor available)
   const realAge = now - state.lastRealTick
   if (state.realPrice > 0 && realAge < 30_000) {
-    // Blend: 85 % real anchor + 15 % GBM noise → keeps realistic microstructure
-    newPrice = round(state.realPrice * 0.85 + newPrice * 0.15, p.priceDecimals)
+    const w = realAge < 5_000 ? 0.99 : realAge < 15_000 ? 0.95 : 0.88
+    newPrice = round(state.realPrice * w + newPrice * (1 - w), p.priceDecimals)
   }
 
   state.price = newPrice
