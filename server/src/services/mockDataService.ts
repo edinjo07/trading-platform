@@ -382,6 +382,10 @@ interface GBMState {
   low24h: number
   volume24h: number
   lastTick: number
+  /** Last confirmed real-market price (set by injectRealPrice) */
+  realPrice: number
+  /** Timestamp (ms) of last real price injection */
+  lastRealTick: number
 }
 
 const gbmState: Record<string, GBMState> = {}
@@ -394,6 +398,8 @@ for (const sym of SYMBOLS) {
     low24h:  p.basePrice * 0.985,
     volume24h: p.baseVolume * 0.04,
     lastTick: Date.now(),
+    realPrice: 0,
+    lastRealTick: 0,
   }
 }
 
@@ -451,7 +457,16 @@ export function tickSymbol(symbol: string): { trade: Trade; candleUpdate: LiveCa
   const sigma = p.annualVol / Math.sqrt(annualSec)
   const z = randn()
   const ret = mu * dtSec + sigma * Math.sqrt(dtSec) * z
-  const newPrice = round(state.price * Math.exp(ret), p.priceDecimals)
+  let newPrice = round(state.price * Math.exp(ret), p.priceDecimals)
+
+  // ── Mean-revert toward real price when available ──────────────────────
+  // If a real price was injected within the last 30 s, pull the GBM
+  // price strongly toward the real anchor so it never drifts far.
+  const realAge = now - state.lastRealTick
+  if (state.realPrice > 0 && realAge < 30_000) {
+    // Blend: 85 % real anchor + 15 % GBM noise → keeps realistic microstructure
+    newPrice = round(state.realPrice * 0.85 + newPrice * 0.15, p.priceDecimals)
+  }
 
   state.price = newPrice
   state.high24h = Math.max(state.high24h, newPrice)
@@ -975,10 +990,12 @@ export function injectRealPrice(symbol: string, price: number): void {
   const p = PARAMS[symbol]
   if (!state || !p || price <= 0) return
   const rounded = round(price, p.priceDecimals)
-  state.price   = rounded
+  state.price         = rounded
+  state.realPrice     = rounded
+  state.lastRealTick  = Date.now()
+  state.lastTick      = Date.now()  // reset GBM clock to prevent immediate drift
   state.high24h = Math.max(state.high24h, rounded)
   state.low24h  = Math.min(state.low24h,  rounded)
-  // lastTick intentionally NOT updated — GBM still runs for smooth intra-tick movement
 
   // ── Also update the live 1-minute candle with the real price ──────────────
   // This ensures the current bar's close always reflects the real market price

@@ -277,13 +277,25 @@ const BINANCE_SEED_SYMBOLS: Record<string, string> = {
   DASHUSDT:  'DSHUSD',
 }
 
-// CoinGecko id → our symbol (used as fallback when Binance is geo-blocked)
+// CoinGecko id → our symbol (full coverage for all 17+ crypto)
 const COINGECKO_TO_SYMBOL: Record<string, string> = {
-  bitcoin:     'BTCUSD',
-  ethereum:    'ETHUSD',
-  solana:      'SOLUSD',
-  binancecoin: 'BNBUSD',
-  ripple:      'XRPUSD',
+  bitcoin:      'BTCUSD',
+  ethereum:     'ETHUSD',
+  solana:       'SOLUSD',
+  binancecoin:  'BNBUSD',
+  ripple:       'XRPUSD',
+  litecoin:     'LTCUSD',
+  'bitcoin-cash': 'BCHUSD',
+  dogecoin:     'DOGEUSD',
+  cardano:      'ADAUSD',
+  polkadot:     'DOTUSD',
+  chainlink:    'LNKUSD',
+  'avalanche-2': 'AVAXUSD',
+  'matic-network': 'MATICUSD',
+  stellar:      'XLMUSD',
+  tezos:        'XTZUSD',
+  uniswap:      'UNIUSD',
+  dash:         'DSHUSD',
 }
 
 async function seedFromCoinGecko(onPrice: PriceCallback): Promise<void> {
@@ -357,6 +369,70 @@ export async function seedInitialPrices(
 }
 
 // ---------------------------------------------------------------------------
+// Continuous REST polling fallback
+// ---------------------------------------------------------------------------
+// When Binance WebSocket is geo-blocked or fails, this polls CoinGecko every
+// 15 s so crypto prices stay accurate.  Also polls Binance REST as primary
+// (faster updates, falls back to CoinGecko on 451/403).
+// ---------------------------------------------------------------------------
+let restPollRunning = false
+
+function startRestPolling(onPrice: PriceCallback, onStats?: StatsCallback): void {
+  if (restPollRunning) return
+  restPollRunning = true
+  console.log('[Market] 🔄 Starting REST polling fallback (every 15 s)')
+
+  async function pollBinanceRest(): Promise<boolean> {
+    try {
+      const symbolsJson = JSON.stringify(Object.keys(BINANCE_SEED_SYMBOLS))
+      const url = `https://api.binance.com/api/v3/ticker/24hr?symbols=${encodeURIComponent(symbolsJson)}`
+      const resp = await fetch(url, { signal: AbortSignal.timeout(8_000) })
+      if (!resp.ok) return false
+      const data = await resp.json() as Array<{
+        symbol: string; lastPrice: string
+        openPrice: string; highPrice: string; lowPrice: string; volume: string
+      }>
+      if (!Array.isArray(data)) return false
+      for (const item of data) {
+        const ourSym = BINANCE_SEED_SYMBOLS[item.symbol]
+        const price = parseFloat(item.lastPrice)
+        if (ourSym && price > 0) {
+          onPrice(ourSym, price)
+          if (onStats) {
+            onStats(ourSym, parseFloat(item.openPrice), parseFloat(item.highPrice),
+              parseFloat(item.lowPrice), parseFloat(item.volume))
+          }
+        }
+      }
+      return true
+    } catch { return false }
+  }
+
+  async function pollCoinGecko(): Promise<void> {
+    try {
+      const ids = Object.keys(COINGECKO_TO_SYMBOL).join(',')
+      const url = `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd`
+      const resp = await fetch(url, { signal: AbortSignal.timeout(8_000) })
+      if (!resp.ok) return
+      const data = await resp.json() as Record<string, { usd: number }>
+      for (const [id, vals] of Object.entries(data)) {
+        const ourSym = COINGECKO_TO_SYMBOL[id]
+        if (ourSym && vals.usd > 0) onPrice(ourSym, vals.usd)
+      }
+    } catch { /* silent */ }
+  }
+
+  async function poll() {
+    const binanceOk = await pollBinanceRest()
+    if (!binanceOk) await pollCoinGecko()
+  }
+
+  // First poll immediately, then every 15 s
+  poll().catch(() => {})
+  setInterval(() => { poll().catch(() => {}) }, 15_000)
+}
+
+// ---------------------------------------------------------------------------
 // Public entry point
 // ---------------------------------------------------------------------------
 export function startRealDataFeeds(onPrice: PriceCallback, onStats?: StatsCallback): void {
@@ -364,4 +440,8 @@ export function startRealDataFeeds(onPrice: PriceCallback, onStats?: StatsCallba
   seedInitialPrices(onPrice, onStats).catch(() => {})
   startBinanceFeed(onPrice)
   startTwelveDataFeed(onPrice)
+  // Always start REST polling as a safety net — if WebSocket is delivering
+  // data the REST prices simply reinforce the anchor; if WS is down the REST
+  // poll keeps prices accurate.
+  startRestPolling(onPrice, onStats)
 }
