@@ -206,19 +206,26 @@ async function fetchForexRSS(): Promise<NewsItem[]> {
 // Symbol type resolver
 // ─────────────────────────────────────────────────────────────────────────────
 
+const CRYPTO_BASES = new Set([
+  'BTC','ETH','SOL','BNB','XRP','ADA','DOT','AVAX','MATIC',
+  'LTC','BCH','LINK','DOGE','SHIB','UNI','XLM','XTZ','DASH',
+])
+
 function symbolType(symbol: string): 'crypto' | 'stock' | 'forex' {
-  if (symbol.includes('/')) {
-    const base = symbol.split('/')[0].toUpperCase()
-    if (['BTC','ETH','SOL','BNB','XRP','ADA','DOT','AVAX','MATIC','LTC','LINK','DOGE','SHIB'].includes(base)) {
-      return 'crypto'
-    }
-    return 'forex'
-  }
-  return 'stock'
+  // Handle slash-separated format (BTC/USD) or IC Markets format (BTCUSD)
+  const base = symbol.includes('/')
+    ? symbol.split('/')[0].toUpperCase()
+    : symbol.replace(/USD$|EUR$|GBP$|JPY$|CHF$|CAD$|AUD$|NZD$/, '').toUpperCase()
+  if (CRYPTO_BASES.has(base)) return 'crypto'
+  // Single-ticker stocks are 1-5 uppercase letters, no base-currency pattern
+  if (/^[A-Z]{1,5}$/.test(symbol)) return 'stock'
+  return 'forex'
 }
 
 function cryptoTicker(symbol: string): string {
-  return symbol.split('/')[0].toUpperCase()
+  if (symbol.includes('/')) return symbol.split('/')[0].toUpperCase()
+  // Strip quote currency (USD, EUR, etc.) from IC Markets format
+  return symbol.replace(/USD$|EUR$|GBP$|JPY$|CHF$|CAD$|AUD$|NZD$/, '').toUpperCase()
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

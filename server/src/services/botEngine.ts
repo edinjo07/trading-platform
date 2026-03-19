@@ -329,7 +329,7 @@ class BotEngine {
         if (bot.status === 'warming_up') bot.status = 'running'
         this.log(bot, 'info',
           `✅ Warmup complete — ${candles.length} real bars loaded for ${bot.symbol}` +
-          (bot.symbol.includes('USDT') ? ' (Binance)' : ' (Twelve Data/fallback)'))
+          (bot.symbol.endsWith('USD') && bot.symbol.length <= 7 ? ' (Binance/CoinGecko)' : ' (Twelve Data/fallback)'))
         this.emit(bot)
       } else {
         this.log(bot, 'warn',

@@ -386,7 +386,7 @@ type TabKey = 'strategy' | 'risk'
 function CreateBotModal({ onClose, onCreate }: { onClose: () => void; onCreate: (b: Bot) => void }) {
   const [tab,       setTab]       = useState<TabKey>('strategy')
   const [name,      setName]      = useState('')
-  const [symbol,    setSymbol]    = useState('BTC/USDT')
+  const [symbol,    setSymbol]    = useState('BTCUSD')
   const [strategy,  setStrategy]  = useState<BotStrategy>('ma_crossover')
   const [tradeSize, setTradeSize] = useState(0.01)
   // MA
