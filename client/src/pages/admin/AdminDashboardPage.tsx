@@ -1,6 +1,28 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
+import api from '../../api/client'
+import { useAuthStore } from '../../store/authStore'
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
+interface LiveStats {
+  totalUsers:     number
+  totalTrades:    number
+  openTrades:     number
+  closedTrades:   number
+  totalDeposits:  number
+  totalWithdraws: number
+  profitLoss:     number
+}
+
+interface ServerInfo {
+  uptime:      number
+  nodeVersion: string
+  platform:    string
+  memory: { rss: number; heapUsed: number; heapTotal: number }
+  env:    string
+}
+
+// legacy shape kept for static parts below that still use it
 interface Stats {
   totalDeposits: number
   totalWithdraws: number
