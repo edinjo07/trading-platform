@@ -524,39 +524,41 @@ export interface BotRow {
 }
 
 export async function dbSaveBot(bot: BotRow): Promise<void> {
-  const { error } = await supabase.from('bots').upsert(
-    {
-      id:                   bot.id,
-      user_id:              bot.userId,
-      name:                 bot.name,
-      symbol:               bot.symbol,
-      strategy:             bot.strategy,
-      params:               bot.params,
-      status:               bot.status,
-      position:             bot.position,
-      trades:               bot.trades,
-      wins:                 bot.wins,
-      losses:               bot.losses,
-      pnl:                  bot.pnl,
-      peak_pnl:             bot.peakPnl,
-      max_drawdown:         bot.maxDrawdown,
-      equity_curve:         bot.equityCurve,
-      daily_trades:         bot.dailyTrades,
-      daily_loss:           bot.dailyLoss,
-      daily_reset_date:     bot.dailyResetDate,
-      warmup_bars_needed:   bot.warmupBarsNeeded,
-      warmup_bars_current:  bot.warmupBarsCurrent,
-      logs:                 bot.logs.slice(-200),  // cap at 200 entries
-      risk_accepted:        bot.riskAccepted ?? null,
-      risk_accepted_at:     bot.riskAcceptedAt ?? null,
-      created_at:           bot.createdAt,
-      started_at:           bot.startedAt ?? null,
-      stopped_at:           bot.stoppedAt ?? null,
-      updated_at:           new Date().toISOString(),
-    },
-    { onConflict: 'id' },
-  )
-  if (error) console.error('[DB] saveBot:', error.message)
+  return dbRetry(async () => {
+    const { error } = await supabase.from('bots').upsert(
+      {
+        id:                   bot.id,
+        user_id:              bot.userId,
+        name:                 bot.name,
+        symbol:               bot.symbol,
+        strategy:             bot.strategy,
+        params:               bot.params,
+        status:               bot.status,
+        position:             bot.position,
+        trades:               bot.trades,
+        wins:                 bot.wins,
+        losses:               bot.losses,
+        pnl:                  bot.pnl,
+        peak_pnl:             bot.peakPnl,
+        max_drawdown:         bot.maxDrawdown,
+        equity_curve:         bot.equityCurve,
+        daily_trades:         bot.dailyTrades,
+        daily_loss:           bot.dailyLoss,
+        daily_reset_date:     bot.dailyResetDate,
+        warmup_bars_needed:   bot.warmupBarsNeeded,
+        warmup_bars_current:  bot.warmupBarsCurrent,
+        logs:                 bot.logs.slice(-200),  // cap at 200 entries
+        risk_accepted:        bot.riskAccepted ?? null,
+        risk_accepted_at:     bot.riskAcceptedAt ?? null,
+        created_at:           bot.createdAt,
+        started_at:           bot.startedAt ?? null,
+        stopped_at:           bot.stoppedAt ?? null,
+        updated_at:           new Date().toISOString(),
+      },
+      { onConflict: 'id' },
+    )
+    if (error) throw new Error(`[DB] saveBot: ${error.message}`)
+  })
 }
 
 export async function dbDeleteBot(botId: string): Promise<void> {

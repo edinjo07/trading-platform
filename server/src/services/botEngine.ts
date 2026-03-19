@@ -207,6 +207,18 @@ function barsNeeded(strategy: BotStrategy, params: BotParams): number {
 class BotEngine {
   private bots = new Map<string, Bot>()
 
+  constructor() {
+    // Periodically persist all active bots to DB (every 60 s) so that state
+    // survives server restarts even if no trade/signal event triggers a save.
+    setInterval(() => {
+      for (const bot of this.bots.values()) {
+        if (bot.status === 'running' || bot.status === 'warming_up') {
+          dbSaveBot(this.toRow(bot)).catch(() => {})
+        }
+      }
+    }, 60_000)
+  }
+
   // ── CRUD ────────────────────────────────────────────────────────────────────
 
   createBot(userId: string, name: string, symbol: string, strategy: BotStrategy, params: BotParams): Bot {
@@ -255,6 +267,9 @@ class BotEngine {
 
     bot.slTpHandle  = setInterval(() => this.checkSlTp(bot), 3000)
     bot.dailyHandle = setInterval(() => this.checkDailyReset(bot), 60_000)
+
+    // Persist running state immediately so it survives server restarts
+    dbSaveBot(this.toRow(bot)).catch(e => console.error('[Bot] save on boot:', e))
 
     this.warmupAsync(bot)
 
