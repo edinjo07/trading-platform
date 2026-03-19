@@ -200,6 +200,16 @@ function barsNeeded(strategy: BotStrategy, params: BotParams): number {
   }
 }
 
+/**
+ * Convert legacy slash-format symbols to IC Markets packed format.
+ * 'BTC/USDT' → 'BTCUSD', 'ETH/USD' → 'ETHUSD', 'EUR/USD' → 'EURUSD'
+ * Already-packed symbols ('BTCUSD', 'AAPL') are returned unchanged.
+ */
+function normalizeSymbol(symbol: string): string {
+  if (!symbol.includes('/')) return symbol
+  const [base, quote] = symbol.split('/')
+  return base + (quote === 'USDT' ? 'USD' : quote)
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Bot Engine (singleton)
@@ -223,8 +233,9 @@ class BotEngine {
 
   createBot(userId: string, name: string, symbol: string, strategy: BotStrategy, params: BotParams): Bot {
     const needed = barsNeeded(strategy, params)
+    const sym = normalizeSymbol(symbol)
     const bot: Bot = {
-      id: uuidv4(), userId, name, symbol, strategy, params,
+      id: uuidv4(), userId, name, symbol: sym, strategy, params,
       status: 'idle', position: 'none',
       createdAt: new Date().toISOString(),
       trades: 0, wins: 0, losses: 0, pnl: 0, peakPnl: 0, maxDrawdown: 0,
@@ -319,6 +330,25 @@ class BotEngine {
       if (bot.status === 'stopped' || bot.status === 'error') return
       if (candles.length === 0) {
         this.log(bot, 'warn', 'No historical bars returned — accumulating from live candles')
+        // Safety: if the bot is still warming_up after 5 minutes, seed the buffer
+        // and force-start so it can never be permanently stuck.
+        setTimeout(() => {
+          if (bot.status !== 'warming_up') return
+          const livePrice = getLivePrice(bot.symbol)
+          if (!livePrice && bot.priceBuffer.length === 0) {
+            bot.status = 'error'
+            this.log(bot, 'error', `Warmup failed — no price data available for ${bot.symbol}`)
+            this.emit(bot)
+            return
+          }
+          const seedPrice = livePrice ?? bot.priceBuffer[bot.priceBuffer.length - 1]
+          while (bot.priceBuffer.length < bot.warmupBarsNeeded) bot.priceBuffer.unshift(seedPrice)
+          bot.warmupBarsCurrent = bot.warmupBarsNeeded
+          bot.status = 'running'
+          this.log(bot, 'warn',
+            `Warmup timeout — seeded buffer with ${bot.warmupBarsNeeded} bars @ ${seedPrice?.toFixed(5)} — bot now running`)
+          this.emit(bot)
+        }, 5 * 60_000)
         return
       }
       // Merge: replace buffer with real history; keep any live bars accumulated so far
@@ -605,9 +635,10 @@ class BotEngine {
       for (const row of rows) {
         if (this.bots.has(row.id)) continue  // already in memory
         const needed = row.warmupBarsNeeded || barsNeeded(row.strategy as BotStrategy, row.params as BotParams)
+        const sym = normalizeSymbol(row.symbol)
         const bot: Bot = {
           id: row.id, userId: row.userId, name: row.name,
-          symbol: row.symbol, strategy: row.strategy as BotStrategy,
+          symbol: sym, strategy: row.strategy as BotStrategy,
           params: row.params as BotParams,
           // Preserve saved status so we can auto-resume after deploy
           status: (row.status === 'running' || row.status === 'warming_up') ? 'running' : (row.status as BotStatus ?? 'idle'),
@@ -624,6 +655,11 @@ class BotEngine {
           priceBuffer: [], pendingSignal: null, pendingSignalBars: 0,
         }
         this.bots.set(bot.id, bot)
+        // If the symbol was in legacy slash format, persist the normalized version immediately
+        if (sym !== row.symbol) {
+          console.log(`[Bot] Symbol normalized: "${row.symbol}" → "${sym}" for bot "${bot.name}"`)
+          dbSaveBot(this.toRow(bot)).catch(e => console.error('[Bot] symbol normalize save:', e))
+        }
       }
       // Auto-resume bots that were running before the server restarted
       const toResume = rows.filter(r => r.status === 'running' || r.status === 'warming_up')
