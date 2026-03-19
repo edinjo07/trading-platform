@@ -11,7 +11,7 @@ import { Candle } from '../types'
 // Public event bus — forward bot events to wsServer without circular deps
 // ─────────────────────────────────────────────────────────────────────────────
 export const botEvents = new EventEmitter()
-botEvents.setMaxListeners(200)
+botEvents.setMaxListeners(1000)
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types

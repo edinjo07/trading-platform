@@ -7,7 +7,7 @@ import { startRealDataFeeds } from './realDataService'
 // Public event bus — emits 'candle' events for live streaming
 // ---------------------------------------------------------------------------
 export const marketEvents = new EventEmitter()
-marketEvents.setMaxListeners(100)
+marketEvents.setMaxListeners(1000)
 
 // ---------------------------------------------------------------------------
 // Market definitions
@@ -38,6 +38,34 @@ export const SYMBOLS: Symbol[] = [
   { symbol: 'EUR/GBP', name: 'Euro / British Pound',       assetClass: 'forex', baseAsset: 'EUR', quoteAsset: 'GBP' },
   { symbol: 'EUR/JPY', name: 'Euro / Japanese Yen',        assetClass: 'forex', baseAsset: 'EUR', quoteAsset: 'JPY' },
   { symbol: 'GBP/JPY', name: 'British Pound / Japanese Yen', assetClass: 'forex', baseAsset: 'GBP', quoteAsset: 'JPY' },
+  // More Crypto
+  { symbol: 'DOGE/USDT', name: 'Dogecoin',   assetClass: 'crypto', baseAsset: 'DOGE', quoteAsset: 'USDT' },
+  { symbol: 'AVAX/USDT', name: 'Avalanche',  assetClass: 'crypto', baseAsset: 'AVAX', quoteAsset: 'USDT' },
+  { symbol: 'ADA/USDT',  name: 'Cardano',    assetClass: 'crypto', baseAsset: 'ADA',  quoteAsset: 'USDT' },
+  { symbol: 'LINK/USDT', name: 'Chainlink',  assetClass: 'crypto', baseAsset: 'LINK', quoteAsset: 'USDT' },
+  { symbol: 'DOT/USDT',  name: 'Polkadot',   assetClass: 'crypto', baseAsset: 'DOT',  quoteAsset: 'USDT' },
+  { symbol: 'LTC/USDT',  name: 'Litecoin',   assetClass: 'crypto', baseAsset: 'LTC',  quoteAsset: 'USDT' },
+  { symbol: 'MATIC/USDT',name: 'Polygon',    assetClass: 'crypto', baseAsset: 'MATIC',quoteAsset: 'USDT' },
+  // More Stocks
+  { symbol: 'JPM',  name: 'JPMorgan Chase',  assetClass: 'stock', baseAsset: 'JPM',  quoteAsset: 'USD' },
+  { symbol: 'NFLX', name: 'Netflix Inc.',     assetClass: 'stock', baseAsset: 'NFLX', quoteAsset: 'USD' },
+  { symbol: 'COIN', name: 'Coinbase Global',  assetClass: 'stock', baseAsset: 'COIN', quoteAsset: 'USD' },
+  { symbol: 'AMD',  name: 'Advanced Micro Devices', assetClass: 'stock', baseAsset: 'AMD', quoteAsset: 'USD' },
+  { symbol: 'DIS',  name: 'Walt Disney Co.',  assetClass: 'stock', baseAsset: 'DIS',  quoteAsset: 'USD' },
+  // Commodities
+  { symbol: 'XAU/USD',   name: 'Gold',         assetClass: 'commodity', baseAsset: 'XAU',   quoteAsset: 'USD' },
+  { symbol: 'XAG/USD',   name: 'Silver',       assetClass: 'commodity', baseAsset: 'XAG',   quoteAsset: 'USD' },
+  { symbol: 'CRUDE/USD', name: 'Crude Oil WTI', assetClass: 'commodity', baseAsset: 'CRUDE', quoteAsset: 'USD' },
+  { symbol: 'NGAS/USD',  name: 'Natural Gas',  assetClass: 'commodity', baseAsset: 'NGAS',  quoteAsset: 'USD' },
+  { symbol: 'WHEAT/USD', name: 'Wheat',        assetClass: 'commodity', baseAsset: 'WHEAT', quoteAsset: 'USD' },
+  { symbol: 'CORN/USD',  name: 'Corn',         assetClass: 'commodity', baseAsset: 'CORN',  quoteAsset: 'USD' },
+  // Indices
+  { symbol: 'SPX500',  name: 'S&P 500',     assetClass: 'index', baseAsset: 'SPX500',  quoteAsset: 'USD' },
+  { symbol: 'NAS100',  name: 'NASDAQ 100',  assetClass: 'index', baseAsset: 'NAS100',  quoteAsset: 'USD' },
+  { symbol: 'DAX40',   name: 'DAX 40',      assetClass: 'index', baseAsset: 'DAX40',   quoteAsset: 'EUR' },
+  { symbol: 'FTSE100', name: 'FTSE 100',    assetClass: 'index', baseAsset: 'FTSE100', quoteAsset: 'GBP' },
+  { symbol: 'DJI30',   name: 'Dow Jones 30', assetClass: 'index', baseAsset: 'DJI30',  quoteAsset: 'USD' },
+  { symbol: 'NIKKEI',  name: 'Nikkei 225',  assetClass: 'index', baseAsset: 'NIKKEI',  quoteAsset: 'JPY' },
 ]
 
 // ---------------------------------------------------------------------------
@@ -80,6 +108,34 @@ const PARAMS: Record<string, InstrumentParams> = {
   'EUR/GBP': { basePrice: 0.8540, annualVol: 0.05, annualDrift: 0.00, priceDecimals: 5, tickSize: 0.00001, avgSpread: 0.00006, baseVolume: 1.5e11 },
   'EUR/JPY': { basePrice: 162.45, annualVol: 0.08, annualDrift: 0.00, priceDecimals: 3, tickSize: 0.001,   avgSpread: 0.007,   baseVolume: 2e11  },
   'GBP/JPY': { basePrice: 190.20, annualVol: 0.10, annualDrift: 0.00, priceDecimals: 3, tickSize: 0.001,   avgSpread: 0.009,   baseVolume: 1.5e11 },
+  // More Crypto
+  'DOGE/USDT': { basePrice: 0.1250,  annualVol: 1.20, annualDrift: 0.10, priceDecimals: 4, tickSize: 0.0001, avgSpread: 0.001,  baseVolume: 8e9  },
+  'AVAX/USDT': { basePrice: 25.50,   annualVol: 1.00, annualDrift: 0.20, priceDecimals: 2, tickSize: 0.01,   avgSpread: 0.0006, baseVolume: 1.5e9 },
+  'ADA/USDT':  { basePrice: 0.4500,  annualVol: 0.95, annualDrift: 0.15, priceDecimals: 4, tickSize: 0.0001, avgSpread: 0.0007, baseVolume: 3e9  },
+  'LINK/USDT': { basePrice: 14.20,   annualVol: 0.90, annualDrift: 0.18, priceDecimals: 3, tickSize: 0.001,  avgSpread: 0.0006, baseVolume: 1e9  },
+  'DOT/USDT':  { basePrice: 7.10,    annualVol: 0.95, annualDrift: 0.15, priceDecimals: 3, tickSize: 0.001,  avgSpread: 0.0007, baseVolume: 8e8  },
+  'LTC/USDT':  { basePrice: 82.00,   annualVol: 0.70, annualDrift: 0.10, priceDecimals: 2, tickSize: 0.01,   avgSpread: 0.0004, baseVolume: 1.2e9 },
+  'MATIC/USDT':{ basePrice: 0.7200,  annualVol: 1.05, annualDrift: 0.15, priceDecimals: 4, tickSize: 0.0001, avgSpread: 0.0008, baseVolume: 2e9  },
+  // More Stocks
+  JPM:  { basePrice: 198.50, annualVol: 0.24, annualDrift: 0.09, priceDecimals: 2, tickSize: 0.01, avgSpread: 0.0001, baseVolume: 8e6  },
+  NFLX: { basePrice: 625.00, annualVol: 0.38, annualDrift: 0.13, priceDecimals: 2, tickSize: 0.01, avgSpread: 0.0001, baseVolume: 5e6  },
+  COIN: { basePrice: 198.00, annualVol: 0.90, annualDrift: 0.20, priceDecimals: 2, tickSize: 0.01, avgSpread: 0.0002, baseVolume: 1.5e7 },
+  AMD:  { basePrice: 162.00, annualVol: 0.52, annualDrift: 0.16, priceDecimals: 2, tickSize: 0.01, avgSpread: 0.0001, baseVolume: 4e7  },
+  DIS:  { basePrice: 98.50,  annualVol: 0.28, annualDrift: 0.06, priceDecimals: 2, tickSize: 0.01, avgSpread: 0.0001, baseVolume: 1e7  },
+  // Commodities
+  'XAU/USD':   { basePrice: 2400.00, annualVol: 0.15, annualDrift: 0.05, priceDecimals: 2, tickSize: 0.01,   avgSpread: 0.0002, baseVolume: 2e8  },
+  'XAG/USD':   { basePrice: 28.50,   annualVol: 0.25, annualDrift: 0.03, priceDecimals: 3, tickSize: 0.001,  avgSpread: 0.0004, baseVolume: 5e7  },
+  'CRUDE/USD': { basePrice: 78.00,   annualVol: 0.35, annualDrift: 0.02, priceDecimals: 2, tickSize: 0.01,   avgSpread: 0.0003, baseVolume: 1.5e8 },
+  'NGAS/USD':  { basePrice: 2.20,    annualVol: 0.55, annualDrift: 0.00, priceDecimals: 3, tickSize: 0.001,  avgSpread: 0.0005, baseVolume: 8e7  },
+  'WHEAT/USD': { basePrice: 540.00,  annualVol: 0.30, annualDrift: 0.01, priceDecimals: 2, tickSize: 0.01,   avgSpread: 0.0004, baseVolume: 2e7  },
+  'CORN/USD':  { basePrice: 435.00,  annualVol: 0.28, annualDrift: 0.01, priceDecimals: 2, tickSize: 0.01,   avgSpread: 0.0004, baseVolume: 1.5e7 },
+  // Indices
+  SPX500:  { basePrice: 5200.00,  annualVol: 0.18, annualDrift: 0.10, priceDecimals: 2, tickSize: 0.01,  avgSpread: 0.0001, baseVolume: 5e9 },
+  NAS100:  { basePrice: 18000.00, annualVol: 0.22, annualDrift: 0.12, priceDecimals: 2, tickSize: 0.01,  avgSpread: 0.0001, baseVolume: 4e9 },
+  DAX40:   { basePrice: 18500.00, annualVol: 0.20, annualDrift: 0.08, priceDecimals: 2, tickSize: 0.01,  avgSpread: 0.0002, baseVolume: 2e9 },
+  FTSE100: { basePrice: 7900.00,  annualVol: 0.16, annualDrift: 0.06, priceDecimals: 2, tickSize: 0.01,  avgSpread: 0.0002, baseVolume: 2e9 },
+  DJI30:   { basePrice: 38500.00, annualVol: 0.16, annualDrift: 0.08, priceDecimals: 2, tickSize: 0.01,  avgSpread: 0.0001, baseVolume: 3e9 },
+  NIKKEI:  { basePrice: 38000.00, annualVol: 0.20, annualDrift: 0.07, priceDecimals: 2, tickSize: 0.01,  avgSpread: 0.0002, baseVolume: 3e9 },
 }
 
 // ---------------------------------------------------------------------------
@@ -212,7 +268,7 @@ export function getLivePrice(symbol: string): number {
   return gbmState[symbol]?.price ?? PARAMS[symbol]?.basePrice ?? 100
 }
 
-export function getAssetClass(symbol: string): 'stock' | 'crypto' | 'forex' {
+export function getAssetClass(symbol: string): 'stock' | 'crypto' | 'forex' | 'commodity' | 'index' {
   const sym = SYMBOLS.find(s => s.symbol === symbol)
   return sym?.assetClass ?? 'stock'
 }

@@ -1,4 +1,4 @@
-export type AssetClass = 'stock' | 'crypto' | 'forex'
+export type AssetClass = 'stock' | 'crypto' | 'forex' | 'commodity' | 'index'
 export type OrderSide = 'buy' | 'sell'
 export type OrderType = 'market' | 'limit' | 'stop' | 'stop_limit' | 'trailing_stop'
 export type OrderStatus = 'pending' | 'open' | 'filled' | 'cancelled' | 'rejected'
