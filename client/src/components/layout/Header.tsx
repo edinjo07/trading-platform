@@ -4,7 +4,7 @@ import { useTradingStore } from '../../store/tradingStore'
 import { useAuthStore } from '../../store/authStore'
 import { formatPrice, formatCurrency } from '../../utils/formatters'
 
-const TICKER_SYMBOLS = ['BTC/USDT', 'ETH/USDT', 'SPX500', 'AAPL', 'XAU/USD', 'NVDA', 'EUR/USD', 'CRUDE/USD', 'SOL/USDT', 'NAS100']
+const TICKER_SYMBOLS = ['BTC/USDT', 'ETH/USDT', 'SPX500', 'XAU/USD', 'CRUDE/USD', 'LMT', 'RTX', 'NOC', 'BRENT/USD', 'EUR/USD', 'USD/ILS', 'NAS100']
 
 type TabId = 'all' | 'crypto' | 'stock' | 'forex' | 'commodity' | 'index'
 
