@@ -1,11 +1,14 @@
 export function formatPrice(price: number, symbol?: string): string {
   if (!price && price !== 0) return '—'
-  const isCrypto = symbol?.includes('/') && !symbol?.includes('USD') && symbol?.includes('USDT')
-  const isForex = symbol?.includes('USD') || symbol?.includes('EUR') || symbol?.includes('GBP')
-
+  // Large indices / high-value crypto (USTEC=18000, BTC=74000, ZA50=74000, etc.)
   if (price >= 10000) return price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-  if (isForex || price < 10) return price.toFixed(4)
-  if (isCrypto && price < 1) return price.toFixed(6)
+  // JPY cross pairs (USDJPY=149.320, GBPJPY=190.200)
+  if (symbol?.includes('JPY')) return price.toFixed(3)
+  // Extremely small values
+  if (price < 0.001) return price.toFixed(6)
+  // Forex, small crypto, and low-priced assets (price < 10)
+  if (price < 10) return price.toFixed(4)
+  // Stocks, gold, oil, indices in mid range (10 – 9999)
   return price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }
 

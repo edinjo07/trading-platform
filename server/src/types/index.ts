@@ -1,4 +1,5 @@
-export type AssetClass = 'stock' | 'crypto' | 'forex' | 'commodity' | 'index'
+export type AssetClass = 'stock' | 'crypto' | 'forex' | 'commodity' | 'index' | 'bond'
+export type AccountType = 'raw_spread' | 'ctrader' | 'standard'
 export type OrderSide = 'buy' | 'sell'
 export type OrderType = 'market' | 'limit' | 'stop' | 'stop_limit' | 'trailing_stop'
 export type OrderStatus = 'pending' | 'open' | 'filled' | 'cancelled' | 'rejected'
@@ -12,6 +13,7 @@ export interface User {
   passwordHash: string
   createdAt: string
   balance: number
+  accountType: AccountType
 }
 
 export interface Symbol {
@@ -43,6 +45,7 @@ export interface Ticker {
   bid?: number
   ask?: number
   spread?: number
+  isOpen?: boolean
   session?: 'pre' | 'regular' | 'post' | 'closed'
 }
 

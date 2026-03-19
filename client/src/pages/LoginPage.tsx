@@ -1,9 +1,10 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
+import { AccountType } from '../types'
 
 const FEATURES = [
-  { icon: '⚡', title: 'Real-time Data', desc: 'Live quotes on 17 instruments' },
+  { icon: '⚡', title: 'Real-time Data', desc: 'Live quotes on 159+ instruments' },
   { icon: '📊', title: 'Advanced Charts', desc: 'Candlestick + depth + volume' },
   { icon: '🛡️', title: 'Risk Management', desc: 'TP/SL on every order' },
   { icon: '🔎', title: 'Market Scanner', desc: 'Scan all markets at once' },
@@ -17,6 +18,7 @@ export default function LoginPage() {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [showPass, setShowPass] = useState(false)
+  const [accountType, setAccountType] = useState<AccountType>('raw_spread')
   const [localError, setLocalError] = useState('')
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -24,7 +26,7 @@ export default function LoginPage() {
     setLocalError('')
     try {
       if (mode === 'login') await login(email, password)
-      else await register(email, username, password)
+      else await register(email, username, password, accountType)
       navigate('/dashboard')
     } catch (err: unknown) {
       setLocalError(err instanceof Error ? err.message : 'Authentication failed')
@@ -162,6 +164,35 @@ export default function LoginPage() {
                 <input type="text" value={username} onChange={e => setUsername(e.target.value)}
                   required placeholder="AlphaTrader99"
                   className="input" />
+              </div>
+            )}
+
+            {/* Account Type (register only) */}
+            {mode === 'register' && (
+              <div className="animate-fadeUp">
+                <label className="block text-xs font-medium text-text-secondary mb-1.5">Account Type</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {([
+                    { key: 'raw_spread' as AccountType, label: 'Raw Spread', sub: '$3.50/lot', desc: 'MetaTrader · 0.0 pips', popular: true },
+                    { key: 'ctrader' as AccountType, label: 'cTrader', sub: '$3/100k', desc: 'cTrader/TV · 0.0 pips', popular: false },
+                    { key: 'standard' as AccountType, label: 'Standard', sub: '$0', desc: 'MetaTrader · 0.8 pips', popular: false },
+                  ]).map(a => (
+                    <button key={a.key} type="button" onClick={() => setAccountType(a.key)}
+                      className="relative flex flex-col items-center gap-1 py-3 px-2 rounded-lg text-center transition-all"
+                      style={accountType === a.key
+                        ? { background: 'rgba(14,165,233,0.12)', border: '1px solid rgba(14,165,233,0.4)', color: '#fff' }
+                        : { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', color: '#6b8099' }
+                      }>
+                      {a.popular && (
+                        <span className="absolute -top-2 right-1 text-[9px] font-bold px-1.5 py-0.5 rounded-full"
+                          style={{ background: 'rgba(14,165,233,0.2)', color: '#38bdf8' }}>POPULAR</span>
+                      )}
+                      <span className="text-xs font-semibold">{a.label}</span>
+                      <span className="text-[10px] font-mono font-bold" style={{ color: accountType === a.key ? '#38bdf8' : '#4b6070' }}>{a.sub}</span>
+                      <span className="text-[9px] opacity-60">{a.desc}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
 

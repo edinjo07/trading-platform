@@ -3,6 +3,7 @@ import { EventEmitter } from 'events'
 import {
   Order, OrderSide, OrderType, OrderStatus, TimeInForce,
   Portfolio, Position, User, TradeRecord, PerformanceStats, EquityPoint,
+  AccountType,
 } from '../types'
 import { getLivePrice, getAssetClass } from './mockDataService'
 import { dbSaveUser, dbSaveOrder } from './dbSync'
@@ -23,18 +24,70 @@ export const tradeJournal= new Map<string, TradeRecord[]>()   // userId -> trade
 export const equityCurve = new Map<string, EquityPoint[]>()   // userId -> equity points
 
 // ---------------------------------------------------------------------------
-// Commission schedule (paper trading — mirrors real broker fee structures)
+// IC Markets account types — commission & spread model
+// https://www.icmarkets.com/global/en/trading-accounts/overview
+//
+//  Account        | Platform          | Commission/lot/side | Spreads from | Min Dep | Stop-out
+//  Raw Spread     | MetaTrader        | $3.50               | 0.0 pips     | $0      | 50%
+//  cTrader Raw    | cTrader/TV        | $3.00 per USD 100k  | 0.0 pips     | $0      | 50%
+//  Standard       | MetaTrader        | $0                  | 0.8 pips     | $0      | 50%
 // ---------------------------------------------------------------------------
-const COMMISSION = {
-  crypto: 0.001,   // 0.10% taker
-  stock:  0,       // Commission-free (like eToro / Trading 212)
-  forex:  0.00002, // 0.002% (spread already baked in)
+export const ACCOUNT_TYPES: Record<AccountType, {
+  label: string; platform: string; commissionPerLot: number; commissionPer100k: number;
+  spreadsFrom: number; minDeposit: number; stopOutPct: number; maxPositions: number;
+  tradableInstruments: number;
+}> = {
+  raw_spread: {
+    label: 'Raw Spread', platform: 'MetaTrader', commissionPerLot: 3.50,
+    commissionPer100k: 0, spreadsFrom: 0.0, minDeposit: 0, stopOutPct: 50,
+    maxPositions: 200, tradableInstruments: 2250,
+  },
+  ctrader: {
+    label: 'cTrader Raw Spread', platform: 'cTrader / TradingView', commissionPerLot: 0,
+    commissionPer100k: 3.00, spreadsFrom: 0.0, minDeposit: 0, stopOutPct: 50,
+    maxPositions: 2000, tradableInstruments: 121,
+  },
+  standard: {
+    label: 'Standard', platform: 'MetaTrader', commissionPerLot: 0,
+    commissionPer100k: 0, spreadsFrom: 0.8, minDeposit: 0, stopOutPct: 50,
+    maxPositions: 200, tradableInstruments: 2250,
+  },
 }
 
-function calcCommission(symbol: string, quantity: number, price: number): number {
+const LOT_SIZE: Record<string, number> = {
+  forex: 100_000, commodity: 100_000, bond: 100_000,
+  crypto: 1, stock: 1, index: 1,
+}
+
+const COMMISSION_PCT: Partial<Record<string, number>> = {
+  crypto: 0.001,   // 0.10 % taker (all account types)
+}
+
+function calcCommission(symbol: string, quantity: number, price: number, accountType: AccountType = 'raw_spread'): number {
   const ac = getAssetClass(symbol)
-  const rate = COMMISSION[ac] ?? 0
-  return parseFloat((quantity * price * rate).toFixed(6))
+  const acctDef = ACCOUNT_TYPES[accountType]
+  const pct    = COMMISSION_PCT[ac] ?? 0
+  let flatUsd = 0
+
+  if (acctDef.commissionPerLot > 0) {
+    // Raw Spread (MetaTrader) — per-lot commission for forex/metals/bonds
+    const lotClasses = ['forex', 'commodity', 'bond']
+    if (lotClasses.includes(ac)) {
+      const lots = quantity / (LOT_SIZE[ac] ?? 100_000)
+      flatUsd = lots * acctDef.commissionPerLot
+    }
+  } else if (acctDef.commissionPer100k > 0) {
+    // cTrader — commission per USD 100k notional for forex/metals/bonds
+    const lotClasses = ['forex', 'commodity', 'bond']
+    if (lotClasses.includes(ac)) {
+      const notional = quantity * price
+      flatUsd = (notional / 100_000) * acctDef.commissionPer100k
+    }
+  }
+  // Standard account: $0 commission (spread-only)
+
+  const pctUsd = quantity * price * pct
+  return parseFloat((flatUsd + pctUsd).toFixed(6))
 }
 
 // ---------------------------------------------------------------------------
@@ -160,12 +213,22 @@ export function refreshPortfolio(p: Portfolio): Portfolio {
 }
 
 // ---------------------------------------------------------------------------
-// Leverage constants & helpers
+// Leverage limits — IC Markets Global (FSA Seychelles)
+//   Forex majors/minors/exotics : 1:1000
+//   Precious metals (spot)      : 1:500
+//   Energies & soft commodities : 1:200 / 1:100
+//   Indices                     : 1:200
+//   Crypto CFDs                 : 1:10
+//   Stocks CFDs                 : 1:20
+//   Bond futures                : 1:100
 // ---------------------------------------------------------------------------
 const MAX_LEVERAGE: Record<string, number> = {
-  crypto: 100,
-  stock:  5,
-  forex:  200,
+  forex:     1000,
+  commodity:  500,  // spot metals; energies/softs checked per-symbol if needed
+  index:      200,
+  crypto:      10,
+  stock:       20,
+  bond:       100,
 }
 
 function calcLiquidationPrice(entryPrice: number, leverage: number, side: 'long' | 'short'): number {
@@ -220,7 +283,8 @@ export function createOrder(
   const estimatedFillPrice  = price ?? stopPrice ?? currentPrice
   const estimatedNotional   = quantity * estimatedFillPrice
   const estimatedMargin     = estimatedNotional / leverage
-  const estimatedCommission = calcCommission(symbol, quantity, estimatedFillPrice)
+  const user = users.get(userId)
+  const estimatedCommission = calcCommission(symbol, quantity, estimatedFillPrice, user?.accountType)
 
   if (side === 'buy') {
     // Check if closing a short — no cash needed
@@ -337,7 +401,8 @@ export function executeOrder(orderId: string, overrideFillPrice?: number): void 
   // Apply slippage only for market orders
   const slippage = order.type === 'market' ? calcSlippage(order.symbol, order.quantity, rawFillPrice, order.side) : 0
   const fillPrice = parseFloat((rawFillPrice + slippage).toFixed(8))
-  const commission = calcCommission(order.symbol, order.quantity, fillPrice)
+  const orderUser = users.get(order.userId)
+  const commission = calcCommission(order.symbol, order.quantity, fillPrice, orderUser?.accountType)
 
   const portfolio = portfolios.get(order.userId)
   if (!portfolio) return
@@ -581,6 +646,76 @@ setInterval(() => {
     recordEquityPoint(userId, portfolio)
   }
 }, 5 * 60 * 1000)
+
+// ---------------------------------------------------------------------------
+// Overnight swap engine — IC Markets rules
+//   Triple swap on Wednesday night  : Forex, Metals, Bonds, Soft Commodities
+//   Triple swap on Friday   night   : Energies, Indices, Crypto
+//   Applied once per day when the server clock passes midnight (GMT+2)
+// ---------------------------------------------------------------------------
+import { getSwapRate } from './mockDataService'
+
+function getTripleSwapMultiplier(symbol: string, serverDayOfWeek: number): number {
+  // serverDayOfWeek: 0=Sun, 1=Mon, …, 3=Wed, 5=Fri
+  const ac = getAssetClass(symbol)
+  const isWedTripleAsset  = ac === 'forex' || ac === 'bond' ||
+    ['XAUUSD','XAGUSD','XPTUSD','XPDUSD','GC25'].includes(symbol) ||
+    ['COCOA','COFFEE','CORN','COTTON','OJ','SOYBEAN','SUGAR','WHEAT'].includes(symbol)
+  const isFriTripleAsset  = ac === 'crypto' || ac === 'index' ||
+    ['WTI','BRENT','NGAS','XBRUSD','HO','LUMBER','COPPER'].includes(symbol)
+  if (serverDayOfWeek === 3 && isWedTripleAsset)  return 3
+  if (serverDayOfWeek === 5 && isFriTripleAsset)  return 3
+  return 1
+}
+
+function isDSTActive(date: Date): boolean {
+  // EET DST: last Sunday in March → last Sunday in October
+  const y = date.getUTCFullYear()
+  const marchLastSun  = new Date(Date.UTC(y, 2, 31 - ((new Date(Date.UTC(y, 2, 31)).getUTCDay() + 7) % 7)))
+  const octLastSun    = new Date(Date.UTC(y, 9, 31 - ((new Date(Date.UTC(y, 9, 31)).getUTCDay() + 7) % 7)))
+  return date >= marchLastSun && date < octLastSun
+}
+
+function applyOvernightSwaps(): void {
+  const now = new Date()
+  const offsetH = isDSTActive(now) ? 3 : 2   // IC Markets server: UTC+2 / UTC+3 DST
+  const serverNow = new Date(now.getTime() + offsetH * 3600 * 1000)
+  const dow = serverNow.getUTCDay()  // 0=Sun … 6=Sat
+
+  for (const [userId, portfolio] of portfolios.entries()) {
+    if (portfolio.positions.length === 0) continue
+    let totalSwap = 0
+    portfolio.positions = portfolio.positions.map(pos => {
+      const { long: swapLong, short: swapShort } = getSwapRate(pos.symbol)
+      const dailyRateUSD = pos.side === 'long' ? swapLong : swapShort
+      const multiplier   = getTripleSwapMultiplier(pos.symbol, dow)
+      const swapUSD      = parseFloat((dailyRateUSD * pos.quantity * multiplier).toFixed(2))
+      totalSwap += swapUSD
+      return pos  // positions are updated below via cashBalance
+    })
+    if (totalSwap !== 0) {
+      portfolio.cashBalance  = parseFloat((portfolio.cashBalance  + totalSwap).toFixed(2))
+      portfolio.realizedPnl  = parseFloat((portfolio.realizedPnl + totalSwap).toFixed(2))
+      refreshPortfolio(portfolio)
+      tradeEvents.emit('swapApplied', { userId, swapUSD: totalSwap, timestamp: Date.now() })
+    }
+  }
+}
+
+// Schedule swap application at midnight server time (check every minute)
+let _lastSwapDate = ''
+setInterval(() => {
+  const now = new Date()
+  const offsetH = isDSTActive(now) ? 3 : 2
+  const server = new Date(now.getTime() + offsetH * 3600 * 1000)
+  const dateStr = server.toISOString().slice(0, 10)          // 'YYYY-MM-DD'
+  const timeStr = server.toISOString().slice(11, 16)         // 'HH:MM'
+  // Apply swap once per day between 00:00 and 00:01 server time
+  if (timeStr >= '00:00' && timeStr <= '00:01' && dateStr !== _lastSwapDate) {
+    _lastSwapDate = dateStr
+    applyOvernightSwaps()
+  }
+}, 60_000)
 
 // ---------------------------------------------------------------------------
 // Performance analytics

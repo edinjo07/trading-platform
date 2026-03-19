@@ -20,11 +20,19 @@ export type StatsCallback   = (symbol: string, open: number, high: number, low: 
 // Binance — crypto mapping
 // ---------------------------------------------------------------------------
 const BINANCE_STREAM_TO_SYMBOL: Record<string, string> = {
-  btcusdt: 'BTC/USDT',
-  ethusdt: 'ETH/USDT',
-  solusdt: 'SOL/USDT',
-  bnbusdt: 'BNB/USDT',
-  xrpusdt: 'XRP/USDT',
+  btcusdt:   'BTCUSD',
+  ethusdt:   'ETHUSD',
+  solusdt:   'SOLUSD',
+  bnbusdt:   'BNBUSD',
+  xrpusdt:   'XRPUSD',
+  ltcusdt:   'LTCUSD',
+  bchusdt:   'BCHUSD',
+  dogeusdt:  'DOGEUSD',
+  adausdt:   'ADAUSD',
+  dotusdt:   'DOTUSD',
+  linkusdt:  'LNKUSD',
+  avaxusdt:  'AVAXUSD',
+  maticusdt: 'MATICUSD',
 }
 const BINANCE_STREAMS = Object.keys(BINANCE_STREAM_TO_SYMBOL).map(s => `${s}@ticker`).join('/')
 const BINANCE_URL = `wss://stream.binance.com:9443/stream?streams=${BINANCE_STREAMS}`

@@ -5,19 +5,25 @@ import { formatPrice, formatCurrency } from '../utils/formatters'
 import { Ticker } from '../types'
 
 type SortKey = 'symbol' | 'price' | 'changePercent' | 'high24h' | 'low24h' | 'volume24h'
-type AssetFilter = 'all' | 'stock' | 'crypto' | 'forex'
+type AssetFilter = 'all' | 'stock' | 'crypto' | 'forex' | 'commodity' | 'index' | 'bond'
 
 const ASSET_STYLE: Record<string, { bg: string; text: string }> = {
-  crypto: { bg: 'rgba(245,158,11,0.12)', text: '#fbbf24' },
-  forex:  { bg: 'rgba(56,189,248,0.12)', text: '#7dd3fc' },
-  stock:  { bg: 'rgba(14,165,233,0.12)', text: '#38bdf8' },
+  crypto:    { bg: 'rgba(245,158,11,0.12)',  text: '#fbbf24' },
+  forex:     { bg: 'rgba(56,189,248,0.12)',  text: '#7dd3fc' },
+  stock:     { bg: 'rgba(14,165,233,0.12)',  text: '#38bdf8' },
+  commodity: { bg: 'rgba(34,197,94,0.12)',   text: '#4ade80' },
+  index:     { bg: 'rgba(168,85,247,0.12)',  text: '#c084fc' },
+  bond:      { bg: 'rgba(251,113,133,0.12)', text: '#fb7185' },
 }
 
 const FILTER_TABS: { key: AssetFilter; label: string }[] = [
-  { key: 'all',    label: 'All' },
-  { key: 'stock',  label: 'Stocks' },
-  { key: 'crypto', label: 'Crypto' },
-  { key: 'forex',  label: 'Forex' },
+  { key: 'all',       label: 'All' },
+  { key: 'stock',     label: 'Stocks' },
+  { key: 'crypto',    label: 'Crypto' },
+  { key: 'forex',     label: 'Forex' },
+  { key: 'commodity', label: 'Commodities' },
+  { key: 'index',     label: 'Indices' },
+  { key: 'bond',      label: 'Bonds' },
 ]
 
 export default function ScannerPage() {

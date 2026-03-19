@@ -163,10 +163,29 @@ const BINANCE_INTERVAL: Record<string, string> = {
   '1min': '1m', '5min': '5m', '15min': '15m', '30min': '30m', '1day': '1d', '1week': '1w',
 }
 
+// IC Markets crypto symbol → Binance REST API symbol
+const CRYPTO_BINANCE_MAP: Record<string, string> = {
+  BTCUSD:   'BTCUSDT',
+  ETHUSD:   'ETHUSDT',
+  LTCUSD:   'LTCUSDT',
+  BCHUSD:   'BCHUSDT',
+  DSHUSD:   'DASHUSDT',
+  XRPUSD:   'XRPUSDT',
+  DOTUSD:   'DOTUSDT',
+  LNKUSD:   'LINKUSDT',
+  ADAUSD:   'ADAUSDT',
+  BNBUSD:   'BNBUSDT',
+  SOLUSD:   'SOLUSDT',
+  AVAXUSD:  'AVAXUSDT',
+  MATICUSD: 'MATICUSDT',
+  DOGEUSD:  'DOGEUSDT',
+  XLMUSD:   'XLMUSDT',
+  XTZUSD:   'XTZUSDT',
+  UNIUSD:   'UNIUSDT',
+}
+
 function toBinanceSymbol(symbol: string): string | null {
-  // BTC/USDT → BTCUSDT
-  const m = symbol.match(/^([A-Z0-9]+)\/([A-Z0-9]+)$/)
-  return m ? m[1] + m[2] : null
+  return CRYPTO_BINANCE_MAP[symbol] ?? null
 }
 
 async function fetchFromBinance(

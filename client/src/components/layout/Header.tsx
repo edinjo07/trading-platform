@@ -4,9 +4,9 @@ import { useTradingStore } from '../../store/tradingStore'
 import { useAuthStore } from '../../store/authStore'
 import { formatPrice, formatCurrency } from '../../utils/formatters'
 
-const TICKER_SYMBOLS = ['BTC/USDT', 'ETH/USDT', 'SPX500', 'XAU/USD', 'CRUDE/USD', 'LMT', 'RTX', 'NOC', 'BRENT/USD', 'EUR/USD', 'USD/ILS', 'NAS100']
+const TICKER_SYMBOLS = ['BTCUSD', 'ETHUSD', 'US500', 'XAUUSD', 'WTI', 'LMT', 'RTX', 'NOC', 'BRENT', 'EURUSD', 'USDILS', 'USTEC']
 
-type TabId = 'all' | 'crypto' | 'stock' | 'forex' | 'commodity' | 'index'
+type TabId = 'all' | 'crypto' | 'stock' | 'forex' | 'commodity' | 'index' | 'bond'
 
 const TABS: { id: TabId; label: string }[] = [
   { id: 'all',       label: 'All'         },
@@ -15,6 +15,7 @@ const TABS: { id: TabId; label: string }[] = [
   { id: 'forex',     label: 'Forex'       },
   { id: 'commodity', label: 'Commodities' },
   { id: 'index',     label: 'Indices'     },
+  { id: 'bond',      label: 'Bonds'       },
 ]
 
 interface HeaderProps {
@@ -156,7 +157,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
                   const isUp = (t?.changePercent ?? 0) >= 0
                   const isSelected = s.symbol === selectedSymbol
                   const assetIcon: Record<string, string> = {
-                    crypto: '₿', stock: '📈', forex: '💱', commodity: '🪙', index: '📊'
+                    crypto: '₿', stock: '📈', forex: '💱', commodity: '🪙', index: '📊', bond: '🏛'
                   }
                   return (
                     <button key={s.symbol} onClick={() => handleSelect(s.symbol)}

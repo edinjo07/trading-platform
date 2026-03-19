@@ -6,6 +6,8 @@ import {
   generateOrderBook,
   generateRecentTrades,
   tickSymbol,
+  isMarketOpen,
+  getSwapRate,
 } from '../services/mockDataService'
 import { getCandles } from '../services/candleService'
 
@@ -99,6 +101,23 @@ router.get('/trades/:symbol', (req: Request, res: Response) => {
 
   try { tickSymbol(found.symbol) } catch { /* ignore */ }
   return res.json(generateRecentTrades(found.symbol, count))
+})
+
+// GET /api/markets/hours  — returns open/closed status for every symbol
+router.get('/hours', (_req: Request, res: Response) => {
+  const result: Record<string, { isOpen: boolean }> = {}
+  for (const s of SYMBOLS) result[s.symbol] = { isOpen: isMarketOpen(s.symbol) }
+  return res.json(result)
+})
+
+// GET /api/markets/swap/:symbol  — returns overnight swap rate for a symbol
+router.get('/swap/:symbol', (req: Request, res: Response) => {
+  const raw = sanitizeSymbol(decodeURIComponent(req.params.symbol))
+  if (!raw) return res.status(400).json({ error: 'Invalid symbol' })
+  const found = SYMBOLS.find(s => s.symbol === raw)
+  if (!found) return res.status(404).json({ error: 'Symbol not found' })
+  const rates = getSwapRate(raw)
+  return res.json({ symbol: raw, swapLong: rates.long, swapShort: rates.short })
 })
 
 export default router

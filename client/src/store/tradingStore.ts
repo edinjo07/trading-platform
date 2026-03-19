@@ -75,16 +75,19 @@ export const useTradingStore = create<TradingState>((set, get) => ({
   },
 
   loadSymbols: async () => {
+    const local = generateMockSymbols()
     try {
       const result = await getSymbols()
-      if (Array.isArray(result) && result.length > 0) {
+      // Use server list only when it is at least as large as the local catalogue.
+      // This prevents a stale/partial server deployment from hiding instruments
+      // that the client already knows about.
+      if (Array.isArray(result) && result.length >= local.length) {
         set({ symbols: result })
       } else {
-        // API unavailable — fall back to built-in symbol catalogue
-        set({ symbols: generateMockSymbols() })
+        set({ symbols: local })
       }
     } catch {
-      set({ symbols: generateMockSymbols() })
+      set({ symbols: local })
     }
   },
 

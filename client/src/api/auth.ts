@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabase'
-import { User } from '../types'
+import { User, AccountType } from '../types'
 
 export interface AuthResponse {
   token: string
@@ -12,6 +12,7 @@ function mapUser(sbUser: { id: string; email?: string; user_metadata?: Record<st
     email: sbUser.email ?? '',
     username: (sbUser.user_metadata?.username as string | undefined) ?? sbUser.email?.split('@')[0] ?? 'Trader',
     balance: (sbUser.user_metadata?.balance as number | undefined) ?? 100_000,
+    accountType: (sbUser.user_metadata?.account_type as AccountType | undefined) ?? 'raw_spread',
   }
 }
 
@@ -21,11 +22,11 @@ export async function login(email: string, password: string): Promise<AuthRespon
   return { token: data.session.access_token, user: mapUser(data.user) }
 }
 
-export async function register(email: string, username: string, password: string): Promise<AuthResponse> {
+export async function register(email: string, username: string, password: string, accountType: AccountType = 'raw_spread'): Promise<AuthResponse> {
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
-    options: { data: { username, balance: 100_000 } },
+    options: { data: { username, balance: 100_000, account_type: accountType } },
   })
 
   if (error) {

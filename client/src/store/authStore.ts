@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { User } from '../types'
+import { User, AccountType } from '../types'
 import { login, register, signOut } from '../api/auth'
 import { supabase } from '../lib/supabase'
 
@@ -9,6 +9,7 @@ function mapSupabaseUser(sbUser: { id: string; email?: string; user_metadata?: R
     email: sbUser.email ?? '',
     username: (sbUser.user_metadata?.username as string | undefined) ?? sbUser.email?.split('@')[0] ?? 'Trader',
     balance: (sbUser.user_metadata?.balance as number | undefined) ?? 100_000,
+    accountType: (sbUser.user_metadata?.account_type as AccountType | undefined) ?? 'raw_spread',
   }
 }
 
@@ -18,7 +19,7 @@ interface AuthState {
   loading: boolean
   error: string | null
   login: (email: string, password: string) => Promise<void>
-  register: (email: string, username: string, password: string) => Promise<void>
+  register: (email: string, username: string, password: string, accountType?: AccountType) => Promise<void>
   logout: () => void
   loadUser: () => Promise<void>
 }
@@ -80,10 +81,10 @@ export const useAuthStore = create<AuthState>((set, get) => {
       }
     },
 
-    register: async (email, username, password) => {
+    register: async (email, username, password, accountType) => {
       set({ loading: true, error: null })
       try {
-        const { token, user } = await register(email, username, password)
+        const { token, user } = await register(email, username, password, accountType)
         if (token) localStorage.setItem('token', token)
         set({ token: token || null, user, loading: false })
       } catch (err: unknown) {

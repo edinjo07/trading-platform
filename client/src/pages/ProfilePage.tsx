@@ -2,6 +2,13 @@ import React, { useState } from 'react'
 import { useAuthStore } from '../store/authStore'
 import { useTradingStore } from '../store/tradingStore'
 import { formatCurrency } from '../utils/formatters'
+import { AccountType } from '../types'
+
+const ACCOUNT_LABELS: Record<AccountType, string> = {
+  raw_spread: 'Raw Spread (MetaTrader)',
+  ctrader: 'cTrader Raw Spread',
+  standard: 'Standard (MetaTrader)',
+}
 
 // ─── Section card ─────────────────────────────────────────────────────────────
 function Card({ title, children, action }: { title: string; children: React.ReactNode; action?: React.ReactNode }) {
@@ -227,7 +234,7 @@ export default function ProfilePage() {
               <Field label="User ID" value={user?.id ?? '—'} readOnly />
               <Field label="Username" value={user?.username ?? '—'} readOnly />
               <Field label="Email Address" value={user?.email ?? '—'} readOnly />
-              <Field label="Account Type" value="Paper Trading" readOnly />
+              <Field label="Account Type" value={ACCOUNT_LABELS[user?.accountType ?? 'raw_spread']} readOnly />
               <Field label="Status" value="Active" readOnly />
               <Field label="Member Since" value={joined} readOnly />
             </div>

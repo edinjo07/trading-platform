@@ -1,8 +1,9 @@
 import React, { useState } from 'react'
 import { useTradingStore } from '../../store/tradingStore'
+import { useAuthStore } from '../../store/authStore'
 import { useToastStore } from '../../store/toastStore'
 import { formatPrice, formatCurrency } from '../../utils/formatters'
-import { OrderSide, OrderType } from '../../types'
+import { OrderSide, OrderType, AccountType } from '../../types'
 
 // ─── Risk Calculator helper ───────────────────────────────────────────────────
 function RiskCalculator({ entryPrice, stopLossPrice, accountEquity, onApplyQty }: {
@@ -103,28 +104,57 @@ function RiskCalculator({ entryPrice, stopLossPrice, accountEquity, onApplyQty }
 }
 
 // ─── Leverage helpers ────────────────────────────────────────────────────────
-function detectAsset(symbol: string): 'crypto' | 'stock' | 'forex' {
+function detectAsset(symbol: string): 'crypto' | 'stock' | 'forex' | 'commodity' | 'index' | 'bond' {
   const upper = symbol.toUpperCase()
-  if (upper.includes('/')) {
-    // Check common quote currencies for forex
-    const forexQuotes = ['USD', 'EUR', 'GBP', 'JPY', 'CHF', 'AUD', 'CAD', 'NZD']
-    const parts = upper.split('/')
-    if (forexQuotes.includes(parts[0]) || forexQuotes.includes(parts[1])) {
-      // If both are fiat currencies it's forex, otherwise crypto
-      const cryptoIndicators = ['BTC', 'ETH', 'BNB', 'SOL', 'XRP', 'ADA', 'USDT', 'USDC']
-      if (cryptoIndicators.some(c => upper.includes(c))) return 'crypto'
-      return 'forex'
+  // Well-known prefixes/suffixes
+  const forexMajors = ['EUR','GBP','USD','JPY','CHF','AUD','CAD','NZD','NOK','SEK','PLN','ZAR','TRY','MXN','HUF','CNH','CZK','DKK','HKD','ILS','SGD','THB']
+  const cryptoCoins = ['BTC','ETH','LTC','BCH','DSH','XRP','DOT','LNK','ADA','BNB','SOL','AVAX','MATIC','DOGE','XLM','XTZ','UNI','EMC','NMC','PPC','LUNA']
+  const commodities = ['XAU','XAG','XPT','XPD','XBR','WTI','BRENT','NGAS','GC25','COCOA','COFFEE','CORN','COTTON','OJ','SOYBEAN','SUGAR','WHEAT','COPPER','LUMBER','HO']
+  const indices = ['US500','USTEC','US30','UK100','DE40','F40','JP225','AUS200','STOXX50','CA60','CH20','HK50','ES35','IT40','NL25','NO25','SING','PL40','ZA50','TW50','IN50','KO200','DX','VIX','EUSTX50']
+  const bonds = ['TNOTE','BUND','GILT','JGB','OAT','BTP','AUB','BONO','USBOND']
+
+  if (bonds.includes(upper)) return 'bond'
+  if (indices.includes(upper)) return 'index'
+  if (commodities.includes(upper)) return 'commodity'
+  if (cryptoCoins.some(c => upper.startsWith(c) && upper.endsWith('USD'))) return 'crypto'
+  // Check if both parts are fiat
+  for (const base of forexMajors) {
+    if (upper.startsWith(base)) {
+      const rest = upper.slice(base.length)
+      if (forexMajors.includes(rest)) return 'forex'
     }
-    return 'crypto'
   }
-  return 'stock'
+  // Fallback: single ticker = stock
+  if (!/USD$/.test(upper)) return 'stock'
+  return 'crypto'
 }
 
+// IC Markets leverage limits by asset class
 function getLeverageOptions(symbol: string): number[] {
   const ac = detectAsset(symbol)
-  if (ac === 'crypto') return [1, 2, 3, 5, 10, 25, 50, 100]
-  if (ac === 'forex')  return [1, 5, 10, 25, 50, 100, 200]
-  /* stock */          return [1, 2, 3, 5]
+  // Max: forex 1:1000, commodity 1:500, index 1:200, bond 1:100, stock 1:20, crypto 1:10
+  if (ac === 'forex')     return [1, 5, 10, 25, 50, 100, 200, 500, 1000]
+  if (ac === 'commodity') return [1, 5, 10, 25, 50, 100, 200, 500]
+  if (ac === 'index')     return [1, 5, 10, 25, 50, 100, 200]
+  if (ac === 'bond')      return [1, 5, 10, 25, 50, 100]
+  if (ac === 'stock')     return [1, 2, 3, 5, 10, 20]
+  /* crypto */            return [1, 2, 3, 5, 10]
+}
+
+// Estimate commission client-side to show in the order ticket
+function estimateCommission(symbol: string, quantity: number, price: number, accountType: AccountType): number {
+  const ac = detectAsset(symbol)
+  const lotClasses = ['forex', 'commodity', 'bond']
+  let flat = 0
+  if (accountType === 'raw_spread' && lotClasses.includes(ac)) {
+    const lots = quantity / 100_000
+    flat = lots * 3.50
+  } else if (accountType === 'ctrader' && lotClasses.includes(ac)) {
+    flat = (quantity * price / 100_000) * 3.00
+  }
+  // Standard = $0 commission
+  const pct = ac === 'crypto' ? quantity * price * 0.001 : 0
+  return parseFloat((flat + pct).toFixed(2))
 }
 
 function leverageColor(lev: number): string {
@@ -138,7 +168,9 @@ function leverageColor(lev: number): string {
 
 export default function OrderForm() {
   const { selectedSymbol, tickers, portfolio, placeOrder } = useTradingStore()
+  const { user } = useAuthStore()
   const { addToast } = useToastStore()
+  const accountType = user?.accountType ?? 'raw_spread'
   const ticker = tickers[selectedSymbol]
   const cash = portfolio?.cashBalance ?? 0
   const position = portfolio?.positions.find(p => p.symbol === selectedSymbol)
@@ -336,6 +368,20 @@ export default function OrderForm() {
                 {ticker.changePercent >= 0 ? '+' : ''}{ticker.changePercent.toFixed(2)}%
               </span>
             </div>
+          </div>
+        )}
+
+        {/* Commission estimate */}
+        {quantity > 0 && unitPrice > 0 && (
+          <div className="flex items-center justify-between px-3 py-2 rounded-lg"
+               style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }}>
+            <span className="text-text-muted text-xs">Est. Commission</span>
+            <span className="text-xs font-mono font-semibold text-text-secondary">
+              {formatCurrency(estimateCommission(selectedSymbol, quantity, unitPrice, accountType))}
+              <span className="text-text-muted ml-1">
+                ({accountType === 'standard' ? 'spread-only' : accountType === 'ctrader' ? '$3/100k' : '$3.50/lot'})
+              </span>
+            </span>
           </div>
         )}
 
