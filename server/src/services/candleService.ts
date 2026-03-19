@@ -40,12 +40,31 @@ const TD_INTERVAL: Record<string, string> = {
   '1week': '1week',
 }
 
-// Twelve Data uses "Forex" asset class suffix for forex pairs
-const FOREX_RE = /^[A-Z]{3}\/[A-Z]{3}$/
+// IC Markets symbol → Twelve Data symbol
+// Stocks: pass-through (AAPL → AAPL)
+// Forex:  EURUSD → EUR/USD (Twelve Data expects slash notation)
+// Metals: XAUUSD → XAU/USD
+// Indices & commodities: use Twelve Data native tickers
+const IC_TO_TD: Record<string, string> = {
+  // Indices
+  US500: 'SPX', USTEC: 'NDX', US30: 'DJI', UK100: 'UKX', DE40: 'GDAXI',
+  F40: 'FCHI', JP225: 'N225', AUS200: 'AXJO', STOXX50: 'STOXX50E', HK50: 'HSI',
+  ES35: 'IBEX', IT40: 'FTSEMIB', NL25: 'AEX', CH20: 'SSMI', SING: 'STI',
+  IN50: 'NSEI', DX: 'DXY', VIX: 'VIX',
+  // Energy
+  WTI: 'CL', BRENT: 'BZ', NGAS: 'NG', HO: 'HO',
+  // Agri / soft commodities
+  COCOA: 'CC', COFFEE: 'KC', CORN: 'ZC', COTTON: 'CT', OJ: 'OJ',
+  SOYBEAN: 'ZS', SUGAR: 'SB', WHEAT: 'ZW', COPPER: 'HG',
+}
 
 function tdSymbol(symbol: string): string {
-  // crypto symbols use USDT pairs — TD doesn't need a suffix for crypto
-  // Forex: e.g. EUR/USD → EUR/USD (TD understands this directly)
+  // Direct mapping for indices/commodities
+  if (IC_TO_TD[symbol]) return IC_TO_TD[symbol]
+  // Forex & metals: 6-char codes like EURUSD → EUR/USD, XAUUSD → XAU/USD
+  if (/^[A-Z]{6}$/.test(symbol) && !CRYPTO_BINANCE_MAP[symbol]) {
+    return symbol.slice(0, 3) + '/' + symbol.slice(3)
+  }
   return symbol
 }
 
@@ -242,7 +261,7 @@ export async function getCandles(
     return cached.candles
   }
 
-  const isCrypto = symbol.includes('USDT') || symbol.includes('/BTC')
+  const isCrypto = !!CRYPTO_BINANCE_MAP[symbol]
 
   // ── Crypto: Binance REST klines ──────────────────────────────────────────
   if (isCrypto) {
