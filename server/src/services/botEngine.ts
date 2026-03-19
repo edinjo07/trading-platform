@@ -241,13 +241,8 @@ class BotEngine {
 
   // ── Start / Stop ─────────────────────────────────────────────────────────
 
-  startBot(id: string, userId: string): Bot {
-    const bot = this.getOwned(id, userId)
-    if (bot.status === 'running' || bot.status === 'warming_up')
-      throw new Error('Bot is already running')
-
-    // Start in warming_up; attach listener immediately so live candles
-    // accumulate while the async fetch runs in the background
+  /** Internal boot: wire candle listener, SL/TP check, warmup. No auth check. */
+  private bootBot(bot: Bot, logMsg: string): void {
     bot.status    = 'warming_up'
     bot.startedAt = new Date().toISOString()
     bot.stoppedAt = undefined
@@ -261,18 +256,23 @@ class BotEngine {
     bot.slTpHandle  = setInterval(() => this.checkSlTp(bot), 3000)
     bot.dailyHandle = setInterval(() => this.checkDailyReset(bot), 60_000)
 
-    // Fire async warmup — fetches real Binance klines (crypto) or Twelve Data (stocks/forex)
     this.warmupAsync(bot)
 
-    this.log(bot, 'info', `Bot started — fetching real historical bars for ${bot.symbol}…`)
+    this.log(bot, 'info', logMsg)
 
-    // Pre-warm news cache so first candle can check sentiment
     if (bot.params.useNewsFilter) {
       getSentiment(bot.symbol)
         .then(s => this.log(bot, 'info', `News cache warm — ${s.label} (${s.score >= 0 ? '+' : ''}${s.score.toFixed(2)}) — "${s.headlines[0]?.title?.slice(0, 60)}…"`))
         .catch(() => this.log(bot, 'info', 'News cache warm — using fallback sentiment'))
     }
+  }
 
+  startBot(id: string, userId: string): Bot {
+    const bot = this.getOwned(id, userId)
+    if (bot.status === 'running' || bot.status === 'warming_up')
+      throw new Error('Bot is already running')
+
+    this.bootBot(bot, `Bot started — fetching real historical bars for ${bot.symbol}…`)
     return this.wireView(bot)
   }
 
@@ -594,9 +594,9 @@ class BotEngine {
           id: row.id, userId: row.userId, name: row.name,
           symbol: row.symbol, strategy: row.strategy as BotStrategy,
           params: row.params as BotParams,
-          // Restore persisted stats; reset transient runtime state to 'idle'
-          // so user must explicitly Start the bot after a cold start
-          status: 'idle', position: 'none',
+          // Preserve saved status so we can auto-resume after deploy
+          status: (row.status === 'running' || row.status === 'warming_up') ? 'running' : (row.status as BotStatus ?? 'idle'),
+          position: (row.position as BotPosition) ?? 'none',
           createdAt: row.createdAt, startedAt: row.startedAt, stoppedAt: row.stoppedAt,
           trades: row.trades, wins: row.wins, losses: row.losses,
           pnl: row.pnl, peakPnl: row.peakPnl, maxDrawdown: row.maxDrawdown,
@@ -610,7 +610,16 @@ class BotEngine {
         }
         this.bots.set(bot.id, bot)
       }
-      if (rows.length > 0) console.log(`[Bot] ✓ ${rows.length} bot(s) restored from DB`)
+      // Auto-resume bots that were running before the server restarted
+      const toResume = rows.filter(r => r.status === 'running' || r.status === 'warming_up')
+      for (const row of toResume) {
+        const bot = this.bots.get(row.id)
+        if (bot) {
+          this.bootBot(bot, `Bot auto-resumed after server restart — warming up ${bot.symbol}…`)
+          console.log(`[Bot] ⏩ Auto-resumed "${bot.name}" (${bot.symbol})`)
+        }
+      }
+      if (rows.length > 0) console.log(`[Bot] ✓ ${rows.length} bot(s) restored from DB (${toResume.length} auto-resumed)`)
     } catch (e: unknown) {
       console.error('[Bot] loadFromDB failed:', e)
     }
