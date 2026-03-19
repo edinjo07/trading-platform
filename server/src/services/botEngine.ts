@@ -604,7 +604,7 @@ class BotEngine {
           dailyTrades: row.dailyTrades, dailyLoss: row.dailyLoss,
           dailyResetDate: row.dailyResetDate || today(),
           warmupBarsNeeded: needed, warmupBarsCurrent: 0,
-          logs: (row.logs ?? []).slice(-50),
+          logs: ((row.logs ?? []) as BotLog[]).slice(-50),
           riskAccepted: row.riskAccepted, riskAcceptedAt: row.riskAcceptedAt,
           priceBuffer: [], pendingSignal: null, pendingSignalBars: 0,
         }

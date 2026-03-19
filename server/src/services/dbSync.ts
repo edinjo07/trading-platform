@@ -90,6 +90,7 @@ function mapUser(row: any): User {
     passwordHash: row.password_hash,
     balance: parseFloat(row.balance),
     createdAt: row.created_at,
+    accountType: row.account_type ?? 'raw_spread',
   }
 }
 
