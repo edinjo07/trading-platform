@@ -51,7 +51,7 @@ interface TradingState {
 
 export const useTradingStore = create<TradingState>((set, get) => ({
   symbols: [],
-  selectedSymbol: 'BTC/USDT',
+  selectedSymbol: 'BTCUSD',
   tickers: {},
   candles: [],
   liveCandle: null,

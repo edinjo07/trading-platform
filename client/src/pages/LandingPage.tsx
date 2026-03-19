@@ -4,16 +4,16 @@ import { useAuthStore } from '../store/authStore'
 
 // ─── Static market data for display ──────────────────────────────────────────
 const HERO_TICKERS = [
-  { sym: 'BTC/USDT', price: '67,420.50', chg: '+2.41%', up: true },
-  { sym: 'ETH/USDT', price: '3,512.80',  chg: '+1.83%', up: true },
-  { sym: 'AAPL',     price: '189.24',    chg: '-0.61%', up: false },
-  { sym: 'EUR/USD',  price: '1.08420',   chg: '+0.12%', up: true },
-  { sym: 'NVDA',     price: '875.40',    chg: '+3.14%', up: true },
-  { sym: 'GBP/USD',  price: '1.26350',   chg: '-0.08%', up: false },
-  { sym: 'SOL/USDT', price: '143.20',    chg: '+4.22%', up: true },
-  { sym: 'TSLA',     price: '245.60',    chg: '+1.95%', up: true },
-  { sym: 'XAU/USD',  price: '2,334.10',  chg: '+0.34%', up: true },
-  { sym: 'USD/JPY',  price: '149.820',   chg: '-0.21%', up: false },
+  { sym: 'BTCUSD',  price: '67,420.50', chg: '+2.41%', up: true },
+  { sym: 'ETHUSD',  price: '3,512.80',  chg: '+1.83%', up: true },
+  { sym: 'AAPL',    price: '189.24',    chg: '-0.61%', up: false },
+  { sym: 'EURUSD',  price: '1.08420',   chg: '+0.12%', up: true },
+  { sym: 'NVDA',    price: '875.40',    chg: '+3.14%', up: true },
+  { sym: 'GBPUSD',  price: '1.26350',   chg: '-0.08%', up: false },
+  { sym: 'SOLUSD',  price: '143.20',    chg: '+4.22%', up: true },
+  { sym: 'TSLA',    price: '245.60',    chg: '+1.95%', up: true },
+  { sym: 'XAUUSD',  price: '2,334.10',  chg: '+0.34%', up: true },
+  { sym: 'USDJPY',  price: '149.820',   chg: '-0.21%', up: false },
 ]
 
 const FEATURES = [
@@ -83,14 +83,14 @@ const FEATURES = [
 ]
 
 const MARKETS = [
-  { sym: 'BTC/USDT',  name: 'Bitcoin',           price: '67,420.50', chg: '+2.41', up: true,  cat: 'Crypto', logo: 'https://assets.coingecko.com/coins/images/1/small/bitcoin.png' },
-  { sym: 'ETH/USDT',  name: 'Ethereum',          price: '3,512.80',  chg: '+1.83', up: true,  cat: 'Crypto', logo: 'https://assets.coingecko.com/coins/images/279/small/ethereum.png' },
-  { sym: 'EUR/USD',   name: 'Euro / US Dollar',  price: '1.08420',   chg: '+0.12', up: true,  cat: 'Forex',  logo: 'https://flagcdn.com/w40/eu.png' },
-  { sym: 'GBP/USD',   name: 'Pound / US Dollar', price: '1.26350',   chg: '-0.08', up: false, cat: 'Forex',  logo: 'https://flagcdn.com/w40/gb.png' },
+  { sym: 'BTCUSD',   name: 'Bitcoin',           price: '67,420.50', chg: '+2.41', up: true,  cat: 'Crypto', logo: 'https://assets.coingecko.com/coins/images/1/small/bitcoin.png' },
+  { sym: 'ETHUSD',   name: 'Ethereum',          price: '3,512.80',  chg: '+1.83', up: true,  cat: 'Crypto', logo: 'https://assets.coingecko.com/coins/images/279/small/ethereum.png' },
+  { sym: 'EURUSD',   name: 'Euro / US Dollar',  price: '1.08420',   chg: '+0.12', up: true,  cat: 'Forex',  logo: 'https://flagcdn.com/w40/eu.png' },
+  { sym: 'GBPUSD',   name: 'Pound / US Dollar', price: '1.26350',   chg: '-0.08', up: false, cat: 'Forex',  logo: 'https://flagcdn.com/w40/gb.png' },
   { sym: 'AAPL',      name: 'Apple Inc.',        price: '189.24',    chg: '-0.61', up: false, cat: 'Stocks', logo: 'https://logo.clearbit.com/apple.com' },
   { sym: 'NVDA',      name: 'NVIDIA Corp.',      price: '875.40',    chg: '+3.14', up: true,  cat: 'Stocks', logo: 'https://logo.clearbit.com/nvidia.com' },
-  { sym: 'XAU/USD',   name: 'Gold Spot',         price: '2,334.10',  chg: '+0.34', up: true,  cat: 'Commod', logo: 'https://assets.coingecko.com/coins/images/14/small/xrp-symbol-white-128.png' },
-  { sym: 'SOL/USDT',  name: 'Solana',            price: '143.20',    chg: '+4.22', up: true,  cat: 'Crypto', logo: 'https://assets.coingecko.com/coins/images/4128/small/solana.png' },
+  { sym: 'XAUUSD',   name: 'Gold Spot',         price: '2,334.10',  chg: '+0.34', up: true,  cat: 'Commod', logo: 'https://assets.coingecko.com/coins/images/14/small/xrp-symbol-white-128.png' },
+  { sym: 'SOLUSD',   name: 'Solana',            price: '143.20',    chg: '+4.22', up: true,  cat: 'Crypto', logo: 'https://assets.coingecko.com/coins/images/4128/small/solana.png' },
 ]
 
 const STEPS = [
@@ -404,7 +404,7 @@ export default function LandingPage() {
                   {[
                     { sym:'AAPL',    px:'186.51', chg:'-0.53%', up:false },
                     { sym:'NVDA',    px:'870.74', chg:'-0.51%', up:false },
-                    { sym:'BTC/USDT',px:'67,420', chg:'+2.41%', up:true  },
+                    { sym:'BTCUSD',  px:'67,420', chg:'+2.41%', up:true  },
                   ].map(w => (
                     <div key={w.sym} className="flex items-center justify-between py-1.5">
                       <div>
@@ -752,8 +752,8 @@ export default function LandingPage() {
               {/* Mini alert list */}
               <div className="space-y-2">
                 {[
-                  { sym: 'BTC/USDT', cond: 'above', price: '70,000', status: 'active', color: '#0ea5e9' },
-                  { sym: 'EUR/USD',  cond: 'below', price: '1.0800', status: 'triggered', color: '#f59e0b' },
+                  { sym: 'BTCUSD',  cond: 'above', price: '70,000', status: 'active', color: '#0ea5e9' },
+                  { sym: 'EURUSD',   cond: 'below', price: '1.0800', status: 'triggered', color: '#f59e0b' },
                   { sym: 'NVDA',    cond: 'above', price: '900.00', status: 'active', color: '#0ea5e9' },
                 ].map((a, i) => (
                   <div key={i} className="flex items-center justify-between rounded-lg px-3 py-2"
@@ -815,9 +815,9 @@ export default function LandingPage() {
                     </thead>
                     <tbody>
                       {[
-                        ['BTC/USDT','BUY','0.5','67,420','filled'],
+                        ['BTCUSD','BUY','0.5','67,420','filled'],
                         ['NVDA','SELL','10','875.40','filled'],
-                        ['EUR/USD','BUY','1000','1.0842','open'],
+                        ['EURUSD','BUY','1000','1.0842','open'],
                       ].map((r, i) => (
                         <tr key={i} style={{ borderTop: '1px solid #f1f5f9' }}>
                           {r.map((c, j) => (

@@ -34,7 +34,7 @@ export interface TradeAssetRow {
 const USERS = ['john.doe', 'maria.k', 'alex.b', 'emma.watts', 'carlos.r', 'noah.lin', 'lisa.t', 'ben.cross', 'anne.m', 'oscar.p']
 const EMAILS = USERS.map(u => `${u}@tradex.io`)
 const COUNTRIES = ['United States', 'United Kingdom', 'Germany', 'Australia', 'Canada', 'Singapore', 'UAE', 'South Africa']
-const SYMBOLS = ['EUR/USD', 'GBP/USD', 'USD/JPY', 'AUD/USD', 'BTC/USDT', 'ETH/USDT', 'AAPL', 'NVDA', 'XAUUSD', 'OIL']
+const SYMBOLS = ['EURUSD', 'GBPUSD', 'USDJPY', 'AUDUSD', 'BTCUSD', 'ETHUSD', 'AAPL', 'NVDA', 'XAUUSD', 'WTI']
 const METHODS = ['Bank Wire', 'Credit Card', 'Crypto', 'Skrill', 'Neteller', 'PayPal']
 const SOURCES = ['Organic', 'Referral', 'Google Ads', 'Facebook', 'Affiliate', 'Email Campaign']
 const STAFF = ['Sarah Johnson', 'Mike Chen', 'Anna Kovac', 'David Lee', 'Rita Patel']
@@ -126,10 +126,10 @@ export function generateLeads(count = 65): LeadRow[] {
 
 export function generateTradeAssets(category: string, count = 20): TradeAssetRow[] {
   const assetSets: Record<string, string[]> = {
-    forex: ['EUR/USD', 'GBP/USD', 'USD/JPY', 'AUD/USD', 'USD/CAD', 'NZD/USD', 'EUR/GBP', 'USD/CHF'],
-    commodities: ['XAUUSD', 'XAGUSD', 'OIL', 'NGAS', 'WHEAT', 'CORN', 'COFFEE', 'SUGAR'],
-    index: ['SP500', 'NASDAQ', 'DJI', 'FTSE100', 'DAX40', 'CAC40', 'NIKKEI', 'ASX200'],
-    crypto: ['BTC/USDT', 'ETH/USDT', 'SOL/USDT', 'BNB/USDT', 'ADA/USDT', 'DOT/USDT', 'LINK/USDT', 'MATIC/USDT'],
+    forex: ['EURUSD', 'GBPUSD', 'USDJPY', 'AUDUSD', 'USDCAD', 'NZDUSD', 'EURGBP', 'USDCHF'],
+    commodities: ['XAUUSD', 'XAGUSD', 'WTI', 'NGAS', 'WHEAT', 'CORN', 'COFFEE', 'SUGAR'],
+    index: ['US500', 'USTEC', 'US30', 'UK100', 'DE40', 'FR40', 'JP225', 'AUS200'],
+    crypto: ['BTCUSD', 'ETHUSD', 'SOLUSD', 'BNBUSD', 'ADAUSD', 'DOTUSD', 'LNKUSD', 'MATICUSD'],
     stock: ['AAPL', 'NVDA', 'TSLA', 'AMZN', 'MSFT', 'META', 'GOOGL', 'NFLX'],
   }
   const syms = assetSets[category] ?? SYMBOLS

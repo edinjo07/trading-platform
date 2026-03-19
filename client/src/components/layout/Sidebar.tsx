@@ -62,7 +62,7 @@ const NAV_GROUPS = [
   },
 ]
 
-const WATCHLIST = ['BTC/USDT', 'ETH/USDT', 'SOL/USDT', 'AAPL', 'NVDA', 'EUR/USD', 'TSLA', 'MSFT']
+const WATCHLIST = ['BTCUSD', 'ETHUSD', 'SOLUSD', 'AAPL', 'NVDA', 'EURUSD', 'TSLA', 'MSFT']
 const ASSET_COLOR: Record<string, string> = { crypto: '#fbbf24', forex: '#7dd3fc', stock: '#38bdf8' }
 
 interface SidebarProps {

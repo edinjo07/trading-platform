@@ -245,9 +245,9 @@ export default function ProfilePage() {
             <div className="space-y-3">
               {[
                 { icon: '🟢', text: 'Logged in successfully',         time: 'Just now' },
-                { icon: '📈', text: 'Viewed EUR/USD chart',           time: '2 min ago' },
+                { icon: '📈', text: 'Viewed EURUSD chart',           time: '2 min ago' },
                 { icon: '📋', text: 'Checked portfolio summary',      time: '5 min ago' },
-                { icon: '🔔', text: 'Price alert triggered: BTC/USDT',time: '1 hr ago' },
+                { icon: '🔔', text: 'Price alert triggered: BTCUSD',  time: '1 hr ago' },
                 { icon: '💳', text: 'Account balance reviewed',       time: '3 hrs ago' },
               ].map((item, i) => (
                 <div key={i} className="flex items-center gap-3 py-2 rounded-lg px-3"

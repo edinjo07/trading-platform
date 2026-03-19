@@ -234,9 +234,9 @@ const LOG_ICONS: Record<string, string> = {
 }
 
 const SYMBOL_LIST = [
-  'BTC/USDT','ETH/USDT','SOL/USDT','BNB/USDT','XRP/USDT',
+  'BTCUSD','ETHUSD','SOLUSD','BNBUSD','XRPUSD',
   'AAPL','TSLA','NVDA','MSFT','GOOGL','AMZN','META',
-  'EUR/USD','GBP/USD','USD/JPY','AUD/USD',
+  'EURUSD','GBPUSD','USDJPY','AUDUSD',
 ]
 
 function fmtTime(iso: string) {
