@@ -1,7 +1,7 @@
 import { Router, Response } from 'express'
 import { authenticate, AuthRequest } from '../middleware/auth'
-import { getPortfolio, closePosition, executeOrder, portfolios, orders, refreshPortfolio } from '../services/tradingEngine'
-import { dbLoadPortfolio, dbSaveOrder, dbSavePortfolio, dbEnsureUser } from '../services/dbSync'
+import { getPortfolio, closePosition, executeOrder, portfolios, orders, tradeJournal, refreshPortfolio } from '../services/tradingEngine'
+import { dbLoadPortfolio, dbLoadTradeJournal, dbSaveOrder, dbSavePortfolio, dbSaveTradeRecord, dbEnsureUser } from '../services/dbSync'
 
 const router = Router()
 router.use(authenticate)
@@ -32,6 +32,11 @@ router.delete('/:symbol', async (req: AuthRequest, res: Response) => {
       await dbEnsureUser(userId, req.user!.email)
       const dbPortfolio = await dbLoadPortfolio(userId)
       if (dbPortfolio) portfolios.set(userId, dbPortfolio)
+      // Also restore trade journal so close-trade records are appended correctly
+      if ((tradeJournal.get(userId) ?? []).length === 0) {
+        const dbJournal = await dbLoadTradeJournal(userId)
+        if (dbJournal.length > 0) tradeJournal.set(userId, [...dbJournal].reverse())
+      }
     } catch { /* non-fatal — proceed with whatever is in memory */ }
 
     const order = closePosition(userId, symbol)
@@ -40,11 +45,21 @@ router.delete('/:symbol', async (req: AuthRequest, res: Response) => {
     // without this the position stays open until the tick loop fires it)
     executeOrder(order.id)
 
-    // Now the sell has filled — grab the fresh order and portfolio states
+    // Now the sell has filled — grab the fresh order, portfolio, and journal states
     const filledOrder = orders.get(order.id) ?? order
     const portfolio   = portfolios.get(userId)
+    const journal     = tradeJournal.get(userId) ?? []
+
+    // Find the trade record that was just closed by executeOrder.
+    // The journal entry for a long has orderId = opening buy order id; after close,
+    // executeOrder sets closedAt on it.  Grab the most recently-closed entry.
+    const justClosed = [...journal].reverse().find(t => t.symbol === symbol && t.closedAt)
+
     const saves: Promise<void>[] = [
       dbSaveOrder(filledOrder).catch((e: unknown) => console.error('[Positions] save order failed:', e)),
+      ...(justClosed
+        ? [dbSaveTradeRecord(justClosed).catch((e: unknown) => console.error('[Positions] save trade record failed:', e))]
+        : []),
     ]
     if (portfolio) {
       saves.push(dbSavePortfolio(userId, portfolio).catch((e: unknown) => console.error('[Positions] save portfolio failed:', e)))
