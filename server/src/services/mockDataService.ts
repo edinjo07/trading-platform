@@ -1012,5 +1012,5 @@ export function inject24hStats(
 // Auto-connect to live market feeds (Binance WS + Twelve Data WS)
 // Skipped on Vercel (serverless) — prices are seeded via REST in api/[...path].ts instead
 if (!process.env.VERCEL) {
-  startRealDataFeeds(injectRealPrice)
+  startRealDataFeeds(injectRealPrice, inject24hStats)
 }

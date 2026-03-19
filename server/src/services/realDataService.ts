@@ -33,6 +33,10 @@ const BINANCE_STREAM_TO_SYMBOL: Record<string, string> = {
   linkusdt:  'LNKUSD',
   avaxusdt:  'AVAXUSD',
   maticusdt: 'MATICUSD',
+  xlmusdt:   'XLMUSD',
+  xtzusdt:   'XTZUSD',
+  uniusdt:   'UNIUSD',
+  dashusdt:  'DSHUSD',
 }
 const BINANCE_STREAMS = Object.keys(BINANCE_STREAM_TO_SYMBOL).map(s => `${s}@ticker`).join('/')
 const BINANCE_URL = `wss://stream.binance.com:9443/stream?streams=${BINANCE_STREAMS}`
@@ -87,13 +91,93 @@ function startBinanceFeed(onPrice: PriceCallback, retryMs = 3000): void {
 // ---------------------------------------------------------------------------
 // Twelve Data — stocks + forex
 // ---------------------------------------------------------------------------
-const TD_SYMBOLS = [
-  // Stocks
+/**
+ * Maps Twelve Data symbol → internal IC Markets symbol.
+ * Built programmatically from the asset-class lists below.
+ */
+const TD_SYMBOL_TO_INTERNAL: Record<string, string> = {}
+
+// ── Stocks (23) — TD symbol matches internal symbol ─────────────────────
+const TD_STOCKS = [
   'AAPL', 'TSLA', 'NVDA', 'MSFT', 'GOOGL', 'AMZN', 'META',
-  // Forex — Twelve Data accepts EUR/USD notation directly
-  'EUR/USD', 'GBP/USD', 'USD/JPY', 'USD/CHF', 'AUD/USD',
-  'USD/CAD', 'NZD/USD', 'EUR/GBP', 'EUR/JPY', 'GBP/JPY',
+  'JPM', 'NFLX', 'COIN', 'AMD', 'DIS',
+  'LMT', 'RTX', 'NOC', 'GD', 'BA', 'HII', 'LDOS', 'CACI',
+  'XOM', 'CVX', 'COP',
 ]
+TD_STOCKS.forEach(s => { TD_SYMBOL_TO_INTERNAL[s] = s })
+
+// ── Forex (61 pairs) — TD uses 'EUR/USD', internal is 'EURUSD' ─────────
+const TD_FOREX = [
+  // Majors
+  'EUR/USD', 'GBP/USD', 'USD/JPY', 'USD/CHF', 'USD/CAD', 'AUD/USD', 'NZD/USD',
+  // Minors
+  'AUD/CAD', 'AUD/CHF', 'AUD/JPY', 'AUD/NZD', 'CAD/CHF', 'CAD/JPY', 'CHF/JPY',
+  'EUR/AUD', 'EUR/CAD', 'EUR/CHF', 'EUR/GBP', 'EUR/JPY', 'EUR/NZD',
+  'GBP/AUD', 'GBP/CAD', 'GBP/CHF', 'GBP/JPY', 'GBP/NZD',
+  'NZD/CAD', 'NZD/CHF', 'NZD/JPY',
+  // Exotics
+  'EUR/HUF', 'EUR/NOK', 'EUR/PLN', 'EUR/SEK', 'EUR/ZAR', 'EUR/MXN', 'EUR/TRY',
+  'GBP/NOK', 'GBP/PLN', 'GBP/SEK', 'GBP/ZAR',
+  'USD/CNH', 'USD/CZK', 'USD/DKK', 'USD/HKD', 'USD/HUF', 'USD/ILS', 'USD/MXN',
+  'USD/NOK', 'USD/PLN', 'USD/SEK', 'USD/SGD', 'USD/THB', 'USD/ZAR', 'USD/TRY',
+  'NOK/JPY', 'SGD/JPY',
+  'AUD/MXN', 'AUD/SGD', 'EUR/SGD', 'GBP/SGD', 'NZD/SGD', 'EUR/CZK',
+]
+TD_FOREX.forEach(p => { TD_SYMBOL_TO_INTERNAL[p] = p.replace('/', '') })
+
+// ── Precious Metals (TD treats these as forex-style pairs) ──────────────
+;['XAU/USD', 'XAG/USD', 'XPT/USD', 'XPD/USD'].forEach(m => {
+  TD_SYMBOL_TO_INTERNAL[m] = m.replace('/', '')
+})
+
+// ── Indices — TD symbol differs from internal IC Markets symbol ─────────
+const TD_INDEX_ENTRIES: [string, string][] = [
+  ['SPX',      'US500'],
+  ['NDX',      'USTEC'],
+  ['DJI',      'US30'],
+  ['UKX',      'UK100'],
+  ['GDAXI',    'DE40'],
+  ['FCHI',     'F40'],
+  ['N225',     'JP225'],
+  ['AXJO',     'AUS200'],
+  ['STOXX50E', 'STOXX50'],
+  ['HSI',      'HK50'],
+  ['IBEX',     'ES35'],
+  ['FTSEMIB',  'IT40'],
+  ['AEX',      'NL25'],
+  ['SSMI',     'CH20'],
+  ['STI',      'SING'],
+  ['NSEI',     'IN50'],
+  ['DXY',      'DX'],
+  ['VIX',      'VIX'],
+]
+TD_INDEX_ENTRIES.forEach(([td, ic]) => { TD_SYMBOL_TO_INTERNAL[td] = ic })
+
+// ── Energy commodities ──────────────────────────────────────────────────
+const TD_ENERGY_ENTRIES: [string, string][] = [
+  ['CL', 'WTI'],
+  ['BZ', 'BRENT'],
+  ['NG', 'NGAS'],
+  ['HO', 'HO'],
+]
+TD_ENERGY_ENTRIES.forEach(([td, ic]) => { TD_SYMBOL_TO_INTERNAL[td] = ic })
+
+// ── Agricultural & soft commodities (CME/ICE futures symbols) ───────────
+const TD_AGRI_ENTRIES: [string, string][] = [
+  ['CC', 'COCOA'],
+  ['KC', 'COFFEE'],
+  ['ZC', 'CORN'],
+  ['CT', 'COTTON'],
+  ['OJ', 'OJ'],
+  ['ZS', 'SOYBEAN'],
+  ['SB', 'SUGAR'],
+  ['ZW', 'WHEAT'],
+  ['HG', 'COPPER'],
+]
+TD_AGRI_ENTRIES.forEach(([td, ic]) => { TD_SYMBOL_TO_INTERNAL[td] = ic })
+
+// All symbols to subscribe to on Twelve Data WebSocket
+const TD_SYMBOLS = Object.keys(TD_SYMBOL_TO_INTERNAL)
 const TD_WS_BASE = 'wss://ws.twelvedata.com/v1/quotes/price'
 
 function startTwelveDataFeed(onPrice: PriceCallback, retryMs = 5000): void {
@@ -144,7 +228,8 @@ function startTwelveDataFeed(onPrice: PriceCallback, retryMs = 5000): void {
 
         if (msg.event === 'price' && msg.symbol && msg.price) {
           const price = typeof msg.price === 'string' ? parseFloat(msg.price) : msg.price
-          if (price > 0) onPrice(msg.symbol, price)
+          const ourSymbol = TD_SYMBOL_TO_INTERNAL[msg.symbol]
+          if (ourSymbol && price > 0) onPrice(ourSymbol, price)
         } else if (msg.event === 'subscribe-status') {
           console.log(`[Market] Twelve Data subscription: ${msg.status ?? ''} — ${msg.message ?? ''}`)
         }
@@ -173,20 +258,32 @@ function startTwelveDataFeed(onPrice: PriceCallback, retryMs = 5000): void {
 // at the real current market price instead of hardcoded basePrice values.
 // ---------------------------------------------------------------------------
 const BINANCE_SEED_SYMBOLS: Record<string, string> = {
-  BTCUSDT: 'BTC/USDT',
-  ETHUSDT: 'ETH/USDT',
-  SOLUSDT: 'SOL/USDT',
-  BNBUSDT: 'BNB/USDT',
-  XRPUSDT: 'XRP/USDT',
+  BTCUSDT:   'BTCUSD',
+  ETHUSDT:   'ETHUSD',
+  SOLUSDT:   'SOLUSD',
+  BNBUSDT:   'BNBUSD',
+  XRPUSDT:   'XRPUSD',
+  LTCUSDT:   'LTCUSD',
+  BCHUSDT:   'BCHUSD',
+  DOGEUSDT:  'DOGEUSD',
+  ADAUSDT:   'ADAUSD',
+  DOTUSDT:   'DOTUSD',
+  LINKUSDT:  'LNKUSD',
+  AVAXUSDT:  'AVAXUSD',
+  MATICUSDT: 'MATICUSD',
+  XLMUSDT:   'XLMUSD',
+  XTZUSDT:   'XTZUSD',
+  UNIUSDT:   'UNIUSD',
+  DASHUSDT:  'DSHUSD',
 }
 
 // CoinGecko id → our symbol (used as fallback when Binance is geo-blocked)
 const COINGECKO_TO_SYMBOL: Record<string, string> = {
-  bitcoin:     'BTC/USDT',
-  ethereum:    'ETH/USDT',
-  solana:      'SOL/USDT',
-  binancecoin: 'BNB/USDT',
-  ripple:      'XRP/USDT',
+  bitcoin:     'BTCUSD',
+  ethereum:    'ETHUSD',
+  solana:      'SOLUSD',
+  binancecoin: 'BNBUSD',
+  ripple:      'XRPUSD',
 }
 
 async function seedFromCoinGecko(onPrice: PriceCallback): Promise<void> {
@@ -262,9 +359,9 @@ export async function seedInitialPrices(
 // ---------------------------------------------------------------------------
 // Public entry point
 // ---------------------------------------------------------------------------
-export function startRealDataFeeds(onPrice: PriceCallback): void {
+export function startRealDataFeeds(onPrice: PriceCallback, onStats?: StatsCallback): void {
   // Seed real current prices immediately (async, before WS connects)
-  seedInitialPrices(onPrice).catch(() => {})
+  seedInitialPrices(onPrice, onStats).catch(() => {})
   startBinanceFeed(onPrice)
   startTwelveDataFeed(onPrice)
 }
