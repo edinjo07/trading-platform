@@ -67,6 +67,8 @@ import PricingPlanPage from './pages/admin/trade-management/PricingPlanPage'
 // Site Management
 import SiteSettingsPage from './pages/admin/site-management/SiteSettingsPage'
 import LanguagesSettingsPage from './pages/admin/site-management/LanguagesSettingsPage'
+// Analytics
+import AdminAnalyticsPage from './pages/admin/AdminAnalyticsPage'
 // Server Management
 import APIStatusPage from './pages/admin/server-management/APIStatusPage'
 import ServerInfoPage from './pages/admin/server-management/ServerInfoPage'
@@ -175,6 +177,9 @@ export default function App() {
           {/* Site Management */}
           <Route path="site/settings" element={<SiteSettingsPage />} />
           <Route path="site/languages" element={<LanguagesSettingsPage />} />
+
+          {/* Analytics */}
+          <Route path="analytics" element={<AdminAnalyticsPage />} />
 
           {/* Server Management */}
           <Route path="server/api-status" element={<APIStatusPage />} />
