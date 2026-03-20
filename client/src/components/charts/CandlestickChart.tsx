@@ -61,6 +61,18 @@ export default function CandlestickChart({ candles, symbol, interval, onInterval
         timeVisible: true,
         secondsVisible: interval === '1m' || interval === '3m' || interval === '5m',
       },
+      handleScroll: {
+        mouseWheel: true,
+        pressedMouseMove: true,
+        horzTouchDrag: true,
+        vertTouchDrag: false,
+      },
+      handleScale: {
+        mouseWheel: true,
+        pinch: true,
+        axisPressedMouseMove: true,
+        axisDoubleClickReset: true,
+      },
       width: containerRef.current.clientWidth,
       height: containerRef.current.clientHeight,
     })

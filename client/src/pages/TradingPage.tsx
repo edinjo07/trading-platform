@@ -72,7 +72,7 @@ export default function TradingPage() {
               ))}
             </div>
 
-            {chartView === 'candles' && (
+            {false && chartView === 'candles' && (
               <div className="flex gap-px">
                 {['1m','5m','15m','1h','4h','1d'].map(iv => (
                   <button key={iv} onClick={() => setChartInterval(iv)}
