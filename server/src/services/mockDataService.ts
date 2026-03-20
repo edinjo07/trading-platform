@@ -57,10 +57,10 @@ export const SYMBOLS: Symbol[] = [
   { symbol: 'XLMUSD',   name: 'Stellar',       assetClass: 'crypto', baseAsset: 'XLM',   quoteAsset: 'USD' },
   { symbol: 'XTZUSD',   name: 'Tezos',         assetClass: 'crypto', baseAsset: 'XTZ',   quoteAsset: 'USD' },
   { symbol: 'UNIUSD',   name: 'Uniswap',       assetClass: 'crypto', baseAsset: 'UNI',   quoteAsset: 'USD' },
-  { symbol: 'EMCUSD',   name: 'Emercoin',      assetClass: 'crypto', baseAsset: 'EMC',   quoteAsset: 'USD' },
-  { symbol: 'NMCUSD',   name: 'Namecoin',      assetClass: 'crypto', baseAsset: 'NMC',   quoteAsset: 'USD' },
-  { symbol: 'PPCUSD',   name: 'Peercoin',      assetClass: 'crypto', baseAsset: 'PPC',   quoteAsset: 'USD' },
-  { symbol: 'LUNAUSD',  name: 'Terra Luna',    assetClass: 'crypto', baseAsset: 'LUNA',  quoteAsset: 'USD' },
+  { symbol: 'NEARUSD',  name: 'NEAR Protocol', assetClass: 'crypto', baseAsset: 'NEAR',  quoteAsset: 'USD' },
+  { symbol: 'ATOMUSD',  name: 'Cosmos',        assetClass: 'crypto', baseAsset: 'ATOM',  quoteAsset: 'USD' },
+  { symbol: 'ALGOUSD',  name: 'Algorand',      assetClass: 'crypto', baseAsset: 'ALGO',  quoteAsset: 'USD' },
+  { symbol: 'FILUSD',   name: 'Filecoin',      assetClass: 'crypto', baseAsset: 'FIL',   quoteAsset: 'USD' },
   // ── Forex Majors ──────────────────────────────────────────────────────────
   { symbol: 'EURUSD', name: 'Euro / US Dollar',               assetClass: 'forex', baseAsset: 'EUR', quoteAsset: 'USD' },
   { symbol: 'GBPUSD', name: 'British Pound / US Dollar',      assetClass: 'forex', baseAsset: 'GBP', quoteAsset: 'USD' },
@@ -244,10 +244,10 @@ const PARAMS: Record<string, InstrumentParams> = {
   XLMUSD:   { basePrice: 0.28,   annualVol: 0.90, annualDrift: 0.10, priceDecimals: 4, tickSize: 0.0001,  avgSpread: 0.001,  baseVolume: 2e9    },
   XTZUSD:   { basePrice: 0.75,   annualVol: 0.95, annualDrift: 0.10, priceDecimals: 4, tickSize: 0.0001,  avgSpread: 0.001,  baseVolume: 5e8    },
   UNIUSD:   { basePrice: 8.50,   annualVol: 1.00, annualDrift: 0.15, priceDecimals: 3, tickSize: 0.001,   avgSpread: 0.0008, baseVolume: 4e8    },
-  EMCUSD:   { basePrice: 0.08,   annualVol: 1.20, annualDrift: 0.05, priceDecimals: 5, tickSize: 0.00001, avgSpread: 0.002,  baseVolume: 5e6    },
-  NMCUSD:   { basePrice: 0.35,   annualVol: 1.10, annualDrift: 0.05, priceDecimals: 4, tickSize: 0.0001,  avgSpread: 0.003,  baseVolume: 3e6    },
-  PPCUSD:   { basePrice: 0.40,   annualVol: 1.10, annualDrift: 0.05, priceDecimals: 4, tickSize: 0.0001,  avgSpread: 0.003,  baseVolume: 2e6    },
-  LUNAUSD:  { basePrice: 0.50,   annualVol: 1.50, annualDrift: 0.05, priceDecimals: 4, tickSize: 0.0001,  avgSpread: 0.005,  baseVolume: 5e7    },
+  NEARUSD:  { basePrice: 4.00,   annualVol: 0.95, annualDrift: 0.05, priceDecimals: 4, tickSize: 0.0001,  avgSpread: 0.001,  baseVolume: 5e8    },
+  ATOMUSD:  { basePrice: 5.50,   annualVol: 0.90, annualDrift: 0.05, priceDecimals: 3, tickSize: 0.001,   avgSpread: 0.001,  baseVolume: 3e8    },
+  ALGOUSD:  { basePrice: 0.18,   annualVol: 0.85, annualDrift: 0.03, priceDecimals: 5, tickSize: 0.00001, avgSpread: 0.001,  baseVolume: 2e8    },
+  FILUSD:   { basePrice: 3.80,   annualVol: 0.90, annualDrift: 0.04, priceDecimals: 3, tickSize: 0.001,   avgSpread: 0.001,  baseVolume: 1e8    },
   // ── Forex Majors ──────────────────────────────────────────────────────────
   EURUSD: { basePrice: 1.0885, annualVol: 0.07, annualDrift: 0.00, priceDecimals: 5, tickSize: 0.00001, avgSpread: 0.00005, baseVolume: 5e11   },
   GBPUSD: { basePrice: 1.2745, annualVol: 0.08, annualDrift: 0.00, priceDecimals: 5, tickSize: 0.00001, avgSpread: 0.00007, baseVolume: 3e11   },
@@ -313,7 +313,7 @@ const PARAMS: Record<string, InstrumentParams> = {
   NZDSGD:  { basePrice: 0.8170, annualVol: 0.09, annualDrift: 0.00, priceDecimals: 4, tickSize: 0.0001, avgSpread: 0.0001,  baseVolume: 5e9    },
   EURCZK:  { basePrice: 25.45,  annualVol: 0.10, annualDrift: 0.00, priceDecimals: 3, tickSize: 0.001,  avgSpread: 0.003,   baseVolume: 2e10   },
   // ── Commodities ───────────────────────────────────────────────────────────
-  XAUUSD: { basePrice: 2400,  annualVol: 0.15, annualDrift: 0.05, priceDecimals: 2, tickSize: 0.01,   avgSpread: 0.0002, baseVolume: 2e8   },
+  XAUUSD: { basePrice: 3100,  annualVol: 0.15, annualDrift: 0.05, priceDecimals: 2, tickSize: 0.01,   avgSpread: 0.0002, baseVolume: 2e8   },
   XAGUSD: { basePrice: 28.5,  annualVol: 0.25, annualDrift: 0.03, priceDecimals: 2, tickSize: 0.01,   avgSpread: 0.0004, baseVolume: 5e7   },
   XPTUSD: { basePrice: 1000,  annualVol: 0.22, annualDrift: 0.02, priceDecimals: 2, tickSize: 0.01,   avgSpread: 0.0005, baseVolume: 2e7   },
   XPDUSD: { basePrice: 1060,  annualVol: 0.30, annualDrift: 0.00, priceDecimals: 2, tickSize: 0.01,   avgSpread: 0.001,  baseVolume: 5e6   },
@@ -461,13 +461,22 @@ export function tickSymbol(symbol: string): { trade: Trade; candleUpdate: LiveCa
 
   // ── Mean-revert toward real price when available ──────────────────────
   // Use a time-weighted blend so fresh real data dominates almost entirely.
-  // < 5 s old  → 99 % real (barely perceptible GBM micro-tick)
-  // 5–15 s old → 95 % real (slight natural-looking drift between polls)
-  // 15–30 s old→ 88 % real (broader spread but still anchored)
-  // > 30 s     → pure GBM (no real anchor available)
+  // Anchor window is 20 minutes — long enough to cover the 15-min TD REST
+  // forex polling interval so prices never drift freely between polls.
+  //
+  //  <  5 s old  → 99 % real  (tick-level (Binance WS / fresh seed))
+  //  < 60 s old  → 95 % real  (CMC 60-s polling window)
+  //  <  5 m old  → 88 % real  (slight drift for realism)
+  //  < 15 m old  → 80 % real  (TD REST mid-poll; still anchored)
+  //  < 20 m old  → 70 % real  (final minutes before next TD REST poll)
+  //  > 20 m      → pure GBM   (no live data available)
   const realAge = now - state.lastRealTick
-  if (state.realPrice > 0 && realAge < 30_000) {
-    const w = realAge < 5_000 ? 0.99 : realAge < 15_000 ? 0.95 : 0.88
+  if (state.realPrice > 0 && realAge < 1_200_000) {
+    const w = realAge < 5_000    ? 0.99
+            : realAge < 60_000   ? 0.95
+            : realAge < 300_000  ? 0.88
+            : realAge < 900_000  ? 0.80
+            : 0.70
     newPrice = round(state.realPrice * w + newPrice * (1 - w), p.priceDecimals)
   }
 
@@ -694,10 +703,10 @@ const SWAP_RATES: Record<string, { long: number; short: number }> = {
   XLMUSD:   { long: -0.0005500, short: -0.0005500 },
   XTZUSD:   { long: -0.0005000, short: -0.0005000 },
   UNIUSD:   { long: -0.0005000, short: -0.0005000 },
-  EMCUSD:   { long: -0.0006000, short: -0.0006000 },
-  NMCUSD:   { long: -0.0006000, short: -0.0006000 },
-  PPCUSD:   { long: -0.0006000, short: -0.0006000 },
-  LUNAUSD:  { long: -0.0008000, short: -0.0008000 },
+  NEARUSD:  { long: -0.0005000, short: -0.0005000 },
+  ATOMUSD:  { long: -0.0005000, short: -0.0005000 },
+  ALGOUSD:  { long: -0.0004000, short: -0.0004000 },
+  FILUSD:   { long: -0.0005000, short: -0.0005000 },
   // Stocks — no overnight swap (CFD dividends handled separately)
 }
 

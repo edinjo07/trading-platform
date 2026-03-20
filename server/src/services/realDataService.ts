@@ -37,7 +37,11 @@ const BINANCE_STREAM_TO_SYMBOL: Record<string, string> = {
   xlmusdt:   'XLMUSD',
   xtzusdt:   'XTZUSD',
   uniusdt:   'UNIUSD',
-  dashusdt:  'DSHUSD',
+  dashusdt: 'DSHUSD',
+  nearusdt: 'NEARUSD',
+  atomusdt: 'ATOMUSD',
+  algousdt: 'ALGOUSD',
+  filusdt:  'FILUSD',
 }
 const BINANCE_STREAMS = Object.keys(BINANCE_STREAM_TO_SYMBOL).map(s => `${s}@ticker`).join('/')
 const BINANCE_URL = `wss://stream.binance.com:9443/stream?streams=${BINANCE_STREAMS}`
@@ -346,6 +350,10 @@ const BINANCE_SEED_SYMBOLS: Record<string, string> = {
   XTZUSDT:   'XTZUSD',
   UNIUSDT:   'UNIUSD',
   DASHUSDT:  'DSHUSD',
+  NEARUSDT:  'NEARUSD',
+  ATOMUSDT:  'ATOMUSD',
+  ALGOUSDT:  'ALGOUSD',
+  FILUSDT:   'FILUSD',
 }
 
 // CoinGecko id → our symbol (full coverage for all 17+ crypto)
@@ -367,6 +375,10 @@ const COINGECKO_TO_SYMBOL: Record<string, string> = {
   tezos:        'XTZUSD',
   uniswap:      'UNIUSD',
   dash:         'DSHUSD',
+  near:         'NEARUSD',
+  cosmos:       'ATOMUSD',
+  algorand:     'ALGOUSD',
+  filecoin:     'FILUSD',
 }
 
 // CoinGecko /coins/markets response shape

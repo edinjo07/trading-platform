@@ -38,10 +38,10 @@ const INTERNAL_TO_CMC: Record<string, string> = {
   XTZUSD:   'XTZ',
   UNIUSD:   'UNI',
   DSHUSD:   'DASH',
-  LUNAUSD:  'LUNA',
-  EMCUSD:   'EMC',
-  NMCUSD:   'NMC',
-  PPCUSD:   'PPC',
+  NEARUSD:  'NEAR',
+  ATOMUSD:  'ATOM',
+  ALGOUSD:  'ALGO',
+  FILUSD:   'FIL',
 }
 
 // Reverse map: CMC ticker → internal symbol
