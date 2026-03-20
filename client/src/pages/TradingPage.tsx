@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import TVPublicChart from '../components/charts/TVPublicChart'
 import CandlestickChart from '../components/charts/CandlestickChart'
 import DepthChart from '../components/charts/DepthChart'
 import OrderBook from '../components/trading/OrderBook'
@@ -95,12 +96,9 @@ export default function TradingPage() {
           <div className="flex-1 min-w-0 overflow-hidden" style={{ background: CHART_BG }}>
             <ErrorBoundary>
               {chartView === 'candles' ? (
-                <CandlestickChart
-                  candles={candles}
+                <TVPublicChart
                   symbol={selectedSymbol}
                   interval={chartInterval}
-                  onIntervalChange={setChartInterval}
-                  loading={loading}
                 />
               ) : (
                 <DepthChart orderBook={orderBook} symbol={selectedSymbol} />
