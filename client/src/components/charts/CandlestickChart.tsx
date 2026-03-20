@@ -114,24 +114,42 @@ export default function CandlestickChart({ candles, symbol, interval, onInterval
     return cleanup
   }, [initChart])
 
-  // Full data load
+  // Candle data updates
+  // ─ Initial load / symbol+interval change (big batch): full setData + fitContent
+  // ─ Live WS tick (1-2 candle diff): series.update() only — never resets viewport
+  //   This is what allows the user to zoom/pan freely while prices stream live.
   useEffect(() => {
     if (!candleSeriesRef.current || !volumeSeriesRef.current) return
     if (!Array.isArray(candles) || candles.length === 0) return
 
-    const cData: CandleData[] = candles.map(c => ({
-      time: c.time as unknown as number,
-      open: c.open, high: c.high, low: c.low, close: c.close,
-    }))
-    const vData: VolumeData[] = candles.map(c => ({
-      time: c.time as unknown as number,
-      value: c.volume,
-      color: c.close >= c.open ? 'rgba(0,200,120,0.35)' : 'rgba(255,48,71,0.35)',
-    }))
+    const prev = prevCandleCountRef.current
+    const isInitialLoad = prev === 0
+    const isBigReload = !isInitialLoad && Math.abs(candles.length - prev) > 2
 
-    candleSeriesRef.current.setData(cData as Parameters<typeof candleSeriesRef.current.setData>[0])
-    volumeSeriesRef.current.setData(vData as Parameters<typeof volumeSeriesRef.current.setData>[0])
-    chartRef.current?.timeScale().fitContent()
+    if (isInitialLoad || isBigReload) {
+      // Full reload — replace all data and fit the viewport
+      const cData: CandleData[] = candles.map(c => ({
+        time: c.time as unknown as number,
+        open: c.open, high: c.high, low: c.low, close: c.close,
+      }))
+      const vData: VolumeData[] = candles.map(c => ({
+        time: c.time as unknown as number,
+        value: c.volume,
+        color: c.close >= c.open ? 'rgba(0,200,120,0.35)' : 'rgba(255,48,71,0.35)',
+      }))
+      candleSeriesRef.current.setData(cData as Parameters<typeof candleSeriesRef.current.setData>[0])
+      volumeSeriesRef.current.setData(vData as Parameters<typeof volumeSeriesRef.current.setData>[0])
+      chartRef.current?.timeScale().fitContent()
+    } else {
+      // Live tick — update only the last candle without touching the viewport
+      const last = candles[candles.length - 1]
+      if (!last) return
+      const cPoint = { time: last.time as unknown as number, open: last.open, high: last.high, low: last.low, close: last.close }
+      const vPoint = { time: last.time as unknown as number, value: last.volume, color: last.close >= last.open ? 'rgba(0,200,120,0.35)' : 'rgba(255,48,71,0.35)' }
+      candleSeriesRef.current.update(cPoint as Parameters<typeof candleSeriesRef.current.update>[0])
+      volumeSeriesRef.current.update(vPoint as Parameters<typeof volumeSeriesRef.current.update>[0])
+    }
+
     prevCandleCountRef.current = candles.length
   }, [candles])
 

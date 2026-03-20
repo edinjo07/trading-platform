@@ -201,6 +201,10 @@ const CRYPTO_BINANCE_MAP: Record<string, string> = {
   XLMUSD:   'XLMUSDT',
   XTZUSD:   'XTZUSDT',
   UNIUSD:   'UNIUSDT',
+  NEARUSD:  'NEARUSDT',
+  ATOMUSD:  'ATOMUSDT',
+  ALGOUSD:  'ALGOUSDT',
+  FILUSD:   'FILUSDT',
 }
 
 function toBinanceSymbol(symbol: string): string | null {
