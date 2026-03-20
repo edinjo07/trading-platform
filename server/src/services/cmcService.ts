@@ -158,11 +158,15 @@ export async function seedFromCMC(
 
 let pollRunning = false
 
-/** Start polling CoinMarketCap every `intervalMs` milliseconds. */
+/** Start polling CoinMarketCap every `intervalMs` milliseconds.
+ * Default: 5 minutes (300 s) → 288 calls/day → 8,640/month.
+ * CMC free plan gives 10,000 credits/month. Binance WS already streams
+ * live crypto tick-by-tick, so CMC is a quality backup, not a real-time feed.
+ */
 export function startCMCPolling(
   onPrice: PriceCallback,
   onStats?: StatsCallback,
-  intervalMs = 60_000,
+  intervalMs = 300_000,
 ): void {
   if (pollRunning || !config.cmcApiKey) return
   pollRunning = true

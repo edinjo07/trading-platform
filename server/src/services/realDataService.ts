@@ -280,15 +280,17 @@ function startTwelveDataFeed(onPrice: PriceCallback, retryMs = 5000): void {
 }
 
 // ---------------------------------------------------------------------------
-// Twelve Data REST polling — fallback when WS is unavailable (free plan)
-// Polls the top forex majors + XAU every 15 minutes to anchor GBM.
-// Free plan: 8 credits/min, 800 credits/day → 8 symbols × 96 polls = 768 credits/day
+// Twelve Data REST polling — fallback when WS is unavailable (free plan).
+// Polls forex majors + XAU/XAG/XPT/XPD every 20 minutes to anchor GBM.
+// Free plan: 800 credits/day. 11 symbols × 72 polls/day = 792 credits/day ✅
+// GBM anchor window is 20 min so prices stay tight between polls.
 // ---------------------------------------------------------------------------
 const TD_REST_FOREX_SYMBOLS = [
   'EUR/USD', 'GBP/USD', 'USD/JPY', 'USD/CHF',
-  'USD/CAD', 'AUD/USD', 'NZD/USD', 'XAU/USD',
+  'USD/CAD', 'AUD/USD', 'NZD/USD',
+  'XAU/USD', 'XAG/USD', 'XPT/USD', 'XPD/USD',
 ]
-const TD_REST_INTERVAL_MS = 15 * 60 * 1000  // 15 minutes
+const TD_REST_INTERVAL_MS = 20 * 60 * 1000  // 20 minutes
 
 function startForexRestPolling(onPrice: PriceCallback): void {
   const apiKey = config.twelveDataApiKey
