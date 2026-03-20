@@ -13,7 +13,7 @@ export const config = {
   corsOrigin: corsOrigins,
   isProd: process.env.NODE_ENV === 'production',
   twelveDataApiKey: process.env.TWELVE_DATA_API_KEY || '',
-  cmcApiKey: process.env.CMC_API_KEY || '',,
+  cmcApiKey: process.env.CMC_API_KEY || '',
   // Supabase
   supabaseUrl: process.env.SUPABASE_URL || '',
   supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY || '',

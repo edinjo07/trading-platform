@@ -177,8 +177,17 @@ const TD_AGRI_ENTRIES: [string, string][] = [
 ]
 TD_AGRI_ENTRIES.forEach(([td, ic]) => { TD_SYMBOL_TO_INTERNAL[td] = ic })
 
-// All symbols to subscribe to on Twelve Data WebSocket
+// All symbols registered in the mapping (used for candle lookups etc.)
 const TD_SYMBOLS = Object.keys(TD_SYMBOL_TO_INTERNAL)
+
+// Twelve Data free plan allows ≤ 8 simultaneous WebSocket symbols.
+// Subscribe to the highest-volume majors so real prices anchor the GBM
+// for the most-traded instruments; everything else continues on GBM simulation.
+const TD_WS_REALTIME = [
+  'EUR/USD', 'GBP/USD', 'USD/JPY', 'USD/CHF', 'USD/CAD', 'AUD/USD', 'NZD/USD',
+  'XAU/USD',
+]
+
 const TD_WS_BASE = 'wss://ws.twelvedata.com/v1/quotes/price'
 
 function startTwelveDataFeed(onPrice: PriceCallback, retryMs = 5000): void {
@@ -192,22 +201,24 @@ function startTwelveDataFeed(onPrice: PriceCallback, retryMs = 5000): void {
   let ws: WebSocket
   let retryDelay = retryMs
   let heartbeatTimer: NodeJS.Timeout | null = null
+  let gaveUp = false  // set to true when WS is confirmed unavailable
 
   function clearHB() {
     if (heartbeatTimer) { clearInterval(heartbeatTimer); heartbeatTimer = null }
   }
 
   function connect() {
+    if (gaveUp) return
     ws = new WebSocket(`${TD_WS_BASE}?apikey=${apiKey}`)
 
     ws.on('open', () => {
       retryDelay = retryMs
-      console.log('[Market] ✅ Twelve Data WebSocket connected — streaming stocks & forex')
+      console.log('[Market] ✅ Twelve Data WebSocket connected — streaming forex majors + XAU/USD')
 
-      // Subscribe to all symbols
+      // Subscribe to top 8 majors (free plan limit)
       ws.send(JSON.stringify({
         action: 'subscribe',
-        params: { symbols: TD_SYMBOLS.join(',') },
+        params: { symbols: TD_WS_REALTIME.join(',') },
       }))
 
       // Heartbeat ping every 30 s to keep connection alive
@@ -232,7 +243,16 @@ function startTwelveDataFeed(onPrice: PriceCallback, retryMs = 5000): void {
           const ourSymbol = TD_SYMBOL_TO_INTERNAL[msg.symbol]
           if (ourSymbol && price > 0) onPrice(ourSymbol, price)
         } else if (msg.event === 'subscribe-status') {
-          console.log(`[Market] Twelve Data subscription: ${msg.status ?? ''} — ${msg.message ?? ''}`)
+          if (msg.status === 'warning' || msg.status === 'error') {
+            // WS subscription rejected — give up immediately and fall back to REST
+            gaveUp = true
+            clearHB()
+            console.warn('[Market] ⚠️  Twelve Data WS requires a paid plan — switching to REST polling for forex')
+            startForexRestPolling(onPrice)
+            try { ws.terminate() } catch { /* ignore */ }
+          } else {
+            console.log(`[Market] Twelve Data subscription: ${msg.status ?? ''} — ${msg.message ?? ''}`)
+          }
         }
       } catch {
         // ignore malformed frames
@@ -241,6 +261,7 @@ function startTwelveDataFeed(onPrice: PriceCallback, retryMs = 5000): void {
 
     ws.on('close', () => {
       clearHB()
+      if (gaveUp) return  // REST polling already started, don't retry
       console.warn(`[Market] ⚠️  Twelve Data WebSocket closed — retrying in ${retryDelay / 1000}s`)
       setTimeout(connect, retryDelay)
       retryDelay = Math.min(retryDelay * 2, 60_000)
@@ -252,6 +273,55 @@ function startTwelveDataFeed(onPrice: PriceCallback, retryMs = 5000): void {
   }
 
   connect()
+}
+
+// ---------------------------------------------------------------------------
+// Twelve Data REST polling — fallback when WS is unavailable (free plan)
+// Polls the top forex majors + XAU every 15 minutes to anchor GBM.
+// Free plan: 8 credits/min, 800 credits/day → 8 symbols × 96 polls = 768 credits/day
+// ---------------------------------------------------------------------------
+const TD_REST_FOREX_SYMBOLS = [
+  'EUR/USD', 'GBP/USD', 'USD/JPY', 'USD/CHF',
+  'USD/CAD', 'AUD/USD', 'NZD/USD', 'XAU/USD',
+]
+const TD_REST_INTERVAL_MS = 15 * 60 * 1000  // 15 minutes
+
+function startForexRestPolling(onPrice: PriceCallback): void {
+  const apiKey = config.twelveDataApiKey
+  if (!apiKey) return
+
+  console.log('[Market] 📡 Starting Twelve Data REST polling for forex majors (every 15 min)')
+
+  async function pollForex(): Promise<void> {
+    try {
+      const symbols = TD_REST_FOREX_SYMBOLS.join(',')
+      const url = `https://api.twelvedata.com/price?symbol=${encodeURIComponent(symbols)}&apikey=${apiKey}`
+      const resp = await fetch(url, { signal: AbortSignal.timeout(10_000) })
+      if (!resp.ok) {
+        console.warn('[Market] Twelve Data REST forex poll HTTP', resp.status)
+        return
+      }
+      // Response: { "EUR/USD": { price: "1.1234" }, ... }
+      // Or for a single symbol: { price: "1.1234" }
+      const data = await resp.json() as Record<string, { price?: string } | string>
+      for (const [tdSym, val] of Object.entries(data)) {
+        const priceStr = typeof val === 'object' ? val.price : undefined
+        if (!priceStr) continue
+        const price = parseFloat(priceStr)
+        const ourSym = TD_SYMBOL_TO_INTERNAL[tdSym]
+        if (ourSym && price > 0) {
+          onPrice(ourSym, price)
+          console.log(`[Market] 📡 Forex REST: ${ourSym} = ${price}`)
+        }
+      }
+    } catch (err: unknown) {
+      console.warn('[Market] Twelve Data REST forex poll failed:', err instanceof Error ? err.message : err)
+    }
+  }
+
+  // First poll immediately, then every 15 minutes
+  pollForex().catch(() => {})
+  setInterval(() => { pollForex().catch(() => {}) }, TD_REST_INTERVAL_MS)
 }
 
 // ---------------------------------------------------------------------------
