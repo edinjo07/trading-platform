@@ -12,6 +12,7 @@
 
 import WebSocket from 'ws'
 import { config } from '../config'
+import { seedFromCMC, startCMCPolling } from './cmcService'
 
 export type PriceCallback   = (symbol: string, price: number) => void
 export type StatsCallback   = (symbol: string, open: number, high: number, low: number, volume: number) => void
@@ -347,6 +348,13 @@ export async function seedInitialPrices(
   onPrice: PriceCallback,
   onStats?: StatsCallback,
 ): Promise<void> {
+  // 1. CoinMarketCap — authenticated, covers all 20+ crypto, most reliable
+  if (config.cmcApiKey) {
+    await seedFromCMC(onPrice, onStats)
+    return
+  }
+
+  // 2. Binance REST (free, fast; geo-blocked in some regions)
   try {
     // Use the 24-hour ticker endpoint so we get the real openPrice, highPrice,
     // lowPrice and volume — not just the current price. This gives an accurate
@@ -472,6 +480,8 @@ export function startRealDataFeeds(onPrice: PriceCallback, onStats?: StatsCallba
   seedInitialPrices(onPrice, onStats).catch(() => {})
   startBinanceFeed(onPrice)
   startTwelveDataFeed(onPrice)
+  // CMC polling: 60-second refresh for all crypto (no-op if key not set)
+  startCMCPolling(onPrice, onStats)
   // Always start REST polling as a safety net — if WebSocket is delivering
   // data the REST prices simply reinforce the anchor; if WS is down the REST
   // poll keeps prices accurate.
