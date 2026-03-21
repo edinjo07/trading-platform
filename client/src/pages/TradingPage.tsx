@@ -93,7 +93,7 @@ export default function TradingPage() {
         {/* Main split: chart + right panel */}
         <div className="flex flex-1 min-h-0 overflow-hidden">
           {/* Chart */}
-          <div className="flex-1 min-w-0 overflow-hidden" style={{ background: CHART_BG }}>
+          <div className="flex-1 min-w-0 overflow-hidden" style={{ background: CHART_BG, height: '100%' }}>
             <ErrorBoundary>
               {chartView === 'candles' ? (
                 <TVPublicChart

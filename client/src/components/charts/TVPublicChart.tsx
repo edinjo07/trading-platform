@@ -12,7 +12,7 @@
  * API: new TradingView.widget({ ... })   (extracted from foliox.pro tv.js)
  */
 
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
 // ---------------------------------------------------------------------------
 // Symbol mapping: our internal symbol → TradingView feed:symbol format
@@ -230,9 +230,10 @@ function loadTVScript(cb: () => void) {
 }
 
 export default function TVPublicChart({ symbol, interval = '1h' }: Props) {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const widgetRef    = useRef<{ remove?: () => void } | null>(null)
+  const containerRef   = useRef<HTMLDivElement>(null)
+  const widgetRef      = useRef<{ remove?: () => void } | null>(null)
   const containerIdRef = useRef(`tv_public_${Math.random().toString(36).slice(2)}`)
+  const [ready, setReady] = useState(false)
 
   useEffect(() => {
     const containerId = containerIdRef.current
@@ -243,31 +244,32 @@ export default function TVPublicChart({ symbol, interval = '1h' }: Props) {
       const TV = getTradingViewPublic()
       if (!TV || !containerRef.current) return
 
-      widgetRef.current?.remove?.()
+      // Destroy previous widget cleanly
+      try { widgetRef.current?.remove?.() } catch (_) { /* ignore */ }
+      widgetRef.current = null
 
-      // The public widget API uses container_id (string id) NOT container (element)
-      // Make sure the div has the correct id before widget init
+      // Ensure container div has the correct id
       containerRef.current.id = containerId
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       widgetRef.current = new TV.widget({
-        container_id:      containerId,
-        symbol:            tvSymbol,
-        interval:          tvInterval,
-        timezone:          'Etc/UTC',
-        theme:             'dark',
-        style:             '1',        // candlestick
-        locale:            'en',
-        toolbar_bg:        '#06090f',
-        backgroundColor:   '#06090f',
-        gridColor:         'rgba(255,255,255,0.03)',
-        autosize:          true,
-        hide_side_toolbar: false,
+        container_id:        containerId,
+        symbol:              tvSymbol,
+        interval:            tvInterval,
+        timezone:            'Etc/UTC',
+        theme:               'dark',
+        style:               '1',
+        locale:              'en',
+        toolbar_bg:          '#06090f',
+        backgroundColor:     '#06090f',
+        gridColor:           'rgba(255,255,255,0.03)',
+        autosize:            true,
+        hide_side_toolbar:   false,
         allow_symbol_change: false,
-        hide_top_toolbar:  false,
-        hide_legend:       false,
-        save_image:        true,
-        studies:           [],
+        hide_top_toolbar:    false,
+        hide_legend:         false,
+        save_image:          true,
+        studies:             [],
         disabled_features: [
           'header_symbol_search',
           'symbol_search_hot_key',
@@ -278,22 +280,33 @@ export default function TVPublicChart({ symbol, interval = '1h' }: Props) {
           'hide_left_toolbar_by_default',
         ],
       })
+      setReady(true)
     }
 
     loadTVScript(createWidget)
 
     return () => {
-      widgetRef.current?.remove?.()
+      try { widgetRef.current?.remove?.() } catch (_) { /* ignore */ }
       widgetRef.current = null
     }
   }, [symbol, interval])
 
   return (
-    <div className="flex flex-col h-full rounded-lg border border-white/5" style={{ background: '#06090f' }}>
+    <div style={{ position: 'relative', width: '100%', height: '100%', minHeight: '400px', background: '#06090f' }}>
+      {/* Loading overlay until widget fires */}
+      {!ready && (
+        <div style={{
+          position: 'absolute', inset: 0, display: 'flex',
+          alignItems: 'center', justifyContent: 'center',
+          background: '#06090f', zIndex: 1,
+        }}>
+          <span style={{ color: '#4b6070', fontSize: '13px', fontFamily: 'monospace' }}>Loading chart…</span>
+        </div>
+      )}
       <div
-        id={containerIdRef.current}
         ref={containerRef}
-        className="w-full h-full"
+        id={containerIdRef.current}
+        style={{ width: '100%', height: '100%', minHeight: '400px' }}
       />
     </div>
   )
