@@ -210,20 +210,31 @@ interface Props {
 }
 
 let scriptLoaded = false
+let scriptFailed = false
 const readyCallbacks: Array<() => void> = []
+const errorCallbacks: Array<() => void> = []
 
-function loadTVScript(cb: () => void) {
+function loadTVScript(cb: () => void, onError: () => void) {
+  if (scriptFailed) { onError(); return }
   if (scriptLoaded) { cb(); return }
   readyCallbacks.push(cb)
+  errorCallbacks.push(onError)
   if (document.getElementById('tv-public-script')) return
 
   const script = document.createElement('script')
-  script.id   = 'tv-public-script'
-  script.src  = 'https://s.tradingview.com/tv.js'
+  script.id    = 'tv-public-script'
+  script.src   = 'https://s3.tradingview.com/tv.js'
   script.async = true
   script.onload = () => {
     scriptLoaded = true
     readyCallbacks.forEach(fn => fn())
+    readyCallbacks.length = 0
+    errorCallbacks.length = 0
+  }
+  script.onerror = () => {
+    scriptFailed = true
+    errorCallbacks.forEach(fn => fn())
+    errorCallbacks.length = 0
     readyCallbacks.length = 0
   }
   document.head.appendChild(script)
@@ -233,7 +244,7 @@ export default function TVPublicChart({ symbol, interval = '1h' }: Props) {
   const containerRef   = useRef<HTMLDivElement>(null)
   const widgetRef      = useRef<{ remove?: () => void } | null>(null)
   const containerIdRef = useRef(`tv_public_${Math.random().toString(36).slice(2)}`)
-  const [ready, setReady] = useState(false)
+  const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading')
 
   useEffect(() => {
     const containerId = containerIdRef.current
@@ -242,7 +253,10 @@ export default function TVPublicChart({ symbol, interval = '1h' }: Props) {
 
     function createWidget() {
       const TV = getTradingViewPublic()
-      if (!TV || !containerRef.current) return
+      if (!TV || !containerRef.current) {
+        setStatus('error')
+        return
+      }
 
       // Destroy previous widget cleanly
       try { widgetRef.current?.remove?.() } catch (_) { /* ignore */ }
@@ -251,39 +265,45 @@ export default function TVPublicChart({ symbol, interval = '1h' }: Props) {
       // Ensure container div has the correct id
       containerRef.current.id = containerId
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      widgetRef.current = new TV.widget({
-        container_id:        containerId,
-        symbol:              tvSymbol,
-        interval:            tvInterval,
-        timezone:            'Etc/UTC',
-        theme:               'dark',
-        style:               '1',
-        locale:              'en',
-        toolbar_bg:          '#06090f',
-        backgroundColor:     '#06090f',
-        gridColor:           'rgba(255,255,255,0.03)',
-        autosize:            true,
-        hide_side_toolbar:   false,
-        allow_symbol_change: false,
-        hide_top_toolbar:    false,
-        hide_legend:         false,
-        save_image:          true,
-        studies:             [],
-        disabled_features: [
-          'header_symbol_search',
-          'symbol_search_hot_key',
-          'display_market_status',
-        ],
-        enabled_features: [
-          'study_templates',
-          'hide_left_toolbar_by_default',
-        ],
-      })
-      setReady(true)
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        widgetRef.current = new TV.widget({
+          container_id:        containerId,
+          symbol:              tvSymbol,
+          interval:            tvInterval,
+          timezone:            'Etc/UTC',
+          theme:               'dark',
+          style:               '1',
+          locale:              'en',
+          toolbar_bg:          '#06090f',
+          backgroundColor:     '#06090f',
+          gridColor:           'rgba(255,255,255,0.03)',
+          autosize:            true,
+          hide_side_toolbar:   false,
+          allow_symbol_change: false,
+          hide_top_toolbar:    false,
+          hide_legend:         false,
+          save_image:          true,
+          studies:             [],
+          disabled_features: [
+            'header_symbol_search',
+            'symbol_search_hot_key',
+            'display_market_status',
+          ],
+          enabled_features: [
+            'study_templates',
+            'hide_left_toolbar_by_default',
+          ],
+        })
+        setStatus('ready')
+      } catch (err) {
+        console.error('[TVPublicChart] Widget creation failed:', err)
+        setStatus('error')
+      }
     }
 
-    loadTVScript(createWidget)
+    setStatus('loading')
+    loadTVScript(createWidget, () => setStatus('error'))
 
     return () => {
       try { widgetRef.current?.remove?.() } catch (_) { /* ignore */ }
@@ -293,14 +313,25 @@ export default function TVPublicChart({ symbol, interval = '1h' }: Props) {
 
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%', minHeight: '400px', background: '#06090f' }}>
-      {/* Loading overlay until widget fires */}
-      {!ready && (
+      {/* Loading overlay */}
+      {status === 'loading' && (
         <div style={{
           position: 'absolute', inset: 0, display: 'flex',
           alignItems: 'center', justifyContent: 'center',
           background: '#06090f', zIndex: 1,
         }}>
           <span style={{ color: '#4b6070', fontSize: '13px', fontFamily: 'monospace' }}>Loading chart…</span>
+        </div>
+      )}
+      {/* Error state */}
+      {status === 'error' && (
+        <div style={{
+          position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column',
+          alignItems: 'center', justifyContent: 'center', gap: '8px',
+          background: '#06090f', zIndex: 1,
+        }}>
+          <span style={{ color: '#ff3047', fontSize: '13px', fontFamily: 'monospace' }}>Chart failed to load</span>
+          <span style={{ color: '#4b6070', fontSize: '11px' }}>Please refresh the page or check your connection</span>
         </div>
       )}
       <div
