@@ -999,5 +999,9 @@ export function closePosition(userId: string, symbol: string): Order {
     }
   }
 
-  return createOrder(userId, symbol, 'sell', 'market', pos.quantity, undefined, undefined, 'GTC', undefined, undefined, undefined, 'Close position')
+  // To close a short → buy back; to close a long → sell
+  const closeSide: OrderSide = pos.side === 'short' ? 'buy' : 'sell'
+  const leverage = pos.leverage ?? 1
+
+  return createOrder(userId, symbol, closeSide, 'market', pos.quantity, undefined, undefined, 'GTC', undefined, undefined, undefined, 'Close position', leverage)
 }
