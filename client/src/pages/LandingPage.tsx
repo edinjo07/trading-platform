@@ -1075,7 +1075,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── DATA PARTNERS ──────────────────────────────────────────────────── */
+      {/* ── DATA PARTNERS ──────────────────────────────────────────────────── */}
       <section style={{ background: 'rgba(14,165,233,0.04)', borderTop: '1px solid rgba(14,165,233,0.08)', borderBottom: '1px solid rgba(14,165,233,0.08)', padding: '20px 0' }}>
         <div className="landing-container">
           <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-4">
