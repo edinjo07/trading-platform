@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabase'
-import { User, AccountType } from '../types'
+import { User, AccountType, AccountMode, Currency } from '../types'
 
 export interface AuthResponse {
   token: string
@@ -13,6 +13,8 @@ function mapUser(sbUser: { id: string; email?: string; user_metadata?: Record<st
     username: (sbUser.user_metadata?.username as string | undefined) ?? sbUser.email?.split('@')[0] ?? 'Trader',
     balance: (sbUser.user_metadata?.balance as number | undefined) ?? 100_000,
     accountType: (sbUser.user_metadata?.account_type as AccountType | undefined) ?? 'raw_spread',
+    accountMode: (sbUser.user_metadata?.account_mode as AccountMode | undefined) ?? 'demo',
+    currency: (sbUser.user_metadata?.currency as Currency | undefined) ?? 'USD',
   }
 }
 
@@ -22,11 +24,11 @@ export async function login(email: string, password: string): Promise<AuthRespon
   return { token: data.session.access_token, user: mapUser(data.user) }
 }
 
-export async function register(email: string, username: string, password: string, accountType: AccountType = 'raw_spread'): Promise<AuthResponse> {
+export async function register(email: string, username: string, password: string, accountType: AccountType = 'raw_spread', currency: Currency = 'USD'): Promise<AuthResponse> {
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
-    options: { data: { username, balance: 100_000, account_type: accountType } },
+    options: { data: { username, balance: 100_000, account_type: accountType, account_mode: 'demo', currency } },
   })
 
   if (error) {

@@ -24,18 +24,19 @@ export function formatVolume(volume: number): string {
   return volume.toFixed(2)
 }
 
-export function formatCurrency(value: number, maxDecimals = 2): string {
-  return new Intl.NumberFormat('en-US', {
+export function formatCurrency(value: number, maxDecimals = 2, currency = 'USD'): string {
+  const localeMap: Record<string, string> = { USD: 'en-US', EUR: 'de-DE', GBP: 'en-GB' }
+  return new Intl.NumberFormat(localeMap[currency] ?? 'en-US', {
     style: 'currency',
-    currency: 'USD',
+    currency,
     minimumFractionDigits: maxDecimals,
     maximumFractionDigits: maxDecimals,
   }).format(value)
 }
 
-export function formatPnl(value: number): string {
+export function formatPnl(value: number, currency = 'USD'): string {
   const sign = value >= 0 ? '+' : ''
-  return `${sign}${formatCurrency(value)}`
+  return `${sign}${formatCurrency(value, 2, currency)}`
 }
 
 export function formatTime(timestamp: number): string {

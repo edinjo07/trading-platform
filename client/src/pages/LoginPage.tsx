@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
-import { AccountType } from '../types'
+import { AccountType, Currency } from '../types'
 
 const FEATURES = [
   { icon: '⚡', title: 'Real-time Data', desc: 'Live quotes on 159+ instruments' },
@@ -22,6 +22,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [showPass, setShowPass] = useState(false)
   const [accountType, setAccountType] = useState<AccountType>('raw_spread')
+  const [currency, setCurrencyLocal] = useState<Currency>('USD')
   const [localError, setLocalError] = useState('')
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -29,7 +30,7 @@ export default function LoginPage() {
     setLocalError('')
     try {
       if (mode === 'login') await login(email, password)
-      else await register(email, username, password, accountType)
+      else await register(email, username, password, accountType, currency)
       navigate('/dashboard')
     } catch (err: unknown) {
       setLocalError(err instanceof Error ? err.message : 'Authentication failed')
@@ -133,7 +134,7 @@ export default function LoginPage() {
           <p className="text-text-secondary text-sm mb-8">
             {mode === 'login'
               ? 'Sign in to access your trading account'
-              : 'Start paper trading with $100,000 virtual funds'}
+              : 'Start trading with a $100,000 demo account. No risk, real platform.'}
           </p>
 
           {/* Mode toggle */}
@@ -193,6 +194,31 @@ export default function LoginPage() {
                       <span className="text-xs font-semibold">{a.label}</span>
                       <span className="text-[10px] font-mono font-bold" style={{ color: accountType === a.key ? '#38bdf8' : '#4b6070' }}>{a.sub}</span>
                       <span className="text-[9px] opacity-60">{a.desc}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Account Currency (register only) */}
+            {mode === 'register' && (
+              <div className="animate-fadeUp">
+                <label className="block text-xs font-medium text-text-secondary mb-1.5">Account Currency</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {([
+                    { key: 'USD' as Currency, label: 'USD', symbol: '$', sub: 'US Dollar' },
+                    { key: 'EUR' as Currency, label: 'EUR', symbol: '€', sub: 'Euro' },
+                    { key: 'GBP' as Currency, label: 'GBP', symbol: '£', sub: 'Pound Sterling' },
+                  ]).map(c => (
+                    <button key={c.key} type="button" onClick={() => setCurrencyLocal(c.key)}
+                      className="flex flex-col items-center gap-1 py-3 px-2 rounded-lg text-center transition-all"
+                      style={currency === c.key
+                        ? { background: 'rgba(14,165,233,0.12)', border: '1px solid rgba(14,165,233,0.4)', color: '#fff' }
+                        : { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', color: '#6b8099' }
+                      }>
+                      <span className="text-lg font-bold leading-none" style={{ color: currency === c.key ? '#38bdf8' : '#4b6070' }}>{c.symbol}</span>
+                      <span className="text-xs font-semibold">{c.label}</span>
+                      <span className="text-[9px] opacity-60">{c.sub}</span>
                     </button>
                   ))}
                 </div>

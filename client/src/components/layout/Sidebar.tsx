@@ -259,8 +259,10 @@ export default function Sidebar({ mobileOpen, onClose }: SidebarProps) {
             <div className="flex-1 min-w-0">
               <div className="text-xs font-semibold text-text-primary truncate">{user?.username}</div>
               <div className="flex items-center gap-1 mt-0.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-bull shrink-0" />
-                <span className="text-[10px] text-text-secondary">Paper Trading</span>
+                <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${user?.accountMode === 'real' ? 'bg-bull' : 'bg-amber-400'}`} />
+                <span className="text-[10px] text-text-secondary">
+                  {user?.accountMode === 'real' ? 'Real Account' : 'Demo Account'}
+                </span>
               </div>
             </div>
             <button onClick={logout} title="Sign out"
@@ -277,7 +279,7 @@ export default function Sidebar({ mobileOpen, onClose }: SidebarProps) {
         {!collapsed && (
           <div className="mt-1.5 px-2">
             <span className="text-[10px] font-mono" style={{ color: 'rgba(100,130,160,0.65)' }}>
-              Balance: <span className="text-text-primary">{formatCurrency(user?.balance ?? 0)}</span>
+              Balance: <span className="text-text-primary">{formatCurrency(user?.balance ?? 0, 2, user?.currency ?? 'USD')}</span>
             </span>
           </div>
         )}

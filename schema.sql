@@ -11,6 +11,8 @@ CREATE TABLE IF NOT EXISTS users (
   username      TEXT          NOT NULL,
   password_hash TEXT          NOT NULL,
   balance       NUMERIC       NOT NULL DEFAULT 100000,
+  account_mode  TEXT          NOT NULL DEFAULT 'demo' CHECK (account_mode IN ('real', 'demo')),
+  currency      TEXT          NOT NULL DEFAULT 'USD'  CHECK (currency IN ('USD', 'EUR', 'GBP')),
   created_at    TIMESTAMPTZ   NOT NULL DEFAULT NOW()
 );
 

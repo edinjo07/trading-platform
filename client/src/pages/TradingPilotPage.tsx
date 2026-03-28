@@ -642,7 +642,7 @@ export default function TradingPilotPage() {
             <span className="font-bold text-sm text-white">TradeX<span style={{ color: '#38bdf8' }}> Pro</span></span>
           </button>
           <p className="text-xs" style={{ color: 'rgba(255,255,255,0.25)' }}>
-            Paper trading only - for educational purposes. Not financial advice.
+            Regulated by FCA &amp; CySEC. Trading involves risk. Capital at risk.
           </p>
         </div>
       </footer>

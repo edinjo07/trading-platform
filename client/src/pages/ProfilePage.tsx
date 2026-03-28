@@ -2,7 +2,7 @@
 import { useAuthStore } from '../store/authStore'
 import { useTradingStore } from '../store/tradingStore'
 import { formatCurrency } from '../utils/formatters'
-import { AccountType } from '../types'
+import { AccountType, Currency } from '../types'
 
 const ACCOUNT_LABELS: Record<AccountType, string> = {
   raw_spread: 'Raw Spread (MetaTrader)',
@@ -99,7 +99,7 @@ function Toast({ msg, type }: { msg: string; type: 'ok' | 'err' }) {
 type Tab = 'overview' | 'security' | 'settings'
 
 export default function ProfilePage() {
-  const { user } = useAuthStore()
+  const { user, setAccountMode, setCurrency } = useAuthStore()
   const { portfolio, performanceStats } = useTradingStore()
 
   const [tab, setTab] = useState<Tab>('overview')
@@ -116,6 +116,7 @@ export default function ProfilePage() {
   const [tradeAlerts, setTradeAlerts] = useState(true)
   const [priceAlerts, setPriceAlerts] = useState(false)
   const [twoFA, setTwoFA] = useState(false)
+  const [selectedCurrency, setSelectedCurrency] = useState<Currency>(user?.currency ?? 'USD')
 
   const showToast = (msg: string, type: 'ok' | 'err') => {
     setToast({ msg, type })
@@ -185,8 +186,10 @@ export default function ProfilePage() {
         {/* Balance pill */}
         <div className="shrink-0 text-right">
           <div className="text-xs text-text-muted mb-0.5 uppercase tracking-widest">Account Balance</div>
-          <div className="text-2xl font-bold font-mono text-white">{formatCurrency(user?.balance ?? 0)}</div>
-          <div className="text-xs text-text-secondary mt-0.5">Paper Trading</div>
+          <div className="text-2xl font-bold font-mono text-white">{formatCurrency(user?.balance ?? 0, 2, user?.currency ?? 'USD')}</div>
+          <div className="text-xs mt-0.5 font-semibold" style={{ color: user?.accountMode === 'real' ? '#10b981' : '#f59e0b' }}>
+            {user?.accountMode === 'real' ? 'Real Account' : 'Demo Account'}
+          </div>
         </div>
       </div>
 
@@ -212,7 +215,7 @@ export default function ProfilePage() {
         <div className="grid grid-cols-1 gap-5">
           {/* Stats row */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <StatBox label="Balance" value={formatCurrency(user?.balance ?? 0)} sub="Paper account" />
+            <StatBox label="Balance" value={formatCurrency(user?.balance ?? 0, 2, user?.currency ?? 'USD')} sub={user?.accountMode === 'real' ? 'Live account' : 'Demo account'} />
             <StatBox label="Total Trades" value={String(totalTrades)} sub="All time" />
             <StatBox
               label="P&L (Open)"
@@ -362,9 +365,13 @@ export default function ProfilePage() {
               </div>
               <div>
                 <label className="block text-xs font-medium text-text-secondary mb-1.5">Currency Display</label>
-                <select className="w-full rounded-lg px-3 py-2 text-sm text-text-primary focus:outline-none"
-                  style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                  {['USD','EUR','GBP'].map(v => <option key={v} value={v}>{v}</option>)}
+                <select
+                  className="w-full rounded-lg px-3 py-2 text-sm text-text-primary focus:outline-none"
+                  style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
+                  value={selectedCurrency}
+                  onChange={e => setSelectedCurrency(e.target.value as Currency)}
+                >
+                  {(['USD','EUR','GBP'] as Currency[]).map(v => <option key={v} value={v}>{v}</option>)}
                 </select>
               </div>
               <div>
@@ -378,10 +385,35 @@ export default function ProfilePage() {
             <button
               className="mt-5 px-6 py-2.5 rounded-lg text-sm font-semibold text-white transition-opacity"
               style={{ background: 'linear-gradient(135deg, #0ea5e9, #0369a1)' }}
-              onClick={() => showToast('Preferences saved', 'ok')}
+              onClick={async () => {
+                await setCurrency(selectedCurrency)
+                showToast('Preferences saved', 'ok')
+              }}
             >
               Save Preferences
             </button>
+          </Card>
+
+          <Card title="Account Mode">
+            <div className="space-y-3 max-w-md">
+              <p className="text-xs text-text-muted mb-4">Switch between your Demo environment and your Live funded account. Demo trades use virtual funds only.</p>
+              <div className="grid grid-cols-2 gap-3">
+                {(['demo', 'real'] as const).map(m => (
+                  <button
+                    key={m}
+                    onClick={async () => { await setAccountMode(m); showToast(`Switched to ${m === 'real' ? 'Real' : 'Demo'} Account`, 'ok') }}
+                    className="py-4 rounded-xl text-sm font-bold transition-all"
+                    style={user?.accountMode === m
+                      ? { background: m === 'real' ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.15)', color: m === 'real' ? '#10b981' : '#f59e0b', border: `1px solid ${m === 'real' ? 'rgba(16,185,129,0.35)' : 'rgba(245,158,11,0.35)'}` }
+                      : { background: 'rgba(255,255,255,0.03)', color: '#6b8099', border: '1px solid rgba(255,255,255,0.07)' }
+                    }
+                  >
+                    {m === 'real' ? 'Real Account' : 'Demo Account'}
+                    {user?.accountMode === m && <span className="block text-[10px] mt-1 opacity-70">Active</span>}
+                  </button>
+                ))}
+              </div>
+            </div>
           </Card>
 
           <Card title="Danger Zone">
@@ -389,12 +421,12 @@ export default function ProfilePage() {
               <div className="flex items-center justify-between py-3 px-4 rounded-lg"
                 style={{ background: 'rgba(239,68,68,0.05)', border: '1px solid rgba(239,68,68,0.15)' }}>
                 <div>
-                  <div className="text-sm font-medium text-text-primary">Reset Paper Balance</div>
-                  <div className="text-xs text-text-muted">Restore balance to $100,000</div>
+                  <div className="text-sm font-medium text-text-primary">Reset Demo Balance</div>
+                  <div className="text-xs text-text-muted">Restore demo balance to $100,000</div>
                 </div>
                 <button className="px-4 py-1.5 rounded-lg text-xs font-semibold text-bear transition-opacity hover:opacity-80"
                   style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)' }}
-                  onClick={() => showToast('Balance reset to $100,000', 'ok')}>
+                  onClick={() => showToast('Demo balance reset to $100,000', 'ok')}>
                   Reset
                 </button>
               </div>

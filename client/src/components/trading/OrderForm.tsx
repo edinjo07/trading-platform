@@ -533,8 +533,6 @@ export default function OrderForm() {
           }>
           {submitting ? 'Placing…' : (isBuy ? '▲ BUY' : (isLeveragedShort ? '▼ SHORT' : '▼ SELL')) + ' ' + selectedSymbol}
         </button>
-
-        <p className="text-xs text-center text-text-muted pb-1">Paper trading · no real funds</p>
       </div>
     </form>
   )

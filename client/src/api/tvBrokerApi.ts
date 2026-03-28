@@ -10,6 +10,7 @@
 import { getOrders, placeOrder, cancelOrder as cancelOrderApi, type PlaceOrderParams } from './orders'
 import { getPositions, closePositionApi } from './positions'
 import { getPortfolio } from './portfolio'
+import { useAuthStore } from '../store/authStore'
 import type { Order, Position } from '../types'
 
 // ---------------------------------------------------------------------------
@@ -144,11 +145,13 @@ export class TVBrokerApi implements Charting_Library.IBrokerTerminal {
 
   async accountInfo(): Promise<Charting_Library.AccountInfo> {
     const portfolio = await getPortfolio()
+    const currency = useAuthStore.getState().user?.currency ?? 'USD'
+    const currencySignMap: Record<string, string> = { USD: '$', EUR: '€', GBP: '£' }
     return {
       id:           portfolio.userId,
       name:         'Trading Account',
-      currency:     'USD',
-      currencySign: '$',
+      currency,
+      currencySign: currencySignMap[currency] ?? '$',
       balance:      portfolio.cashBalance,
       equity:       portfolio.totalEquity,
       unrealizedPL: portfolio.unrealizedPnl,

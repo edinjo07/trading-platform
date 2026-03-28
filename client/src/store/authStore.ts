@@ -1,5 +1,5 @@
 ﻿import { create } from 'zustand'
-import { User, AccountType } from '../types'
+import { User, AccountType, AccountMode, Currency } from '../types'
 import { login, register, signOut } from '../api/auth'
 import { supabase } from '../lib/supabase'
 
@@ -10,6 +10,8 @@ function mapSupabaseUser(sbUser: { id: string; email?: string; user_metadata?: R
     username: (sbUser.user_metadata?.username as string | undefined) ?? sbUser.email?.split('@')[0] ?? 'Trader',
     balance: (sbUser.user_metadata?.balance as number | undefined) ?? 100_000,
     accountType: (sbUser.user_metadata?.account_type as AccountType | undefined) ?? 'raw_spread',
+    accountMode: (sbUser.user_metadata?.account_mode as AccountMode | undefined) ?? 'demo',
+    currency: (sbUser.user_metadata?.currency as Currency | undefined) ?? 'USD',
   }
 }
 
@@ -19,9 +21,11 @@ interface AuthState {
   loading: boolean
   error: string | null
   login: (email: string, password: string) => Promise<void>
-  register: (email: string, username: string, password: string, accountType?: AccountType) => Promise<void>
+  register: (email: string, username: string, password: string, accountType?: AccountType, currency?: Currency) => Promise<void>
   logout: () => void
   loadUser: () => Promise<void>
+  setAccountMode: (mode: AccountMode) => Promise<void>
+  setCurrency: (currency: Currency) => Promise<void>
 }
 
 export const useAuthStore = create<AuthState>((set, get) => {
@@ -81,10 +85,10 @@ export const useAuthStore = create<AuthState>((set, get) => {
       }
     },
 
-    register: async (email, username, password, accountType) => {
+    register: async (email, username, password, accountType, currency) => {
       set({ loading: true, error: null })
       try {
-        const { token, user } = await register(email, username, password, accountType)
+        const { token, user } = await register(email, username, password, accountType, currency)
         if (token) localStorage.setItem('token', token)
         set({ token: token || null, user, loading: false })
       } catch (err: unknown) {
@@ -98,6 +102,16 @@ export const useAuthStore = create<AuthState>((set, get) => {
       signOut().catch(() => {})
       localStorage.removeItem('token')
       set({ user: null, token: null })
+    },
+
+    setAccountMode: async (mode: AccountMode) => {
+      const { error } = await supabase.auth.updateUser({ data: { account_mode: mode } })
+      if (!error) set(s => s.user ? { user: { ...s.user, accountMode: mode } } : {})
+    },
+
+    setCurrency: async (currency: Currency) => {
+      const { error } = await supabase.auth.updateUser({ data: { currency } })
+      if (!error) set(s => s.user ? { user: { ...s.user, currency } } : {})
     },
 
     // Never wipes auth on network errors - only clears on genuine SIGNED_OUT event
