@@ -195,7 +195,7 @@ export default function DashboardPage() {
           </h1>
           <p className="text-text-muted text-sm mt-1">
             {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
-            {' · '}Paper Trading Account
+            {' · '}{user?.accountMode === 'real' ? 'Live Trading Account' : 'Demo Account'}
           </p>
         </div>
         <div className="flex items-center gap-2">

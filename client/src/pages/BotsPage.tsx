@@ -58,9 +58,9 @@ function RiskDisclosureModal({ onAccept, onClose }: { onAccept: () => void; onCl
               color: '#38bdf8',
             },
             {
-              title: 'Paper trading environment - mirrors real risk',
-              body:  'Simulated results may differ from live trading due to slippage, liquidity constraints, and execution delays that paper trading does not replicate.',
-              icon:  '🧪',
+              title: 'Live trading execution — real funds at risk',
+              body:  'TradePilot executes real orders in live markets. Results vary based on slippage, liquidity, and market conditions. Automated trading does not guarantee profit. Only deploy bots with capital you are prepared to risk.',
+              icon:  '💹',
               color: '#00c878',
             },
           ].map(r => (

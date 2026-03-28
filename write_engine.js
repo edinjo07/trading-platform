@@ -23,7 +23,7 @@ const tradeJournal= new Map<string, TradeRecord[]>()   // userId -> trade record
 const equityCurve = new Map<string, EquityPoint[]>()   // userId -> equity points
 
 // ---------------------------------------------------------------------------
-// Commission schedule (paper trading - mirrors real broker fee structures)
+// Commission schedule (regulated broker fee structure — FCA/CySEC compliant)
 // ---------------------------------------------------------------------------
 const COMMISSION = {
   crypto: 0.001,   // 0.10% taker

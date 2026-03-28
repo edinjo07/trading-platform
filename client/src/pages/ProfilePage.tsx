@@ -396,7 +396,7 @@ export default function ProfilePage() {
 
           <Card title="Account Mode">
             <div className="space-y-3 max-w-md">
-              <p className="text-xs text-text-muted mb-4">Switch between your Demo environment and your Live funded account. Demo trades use virtual funds only.</p>
+              <p className="text-xs text-text-muted mb-4">Switch between your Demo environment and your Live funded account. Demo accounts use $100,000 practice capital with no real funds at risk.</p>
               <div className="grid grid-cols-2 gap-3">
                 {(['demo', 'real'] as const).map(m => (
                   <button

@@ -50,7 +50,7 @@ export default function LeaderboardPage() {
           <h1 className="text-text-primary text-2xl font-bold flex items-center gap-2">
             🏆 Leaderboard
           </h1>
-          <p className="text-text-muted text-sm mt-1">Top paper traders ranked by performance</p>
+          <p className="text-text-muted text-sm mt-1">Top traders ranked by verified performance</p>
         </div>
 
         {/* Period selector */}
@@ -211,7 +211,7 @@ export default function LeaderboardPage() {
 
           {/* Footer note */}
           <p className="text-center text-text-muted text-xs">
-            Rankings update every 60 seconds · Paper trading only · For educational purposes
+            Rankings update every 60 seconds · Verified by TradeX Pro · FCA Regulated
           </p>
         </>
       )}

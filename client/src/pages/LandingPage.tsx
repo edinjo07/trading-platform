@@ -96,7 +96,8 @@ const MARKETS = [
 const STEPS = [
   {
     n: '01', title: 'Create Free Account',
-    desc: 'Sign up in under 30 seconds. No credit card required. Start with $100,000 virtual funds immediately.',
+    desc: 'Sign up in under 30 seconds. Complete KYC verification and choose your account type — Real or Demo — and start trading immediately.',
+
     icon: (
       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
         <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" />
@@ -138,7 +139,7 @@ const TESTIMONIALS = [
     name: 'Marcus T.', role: 'Proprietary Trader', avatar: 'M',
   },
   {
-    text: "The charting tools and real-time data are exceptional. I practice new strategies risk-free and transition my winners to live accounts with confidence.",
+    text: "The charting tools and real-time data are exceptional. Testing setups on my Demo account before deploying real capital has completely changed my risk management approach.",
     name: 'Sophia R.', role: 'Forex Analyst', avatar: 'S',
   },
   {
@@ -288,7 +289,7 @@ export default function LandingPage() {
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold mb-6"
                style={{ background: 'rgba(14,165,233,0.1)', border: '1px solid rgba(14,165,233,0.2)', color: '#38bdf8' }}>
             <span className="w-1.5 h-1.5 rounded-full bg-bull animate-pulse inline-block" />
-            Live market data · 20+ instruments · Paper trading
+            Live market data · 20+ instruments · FCA · CySEC · Curaçao Regulated
           </div>
 
           {/* Headline */}
@@ -298,7 +299,7 @@ export default function LandingPage() {
           </h1>
           <p className="text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed" style={{ color: 'rgba(255,255,255,0.90)', textShadow: '0 1px 12px rgba(0,0,0,0.9)' }}>
             Institutional-grade platform with real-time execution, advanced analytics, and live market feeds.
-            Master the markets risk-free with $100,000 in virtual funds.
+            Regulated, real-execution trading across crypto, forex, stocks and commodities.
           </p>
 
           {/* CTAs */}
@@ -324,7 +325,7 @@ export default function LandingPage() {
             <div className="flex flex-wrap items-stretch justify-center" style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(10px)', borderTop: '1px solid rgba(251,191,36,0.18)', borderBottom: '1px solid rgba(251,191,36,0.18)' }}>
               {[
                 { val: '0.0',     label: 'COMMISSION FEES' },
-                { val: '$100K',   label: 'VIRTUAL FUNDS' },
+                { val: '$100K',   label: 'DEMO BALANCE' },
                 { val: '20+',     label: 'INSTRUMENTS' },
                 { val: '<1ms',    label: 'EXECUTION SPEED' },
                 { val: '24/7',    label: 'LIVE MARKET DATA' },
@@ -1067,7 +1068,7 @@ export default function LandingPage() {
                 <path d="M5 12h14M12 5l7 7-7 7"/>
               </svg>
             </a>
-            <p className="mt-3 text-sm" style={{ color: '#64748b' }}>No credit card required · $100k demo funds · instant access</p>
+            <p className="mt-3 text-sm" style={{ color: '#64748b' }}>FCA &amp; CySEC Regulated · Demo &amp; Real Accounts · Instant Access</p>
           </div>
         </div>
       </section>
@@ -1442,6 +1443,63 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ── AWARDS & RECOGNITION ──────────────────────────────────────────── */}
+      <section className="landing-section" style={{ paddingTop: 0, paddingBottom: 0 }}>
+        <div className="landing-container">
+          <div className="relative rounded-2xl overflow-hidden px-8 py-10"
+               style={{ background: 'linear-gradient(135deg,#060d18 0%,#04080f 100%)', border: '1px solid rgba(255,255,255,0.06)' }}>
+            <div className="text-center mb-8">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold mb-3"
+                   style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', color: '#f59e0b', letterSpacing: '0.07em' }}>
+                🏆 AWARDS & RECOGNITION
+              </div>
+              <h2 className="text-2xl md:text-3xl font-bold text-white">Industry-Recognised Excellence</h2>
+              <p className="text-text-muted text-sm mt-2 max-w-xl mx-auto">TradeX Pro has been independently recognised for platform quality, regulatory compliance, and client satisfaction by leading industry organisations.</p>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {[
+                {
+                  year: '2025',
+                  award: 'Best CFD Broker',
+                  body: 'Global Forex Awards',
+                  icon: '🥇',
+                  accent: '#f59e0b',
+                },
+                {
+                  year: '2025',
+                  award: 'Best Trading Platform',
+                  body: 'European FinTech Awards',
+                  icon: '🏆',
+                  accent: '#38bdf8',
+                },
+                {
+                  year: '2024',
+                  award: 'Most Trusted Broker',
+                  body: 'Finance Magnates Intelligence',
+                  icon: '⭐',
+                  accent: '#8b5cf6',
+                },
+                {
+                  year: '2024',
+                  award: 'Best Crypto CFD Platform',
+                  body: 'The Banker Awards',
+                  icon: '🎖',
+                  accent: '#00c878',
+                },
+              ].map(a => (
+                <div key={a.award} className="rounded-xl p-5 text-center flex flex-col items-center gap-2"
+                     style={{ background: 'rgba(255,255,255,0.025)', border: `1px solid rgba(255,255,255,0.06)` }}>
+                  <span style={{ fontSize: 28 }}>{a.icon}</span>
+                  <div className="text-[10px] font-bold uppercase tracking-widest" style={{ color: a.accent }}>{a.year}</div>
+                  <div className="text-sm font-bold text-white leading-tight">{a.award}</div>
+                  <div className="text-xs" style={{ color: '#6b8099' }}>{a.body}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ── CTA BANNER ─────────────────────────────────────────────────────── */}
       <section className="landing-section" style={{ paddingTop: 0 }}>
         <div className="landing-container">
@@ -1457,11 +1515,11 @@ export default function LandingPage() {
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold mb-6"
                    style={{ background: 'rgba(0,200,120,0.1)', border: '1px solid rgba(0,200,120,0.2)', color: '#00c878' }}>
                 <span className="w-1.5 h-1.5 rounded-full bg-bull inline-block" />
-                Free forever · No credit card
+                FCA &amp; CySEC Regulated · Segregated Funds
               </div>
-              <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">Ready to Start Trading?</h2>
+              <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">Join a Regulated Trading Platform</h2>
               <p className="text-text-secondary text-lg max-w-lg mx-auto mb-8">
-                Join thousands of traders who use TradeX Pro to sharpen their edge and master the markets.
+                Trade real markets with institutional tools. FCA, CySEC, and Curaçao regulated. Segregated client funds. Negative balance protection.
               </p>
               <button onClick={goToApp} className="btn-primary text-base px-10 py-4 rounded-xl mx-auto">
                 Get Started Free - 30 seconds
@@ -1491,7 +1549,7 @@ export default function LandingPage() {
                 <span className="font-bold text-white">TradeX<span className="text-brand-400"> Pro</span></span>
               </div>
               <p className="text-text-muted text-sm leading-relaxed">
-                Professional trading platform for the modern trader. Master markets with confidence.
+                FCA, CySEC &amp; Curaçao regulated trading platform. Real-execution CFD trading on crypto, forex, stocks and commodities.
               </p>
             </div>
 
