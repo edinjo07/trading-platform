@@ -325,7 +325,7 @@ export default function LandingPage() {
             <div className="flex flex-wrap items-stretch justify-center" style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(10px)', borderTop: '1px solid rgba(251,191,36,0.18)', borderBottom: '1px solid rgba(251,191,36,0.18)' }}>
               {[
                 { val: '0.0',     label: 'COMMISSION FEES' },
-                { val: '$100K',   label: 'DEMO BALANCE' },
+                { val: '150K+',   label: 'ACTIVE TRADERS' },
                 { val: '20+',     label: 'INSTRUMENTS' },
                 { val: '<1ms',    label: 'EXECUTION SPEED' },
                 { val: '24/7',    label: 'LIVE MARKET DATA' },
