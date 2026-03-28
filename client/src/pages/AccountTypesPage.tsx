@@ -148,12 +148,12 @@ export default function AccountTypesPage() {
         {/* Reg badges */}
         <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 10 }}>
           {[
-            { flag: '🇬🇧', code: 'FCA', reg: 'FRN 987654' },
-            { flag: '🇨🇾', code: 'CySEC', reg: 'Licence 123/45' },
-            { flag: '🇨🇼', code: 'Curaçao GCB', reg: '0005/GCB' },
+            { flagSrc: 'https://flagcdn.com/w40/gb.png', code: 'FCA', reg: 'FRN 987654' },
+            { flagSrc: 'https://flagcdn.com/w40/cy.png', code: 'CySEC', reg: 'Licence 123/45' },
+            { flagSrc: 'https://flagcdn.com/w40/cw.png', code: 'Curaçao GCB', reg: '0005/GCB' },
           ].map(r => (
             <div key={r.code} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 16px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.09)', borderRadius: 8 }}>
-              <span style={{ fontSize: 15 }}>{r.flag}</span>
+              <img src={r.flagSrc} alt={r.code} style={{ width: 22, height: 15, borderRadius: 2, objectFit: 'cover' }} />
               <div>
                 <div style={{ fontSize: 11, fontWeight: 700, color: '#c8d6e5' }}>{r.code}</div>
                 <div style={{ fontSize: 9.5, color: '#3a5060' }}>{r.reg}</div>

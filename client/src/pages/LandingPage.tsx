@@ -328,11 +328,11 @@ export default function LandingPage() {
           <div className="w-full mb-0" style={{ marginLeft: 'calc(-50vw + 50%)', marginRight: 'calc(-50vw + 50%)', width: '100vw' }}>
             <div className="flex flex-wrap items-stretch justify-center" style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(10px)', borderTop: '1px solid rgba(251,191,36,0.18)', borderBottom: '1px solid rgba(251,191,36,0.18)' }}>
               {[
-                { val: '0.0',     label: 'COMMISSION FEES' },
-                { val: '150K+',   label: 'ACTIVE TRADERS' },
-                { val: '20+',     label: 'INSTRUMENTS' },
-                { val: '<1ms',    label: 'EXECUTION SPEED' },
-                { val: '24/7',    label: 'LIVE MARKET DATA' },
+                { val: '0.0',     label: 'PIP SPREADS*' },
+                { val: '1:1000',  label: 'MAX LEVERAGE' },
+                { val: '0.01',    label: 'MICRO LOT TRADING' },
+                { val: '2,250+',  label: 'TRADABLE INSTRUMENTS' },
+                { val: '24/7',    label: 'DEDICATED SUPPORT' },
               ].map((s, i) => (
                 <div key={s.val} className="flex items-center gap-4 px-8 py-4"
                      style={{ borderRight: i < 4 ? '1px solid rgba(255,255,255,0.08)' : 'none' }}>
@@ -1460,45 +1460,83 @@ export default function LandingPage() {
               <h2 className="text-2xl md:text-3xl font-bold text-white">Industry-Recognised Excellence</h2>
               <p className="text-text-muted text-sm mt-2 max-w-xl mx-auto">TradeX Pro has been independently recognised for platform quality, regulatory compliance, and client satisfaction by leading industry organisations.</p>
             </div>
+            {/* Trustpilot rating */}
+            <div className="flex justify-center mb-7">
+              <a href="https://www.trustpilot.com" target="_blank" rel="noreferrer noopener"
+                 className="inline-flex items-center gap-4 px-5 py-3 rounded-xl"
+                 style={{ background: 'rgba(0,182,122,0.06)', border: '1px solid rgba(0,182,122,0.2)', textDecoration: 'none' }}>
+                <div style={{ fontSize: 16, fontWeight: 800, color: '#00b67a', fontFamily: 'sans-serif', letterSpacing: '-0.01em' }}>Trustpilot</div>
+                <div className="flex items-center gap-0.5">
+                  {[1,2,3,4,5].map(n => (
+                    <div key={n} style={{ width: 22, height: 22, background: '#00b67a', borderRadius: 3, display:'flex', alignItems:'center', justifyContent:'center' }}>
+                      <svg width="13" height="13" viewBox="0 0 24 24"><path d="M12 2l2.9 8.9H24l-7.5 5.4 2.9 8.9L12 19.8l-7.4 5.4 2.9-8.9L0 10.9h9.1z" fill="white"/></svg>
+                    </div>
+                  ))}
+                </div>
+                <div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: '#fff', lineHeight: 1.2 }}>Excellent</div>
+                  <div style={{ fontSize: 10, color: '#6b8099' }}>4.8 · 12,847 reviews</div>
+                </div>
+              </a>
+            </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {[
-                {
-                  year: '2025',
-                  award: 'Best CFD Broker',
-                  body: 'Global Forex Awards',
-                  icon: '🥇',
-                  accent: '#f59e0b',
-                },
-                {
-                  year: '2025',
-                  award: 'Best Trading Platform',
-                  body: 'European FinTech Awards',
-                  icon: '🏆',
-                  accent: '#38bdf8',
-                },
-                {
-                  year: '2024',
-                  award: 'Most Trusted Broker',
-                  body: 'Finance Magnates Intelligence',
-                  icon: '⭐',
-                  accent: '#8b5cf6',
-                },
-                {
-                  year: '2024',
-                  award: 'Best Crypto CFD Platform',
-                  body: 'The Banker Awards',
-                  icon: '🎖',
-                  accent: '#00c878',
-                },
+                { year: '2025', award: 'Best CFD Broker', body: 'Global Forex Awards', accent: '#f59e0b' },
+                { year: '2025', award: 'Best Trading Platform', body: 'European FinTech Awards', accent: '#38bdf8' },
+                { year: '2024', award: 'Most Trusted Broker', body: 'Finance Magnates Intelligence', accent: '#8b5cf6' },
+                { year: '2024', award: 'Best Crypto CFD Platform', body: 'The Banker Awards', accent: '#00c878' },
               ].map(a => (
                 <div key={a.award} className="rounded-xl p-5 text-center flex flex-col items-center gap-2"
                      style={{ background: 'rgba(255,255,255,0.025)', border: `1px solid rgba(255,255,255,0.06)` }}>
-                  <span style={{ fontSize: 28 }}>{a.icon}</span>
+                  <svg viewBox="0 0 40 48" width="44" height="52" fill="none">
+                    <path d="M14 2L26 2L28 12L20 16L12 12Z" fill={a.accent} opacity="0.25"/>
+                    <path d="M16 2H24" stroke={a.accent} strokeWidth="2.5" strokeLinecap="round" opacity="0.6"/>
+                    <circle cx="20" cy="32" r="14" fill={a.accent} opacity="0.1" stroke={a.accent} strokeWidth="1.5"/>
+                    <circle cx="20" cy="32" r="10" fill={a.accent} opacity="0.08"/>
+                    <path d="M20 24l2.2 6.7h7l-5.7 4.2 2.2 6.7L20 37.3l-5.7 4.2 2.2-6.7-5.7-4.2h7z" fill={a.accent}/>
+                  </svg>
                   <div className="text-[10px] font-bold uppercase tracking-widest" style={{ color: a.accent }}>{a.year}</div>
                   <div className="text-sm font-bold text-white leading-tight">{a.award}</div>
                   <div className="text-xs" style={{ color: '#6b8099' }}>{a.body}</div>
                 </div>
               ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── PARTNERS & SPONSORS ──────────────────────────────────────────────── */}
+      <section style={{ background: '#040711', borderTop: '1px solid rgba(255,255,255,0.04)', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+        <div className="max-w-6xl mx-auto px-6 py-5 flex flex-wrap items-center justify-center gap-6 md:gap-10">
+          <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#3a5060' }}>Official Partners</span>
+          {/* TradingView */}
+          <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-lg"
+               style={{ background: 'rgba(41,98,255,0.06)', border: '1px solid rgba(41,98,255,0.14)' }}>
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none">
+              <path d="M12 3L22 20H2L12 3Z" fill="#2962FF"/>
+              <path d="M12 9L17 18H7L12 9Z" fill="white" opacity="0.25"/>
+            </svg>
+            <div>
+              <div style={{ fontSize: 11, fontWeight: 700, color: '#a0b4d0', letterSpacing: '0.02em' }}>TradingView</div>
+              <div style={{ fontSize: 9, color: '#3a5060' }}>Chart Technology Partner</div>
+            </div>
+          </div>
+          {/* Motorsport Sponsor */}
+          <div className="flex items-center gap-3 px-4 py-2.5 rounded-lg"
+               style={{ background: 'rgba(220,38,38,0.05)', border: '1px solid rgba(220,38,38,0.18)' }}>
+            <svg viewBox="0 0 56 26" width="56" height="26" fill="none">
+              <path d="M6 15L10 10L18 8L30 8L36 10L50 13L50 17L6 17Z" fill="#dc2626" opacity="0.85"/>
+              <path d="M18 8L21 5L27 5L30 8" fill="#1f0000" opacity="0.7"/>
+              <ellipse cx="13" cy="17" rx="4" ry="4" fill="#111" stroke="#444" strokeWidth="1"/>
+              <ellipse cx="44" cy="17" rx="4" ry="4" fill="#111" stroke="#444" strokeWidth="1"/>
+              <ellipse cx="13" cy="17" rx="2" ry="2" fill="#2a2a2a"/>
+              <ellipse cx="44" cy="17" rx="2" ry="2" fill="#2a2a2a"/>
+              <path d="M46 13L56 12L56 15L46 15Z" fill="#b91c1c" opacity="0.7"/>
+              <path d="M6 12L0 11L0 15L6 15Z" fill="#b91c1c" opacity="0.7"/>
+            </svg>
+            <div>
+              <div style={{ fontSize: 9, fontWeight: 700, color: '#ef4444', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Official Sponsor</div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: '#fff', lineHeight: 1.2 }}>Apex Racing Team</div>
             </div>
           </div>
         </div>
@@ -1616,13 +1654,13 @@ export default function LandingPage() {
           <div className="flex flex-wrap items-center gap-3 py-6" style={{ borderTop: '1px solid rgba(255,255,255,0.05)', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
             <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#3a5060' }}>Regulated by</span>
             {([
-              { code: 'FCA', full: 'Financial Conduct Authority', reg: 'FRN 987654', flag: '🇬🇧' },
-              { code: 'CySEC', full: 'Cyprus Securities & Exchange Commission', reg: 'Licence 123/45', flag: '🇨🇾' },
-              { code: 'Curaçao', full: 'Curaçao Gaming Control Board', reg: 'Licence 0005/GCB', flag: '🇨🇼' },
-            ] as { code: string; full: string; reg: string; flag: string }[]).map(r => (
+              { code: 'FCA', full: 'Financial Conduct Authority', reg: 'FRN 987654', flagSrc: 'https://flagcdn.com/w40/gb.png', flagAlt: 'UK' },
+              { code: 'CySEC', full: 'Cyprus Securities & Exchange Commission', reg: 'Licence 123/45', flagSrc: 'https://flagcdn.com/w40/cy.png', flagAlt: 'Cyprus' },
+              { code: 'Curaçao', full: 'Curaçao Gaming Control Board', reg: 'Licence 0005/GCB', flagSrc: 'https://flagcdn.com/w40/cw.png', flagAlt: 'Curaçao' },
+            ] as { code: string; full: string; reg: string; flagSrc: string; flagAlt: string }[]).map(r => (
               <div key={r.code} className="flex items-center gap-2 px-3 py-2 rounded-lg"
                    style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
-                <span style={{ fontSize: 14 }}>{r.flag}</span>
+                <img src={r.flagSrc} alt={r.flagAlt} style={{ width: 22, height: 15, borderRadius: 2, objectFit: 'cover' }} />
                 <div>
                   <div className="font-bold" style={{ fontSize: 10, color: '#c8d6e5', letterSpacing: '0.04em' }}>{r.code}</div>
                   <div style={{ fontSize: 9, color: '#3a5060' }}>{r.reg}</div>
