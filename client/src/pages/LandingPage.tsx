@@ -192,6 +192,10 @@ function Navbar({ onLogin }: { onLogin: () => void }) {
               {link}
             </a>
           ))}
+          <a href="/account-types"
+             className="text-sm text-text-secondary hover:text-white transition-colors cursor-pointer">
+            Account Types
+          </a>
           <a href="/trading-pilot"
              className="text-sm font-semibold transition-colors cursor-pointer px-3 py-1.5 rounded-full"
              style={{ color: '#f59e0b', background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)' }}>

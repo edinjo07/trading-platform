@@ -20,6 +20,7 @@ import DepositPage from './pages/DepositPage'
 import WithdrawPage from './pages/WithdrawPage'
 import UserKYCPage from './pages/KYCPage'
 import TradingPilotPage from './pages/TradingPilotPage'
+import AccountTypesPage from './pages/AccountTypesPage'
 
 // Admin
 import AdminLayout from './components/admin/AdminLayout'
@@ -95,6 +96,7 @@ export default function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/" element={<LandingPage />} />
         <Route path="/trading-pilot" element={<TradingPilotPage />} />
+        <Route path="/account-types" element={<AccountTypesPage />} />
 
         {/* Main App */}
         <Route
