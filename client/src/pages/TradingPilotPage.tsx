@@ -193,7 +193,7 @@ export default function TradingPilotPage() {
   const { user } = useAuthStore()
   const heroRef = useRef<HTMLDivElement>(null)
 
-  const goToBots = () => navigate(user ? '/dashboard/bots' : '/login')
+  const goToBots = () => navigate(user ? '/dashboard/bots' : '/login?mode=register')
 
   useEffect(() => { window.scrollTo(0, 0) }, [])
 
