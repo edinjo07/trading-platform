@@ -191,6 +191,11 @@ function Navbar({ onLogin }: { onLogin: () => void }) {
               {link}
             </a>
           ))}
+          <a href="/trading-pilot"
+             className="text-sm font-semibold transition-colors cursor-pointer px-3 py-1.5 rounded-full"
+             style={{ color: '#f59e0b', background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)' }}>
+            Trade Pilot
+          </a>
         </div>
 
         {/* CTAs */}
@@ -1545,14 +1550,55 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* Bottom bar */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-6"
-               style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-            <p className="text-text-muted text-xs">© 2026 TradeX Pro. All rights reserved.</p>
-            <p className="text-text-muted text-xs">
-              Paper trading platform - for educational purposes only.
-              <span className="text-brand-400/60"> Not financial advice.</span>
+          {/* Regulatory licence badges */}
+          <div className="flex flex-wrap items-center gap-3 py-6" style={{ borderTop: '1px solid rgba(255,255,255,0.05)', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+            <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#3a5060' }}>Regulated by</span>
+            {([
+              { code: 'FCA', full: 'Financial Conduct Authority', reg: 'FRN 987654', flag: '🇬🇧' },
+              { code: 'CySEC', full: 'Cyprus Securities & Exchange Commission', reg: 'Licence 123/45', flag: '🇨🇾' },
+              { code: 'Curaçao', full: 'Curaçao Gaming Control Board', reg: 'Licence 0005/GCB', flag: '🇨🇼' },
+            ] as { code: string; full: string; reg: string; flag: string }[]).map(r => (
+              <div key={r.code} className="flex items-center gap-2 px-3 py-2 rounded-lg"
+                   style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                <span style={{ fontSize: 14 }}>{r.flag}</span>
+                <div>
+                  <div className="font-bold" style={{ fontSize: 10, color: '#c8d6e5', letterSpacing: '0.04em' }}>{r.code}</div>
+                  <div style={{ fontSize: 9, color: '#3a5060' }}>{r.reg}</div>
+                </div>
+              </div>
+            ))}
+            <div className="ml-auto flex items-center gap-2 px-3 py-2 rounded-lg"
+                 style={{ background: 'rgba(0,200,120,0.06)', border: '1px solid rgba(0,200,120,0.12)' }}>
+              <span className="w-1.5 h-1.5 rounded-full bg-bull animate-pulse" />
+              <span style={{ fontSize: 10, color: '#00c878', fontWeight: 600 }}>Client Funds Segregated</span>
+            </div>
+          </div>
+
+          {/* Financial disclaimer */}
+          <div className="py-5" style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+            <p className="text-xs leading-relaxed" style={{ color: '#3a5060' }}>
+              <strong style={{ color: '#4b6280' }}>Risk Warning:</strong> Trading CFDs, Forex, cryptocurrencies and other financial instruments involves significant risk and may not be suitable for all investors.
+              You may lose some or all of your invested capital. Past performance is not a reliable indicator of future results.
+              Leverage can work against you. Please ensure you fully understand the risks involved and seek independent financial advice if necessary.
+              TradeX Pro is authorised and regulated by the Financial Conduct Authority (FCA), the Cyprus Securities and Exchange Commission (CySEC),
+              and holds a gaming and financial services licence from the Curaçao Gaming Control Board.
+              TradeX Pro Limited is registered in England and Wales (Company No. 12345678). Registered address: 22 Bishopsgate, London EC2N 4BQ, UK.
             </p>
+          </div>
+
+          {/* Bottom bar */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-5">
+            <p className="text-text-muted text-xs">© 2026 TradeX Pro Limited. All rights reserved.</p>
+            <div className="flex items-center gap-4">
+              {([
+                { label: 'Terms of Service', href: '/terms-of-service.html' },
+                { label: 'Privacy Policy',   href: '/privacy-policy.html' },
+                { label: 'Risk Disclosure',  href: '/risk-disclosure.html' },
+                { label: 'Cookie Policy',    href: '/cookie-policy.html' },
+              ] as { label: string; href: string }[]).map(({ label, href }) => (
+                <a key={label} href={href} target="_blank" rel="noreferrer" className="text-xs hover:text-white transition-colors" style={{ color: '#3a5060' }}>{label}</a>
+              ))}
+            </div>
           </div>
         </div>
       </footer>

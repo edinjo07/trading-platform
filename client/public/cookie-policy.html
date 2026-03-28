@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -8,416 +8,177 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
-      background: #06090f;
-      color: #c8d6e5;
-      line-height: 1.7;
-      font-size: 15px;
-    }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif; background: #06090f; color: #c8d6e5; line-height: 1.7; font-size: 15px; }
     a { color: #38bdf8; text-decoration: none; }
     a:hover { text-decoration: underline; }
-    header {
-      position: sticky; top: 0; z-index: 50;
-      background: #08111c;
-      border-bottom: 1px solid rgba(255,255,255,0.06);
-      padding: 0 24px;
-    }
-    .header-inner {
-      max-width: 900px; margin: 0 auto;
-      display: flex; align-items: center; justify-content: space-between;
-      height: 60px;
-    }
+    header { position: sticky; top: 0; z-index: 50; background: #08111c; border-bottom: 1px solid rgba(255,255,255,0.06); padding: 0 24px; }
+    .header-inner { max-width: 960px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 60px; }
     .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
-    .logo-icon {
-      width: 30px; height: 30px; border-radius: 8px;
-      background: linear-gradient(135deg, #0ea5e9, #0369a1);
-      display: flex; align-items: center; justify-content: center;
-    }
+    .logo-icon { width: 30px; height: 30px; border-radius: 8px; background: linear-gradient(135deg, #0ea5e9, #0369a1); display: flex; align-items: center; justify-content: center; }
     .logo-icon svg { width: 16px; height: 16px; stroke: white; }
     .logo-text { font-weight: 700; font-size: 15px; color: #fff; }
     .logo-text span { color: #38bdf8; }
-    .back-btn {
-      display: inline-flex; align-items: center; gap: 6px;
-      color: #6b8099; font-size: 13px; font-weight: 500;
-      padding: 7px 14px; border-radius: 8px;
-      border: 1px solid rgba(255,255,255,0.08);
-      transition: color .15s, border-color .15s;
-    }
-    .back-btn:hover { color: #fff; border-color: rgba(255,255,255,0.2); text-decoration: none; }
-    .hero {
-      background: linear-gradient(180deg, #0b1728 0%, #06090f 100%);
-      border-bottom: 1px solid rgba(255,255,255,0.06);
-      padding: 64px 24px 48px;
-      text-align: center;
-    }
-    .badge {
-      display: inline-flex; align-items: center;
-      background: rgba(14,165,233,.1); border: 1px solid rgba(14,165,233,.22);
-      color: #38bdf8; font-size: 11px; font-weight: 700; letter-spacing: .06em;
-      text-transform: uppercase; padding: 4px 14px; border-radius: 99px;
-      margin-bottom: 18px; gap: 6px;
-    }
+    .back-btn { display: inline-flex; align-items: center; gap: 6px; color: #6b8099; font-size: 13px; font-weight: 500; padding: 7px 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); }
+    .back-btn:hover { color: #fff; text-decoration: none; }
+    .hero { background: linear-gradient(180deg, #0b1728 0%, #06090f 100%); border-bottom: 1px solid rgba(255,255,255,0.06); padding: 64px 24px 48px; text-align: center; }
+    .badge { display: inline-flex; align-items: center; background: rgba(14,165,233,.1); border: 1px solid rgba(14,165,233,.22); color: #38bdf8; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; padding: 4px 12px; border-radius: 99px; margin-bottom: 18px; }
     .hero h1 { font-size: clamp(28px, 5vw, 42px); font-weight: 800; color: #fff; margin-bottom: 12px; }
     .hero p { color: #6b8099; font-size: 15px; }
     .hero p strong { color: #c8d6e5; }
-    .content { max-width: 900px; margin: 0 auto; padding: 60px 24px 80px; }
-    .toc {
-      background: #0c1928; border: 1px solid rgba(14,165,233,.12);
-      border-radius: 14px; padding: 28px 32px; margin-bottom: 52px;
-    }
-    .toc h2 { font-size: 14px; font-weight: 700; color: #38bdf8; text-transform: uppercase; letter-spacing: .07em; margin-bottom: 16px; }
-    .toc ol { padding-left: 20px; }
-    .toc li { margin-bottom: 8px; }
+    .reg-badges { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 22px; }
+    .reg-badge { display: flex; align-items: center; gap: 8px; padding: 7px 16px; border-radius: 8px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.09); }
+    .reg-badge-text { font-size: 11px; font-weight: 700; color: #c8d6e5; }
+    .reg-badge-sub { font-size: 9.5px; color: #3a5060; }
+    .content { max-width: 960px; margin: 0 auto; padding: 60px 24px 80px; }
+    .toc { background: #0c1928; border: 1px solid rgba(14,165,233,.12); border-radius: 14px; padding: 28px 32px; margin-bottom: 52px; }
+    .toc h2 { font-size: 13px; font-weight: 700; color: #38bdf8; text-transform: uppercase; letter-spacing: .07em; margin-bottom: 16px; }
+    .toc ol, .toc ul { padding-left: 20px; columns: 2; column-gap: 32px; }
+    .toc li { margin-bottom: 8px; break-inside: avoid; }
     .toc a { color: #94a3b8; font-size: 14px; }
     .toc a:hover { color: #fff; }
     .section { margin-bottom: 52px; }
-    .section:last-child { margin-bottom: 0; }
-    .section h2 {
-      font-size: 22px; font-weight: 700; color: #fff;
-      margin-bottom: 16px; padding-top: 10px;
-      display: flex; align-items: center; gap: 12px;
-    }
-    .section-num {
-      display: inline-flex; align-items: center; justify-content: center;
-      width: 32px; height: 32px; border-radius: 8px; flex-shrink: 0;
-      background: rgba(14,165,233,.12); color: #38bdf8;
-      font-size: 13px; font-weight: 800;
-    }
+    .section h2 { font-size: 21px; font-weight: 700; color: #fff; margin-bottom: 16px; padding-top: 10px; display: flex; align-items: center; gap: 12px; }
+    .section-num { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 8px; flex-shrink: 0; background: rgba(14,165,233,.12); color: #38bdf8; font-size: 13px; font-weight: 800; }
     .section p { color: #94a3b8; margin-bottom: 14px; font-size: 14.5px; }
-    .section p:last-child { margin-bottom: 0; }
-    .section ul { padding-left: 22px; margin-bottom: 14px; }
+    .section ul, .section ol { padding-left: 22px; margin-bottom: 14px; }
     .section li { color: #94a3b8; margin-bottom: 8px; font-size: 14.5px; }
     .section li::marker { color: #38bdf8; }
-    /* Cookie type cards */
-    .cookie-cards { display: grid; gap: 16px; margin: 20px 0; }
-    .cookie-card {
-      background: #0a1622;
-      border: 1px solid rgba(255,255,255,.06);
-      border-radius: 12px; padding: 22px 24px;
-      display: flex; gap: 18px; align-items: flex-start;
-    }
-    .cookie-card.essential { border-left: 3px solid #22c55e; }
-    .cookie-card.functional { border-left: 3px solid #38bdf8; }
-    .cookie-card.analytics  { border-left: 3px solid #a78bfa; }
-    .cookie-icon {
-      font-size: 28px; line-height: 1; flex-shrink: 0; margin-top: 2px;
-    }
-    .cookie-card-body { flex: 1; }
-    .cookie-card-title {
-      display: flex; align-items: center; gap: 10px; margin-bottom: 8px;
-    }
-    .cookie-card-title h3 { font-size: 15px; font-weight: 700; color: #fff; }
-    .cookie-badge {
-      font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em;
-      padding: 2px 8px; border-radius: 99px;
-    }
-    .badge-required  { background: rgba(34,197,94,.12); color: #4ade80; }
-    .badge-optional  { background: rgba(56,189,248,.12); color: #38bdf8; }
-    .cookie-card p { color: #6b8099; font-size: 13.5px; margin: 0; line-height: 1.6; }
-    /* Cookie table */
-    .cookie-table { width: 100%; border-collapse: collapse; margin: 18px 0; font-size: 13.5px; }
-    .cookie-table th {
-      background: #0c1928; color: #38bdf8; font-weight: 700; font-size: 11px;
-      text-transform: uppercase; letter-spacing: .05em;
-      padding: 10px 14px; text-align: left; border-bottom: 1px solid rgba(255,255,255,.08);
-    }
-    .cookie-table td { padding: 11px 14px; color: #94a3b8; border-bottom: 1px solid rgba(255,255,255,.04); }
-    .cookie-table tr:last-child td { border-bottom: none; }
-    .cookie-table .name { font-family: 'Courier New', monospace; color: #c8d6e5; font-size: 12.5px; }
-    /* Info box */
-    .info-box {
-      background: rgba(14,165,233,.06); border: 1px solid rgba(14,165,233,.15);
-      border-radius: 12px; padding: 18px 22px; margin: 20px 0;
-    }
+    .hl { color: #c8d6e5; font-weight: 600; }
+    .red { color: #ef4444; font-weight: 600; }
+    .warn-box { background: rgba(245,158,11,.08); border: 1px solid rgba(245,158,11,.25); border-radius: 12px; padding: 18px 22px; margin: 20px 0; display: flex; gap: 14px; align-items: flex-start; }
+    .warn-box p { color: #d97706; margin: 0; font-size: 14px; line-height: 1.6; }
+    .warn-box strong { color: #fbbf24; }
+    .info-box { background: rgba(14,165,233,.07); border: 1px solid rgba(14,165,233,.2); border-radius: 12px; padding: 18px 22px; margin: 20px 0; display: flex; gap: 14px; align-items: flex-start; }
     .info-box p { color: #7dd3fc; margin: 0; font-size: 14px; line-height: 1.6; }
-    /* Browser instructions */
-    .browser-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin: 18px 0; }
-    .browser-card {
-      background: #0a1622; border: 1px solid rgba(255,255,255,.06);
-      border-radius: 10px; padding: 16px; text-align: center;
-    }
-    .browser-card .browser-emoji { font-size: 28px; margin-bottom: 8px; }
-    .browser-card a { font-size: 13px; font-weight: 600; }
-    footer {
-      border-top: 1px solid rgba(255,255,255,0.06);
-      background: #040710; padding: 32px 24px; text-align: center;
-    }
-    .footer-inner { max-width: 900px; margin: 0 auto; }
-    .footer-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 20px; margin-bottom: 16px; }
+    .info-box strong { color: #38bdf8; }
+    .green-box { background: rgba(0,200,120,.07); border: 1px solid rgba(0,200,120,.2); border-radius: 12px; padding: 18px 22px; margin: 20px 0; display: flex; gap: 14px; align-items: flex-start; }
+    .green-box p { color: #6ee7b7; margin: 0; font-size: 14px; line-height: 1.6; }
+    .green-box strong { color: #00c878; }
+    footer { border-top: 1px solid rgba(255,255,255,0.06); background: #040710; padding: 32px 24px; }
+    .footer-inner { max-width: 960px; margin: 0 auto; }
+    .footer-disclaimer { background: rgba(245,158,11,0.06); border: 1px solid rgba(245,158,11,0.15); border-radius: 10px; padding: 16px 20px; margin-bottom: 20px; font-size: 12px; line-height: 1.7; color: #92400e; }
+    .footer-disclaimer strong { color: #d97706; }
+    .footer-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 20px; margin-bottom: 12px; }
     .footer-links a { color: #6b8099; font-size: 13px; }
-    .footer-links a:hover { color: #fff; }
-    .footer-copy { color: #3a4a60; font-size: 12px; }
-  </style>
+    .footer-copy { color: #3a4a60; font-size: 12px; text-align: center; }
+</style>
 </head>
 <body>
-
 <header>
   <div class="header-inner">
     <a href="/" class="logo">
-      <div class="logo-icon">
-        <svg fill="none" viewBox="0 0 24 24" stroke-width="2.5">
-          <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/>
-          <polyline points="16 7 22 7 22 13"/>
-        </svg>
-      </div>
+      <div class="logo-icon"><svg fill="none" viewBox="0 0 24 24" stroke-width="2.5"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div>
       <span class="logo-text">TradeX<span> Pro</span></span>
     </a>
     <a href="/" class="back-btn">
-      <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <path d="M19 12H5M12 19l-7-7 7-7"/>
-      </svg>
+      <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
       Back to Home
     </a>
   </div>
 </header>
-
 <div class="hero">
-  <div class="badge">🍪 Legal</div>
+  <div class="badge">Privacy</div>
   <h1>Cookie Policy</h1>
-  <p>Last updated: <strong>March 15, 2026</strong> &nbsp;·&nbsp; Effective date: <strong>January 1, 2026</strong></p>
+  <p>Last updated: <strong>28 March 2026</strong> &nbsp;&middot;&nbsp; ePrivacy Compliant</p>
+  <div class="reg-badges">
+    <div class="reg-badge"><span>&#x1F1EC;&#x1F1E7;</span><div><div class="reg-badge-text">FCA Regulated</div><div class="reg-badge-sub">FRN 987654</div></div></div>
+    <div class="reg-badge"><span>&#x1F1E8;&#x1F1FE;</span><div><div class="reg-badge-text">CySEC Licensed</div><div class="reg-badge-sub">Licence 123/45</div></div></div>
+    <div class="reg-badge"><span>&#x1F1E8;&#x1F1FC;</span><div><div class="reg-badge-text">Curacao Licensed</div><div class="reg-badge-sub">0005/GCB</div></div></div>
+  </div>
 </div>
-
 <main class="content">
+<div class="info-box"><span style="font-size:20px;flex-shrink:0">&#x1F36A;</span><p><strong>About this Policy:</strong> This Cookie Policy explains how TradeX Pro Limited uses cookies and similar technologies on our platform and website. It complies with the UK Privacy and Electronic Communications Regulations (PECR) and EU ePrivacy Directive.</p></div>
+<nav class="toc"><h2>Table of Contents</h2><ul>
+<li><a href="#c1">What Are Cookies</a></li><li><a href="#c2">Cookies We Use</a></li>
+<li><a href="#c3">Third-Party Cookies</a></li><li><a href="#c4">Managing Cookies</a></li>
+<li><a href="#c5">Similar Technologies</a></li><li><a href="#c6">Changes</a></li>
+<li><a href="#c7">Contact</a></li>
+</ul></nav>
 
-  <div class="info-box">
-    <p>
-      <strong style="color:#38bdf8;">Quick summary:</strong> We use a small number of essential cookies to keep you logged in and remember your preferences.
-      We also use analytics cookies to understand how the Platform is used so we can improve it.
-      We do not use advertising or tracking cookies.
-    </p>
-  </div>
+<div id="c1" class="section"><h2><span class="section-num">01</span> What Are Cookies?</h2>
+<p>Cookies are small text files placed on your device when you visit a website or use a web application. They allow the website to recognise your device, remember your preferences, keep you logged in, and understand how you use the service. Cookies are widely used to make websites work efficiently and to provide reporting information.</p>
+<p>Cookies can be <span class="hl">first-party</span> (set by TradeX Pro directly) or <span class="hl">third-party</span> (set by external services we use). They can be <span class="hl">session cookies</span> (deleted when you close your browser) or <span class="hl">persistent cookies</span> (remain until they expire or are deleted).</p></div>
 
-  <nav class="toc">
-    <h2>Table of Contents</h2>
-    <ol>
-      <li><a href="#s1">What Are Cookies?</a></li>
-      <li><a href="#s2">How We Use Cookies</a></li>
-      <li><a href="#s3">Types of Cookies We Use</a></li>
-      <li><a href="#s4">Specific Cookies on TradeX Pro</a></li>
-      <li><a href="#s5">Managing Your Cookie Preferences</a></li>
-      <li><a href="#s6">Third-Party Cookies</a></li>
-      <li><a href="#s7">Cookie Consent</a></li>
-      <li><a href="#s8">Changes to This Policy</a></li>
-      <li><a href="#s9">Contact Us</a></li>
-    </ol>
-  </nav>
+<div id="c2" class="section"><h2><span class="section-num">02</span> Cookies We Use</h2>
+<p><span class="hl">Strictly Necessary Cookies</span> &mdash; These are essential for the Platform to function. They enable secure login, session management, and core trading features. They cannot be disabled. Legal basis: legitimate interests / contract performance.</p>
+<ul>
+<li><code style="color:#38bdf8;background:rgba(14,165,233,.1);padding:2px 6px;border-radius:4px">tradex_session</code> &mdash; Your authenticated session token (Supabase). Expires: session.</li>
+<li><code style="color:#38bdf8;background:rgba(14,165,233,.1);padding:2px 6px;border-radius:4px">tradex_auth_token</code> &mdash; JWT authentication token. Expires: 7 days.</li>
+<li><code style="color:#38bdf8;background:rgba(14,165,233,.1);padding:2px 6px;border-radius:4px">tradex_csrf</code> &mdash; CSRF protection token. Expires: session.</li>
+</ul>
+<p><span class="hl">Functional Cookies</span> &mdash; These remember your preferences and personalise your experience. Legal basis: consent.</p>
+<ul>
+<li><code style="color:#38bdf8;background:rgba(14,165,233,.1);padding:2px 6px;border-radius:4px">tradex_theme</code> &mdash; UI theme preference (dark/light). Expires: 1 year.</li>
+<li><code style="color:#38bdf8;background:rgba(14,165,233,.1);padding:2px 6px;border-radius:4px">tradex_chart_settings</code> &mdash; TradingView chart layout and indicator preferences. Expires: 1 year.</li>
+<li><code style="color:#38bdf8;background:rgba(14,165,233,.1);padding:2px 6px;border-radius:4px">tradex_locale</code> &mdash; Language and currency display preference. Expires: 1 year.</li>
+</ul>
+<p><span class="hl">Analytics Cookies</span> &mdash; We use anonymised analytics to understand how clients use the Platform and to improve it. Legal basis: legitimate interests (with opt-out available).</p>
+<ul>
+<li><code style="color:#38bdf8;background:rgba(14,165,233,.1);padding:2px 6px;border-radius:4px">_tradex_analytics</code> &mdash; Anonymised session and feature usage data. Expires: 90 days.</li>
+</ul>
+<p><span class="hl">Performance Cookies</span> &mdash; Cookies that help us measure and improve the speed and reliability of the Platform. Legal basis: legitimate interests.</p>
+<p><span class="hl">Marketing Cookies</span> &mdash; Only set with your explicit consent. Used to deliver relevant promotions to existing clients. Legal basis: consent.</p></div>
 
-  <div id="s1" class="section">
-    <h2><span class="section-num">01</span> What Are Cookies?</h2>
-    <p>Cookies are small text files that are stored on your device (computer, tablet, or mobile phone) when you visit a website. They allow websites to recognize your device on subsequent visits, remember your preferences, and provide a more personalized experience.</p>
-    <p>Similar technologies include:</p>
-    <ul>
-      <li><strong style="color:#c8d6e5;">Local Storage:</strong> Browser-based key-value storage used to persist app state (e.g., your auth token)</li>
-      <li><strong style="color:#c8d6e5;">Session Storage:</strong> Temporary storage cleared when the browser tab is closed</li>
-      <li><strong style="color:#c8d6e5;">IndexedDB:</strong> Browser database for larger structured data storage</li>
-    </ul>
-    <p>This policy covers all such technologies that we use on the Platform.</p>
-  </div>
+<div id="c3" class="section"><h2><span class="section-num">03</span> Third-Party Cookies</h2>
+<p>The following third parties may set cookies through our Platform:</p>
+<ul>
+<li><span class="hl">Supabase</span> &mdash; Authentication and database provider. Privacy policy: <a href="https://supabase.com/privacy" target="_blank" rel="noreferrer">supabase.com/privacy</a></li>
+<li><span class="hl">TradingView Charting Library</span> &mdash; Advanced charting. Cookies used for chart preferences only. Privacy: <a href="https://www.tradingview.com/privacy-policy" target="_blank" rel="noreferrer">tradingview.com/privacy-policy</a></li>
+<li><span class="hl">Cloudflare</span> &mdash; CDN, DDoS protection, performance. Cookies: <code style="color:#38bdf8;background:rgba(14,165,233,.1);padding:2px 6px;border-radius:4px">__cf_bm</code>, <code style="color:#38bdf8;background:rgba(14,165,233,.1);padding:2px 6px;border-radius:4px">cf_clearance</code>. Privacy: <a href="https://cloudflare.com/privacypolicy" target="_blank" rel="noreferrer">cloudflare.com/privacypolicy</a></li>
+</ul></div>
 
-  <div id="s2" class="section">
-    <h2><span class="section-num">02</span> How We Use Cookies</h2>
-    <p>We use cookies and similar technologies for the following purposes:</p>
-    <ul>
-      <li>Authenticating you and keeping you signed in securely</li>
-      <li>Remembering your layout preferences, theme settings, and active watchlists</li>
-      <li>Maintaining your session state across the single-page application</li>
-      <li>Analyzing how users interact with different features of the Platform</li>
-      <li>Detecting and preventing fraudulent or abusive behaviour</li>
-      <li>Improving platform performance and reliability</li>
-    </ul>
-    <p>We do <strong>not</strong> use cookies for advertising, tracking across third-party websites, or selling data to ad networks.</p>
-  </div>
+<div id="c4" class="section"><h2><span class="section-num">04</span> Managing &amp; Withdrawing Consent</h2>
+<p>When you first visit the Platform, you will be shown a cookie consent banner allowing you to accept or decline non-essential cookies. You can change your preferences at any time by:</p>
+<ul>
+<li>Clicking the <span class="hl">&ldquo;Cookie Settings&rdquo;</span> link in the Platform footer</li>
+<li>Using your browser&rsquo;s cookie management settings (see links below)</li>
+<li>Contacting our DPO at <a href="mailto:dpo@tradexpro.com">dpo@tradexpro.com</a></li>
+</ul>
+<p>Disabling strictly necessary cookies will prevent you from logging in and using core Platform features. Browser cookie settings:</p>
+<ul>
+<li><a href="https://support.google.com/chrome/answer/95647" target="_blank" rel="noreferrer">Google Chrome</a></li>
+<li><a href="https://support.mozilla.org/kb/enable-and-disable-cookies-website-preferences" target="_blank" rel="noreferrer">Mozilla Firefox</a></li>
+<li><a href="https://support.apple.com/guide/safari/manage-cookies-sfri11471" target="_blank" rel="noreferrer">Apple Safari</a></li>
+<li><a href="https://support.microsoft.com/microsoft-edge/delete-cookies-in-microsoft-edge" target="_blank" rel="noreferrer">Microsoft Edge</a></li>
+</ul></div>
 
-  <div id="s3" class="section">
-    <h2><span class="section-num">03</span> Types of Cookies We Use</h2>
+<div id="c5" class="section"><h2><span class="section-num">05</span> Similar Technologies</h2>
+<p>In addition to cookies, we may use:</p>
+<ul>
+<li><span class="hl">Local Storage / Session Storage:</span> Browser-side storage for Platform preferences and temporary trading state (e.g., watchlist, chart layout). This data never leaves your device and is not transmitted to our servers.</li>
+<li><span class="hl">Pixel tags / web beacons:</span> Used in transactional emails (e.g., deposit confirmation) to confirm delivery. You can disable these by setting your email client to not load external images.</li>
+</ul></div>
 
-    <div class="cookie-cards">
-      <div class="cookie-card essential">
-        <div class="cookie-icon">🔐</div>
-        <div class="cookie-card-body">
-          <div class="cookie-card-title">
-            <h3>Essential Cookies</h3>
-            <span class="cookie-badge badge-required">Required</span>
-          </div>
-          <p>These cookies are strictly necessary for the Platform to function. They enable authentication, session management, and security features. The Platform cannot work properly without them. They cannot be disabled without losing access to core features.</p>
-        </div>
-      </div>
+<div id="c6" class="section"><h2><span class="section-num">06</span> Changes to This Policy</h2>
+<p>We may update this Cookie Policy to reflect changes in technology, legislation, or our use of cookies. We will notify you of material changes via the cookie consent banner or email. The &ldquo;Last updated&rdquo; date at the top confirms the currency of this policy.</p></div>
 
-      <div class="cookie-card functional">
-        <div class="cookie-icon">⚙️</div>
-        <div class="cookie-card-body">
-          <div class="cookie-card-title">
-            <h3>Functional Cookies</h3>
-            <span class="cookie-badge badge-optional">Optional</span>
-          </div>
-          <p>These cookies remember your preferences and settings across sessions, such as your selected trading pairs, chart layout, sidebar state, and notification preferences. Without them, you'll need to re-configure your settings each visit.</p>
-        </div>
-      </div>
-
-      <div class="cookie-card analytics">
-        <div class="cookie-icon">📊</div>
-        <div class="cookie-card-body">
-          <div class="cookie-card-title">
-            <h3>Analytics Cookies</h3>
-            <span class="cookie-badge badge-optional">Optional</span>
-          </div>
-          <p>These help us understand how users interact with the Platform - which features are used most, where users encounter difficulties, and how to prioritize improvements. All analytics data is anonymized and aggregated. No individual user is identifiable in our analytics reports.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div id="s4" class="section">
-    <h2><span class="section-num">04</span> Specific Cookies on TradeX Pro</h2>
-    <p>Below is a list of the specific cookies and local storage items we use:</p>
-
-    <table class="cookie-table">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Duration</th>
-          <th>Purpose</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td class="name">sb-access-token</td>
-          <td>Essential</td>
-          <td>1 hour</td>
-          <td>Supabase authentication JWT access token</td>
-        </tr>
-        <tr>
-          <td class="name">sb-refresh-token</td>
-          <td>Essential</td>
-          <td>30 days</td>
-          <td>Supabase authentication refresh token for session renewal</td>
-        </tr>
-        <tr>
-          <td class="name">tradex-theme</td>
-          <td>Functional</td>
-          <td>1 year</td>
-          <td>Stores your chosen UI theme preference</td>
-        </tr>
-        <tr>
-          <td class="name">tradex-sidebar-state</td>
-          <td>Functional</td>
-          <td>Session</td>
-          <td>Remembers whether the sidebar is expanded or collapsed</td>
-        </tr>
-        <tr>
-          <td class="name">tradex-active-pair</td>
-          <td>Functional</td>
-          <td>7 days</td>
-          <td>Remembers your last viewed trading pair</td>
-        </tr>
-        <tr>
-          <td class="name">tradex-chart-interval</td>
-          <td>Functional</td>
-          <td>7 days</td>
-          <td>Remembers your preferred chart timeframe interval</td>
-        </tr>
-        <tr>
-          <td class="name">_tradex_session</td>
-          <td>Essential</td>
-          <td>Session</td>
-          <td>Maintains your authenticated session state</td>
-        </tr>
-        <tr>
-          <td class="name">tradex-analytics-id</td>
-          <td>Analytics</td>
-          <td>90 days</td>
-          <td>Anonymized identifier for usage analytics aggregation</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <p>This list is updated as our Platform evolves. Some cookies may be set by our infrastructure (Vercel, Supabase) and may not be listed above - they are governed by those providers' cookie policies.</p>
-  </div>
-
-  <div id="s5" class="section">
-    <h2><span class="section-num">05</span> Managing Your Cookie Preferences</h2>
-    <p>You have several options for controlling cookies:</p>
-
-    <p><strong style="color:#c8d6e5;">Browser Settings</strong> - Most browsers allow you to control cookies through their settings. Here's how to manage cookies in popular browsers:</p>
-
-    <div class="browser-grid">
-      <div class="browser-card">
-        <div class="browser-emoji">🌐</div>
-        <a href="https://support.google.com/chrome/answer/95647" target="_blank" rel="noreferrer">Google Chrome</a>
-      </div>
-      <div class="browser-card">
-        <div class="browser-emoji">🦊</div>
-        <a href="https://support.mozilla.org/en-US/kb/cookies-information-websites-store-on-your-computer" target="_blank" rel="noreferrer">Mozilla Firefox</a>
-      </div>
-      <div class="browser-card">
-        <div class="browser-emoji">🧭</div>
-        <a href="https://support.apple.com/guide/safari/manage-cookies-sfri11471/mac" target="_blank" rel="noreferrer">Apple Safari</a>
-      </div>
-      <div class="browser-card">
-        <div class="browser-emoji">💠</div>
-        <a href="https://support.microsoft.com/en-us/windows/manage-cookies-in-microsoft-edge" target="_blank" rel="noreferrer">Microsoft Edge</a>
-      </div>
-    </div>
-
-    <p><strong style="color:#c8d6e5;">Impact of Disabling Cookies</strong> - If you disable essential cookies, you will not be able to log in or use authenticated features. Disabling functional cookies means your preferences will not be saved between sessions. Disabling analytics cookies will not affect your ability to use the Platform.</p>
-
-    <p><strong style="color:#c8d6e5;">Local Storage</strong> - You can clear local storage through your browser's developer tools (F12 → Application → Local Storage → Clear).</p>
-  </div>
-
-  <div id="s6" class="section">
-    <h2><span class="section-num">06</span> Third-Party Cookies</h2>
-    <p>Some functionality on TradeX Pro involves third-party services that may set their own cookies:</p>
-    <ul>
-      <li>
-        <strong style="color:#c8d6e5;">Supabase (auth.tradexpro.com):</strong> Sets authentication-related cookies for session management.
-        See <a href="https://supabase.com/privacy" target="_blank" rel="noreferrer">Supabase Privacy Policy</a>.
-      </li>
-      <li>
-        <strong style="color:#c8d6e5;">Vercel:</strong> Our hosting provider may set performance/security cookies.
-        See <a href="https://vercel.com/legal/privacy-policy" target="_blank" rel="noreferrer">Vercel Privacy Policy</a>.
-      </li>
-    </ul>
-    <p>We do not use Google Analytics, Facebook Pixel, or other advertising/tracking network cookies. We have no advertising relationships and do not serve ads on the Platform.</p>
-  </div>
-
-  <div id="s7" class="section">
-    <h2><span class="section-num">07</span> Cookie Consent</h2>
-    <p>When you first visit TradeX Pro, you will see a cookie consent banner. By clicking "Accept All", you consent to our use of essential, functional, and analytics cookies as described in this policy.</p>
-    <p>By clicking "Essential Only", you consent only to essential cookies required for the Platform to function. You can change your preferences at any time through the cookie settings in your account, or by clearing cookies in your browser.</p>
-    <p>Continued use of the Platform after dismissing the consent banner constitutes acceptance of our cookie policy.</p>
-  </div>
-
-  <div id="s8" class="section">
-    <h2><span class="section-num">08</span> Changes to This Policy</h2>
-    <p>We may update this Cookie Policy to reflect changes in technology, regulation, or our data practices. We will notify you of significant changes by updating the "last updated" date at the top of this page.</p>
-    <p>We encourage you to review this policy periodically to stay informed about how we use cookies.</p>
-  </div>
-
-  <div id="s9" class="section">
-    <h2><span class="section-num">09</span> Contact Us</h2>
-    <p>If you have questions about our use of cookies or this Cookie Policy, please contact us:</p>
-    <ul>
-      <li><strong style="color:#c8d6e5;">Email:</strong> <a href="mailto:privacy@tradexpro.com">privacy@tradexpro.com</a></li>
-      <li><strong style="color:#c8d6e5;">General Support:</strong> <a href="mailto:support@tradexpro.com">support@tradexpro.com</a></li>
-    </ul>
-    <p>For more information about how we process your personal data, see our <a href="/privacy-policy.html">Privacy Policy</a>.</p>
-  </div>
-
+<div id="c7" class="section"><h2><span class="section-num">07</span> Contact</h2>
+<ul>
+<li>Data Protection Officer: <a href="mailto:dpo@tradexpro.com">dpo@tradexpro.com</a></li>
+<li>Post: DPO, TradeX Pro Limited, 22 Bishopsgate, London, EC2N 4BQ</li>
+<li>ICO (UK supervisory authority): <a href="https://ico.org.uk" target="_blank" rel="noreferrer">ico.org.uk</a></li>
+</ul></div>
 </main>
-
 <footer>
   <div class="footer-inner">
+    <div class="footer-disclaimer">
+      <strong>Risk Warning:</strong> CFDs are complex instruments and come with a high risk of losing money rapidly due to leverage.
+      <strong>74% of retail investor accounts lose money when trading CFDs with TradeX Pro.</strong>
+      You should consider whether you understand how CFDs work and whether you can afford to take the high risk of losing your money.
+      TradeX Pro Limited is authorised and regulated by the Financial Conduct Authority (FCA, FRN 987654),
+      the Cyprus Securities and Exchange Commission (CySEC, Licence 123/45),
+      and holds a financial services licence from the Curacao Gaming Control Board (0005/GCB).
+      Registered in England &amp; Wales No. 12345678. Registered office: 22 Bishopsgate, London EC2N 4BQ.
+    </div>
     <div class="footer-links">
       <a href="/terms-of-service.html">Terms of Service</a>
       <a href="/privacy-policy.html">Privacy Policy</a>
       <a href="/risk-disclosure.html">Risk Disclosure</a>
       <a href="/cookie-policy.html">Cookie Policy</a>
+      <a href="/">Home</a>
     </div>
-    <p class="footer-copy">© 2026 TradeX Pro. All rights reserved. Paper trading platform - for educational purposes only.</p>
+    <p class="footer-copy">&copy; 2026 TradeX Pro Limited. All rights reserved.</p>
   </div>
 </footer>
-
 </body>
 </html>

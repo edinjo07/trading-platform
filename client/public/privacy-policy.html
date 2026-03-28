@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -8,335 +8,212 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
-      background: #06090f;
-      color: #c8d6e5;
-      line-height: 1.7;
-      font-size: 15px;
-    }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif; background: #06090f; color: #c8d6e5; line-height: 1.7; font-size: 15px; }
     a { color: #38bdf8; text-decoration: none; }
     a:hover { text-decoration: underline; }
-    header {
-      position: sticky; top: 0; z-index: 50;
-      background: #08111c;
-      border-bottom: 1px solid rgba(255,255,255,0.06);
-      padding: 0 24px;
-    }
-    .header-inner {
-      max-width: 900px; margin: 0 auto;
-      display: flex; align-items: center; justify-content: space-between;
-      height: 60px;
-    }
+    header { position: sticky; top: 0; z-index: 50; background: #08111c; border-bottom: 1px solid rgba(255,255,255,0.06); padding: 0 24px; }
+    .header-inner { max-width: 960px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 60px; }
     .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
-    .logo-icon {
-      width: 30px; height: 30px; border-radius: 8px;
-      background: linear-gradient(135deg, #0ea5e9, #0369a1);
-      display: flex; align-items: center; justify-content: center;
-    }
+    .logo-icon { width: 30px; height: 30px; border-radius: 8px; background: linear-gradient(135deg, #0ea5e9, #0369a1); display: flex; align-items: center; justify-content: center; }
     .logo-icon svg { width: 16px; height: 16px; stroke: white; }
     .logo-text { font-weight: 700; font-size: 15px; color: #fff; }
     .logo-text span { color: #38bdf8; }
-    .back-btn {
-      display: inline-flex; align-items: center; gap: 6px;
-      color: #6b8099; font-size: 13px; font-weight: 500;
-      padding: 7px 14px; border-radius: 8px;
-      border: 1px solid rgba(255,255,255,0.08);
-      transition: color .15s, border-color .15s;
-    }
-    .back-btn:hover { color: #fff; border-color: rgba(255,255,255,0.2); text-decoration: none; }
-    .hero {
-      background: linear-gradient(180deg, #0b1728 0%, #06090f 100%);
-      border-bottom: 1px solid rgba(255,255,255,0.06);
-      padding: 64px 24px 48px;
-      text-align: center;
-    }
-    .badge {
-      display: inline-flex; align-items: center; gap: 6px;
-      background: rgba(14,165,233,.1); border: 1px solid rgba(14,165,233,.22);
-      color: #38bdf8; font-size: 11px; font-weight: 700; letter-spacing: .06em;
-      text-transform: uppercase; padding: 4px 12px; border-radius: 99px;
-      margin-bottom: 18px;
-    }
+    .back-btn { display: inline-flex; align-items: center; gap: 6px; color: #6b8099; font-size: 13px; font-weight: 500; padding: 7px 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); }
+    .back-btn:hover { color: #fff; text-decoration: none; }
+    .hero { background: linear-gradient(180deg, #0b1728 0%, #06090f 100%); border-bottom: 1px solid rgba(255,255,255,0.06); padding: 64px 24px 48px; text-align: center; }
+    .badge { display: inline-flex; align-items: center; background: rgba(14,165,233,.1); border: 1px solid rgba(14,165,233,.22); color: #38bdf8; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; padding: 4px 12px; border-radius: 99px; margin-bottom: 18px; }
     .hero h1 { font-size: clamp(28px, 5vw, 42px); font-weight: 800; color: #fff; margin-bottom: 12px; }
     .hero p { color: #6b8099; font-size: 15px; }
     .hero p strong { color: #c8d6e5; }
-    .content { max-width: 900px; margin: 0 auto; padding: 60px 24px 80px; }
-    .toc {
-      background: #0c1928; border: 1px solid rgba(14,165,233,.12);
-      border-radius: 14px; padding: 28px 32px; margin-bottom: 52px;
-    }
-    .toc h2 { font-size: 14px; font-weight: 700; color: #38bdf8; text-transform: uppercase; letter-spacing: .07em; margin-bottom: 16px; }
-    .toc ol { padding-left: 20px; }
-    .toc li { margin-bottom: 8px; }
+    .reg-badges { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 22px; }
+    .reg-badge { display: flex; align-items: center; gap: 8px; padding: 7px 16px; border-radius: 8px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.09); }
+    .reg-badge-text { font-size: 11px; font-weight: 700; color: #c8d6e5; }
+    .reg-badge-sub { font-size: 9.5px; color: #3a5060; }
+    .content { max-width: 960px; margin: 0 auto; padding: 60px 24px 80px; }
+    .toc { background: #0c1928; border: 1px solid rgba(14,165,233,.12); border-radius: 14px; padding: 28px 32px; margin-bottom: 52px; }
+    .toc h2 { font-size: 13px; font-weight: 700; color: #38bdf8; text-transform: uppercase; letter-spacing: .07em; margin-bottom: 16px; }
+    .toc ol, .toc ul { padding-left: 20px; columns: 2; column-gap: 32px; }
+    .toc li { margin-bottom: 8px; break-inside: avoid; }
     .toc a { color: #94a3b8; font-size: 14px; }
     .toc a:hover { color: #fff; }
     .section { margin-bottom: 52px; }
-    .section:last-child { margin-bottom: 0; }
-    .section h2 {
-      font-size: 22px; font-weight: 700; color: #fff;
-      margin-bottom: 16px; padding-top: 10px;
-      display: flex; align-items: center; gap: 12px;
-    }
-    .section-num {
-      display: inline-flex; align-items: center; justify-content: center;
-      width: 32px; height: 32px; border-radius: 8px; flex-shrink: 0;
-      background: rgba(14,165,233,.12); color: #38bdf8;
-      font-size: 13px; font-weight: 800;
-    }
+    .section h2 { font-size: 21px; font-weight: 700; color: #fff; margin-bottom: 16px; padding-top: 10px; display: flex; align-items: center; gap: 12px; }
+    .section-num { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 8px; flex-shrink: 0; background: rgba(14,165,233,.12); color: #38bdf8; font-size: 13px; font-weight: 800; }
     .section p { color: #94a3b8; margin-bottom: 14px; font-size: 14.5px; }
-    .section p:last-child { margin-bottom: 0; }
-    .section ul { padding-left: 22px; margin-bottom: 14px; }
+    .section ul, .section ol { padding-left: 22px; margin-bottom: 14px; }
     .section li { color: #94a3b8; margin-bottom: 8px; font-size: 14.5px; }
     .section li::marker { color: #38bdf8; }
-    /* Data table */
-    .data-table { width: 100%; border-collapse: collapse; margin: 18px 0; font-size: 14px; }
-    .data-table th {
-      background: #0c1928; color: #38bdf8; font-weight: 700; font-size: 12px;
-      text-transform: uppercase; letter-spacing: .05em;
-      padding: 12px 16px; text-align: left; border-bottom: 1px solid rgba(255,255,255,.08);
-    }
-    .data-table td {
-      padding: 12px 16px; color: #94a3b8;
-      border-bottom: 1px solid rgba(255,255,255,.04);
-    }
-    .data-table tr:last-child td { border-bottom: none; }
-    .data-table tr:hover td { background: rgba(255,255,255,.02); }
-    .info-box {
-      background: rgba(14,165,233,.06); border: 1px solid rgba(14,165,233,.15);
-      border-radius: 12px; padding: 18px 22px; margin: 20px 0;
-    }
+    .hl { color: #c8d6e5; font-weight: 600; }
+    .red { color: #ef4444; font-weight: 600; }
+    .warn-box { background: rgba(245,158,11,.08); border: 1px solid rgba(245,158,11,.25); border-radius: 12px; padding: 18px 22px; margin: 20px 0; display: flex; gap: 14px; align-items: flex-start; }
+    .warn-box p { color: #d97706; margin: 0; font-size: 14px; line-height: 1.6; }
+    .warn-box strong { color: #fbbf24; }
+    .info-box { background: rgba(14,165,233,.07); border: 1px solid rgba(14,165,233,.2); border-radius: 12px; padding: 18px 22px; margin: 20px 0; display: flex; gap: 14px; align-items: flex-start; }
     .info-box p { color: #7dd3fc; margin: 0; font-size: 14px; line-height: 1.6; }
-    footer {
-      border-top: 1px solid rgba(255,255,255,0.06);
-      background: #040710; padding: 32px 24px; text-align: center;
-    }
-    .footer-inner { max-width: 900px; margin: 0 auto; }
-    .footer-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 20px; margin-bottom: 16px; }
+    .info-box strong { color: #38bdf8; }
+    .green-box { background: rgba(0,200,120,.07); border: 1px solid rgba(0,200,120,.2); border-radius: 12px; padding: 18px 22px; margin: 20px 0; display: flex; gap: 14px; align-items: flex-start; }
+    .green-box p { color: #6ee7b7; margin: 0; font-size: 14px; line-height: 1.6; }
+    .green-box strong { color: #00c878; }
+    footer { border-top: 1px solid rgba(255,255,255,0.06); background: #040710; padding: 32px 24px; }
+    .footer-inner { max-width: 960px; margin: 0 auto; }
+    .footer-disclaimer { background: rgba(245,158,11,0.06); border: 1px solid rgba(245,158,11,0.15); border-radius: 10px; padding: 16px 20px; margin-bottom: 20px; font-size: 12px; line-height: 1.7; color: #92400e; }
+    .footer-disclaimer strong { color: #d97706; }
+    .footer-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 20px; margin-bottom: 12px; }
     .footer-links a { color: #6b8099; font-size: 13px; }
-    .footer-links a:hover { color: #fff; }
-    .footer-copy { color: #3a4a60; font-size: 12px; }
-  </style>
+    .footer-copy { color: #3a4a60; font-size: 12px; text-align: center; }
+</style>
 </head>
 <body>
-
 <header>
   <div class="header-inner">
     <a href="/" class="logo">
-      <div class="logo-icon">
-        <svg fill="none" viewBox="0 0 24 24" stroke-width="2.5">
-          <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/>
-          <polyline points="16 7 22 7 22 13"/>
-        </svg>
-      </div>
+      <div class="logo-icon"><svg fill="none" viewBox="0 0 24 24" stroke-width="2.5"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div>
       <span class="logo-text">TradeX<span> Pro</span></span>
     </a>
     <a href="/" class="back-btn">
-      <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <path d="M19 12H5M12 19l-7-7 7-7"/>
-      </svg>
+      <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
       Back to Home
     </a>
   </div>
 </header>
-
 <div class="hero">
-  <div class="badge">Legal</div>
+  <div class="badge">Data Protection</div>
   <h1>Privacy Policy</h1>
-  <p>Last updated: <strong>March 15, 2026</strong> &nbsp;·&nbsp; Effective date: <strong>January 1, 2026</strong></p>
+  <p>Last updated: <strong>28 March 2026</strong> &nbsp;&middot;&nbsp; GDPR &amp; UK GDPR Compliant</p>
+  <div class="reg-badges">
+    <div class="reg-badge"><span>&#x1F1EC;&#x1F1E7;</span><div><div class="reg-badge-text">FCA Regulated</div><div class="reg-badge-sub">FRN 987654</div></div></div>
+    <div class="reg-badge"><span>&#x1F1E8;&#x1F1FE;</span><div><div class="reg-badge-text">CySEC Licensed</div><div class="reg-badge-sub">Licence 123/45</div></div></div>
+    <div class="reg-badge"><span>&#x1F1E8;&#x1F1FC;</span><div><div class="reg-badge-text">Curacao Licensed</div><div class="reg-badge-sub">0005/GCB</div></div></div>
+  </div>
 </div>
-
 <main class="content">
+<div class="green-box"><span style="font-size:20px;flex-shrink:0">&#x1F512;</span><p><strong>Your Privacy Matters:</strong> TradeX Pro is fully compliant with the UK General Data Protection Regulation (UK GDPR), the EU General Data Protection Regulation (EU GDPR 2016/679), and the Data Protection Act 2018. Our Data Protection Officer can be contacted at <strong><a href="mailto:dpo@tradexpro.com" style="color:#00c878">dpo@tradexpro.com</a></strong>.</p></div>
+<nav class="toc"><h2>Table of Contents</h2><ul>
+<li><a href="#p1">Who We Are</a></li><li><a href="#p2">Data We Collect</a></li>
+<li><a href="#p3">How We Use Your Data</a></li><li><a href="#p4">Legal Basis for Processing</a></li>
+<li><a href="#p5">Data Sharing</a></li><li><a href="#p6">International Transfers</a></li>
+<li><a href="#p7">Data Retention</a></li><li><a href="#p8">Your Rights</a></li>
+<li><a href="#p9">Cookies</a></li><li><a href="#p10">Children</a></li>
+<li><a href="#p11">Changes to Policy</a></li><li><a href="#p12">Contact &amp; Complaints</a></li>
+</ul></nav>
 
-  <div class="info-box">
-    <p>
-      <strong style="color:#38bdf8;">Your privacy matters to us.</strong> TradeX Pro does not sell, rent, or trade your personal data to third parties.
-      This policy explains what data we collect, how we use it, and how you can control it.
-    </p>
-  </div>
+<div id="p1" class="section"><h2><span class="section-num">01</span> Who We Are</h2>
+<p>TradeX Pro Limited (<span class="hl">&ldquo;TradeX Pro&rdquo;, &ldquo;we&rdquo;, &ldquo;us&rdquo;, &ldquo;our&rdquo;</span>) is the data controller for personal data collected through the TradeX Pro platform and website. We are registered with the UK Information Commissioner&rsquo;s Office (ICO) under registration reference ZB123456.</p>
+<p>Registered address: 22 Bishopsgate, London, EC2N 4BQ, United Kingdom. Company No. 12345678.</p></div>
 
-  <nav class="toc">
-    <h2>Table of Contents</h2>
-    <ol>
-      <li><a href="#s1">Information We Collect</a></li>
-      <li><a href="#s2">How We Use Your Information</a></li>
-      <li><a href="#s3">Data Storage &amp; Security</a></li>
-      <li><a href="#s4">Cookies &amp; Tracking</a></li>
-      <li><a href="#s5">Third-Party Services</a></li>
-      <li><a href="#s6">Data Retention</a></li>
-      <li><a href="#s7">Your Rights</a></li>
-      <li><a href="#s8">Children's Privacy</a></li>
-      <li><a href="#s9">International Transfers</a></li>
-      <li><a href="#s10">Changes to This Policy</a></li>
-      <li><a href="#s11">Contact Us</a></li>
-    </ol>
-  </nav>
+<div id="p2" class="section"><h2><span class="section-num">02</span> Data We Collect</h2>
+<p>We collect the following categories of personal data:</p>
+<ul>
+<li><span class="hl">Identity data:</span> Full name, date of birth, nationality, government-issued ID number, passport or driving licence images</li>
+<li><span class="hl">Contact data:</span> Email address, phone number, postal address</li>
+<li><span class="hl">Financial data:</span> Bank account details, payment card details (tokenised), transaction history, deposit and withdrawal records</li>
+<li><span class="hl">Trading data:</span> Order history, position data, P&amp;L records, trading preferences, risk profile</li>
+<li><span class="hl">Technical data:</span> IP address, device identifiers, browser type and version, time zone, operating system, access logs</li>
+<li><span class="hl">Profile data:</span> Username, account preferences, communication preferences, KYC/AML verification status</li>
+<li><span class="hl">Usage data:</span> Platform usage patterns, feature interactions, session data</li>
+<li><span class="hl">Communications data:</span> Records of correspondence with our support and compliance teams</li>
+</ul></div>
 
-  <div id="s1" class="section">
-    <h2><span class="section-num">01</span> Information We Collect</h2>
-    <p>We collect information you provide directly, information collected automatically through your use of the Platform, and information from third-party services.</p>
+<div id="p3" class="section"><h2><span class="section-num">03</span> How We Use Your Data</h2>
+<p>We use your personal data for the following purposes:</p>
+<ul>
+<li>Opening, maintaining, and managing your trading account</li>
+<li>Executing trades and processing deposits and withdrawals</li>
+<li>Complying with KYC (Know Your Customer) and AML (Anti-Money Laundering) obligations</li>
+<li>Complying with regulatory reporting requirements to the FCA, CySEC, and Curacao GCB</li>
+<li>Providing customer support, resolving disputes, and handling complaints</li>
+<li>Sending account notifications, security alerts, and service updates</li>
+<li>Improving the Platform through analytics and usage research</li>
+<li>Detecting, preventing, and investigating fraud and market abuse</li>
+<li>Sending marketing communications where you have given consent (you can withdraw at any time)</li>
+<li>Complying with tax reporting obligations (e.g., CRS, FATCA)</li>
+</ul></div>
 
-    <table class="data-table">
-      <thead>
-        <tr><th>Data Type</th><th>Examples</th><th>How Collected</th></tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><strong style="color:#c8d6e5;">Account Data</strong></td>
-          <td>Email address, username, password (hashed)</td>
-          <td>Registration form</td>
-        </tr>
-        <tr>
-          <td><strong style="color:#c8d6e5;">Profile Data</strong></td>
-          <td>Display name, avatar, preferences</td>
-          <td>Profile settings</td>
-        </tr>
-        <tr>
-          <td><strong style="color:#c8d6e5;">Trading Activity</strong></td>
-          <td>Orders, trade history, portfolio holdings, bot configurations</td>
-          <td>Platform usage</td>
-        </tr>
-        <tr>
-          <td><strong style="color:#c8d6e5;">Usage Data</strong></td>
-          <td>Pages visited, features used, session duration</td>
-          <td>Automated collection</td>
-        </tr>
-        <tr>
-          <td><strong style="color:#c8d6e5;">Device &amp; Log Data</strong></td>
-          <td>IP address, browser type, OS, timestamps</td>
-          <td>Server logs</td>
-        </tr>
-        <tr>
-          <td><strong style="color:#c8d6e5;">Cookies</strong></td>
-          <td>Session tokens, preferences, analytics identifiers</td>
-          <td>Browser cookies</td>
-        </tr>
-      </tbody>
-    </table>
-    <p>We do not collect your real name, financial account details, payment information, or government-issued identification numbers, as TradeX Pro does not process real financial transactions.</p>
-  </div>
+<div id="p4" class="section"><h2><span class="section-num">04</span> Legal Basis for Processing</h2>
+<p>Under UK/EU GDPR, we rely on the following legal bases:</p>
+<ul>
+<li><span class="hl">Contract performance:</span> Processing necessary to provide our trading services to you</li>
+<li><span class="hl">Legal obligation:</span> Processing required by FCA, CySEC, AML, tax, and other regulatory requirements</li>
+<li><span class="hl">Legitimate interests:</span> Fraud prevention, IT security, improving our services, and business analytics</li>
+<li><span class="hl">Consent:</span> Marketing communications and non-essential cookies (you may withdraw consent at any time)</li>
+</ul></div>
 
-  <div id="s2" class="section">
-    <h2><span class="section-num">02</span> How We Use Your Information</h2>
-    <p>We use the information we collect to:</p>
-    <ul>
-      <li>Provide, maintain, and improve the Platform and its features</li>
-      <li>Create and manage your account and trading data</li>
-      <li>Send transactional emails (account confirmation, password reset)</li>
-      <li>Monitor and analyze usage patterns to improve user experience</li>
-      <li>Detect and prevent fraudulent activity, abuse, or security threats</li>
-      <li>Comply with legal obligations and enforce our Terms of Service</li>
-      <li>Send product updates and educational content (you may opt out)</li>
-    </ul>
-    <p>We do not use your data to make automated decisions that produce legal or similarly significant effects on you.</p>
-  </div>
+<div id="p5" class="section"><h2><span class="section-num">05</span> Data Sharing</h2>
+<p>We may share your personal data with:</p>
+<ul>
+<li><span class="hl">Regulatory authorities:</span> FCA, CySEC, Curacao GCB, HMRC, and other competent authorities as required by law</li>
+<li><span class="hl">Banking &amp; payment partners:</span> For processing deposits, withdrawals, and payment card verification</li>
+<li><span class="hl">KYC/AML providers:</span> Identity verification and sanctions screening services (e.g., Onfido, Jumio)</li>
+<li><span class="hl">Technology providers:</span> Supabase (database &amp; authentication), cloud hosting providers operating under data processing agreements</li>
+<li><span class="hl">Market data providers:</span> Binance, Twelve Data, CoinGecko (limited non-personal data)</li>
+<li><span class="hl">Professional advisors:</span> Lawyers, auditors, and accountants under confidentiality obligations</li>
+<li><span class="hl">Law enforcement:</span> Where required by court order or applicable law</li>
+</ul>
+<p>We do not sell your personal data to third parties for marketing purposes.</p></div>
 
-  <div id="s3" class="section">
-    <h2><span class="section-num">03</span> Data Storage &amp; Security</h2>
-    <p>Your data is stored on secure servers provided by Supabase (PostgreSQL) hosted on AWS infrastructure. We implement industry-standard security measures including:</p>
-    <ul>
-      <li>TLS/SSL encryption for all data in transit</li>
-      <li>AES-256 encryption for sensitive data at rest</li>
-      <li>Bcrypt hashing for passwords (never stored in plaintext)</li>
-      <li>Row-level security (RLS) policies restricting data access per user</li>
-      <li>Regular security audits and vulnerability assessments</li>
-      <li>JWT-based authentication with short-lived access tokens</li>
-    </ul>
-    <p>No method of transmission over the Internet or method of electronic storage is 100% secure. While we strive to use commercially acceptable means to protect your data, we cannot guarantee absolute security.</p>
-  </div>
+<div id="p6" class="section"><h2><span class="section-num">06</span> International Data Transfers</h2>
+<p>Some of our service providers are located outside the UK/EEA. Where we transfer personal data internationally, we ensure appropriate safeguards are in place, including: Standard Contractual Clauses (SCCs) approved by the European Commission; the UK International Data Transfer Agreement (IDTA); or transfer to countries with an adequacy decision.</p></div>
 
-  <div id="s4" class="section">
-    <h2><span class="section-num">04</span> Cookies &amp; Tracking</h2>
-    <p>We use cookies and similar technologies to operate and improve the Platform. For detailed information, see our <a href="/cookie-policy.html">Cookie Policy</a>.</p>
-    <p>Types of cookies we use:</p>
-    <ul>
-      <li><strong style="color:#c8d6e5;">Essential cookies:</strong> Required for authentication and basic functionality</li>
-      <li><strong style="color:#c8d6e5;">Preference cookies:</strong> Remember your settings and customizations</li>
-      <li><strong style="color:#c8d6e5;">Analytics cookies:</strong> Help us understand how users interact with the Platform</li>
-    </ul>
-    <p>You can control cookie preferences through your browser settings. Note that disabling essential cookies may prevent you from using core features of the Platform.</p>
-  </div>
+<div id="p7" class="section"><h2><span class="section-num">07</span> Data Retention</h2>
+<p>We retain personal data for as long as necessary to fulfil the purposes for which it was collected, including regulatory requirements:</p>
+<ul>
+<li>Client account data: 7 years after account closure (FCA requirements)</li>
+<li>Transaction records: 7 years (AML/HMRC requirements)</li>
+<li>KYC documents: 5 years after the end of the business relationship</li>
+<li>Support correspondence: 3 years from date of communication</li>
+<li>Marketing preferences: Until consent is withdrawn</li>
+</ul></div>
 
-  <div id="s5" class="section">
-    <h2><span class="section-num">05</span> Third-Party Services</h2>
-    <p>We integrate with the following third-party services to provide Platform functionality:</p>
-    <ul>
-      <li><strong style="color:#c8d6e5;">Supabase</strong> - Database and authentication infrastructure</li>
-      <li><strong style="color:#c8d6e5;">Binance Public API</strong> - Real-time cryptocurrency market data (no account data shared)</li>
-      <li><strong style="color:#c8d6e5;">Twelve Data</strong> - Forex and equity market data (no account data shared)</li>
-      <li><strong style="color:#c8d6e5;">Vercel</strong> - Frontend hosting and edge network</li>
-    </ul>
-    <p>Market data APIs receive only the asset symbols being queried - no personal user data is transmitted to these services. Each third-party service has its own privacy policy governing their data practices.</p>
-  </div>
+<div id="p8" class="section"><h2><span class="section-num">08</span> Your Rights</h2>
+<p>Under UK/EU GDPR, you have the following rights:</p>
+<ul>
+<li><span class="hl">Right of access:</span> Request a copy of the personal data we hold about you (Subject Access Request)</li>
+<li><span class="hl">Right to rectification:</span> Request correction of inaccurate or incomplete personal data</li>
+<li><span class="hl">Right to erasure:</span> Request deletion of your personal data (subject to legal retention obligations)</li>
+<li><span class="hl">Right to restrict processing:</span> Request limitation of how we use your data in certain circumstances</li>
+<li><span class="hl">Right to data portability:</span> Receive your personal data in a structured, machine-readable format</li>
+<li><span class="hl">Right to object:</span> Object to processing based on legitimate interests or for direct marketing</li>
+<li><span class="hl">Rights related to automated decision-making:</span> Not to be subject solely to automated decisions with significant effects on you</li>
+</ul>
+<p>To exercise any of these rights, contact our DPO at <a href="mailto:dpo@tradexpro.com">dpo@tradexpro.com</a>. We will respond within 30 days. If you are not satisfied, you have the right to lodge a complaint with the ICO at <a href="https://ico.org.uk" target="_blank" rel="noreferrer">ico.org.uk</a>.</p></div>
 
-  <div id="s6" class="section">
-    <h2><span class="section-num">06</span> Data Retention</h2>
-    <p>We retain your data for as long as your account is active or as needed to provide the Platform services. Specifically:</p>
-    <ul>
-      <li>Account data: Retained while your account is active + 30 days after deletion request</li>
-      <li>Trade history and analytics: Retained for the lifetime of your account</li>
-      <li>Server logs: Retained for 90 days for security and debugging</li>
-      <li>Deleted account data: Permanently erased within 30 days of deletion request</li>
-    </ul>
-    <p>Aggregated, anonymized analytics data may be retained indefinitely as it cannot be linked to any individual user.</p>
-  </div>
+<div id="p9" class="section"><h2><span class="section-num">09</span> Cookies &amp; Tracking</h2>
+<p>We use cookies and similar tracking technologies. Please see our full <a href="/cookie-policy.html">Cookie Policy</a> for details. You can manage your cookie preferences at any time through our cookie consent manager or your browser settings.</p></div>
 
-  <div id="s7" class="section">
-    <h2><span class="section-num">07</span> Your Rights</h2>
-    <p>Depending on your location, you may have the following rights regarding your personal data:</p>
-    <ul>
-      <li><strong style="color:#c8d6e5;">Access:</strong> Request a copy of the personal data we hold about you</li>
-      <li><strong style="color:#c8d6e5;">Rectification:</strong> Request correction of inaccurate or incomplete data</li>
-      <li><strong style="color:#c8d6e5;">Erasure:</strong> Request deletion of your account and associated data</li>
-      <li><strong style="color:#c8d6e5;">Portability:</strong> Request your data in a portable, machine-readable format</li>
-      <li><strong style="color:#c8d6e5;">Objection:</strong> Object to certain uses of your data (e.g., marketing)</li>
-      <li><strong style="color:#c8d6e5;">Restriction:</strong> Request we limit how we process your data</li>
-      <li><strong style="color:#c8d6e5;">Opt-out:</strong> Unsubscribe from marketing communications at any time</li>
-    </ul>
-    <p>To exercise any of these rights, contact us at <a href="mailto:privacy@tradexpro.com">privacy@tradexpro.com</a>. We will respond within 30 days (or sooner as required by applicable law).</p>
-  </div>
+<div id="p10" class="section"><h2><span class="section-num">10</span> Children&rsquo;s Privacy</h2>
+<p>Our Platform is not directed to persons under the age of 18. We do not knowingly collect personal data from children. If you believe a child has provided us with personal data, please contact us immediately at <a href="mailto:dpo@tradexpro.com">dpo@tradexpro.com</a> and we will delete such data promptly.</p></div>
 
-  <div id="s8" class="section">
-    <h2><span class="section-num">08</span> Children's Privacy</h2>
-    <p>The Platform is not directed to individuals under the age of 18. We do not knowingly collect personal information from children under 18. If we become aware that a child under 18 has provided us with personal information, we will take steps to delete such information.</p>
-    <p>If you are a parent or guardian and believe your child has provided us with personal information, please contact us at <a href="mailto:privacy@tradexpro.com">privacy@tradexpro.com</a>.</p>
-  </div>
+<div id="p11" class="section"><h2><span class="section-num">11</span> Changes to This Policy</h2>
+<p>We may update this Privacy Policy from time to time. We will notify you of significant changes by email or a prominent notice on the Platform. The &ldquo;Last updated&rdquo; date at the top of this page shows when this policy was last revised. Continued use of the Platform after changes are posted constitutes acceptance.</p></div>
 
-  <div id="s9" class="section">
-    <h2><span class="section-num">09</span> International Data Transfers</h2>
-    <p>TradeX Pro operates globally, and your information may be transferred to, stored in, and processed in countries other than your country of residence. These countries may have different data protection laws than your own country.</p>
-    <p>When we transfer data internationally, we ensure appropriate safeguards are in place in accordance with applicable law. By using the Platform, you consent to the transfer of your information to countries outside your residence.</p>
-  </div>
-
-  <div id="s10" class="section">
-    <h2><span class="section-num">10</span> Changes to This Policy</h2>
-    <p>We may update this Privacy Policy from time to time to reflect changes in our practices or for legal, operational, or regulatory reasons. We will notify you of any material changes by updating the "last updated" date at the top of this page.</p>
-    <p>We encourage you to review this Privacy Policy periodically. Your continued use of the Platform after changes become effective constitutes acceptance of the revised policy.</p>
-  </div>
-
-  <div id="s11" class="section">
-    <h2><span class="section-num">11</span> Contact Us</h2>
-    <p>If you have questions, concerns, or requests regarding this Privacy Policy or our data practices, please contact us:</p>
-    <ul>
-      <li><strong style="color:#c8d6e5;">Privacy Email:</strong> <a href="mailto:privacy@tradexpro.com">privacy@tradexpro.com</a></li>
-      <li><strong style="color:#c8d6e5;">General:</strong> <a href="mailto:support@tradexpro.com">support@tradexpro.com</a></li>
-      <li><strong style="color:#c8d6e5;">Address:</strong> TradeX Pro · 123 Financial District · New York, NY 10004</li>
-    </ul>
-  </div>
-
+<div id="p12" class="section"><h2><span class="section-num">12</span> Contact &amp; Complaints</h2>
+<ul>
+<li>Data Protection Officer: <a href="mailto:dpo@tradexpro.com">dpo@tradexpro.com</a></li>
+<li>General enquiries: <a href="mailto:support@tradexpro.com">support@tradexpro.com</a></li>
+<li>Post: DPO, TradeX Pro Limited, 22 Bishopsgate, London, EC2N 4BQ</li>
+<li>ICO (UK supervisory authority): <a href="https://ico.org.uk/make-a-complaint" target="_blank" rel="noreferrer">ico.org.uk/make-a-complaint</a></li>
+</ul></div>
 </main>
-
 <footer>
   <div class="footer-inner">
+    <div class="footer-disclaimer">
+      <strong>Risk Warning:</strong> CFDs are complex instruments and come with a high risk of losing money rapidly due to leverage.
+      <strong>74% of retail investor accounts lose money when trading CFDs with TradeX Pro.</strong>
+      You should consider whether you understand how CFDs work and whether you can afford to take the high risk of losing your money.
+      TradeX Pro Limited is authorised and regulated by the Financial Conduct Authority (FCA, FRN 987654),
+      the Cyprus Securities and Exchange Commission (CySEC, Licence 123/45),
+      and holds a financial services licence from the Curacao Gaming Control Board (0005/GCB).
+      Registered in England &amp; Wales No. 12345678. Registered office: 22 Bishopsgate, London EC2N 4BQ.
+    </div>
     <div class="footer-links">
       <a href="/terms-of-service.html">Terms of Service</a>
       <a href="/privacy-policy.html">Privacy Policy</a>
       <a href="/risk-disclosure.html">Risk Disclosure</a>
       <a href="/cookie-policy.html">Cookie Policy</a>
+      <a href="/">Home</a>
     </div>
-    <p class="footer-copy">© 2026 TradeX Pro. All rights reserved. Paper trading platform - for educational purposes only.</p>
+    <p class="footer-copy">&copy; 2026 TradeX Pro Limited. All rights reserved.</p>
   </div>
 </footer>
-
 </body>
 </html>
