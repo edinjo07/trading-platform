@@ -598,272 +598,457 @@ export default function LandingPage() {
             </p>
           </div>
 
-          {/* ── BIG FEATURE: Leaderboard + Risk Calculator (2-col) ── */}
+          {/* ── ROW 1: Leaderboard + Risk Calculator ── */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
 
-            {/* Leaderboard */}
+            {/* ─ Leaderboard ─ */}
             <div className="feature-card-light group" style={{ padding: '2rem' }}>
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0"
-                     style={{ background: 'linear-gradient(135deg,#f59e0b22,#d97706 11%)', border: '1px solid #f59e0b44' }}>
-                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="#f59e0b" strokeWidth={1.8}>
-                    <path d="M6 9H4.5a2.5 2.5 0 010-5H6" />
-                    <path d="M18 9h1.5a2.5 2.5 0 000-5H18" />
-                    <path d="M4 22h16M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" />
-                    <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" />
-                    <path d="M18 2H6v7a6 6 0 0012 0V2z" />
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0"
+                     style={{ background: 'linear-gradient(135deg,#fef3c7,#fde68a)', border: '1px solid #f59e0b44' }}>
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="#d97706" strokeWidth={1.8}>
+                    <path d="M6 9H4.5a2.5 2.5 0 010-5H6"/><path d="M18 9h1.5a2.5 2.5 0 000-5H18"/>
+                    <path d="M4 22h16M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/>
+                    <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/>
+                    <path d="M18 2H6v7a6 6 0 0012 0V2z"/>
                   </svg>
                 </div>
-                <div>
-                  <h3 className="text-xl font-bold" style={{ color: '#0a1520' }}>Global Leaderboard</h3>
-                  <p className="text-sm" style={{ color: '#0369a1' }}>Compete with traders worldwide</p>
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-lg font-bold" style={{ color: '#0a1520' }}>Global Leaderboard</h3>
+                  <p className="text-xs" style={{ color: '#0369a1' }}>Compete with traders worldwide</p>
                 </div>
+                <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold"
+                      style={{ background: '#fef3c7', color: '#d97706' }}>
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                  LIVE
+                </span>
               </div>
-              <p className="text-sm leading-relaxed mb-5" style={{ color: '#4b6280' }}>
-                Real-time global rankings across 12,400+ traders. Sorted by return %, Sharpe ratio, win rate and net P&L.
-                Podium highlights the top 3. Monthly and all-time periods.
+              <p className="text-xs leading-relaxed mb-4" style={{ color: '#64748b' }}>
+                Real-time rankings across 12,400+ traders. Sorted by return %, Sharpe ratio, win rate, net P&L. Monthly and all-time.
               </p>
-              {/* Mini podium preview */}
-              <div className="rounded-xl p-4 flex items-end justify-center gap-4" style={{ background: 'linear-gradient(135deg,#1e3a5f10,#0ea5e910)', border: '1px solid #0ea5e918' }}>
-                <div className="flex flex-col items-center gap-1">
-                  <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white" style={{ background: '#94a3b8' }}>C</div>
-                  <div className="rounded-t text-center px-3 py-1.5" style={{ background: '#94a3b8', minHeight: 36 }}>
-                    <span className="text-white text-xs font-bold">+18.4%</span>
-                  </div>
-                </div>
-                <div className="flex flex-col items-center gap-1">
-                  <span className="text-lg">🥇</span>
-                  <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white" style={{ background: '#f59e0b' }}>A</div>
-                  <div className="rounded-t text-center px-3 py-2" style={{ background: 'linear-gradient(135deg,#f59e0b,#d97706)', minHeight: 52 }}>
-                    <span className="text-white text-xs font-bold">+34.2%</span>
-                  </div>
-                </div>
-                <div className="flex flex-col items-center gap-1">
-                  <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white" style={{ background: '#cd7f32' }}>B</div>
-                  <div className="rounded-t text-center px-3 py-1" style={{ background: '#cd7f32', minHeight: 28 }}>
-                    <span className="text-white text-xs font-bold">+22.1%</span>
-                  </div>
-                </div>
-              </div>
-            </div>
 
-            {/* Risk Calculator */}
-            <div className="feature-card-light group" style={{ padding: '2rem' }}>
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0"
-                     style={{ background: '#00c87818', border: '1px solid #00c87828' }}>
-                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="#00c878" strokeWidth={1.8}>
-                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                  </svg>
+              {/* Leaderboard table mockup */}
+              <div className="rounded-xl overflow-hidden" style={{ background: '#0a111e', border: '1px solid rgba(255,255,255,0.07)' }}>
+                {/* Table header */}
+                <div className="grid px-3 py-2" style={{ gridTemplateColumns: '28px 1fr 64px 56px 56px', gap: '8px', borderBottom: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.03)' }}>
+                  {['#','Trader','Return','Winrate','Trades'].map(h => (
+                    <span key={h} className="text-left font-semibold" style={{ fontSize: 9, color: '#3a5060', textTransform: 'uppercase', letterSpacing: '0.07em' }}>{h}</span>
+                  ))}
                 </div>
-                <div>
-                  <h3 className="text-xl font-bold" style={{ color: '#0a1520' }}>Risk Calculator</h3>
-                  <p className="text-sm" style={{ color: '#059669' }}>Built into every order</p>
-                </div>
-              </div>
-              <p className="text-sm leading-relaxed mb-5" style={{ color: '#4b6280' }}>
-                Set your account risk % and stop-loss level - the calculator instantly shows dollar risk and exact position size.
-                One click applies it to your order quantity.
-              </p>
-              {/* Mini calculator preview */}
-              <div className="rounded-xl p-4 space-y-2.5" style={{ background: 'linear-gradient(135deg,#00c87808,#059669 08%)', border: '1px solid #00c87820' }}>
+                {/* Rows */}
                 {[
-                  { label: 'Account Balance', value: '$100,000', color: '#0a1520' },
-                  { label: 'Risk %', value: '1.00%', color: '#0a1520' },
-                  { label: 'Dollar Risk', value: '$1,000.00', color: '#dc2626' },
-                  { label: 'Position Size', value: '0.52 lots', color: '#00c878' },
-                ].map(row => (
-                  <div key={row.label} className="flex justify-between items-center">
-                    <span className="text-xs" style={{ color: '#6b7280' }}>{row.label}</span>
-                    <span className="text-xs font-bold font-mono" style={{ color: row.color }}>{row.value}</span>
+                  { rank: 1,  name: 'AlphaBlitz',  flag: '🇺🇸', ret: '+34.2%', wr: '74%', trades: 241, highlight: true,  retColor: '#00c878' },
+                  { rank: 2,  name: 'FXSentinel',  flag: '🇬🇧', ret: '+22.1%', wr: '68%', trades: 318, highlight: false, retColor: '#00c878' },
+                  { rank: 3,  name: 'ThetaEdge',   flag: '🇩🇪', ret: '+18.4%', wr: '61%', trades: 190, highlight: false, retColor: '#00c878' },
+                  { rank: 4,  name: 'VolFlow_EU',  flag: '🇫🇷', ret: '+11.7%', wr: '58%', trades: 422, highlight: false, retColor: '#0ea5e9' },
+                  { rank: 5,  name: 'DeltaScalp',  flag: '🇳🇱', ret: '+9.3%',  wr: '55%', trades: 567, highlight: false, retColor: '#0ea5e9' },
+                ].map(r => (
+                  <div key={r.rank} className="grid items-center px-3 py-2.5 transition-colors"
+                       style={{
+                         gridTemplateColumns: '28px 1fr 64px 56px 56px', gap: '8px',
+                         borderBottom: '1px solid rgba(255,255,255,0.04)',
+                         background: r.highlight ? 'rgba(245,158,11,0.06)' : 'transparent',
+                       }}>
+                    <span className="text-xs font-bold font-mono shrink-0"
+                          style={{ color: r.rank === 1 ? '#f59e0b' : r.rank === 2 ? '#94a3b8' : r.rank === 3 ? '#cd7f32' : '#3a5060' }}>
+                      {r.rank === 1 ? '🥇' : r.rank === 2 ? '🥈' : r.rank === 3 ? '🥉' : `${r.rank}`}
+                    </span>
+                    <div className="min-w-0 flex items-center gap-1.5">
+                      <span style={{ fontSize: 11 }}>{r.flag}</span>
+                      <span className="font-semibold truncate" style={{ fontSize: 11, color: r.highlight ? '#f8d87a' : '#c8d8e8' }}>{r.name}</span>
+                    </div>
+                    <span className="font-mono font-bold text-right" style={{ fontSize: 11, color: r.retColor }}>{r.ret}</span>
+                    <span className="font-mono text-right" style={{ fontSize: 11, color: '#6b8099' }}>{r.wr}</span>
+                    <span className="font-mono text-right" style={{ fontSize: 11, color: '#3a5060' }}>{r.trades}</span>
                   </div>
                 ))}
-              </div>
-            </div>
-          </div>
-
-          {/* ── ROW 2: P&L Calendar (wide) + Price Alerts ── */}
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-6">
-
-            {/* P&L Calendar - spans 3 cols */}
-            <div className="feature-card-light group lg:col-span-3" style={{ padding: '2rem' }}>
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0"
-                     style={{ background: '#8b5cf618', border: '1px solid #8b5cf628' }}>
-                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="#8b5cf6" strokeWidth={1.8}>
-                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                    <path d="M16 2v4M8 2v4M3 10h18" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold" style={{ color: '#0a1520' }}>P&L Calendar</h3>
-                  <p className="text-sm" style={{ color: '#7c3aed' }}>Daily performance heatmap</p>
-                </div>
-              </div>
-              <p className="text-sm leading-relaxed mb-5" style={{ color: '#4b6280' }}>
-                Navigate month-by-month through your trading history. Each day is colour-coded by P&L - instantly spot your best streaks and worst drawdowns.
-              </p>
-              {/* Mini calendar heatmap */}
-              <div className="rounded-xl p-3" style={{ background: '#f8f9ff', border: '1px solid #e0e7ff' }}>
-                <div className="grid grid-cols-7 gap-1 mb-2">
-                  {['M','T','W','T','F','S','S'].map((d, i) => (
-                    <div key={i} className="text-center text-2xs font-semibold" style={{ color: '#94a3b8', fontSize: 10 }}>{d}</div>
-                  ))}
-                </div>
-                <div className="grid grid-cols-7 gap-1">
-                  {[
-                    null, null, 320, -80, 210, 450, -120,
-                    180, -240, 90, 560, -30, 210, 340,
-                    -180, 120, 0, 390, -60, 280, 170,
-                    420, -90, 310, 0, 500, -150, 220,
-                  ].map((v, i) => (
-                    <div key={i} className="rounded aspect-square flex items-center justify-center"
-                         style={{
-                           fontSize: 8,
-                           fontWeight: 700,
-                           background: v === null ? 'transparent' : v === 0 ? '#e2e8f0' : v > 0 ? `rgba(0,200,120,${Math.min(0.15 + v/3000, 0.7)})` : `rgba(239,68,68,${Math.min(0.15 + Math.abs(v)/3000, 0.7)})`,
-                           color: v === null ? 'transparent' : v === 0 ? '#94a3b8' : v > 0 ? '#059669' : '#dc2626',
-                         }}>
-                      {v !== null && v !== 0 ? (v > 0 ? '+' : '') + (v/1000).toFixed(1) + 'k' : ''}
-                    </div>
-                  ))}
+                <div className="px-3 py-2 text-center" style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+                  <span style={{ fontSize: 10, color: '#3a5060' }}>12,400+ traders ranked globally</span>
                 </div>
               </div>
             </div>
 
-            {/* Price Alerts - spans 2 cols */}
-            <div className="feature-card-light group lg:col-span-2" style={{ padding: '2rem' }}>
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0"
-                     style={{ background: '#f59e0b18', border: '1px solid #f59e0b28' }}>
-                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="#f59e0b" strokeWidth={1.8}>
-                    <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" />
-                    <path d="M13.73 21a2 2 0 01-3.46 0" />
+            {/* ─ Risk Calculator ─ */}
+            <div className="feature-card-light group" style={{ padding: '2rem' }}>
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0"
+                     style={{ background: 'linear-gradient(135deg,#d1fae5,#a7f3d0)', border: '1px solid #00c87844' }}>
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="#059669" strokeWidth={1.8}>
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
                   </svg>
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold" style={{ color: '#0a1520' }}>Price Alerts</h3>
-                  <p className="text-sm" style={{ color: '#d97706' }}>Never miss a move</p>
+                  <h3 className="text-lg font-bold" style={{ color: '#0a1520' }}>Risk Calculator</h3>
+                  <p className="text-xs" style={{ color: '#059669' }}>Built into every order form</p>
                 </div>
               </div>
-              <p className="text-sm leading-relaxed mb-5" style={{ color: '#4b6280' }}>
-                Set price targets on any symbol. Alerts fire instantly when your level is hit - even while you're away from the screen.
+              <p className="text-xs leading-relaxed mb-4" style={{ color: '#64748b' }}>
+                Set account risk % and stop distance - the calculator shows exact dollar risk and position size in real time. One click applies it.
               </p>
-              {/* Mini alert list */}
-              <div className="space-y-2">
-                {[
-                  { sym: 'BTCUSD',  cond: 'above', price: '70,000', status: 'active', color: '#0ea5e9' },
-                  { sym: 'EURUSD',   cond: 'below', price: '1.0800', status: 'triggered', color: '#f59e0b' },
-                  { sym: 'NVDA',    cond: 'above', price: '900.00', status: 'active', color: '#0ea5e9' },
-                ].map((a, i) => (
-                  <div key={i} className="flex items-center justify-between rounded-lg px-3 py-2"
-                       style={{ background: a.status === 'triggered' ? '#fef3c720' : '#f0f9ff', border: `1px solid ${a.status === 'triggered' ? '#f59e0b44' : '#0ea5e920'}` }}>
-                    <div className="flex items-center gap-2">
-                      <span className="font-mono font-bold text-xs" style={{ color: '#0a1520' }}>{a.sym}</span>
-                      <span className="text-xs" style={{ color: '#6b7280' }}>{a.cond}</span>
-                      <span className="font-mono text-xs font-semibold" style={{ color: a.color }}>{a.price}</span>
+
+              {/* Rich calculator mockup */}
+              <div className="rounded-xl overflow-hidden" style={{ background: '#0a111e', border: '1px solid rgba(255,255,255,0.07)' }}>
+                {/* Header bar */}
+                <div className="px-4 py-2.5 flex items-center justify-between" style={{ background: 'rgba(255,255,255,0.03)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                  <span style={{ fontSize: 10, color: '#6b8099', fontWeight: 600, letterSpacing: '0.07em', textTransform: 'uppercase' }}>Risk Manager</span>
+                  <span className="px-2 py-0.5 rounded-full font-bold" style={{ fontSize: 9, background: 'rgba(0,200,120,0.12)', color: '#00c878', border: '1px solid rgba(0,200,120,0.2)' }}>BTCUSD</span>
+                </div>
+
+                <div className="p-4 space-y-3">
+                  {/* Account balance row */}
+                  <div className="flex items-center justify-between rounded-lg px-3 py-2" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}>
+                    <span style={{ fontSize: 11, color: '#6b8099' }}>Account Balance</span>
+                    <span className="font-mono font-bold" style={{ fontSize: 12, color: '#c8d8e8' }}>$100,000.00</span>
+                  </div>
+
+                  {/* Risk % slider */}
+                  <div>
+                    <div className="flex justify-between mb-1.5">
+                      <span style={{ fontSize: 11, color: '#6b8099' }}>Risk per Trade</span>
+                      <span className="font-mono font-bold" style={{ fontSize: 12, color: '#38bdf8' }}>1.00%</span>
                     </div>
-                    <span className="text-2xs px-2 py-0.5 rounded-full font-semibold"
-                          style={{ background: a.status === 'triggered' ? '#fef3c7' : '#e0f2fe', color: a.status === 'triggered' ? '#d97706' : '#0369a1', fontSize: 10 }}>
-                      {a.status}
+                    <div className="relative h-2 rounded-full" style={{ background: 'rgba(255,255,255,0.07)' }}>
+                      <div className="absolute left-0 top-0 h-full rounded-full" style={{ width: '20%', background: 'linear-gradient(90deg,#0ea5e9,#38bdf8)' }} />
+                      <div className="absolute top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full border-2 border-white shadow" style={{ left: 'calc(20% - 7px)', background: '#0ea5e9' }} />
+                    </div>
+                    <div className="flex justify-between mt-1">
+                      {['0.5%','1%','2%','5%'].map(v => (
+                        <span key={v} style={{ fontSize: 9, color: '#3a5060' }}>{v}</span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Stop distance */}
+                  <div className="flex items-center justify-between rounded-lg px-3 py-2" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(14,165,233,0.2)' }}>
+                    <span style={{ fontSize: 11, color: '#6b8099' }}>Stop Distance</span>
+                    <span className="font-mono font-bold flex items-center gap-1" style={{ fontSize: 12, color: '#38bdf8' }}>
+                      200 pips
+                      <span style={{ width: 6, height: 12, background: '#38bdf8', display: 'inline-block', borderRadius: 1, animation: 'pulse 1s infinite' }} />
                     </span>
                   </div>
-                ))}
+
+                  {/* Divider */}
+                  <div style={{ borderTop: '1px solid rgba(255,255,255,0.05)', margin: '4px 0' }} />
+
+                  {/* Calculated outputs */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="rounded-lg px-3 py-2.5 text-center" style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)' }}>
+                      <div style={{ fontSize: 9, color: '#6b8099', marginBottom: 4 }}>DOLLAR RISK</div>
+                      <div className="font-mono font-bold" style={{ fontSize: 14, color: '#ef4444' }}>$1,000.00</div>
+                    </div>
+                    <div className="rounded-lg px-3 py-2.5 text-center" style={{ background: 'rgba(0,200,120,0.08)', border: '1px solid rgba(0,200,120,0.15)' }}>
+                      <div style={{ fontSize: 9, color: '#6b8099', marginBottom: 4 }}>POSITION SIZE</div>
+                      <div className="font-mono font-bold" style={{ fontSize: 14, color: '#00c878' }}>0.52 lots</div>
+                    </div>
+                  </div>
+
+                  {/* Apply button */}
+                  <div className="rounded-lg py-2.5 text-center font-bold" style={{ fontSize: 12, background: 'linear-gradient(135deg,#059669,#047857)', color: '#fff', letterSpacing: '0.04em' }}>
+                    Apply to Order
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* ── ROW 3: CSV Export + Advanced Analytics ── */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* ── ROW 2: P&L Calendar + Price Alerts ── */}
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-6">
 
-            {/* CSV Export */}
-            <div className="feature-card-light group" style={{ padding: '2rem' }}>
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0"
-                     style={{ background: '#0ea5e918', border: '1px solid #0ea5e928' }}>
-                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="#0ea5e9" strokeWidth={1.8}>
-                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
-                    <polyline points="7 10 12 15 17 10" />
-                    <line x1="12" y1="15" x2="12" y2="3" />
+            {/* ─ P&L Calendar ─ */}
+            <div className="feature-card-light group lg:col-span-3" style={{ padding: '2rem' }}>
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0"
+                     style={{ background: 'linear-gradient(135deg,#ede9fe,#ddd6fe)', border: '1px solid #8b5cf644' }}>
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="#7c3aed" strokeWidth={1.8}>
+                    <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
                   </svg>
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold" style={{ color: '#0a1520' }}>Export to CSV</h3>
-                  <p className="text-sm" style={{ color: '#0369a1' }}>Your data, your way</p>
+                  <h3 className="text-lg font-bold" style={{ color: '#0a1520' }}>P&L Calendar</h3>
+                  <p className="text-xs" style={{ color: '#7c3aed' }}>Daily performance heatmap</p>
                 </div>
               </div>
-              <p className="text-sm leading-relaxed mb-5" style={{ color: '#4b6280' }}>
-                Download your complete order history in one click - symbol, type, side, quantity, fill price, status and timestamps.
-                Open in Excel, Google Sheets, or any analysis tool.
+              <p className="text-xs leading-relaxed mb-4" style={{ color: '#64748b' }}>
+                Every trading day colour-coded by profit and loss. Instantly spot your best streaks, worst drawdowns, and seasonal patterns.
               </p>
-              {/* Mini CSV preview */}
-              <div className="rounded-xl overflow-hidden" style={{ border: '1px solid #e0e7ff' }}>
-                <div className="px-3 py-2 flex items-center justify-between" style={{ background: '#1e3a5f', color: '#94a3b8', fontSize: 11 }}>
-                  <span className="font-mono">tradex-orders-2024-06-12.csv</span>
-                  <span className="flex items-center gap-1" style={{ color: '#0ea5e9' }}>
-                    <span>↓</span><span>Download</span>
-                  </span>
+
+              {/* Rich calendar mockup */}
+              <div className="rounded-xl overflow-hidden" style={{ background: '#0a111e', border: '1px solid rgba(255,255,255,0.07)' }}>
+                {/* Month nav */}
+                <div className="flex items-center justify-between px-4 py-2.5" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                  <span style={{ fontSize: 10, color: '#3a5060' }}>{'<'}</span>
+                  <span className="font-bold" style={{ fontSize: 12, color: '#c8d8e8' }}>March 2026</span>
+                  <span style={{ fontSize: 10, color: '#3a5060' }}>{'>'}</span>
                 </div>
-                <div className="overflow-x-auto">
-                  <table className="w-full" style={{ fontSize: 10 }}>
-                    <thead style={{ background: '#f8fafc' }}>
-                      <tr>
-                        {['Symbol','Side','Qty','Price','Status'].map(h => (
-                          <th key={h} className="px-3 py-1.5 text-left font-semibold" style={{ color: '#64748b' }}>{h}</th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {[
-                        ['BTCUSD','BUY','0.5','67,420','filled'],
-                        ['NVDA','SELL','10','875.40','filled'],
-                        ['EURUSD','BUY','1000','1.0842','open'],
-                      ].map((r, i) => (
-                        <tr key={i} style={{ borderTop: '1px solid #f1f5f9' }}>
-                          {r.map((c, j) => (
-                            <td key={j} className="px-3 py-1.5 font-mono" style={{ color: c === 'BUY' ? '#059669' : c === 'SELL' ? '#dc2626' : '#374151' }}>{c}</td>
-                          ))}
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                <div className="p-3">
+                  {/* Day headers */}
+                  <div className="grid grid-cols-7 gap-1 mb-1">
+                    {['Mo','Tu','We','Th','Fr','Sa','Su'].map(d => (
+                      <div key={d} className="text-center font-semibold" style={{ fontSize: 9, color: '#3a5060' }}>{d}</div>
+                    ))}
+                  </div>
+                  {/* Day cells */}
+                  {[
+                    [null, null, null, null, null,    -45,   0],
+                    [310,  -180,  90,  560,  -30,    210,  340],
+                    [-180,  120,   0,  390,  -60,    280,  170],
+                    [420,   -90, 310,    0,  500,   -150,  220],
+                    [180,  -240,  90, null, null,   null, null],
+                  ].map((week, wi) => (
+                    <div key={wi} className="grid grid-cols-7 gap-1 mb-1">
+                      {week.map((v, di) => {
+                        const day = wi * 7 + di - 4
+                        const isToday = day === 22
+                        return (
+                          <div key={di} className="rounded flex flex-col items-center justify-center"
+                               style={{
+                                 aspectRatio: '1',
+                                 background: v === null ? 'transparent' : v === 0 ? 'rgba(255,255,255,0.04)' : v > 0 ? `rgba(0,200,120,${Math.min(0.12 + v/4000, 0.55)})` : `rgba(239,68,68,${Math.min(0.12 + Math.abs(v)/4000, 0.55)})`,
+                                 border: isToday ? '1px solid rgba(56,189,248,0.6)' : '1px solid transparent',
+                                 outline: v === null ? 'none' : undefined,
+                               }}>
+                            {v !== null && (
+                              <>
+                                <span style={{ fontSize: 7.5, color: 'rgba(255,255,255,0.3)', lineHeight: 1 }}>{day > 0 && day <= 31 ? day : ''}</span>
+                                <span className="font-bold font-mono" style={{ fontSize: 7.5, color: v === 0 ? '#3a5060' : v > 0 ? '#00c878' : '#ef4444', lineHeight: 1.2 }}>
+                                  {v !== 0 ? (v > 0 ? '+' : '') + (v/1000).toFixed(1) + 'k' : '-'}
+                                </span>
+                              </>
+                            )}
+                          </div>
+                        )
+                      })}
+                    </div>
+                  ))}
+                </div>
+                {/* Monthly summary */}
+                <div className="px-4 py-2.5 grid grid-cols-3 gap-2" style={{ borderTop: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.02)' }}>
+                  <div className="text-center">
+                    <div style={{ fontSize: 9, color: '#3a5060' }}>Month P&L</div>
+                    <div className="font-mono font-bold" style={{ fontSize: 12, color: '#00c878' }}>+$3,120</div>
+                  </div>
+                  <div className="text-center" style={{ borderLeft: '1px solid rgba(255,255,255,0.05)', borderRight: '1px solid rgba(255,255,255,0.05)' }}>
+                    <div style={{ fontSize: 9, color: '#3a5060' }}>Best Day</div>
+                    <div className="font-mono font-bold" style={{ fontSize: 12, color: '#00c878' }}>+$560</div>
+                  </div>
+                  <div className="text-center">
+                    <div style={{ fontSize: 9, color: '#3a5060' }}>Win Days</div>
+                    <div className="font-mono font-bold" style={{ fontSize: 12, color: '#c8d8e8' }}>14 / 20</div>
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Advanced Analytics */}
-            <div className="feature-card-light group" style={{ padding: '2rem' }}>
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0"
-                     style={{ background: '#38bdf818', border: '1px solid #38bdf828' }}>
-                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="#38bdf8" strokeWidth={1.8}>
-                    <path d="M18 20V10M12 20V4M6 20v-6" />
+            {/* ─ Price Alerts ─ */}
+            <div className="feature-card-light group lg:col-span-2" style={{ padding: '2rem' }}>
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0"
+                     style={{ background: 'linear-gradient(135deg,#fef3c7,#fde68a)', border: '1px solid #f59e0b44' }}>
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="#d97706" strokeWidth={1.8}>
+                    <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                    <path d="M13.73 21a2 2 0 01-3.46 0"/>
                   </svg>
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold" style={{ color: '#0a1520' }}>Portfolio Analytics</h3>
-                  <p className="text-sm" style={{ color: '#0ea5e9' }}>Know your numbers</p>
+                  <h3 className="text-lg font-bold" style={{ color: '#0a1520' }}>Price Alerts</h3>
+                  <p className="text-xs" style={{ color: '#d97706' }}>Never miss a move</p>
                 </div>
               </div>
-              <p className="text-sm leading-relaxed mb-5" style={{ color: '#4b6280' }}>
-                Equity curve, win rate, average R:R, max drawdown, Sharpe ratio - all calculated automatically.
-                The P&L calendar and performance breakdown show exactly where you win and lose.
+              <p className="text-xs leading-relaxed mb-4" style={{ color: '#64748b' }}>
+                Set price targets on any instrument. Alerts fire the instant your level is hit, even when you're offline.
               </p>
-              {/* Mini stats grid */}
-              <div className="grid grid-cols-2 gap-3">
-                {[
-                  { label: 'Win Rate',    value: '64.8%',  color: '#00c878', bg: '#00c87810' },
-                  { label: 'Avg R:R',     value: '2.3 : 1', color: '#38bdf8', bg: '#38bdf810' },
-                  { label: 'Max Drawdown',value: '-8.4%',  color: '#ef4444', bg: '#ef444410' },
-                  { label: 'Sharpe Ratio',value: '1.84',   color: '#8b5cf6', bg: '#8b5cf610' },
-                  { label: 'Total Trades',value: '247',    color: '#f59e0b', bg: '#f59e0b10' },
-                  { label: 'Net P&L',     value: '+$34.2k',color: '#00c878', bg: '#00c87810' },
-                ].map(s => (
-                  <div key={s.label} className="rounded-xl px-3 py-2.5 flex items-center justify-between" style={{ background: s.bg, border: `1px solid ${s.color}22` }}>
-                    <span className="text-xs" style={{ color: '#6b7280' }}>{s.label}</span>
-                    <span className="text-sm font-bold font-mono" style={{ color: s.color }}>{s.value}</span>
+
+              {/* Rich alerts mockup */}
+              <div className="rounded-xl overflow-hidden" style={{ background: '#0a111e', border: '1px solid rgba(255,255,255,0.07)' }}>
+                {/* Header */}
+                <div className="flex items-center justify-between px-4 py-2.5" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.02)' }}>
+                  <span style={{ fontSize: 10, color: '#6b8099', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.07em' }}>Active Alerts</span>
+                  <span className="px-2 py-0.5 rounded font-bold" style={{ fontSize: 9, background: 'rgba(14,165,233,0.1)', color: '#38bdf8', border: '1px solid rgba(14,165,233,0.2)' }}>+ Add Alert</span>
+                </div>
+
+                <div className="p-3 space-y-2">
+                  {/* Triggered alert - prominent */}
+                  <div className="rounded-xl p-3" style={{ background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.25)' }}>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 rounded-full flex items-center justify-center" style={{ background: 'rgba(245,158,11,0.2)' }}>
+                          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="#f59e0b" strokeWidth={2.5}><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+                        </div>
+                        <span className="font-bold" style={{ fontSize: 11, color: '#fde68a' }}>EURUSD</span>
+                      </div>
+                      <span className="px-2 py-0.5 rounded-full font-bold animate-pulse" style={{ fontSize: 9, background: 'rgba(245,158,11,0.2)', color: '#f59e0b', border: '1px solid rgba(245,158,11,0.3)' }}>TRIGGERED</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span style={{ fontSize: 10, color: '#94a3b8' }}>Fell below target</span>
+                      <span className="font-mono font-bold" style={{ fontSize: 12, color: '#f59e0b' }}>1.0800</span>
+                    </div>
+                    <div style={{ fontSize: 9, color: '#6b8099', marginTop: 4 }}>Fired 3 min ago · 11:47 AM</div>
                   </div>
-                ))}
+
+                  {/* Active alert 1 */}
+                  <div className="rounded-lg px-3 py-2.5 flex items-center justify-between" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold" style={{ fontSize: 11, color: '#c8d8e8' }}>BTCUSD</span>
+                        <span style={{ fontSize: 10, color: '#3a5060' }}>rises above</span>
+                        <span className="font-mono font-semibold" style={{ fontSize: 11, color: '#38bdf8' }}>70,000</span>
+                      </div>
+                      <div style={{ fontSize: 9, color: '#3a5060', marginTop: 2 }}>Current: 67,420 · Gap: 2,580</div>
+                    </div>
+                    <span className="flex items-center gap-1 px-2 py-0.5 rounded-full" style={{ fontSize: 9, background: 'rgba(14,165,233,0.1)', color: '#38bdf8', border: '1px solid rgba(14,165,233,0.2)', fontWeight: 700 }}>
+                      <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />
+                      WATCHING
+                    </span>
+                  </div>
+
+                  {/* Active alert 2 */}
+                  <div className="rounded-lg px-3 py-2.5 flex items-center justify-between" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold" style={{ fontSize: 11, color: '#c8d8e8' }}>NVDA</span>
+                        <span style={{ fontSize: 10, color: '#3a5060' }}>rises above</span>
+                        <span className="font-mono font-semibold" style={{ fontSize: 11, color: '#38bdf8' }}>900.00</span>
+                      </div>
+                      <div style={{ fontSize: 9, color: '#3a5060', marginTop: 2 }}>Current: 875.40 · Gap: 24.60</div>
+                    </div>
+                    <span className="flex items-center gap-1 px-2 py-0.5 rounded-full" style={{ fontSize: 9, background: 'rgba(14,165,233,0.1)', color: '#38bdf8', border: '1px solid rgba(14,165,233,0.2)', fontWeight: 700 }}>
+                      <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />
+                      WATCHING
+                    </span>
+                  </div>
+
+                  <div className="text-center pt-1" style={{ fontSize: 9, color: '#3a5060' }}>3 active · 18 fired this month</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ── ROW 3: CSV Export + Portfolio Analytics ── */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+            {/* ─ CSV Export ─ */}
+            <div className="feature-card-light group" style={{ padding: '2rem' }}>
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0"
+                     style={{ background: 'linear-gradient(135deg,#e0f2fe,#bae6fd)', border: '1px solid #0ea5e944' }}>
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="#0369a1" strokeWidth={1.8}>
+                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                    <polyline points="7 10 12 15 17 10"/>
+                    <line x1="12" y1="15" x2="12" y2="3"/>
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold" style={{ color: '#0a1520' }}>Export to CSV</h3>
+                  <p className="text-xs" style={{ color: '#0369a1' }}>Your data, your way</p>
+                </div>
+              </div>
+              <p className="text-xs leading-relaxed mb-4" style={{ color: '#64748b' }}>
+                Download your complete order history in one click. Symbol, side, quantity, fill price, commissions, P&L, status - ready for Excel or any analysis tool.
+              </p>
+
+              {/* Spreadsheet mockup */}
+              <div className="rounded-xl overflow-hidden" style={{ background: '#0a111e', border: '1px solid rgba(255,255,255,0.07)' }}>
+                {/* File bar */}
+                <div className="flex items-center justify-between px-4 py-2.5" style={{ background: '#111c2e', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                  <div className="flex items-center gap-2">
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="#0ea5e9" strokeWidth={2}><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    <span className="font-mono" style={{ fontSize: 10, color: '#94a3b8' }}>tradex-orders-2026-03-28.csv</span>
+                  </div>
+                  <button className="flex items-center gap-1 px-2.5 py-1 rounded font-bold transition-all"
+                          style={{ fontSize: 10, background: 'rgba(14,165,233,0.15)', color: '#38bdf8', border: '1px solid rgba(14,165,233,0.25)' }}>
+                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    Download
+                  </button>
+                </div>
+                {/* Table */}
+                <div>
+                  <div className="grid px-3 py-2" style={{ gridTemplateColumns: '70px 50px 38px 70px 60px 52px', gap: 4, borderBottom: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.03)' }}>
+                    {['Symbol','Side','Qty','Fill Price','P&L','Status'].map(h => (
+                      <span key={h} style={{ fontSize: 8.5, color: '#3a5060', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{h}</span>
+                    ))}
+                  </div>
+                  {[
+                    { sym: 'BTCUSD', side: 'BUY',  qty: '0.5',  price: '67,420', pnl: '+$434',  status: 'filled' },
+                    { sym: 'NVDA',   side: 'SELL', qty: '10',   price: '875.40', pnl: '+$218',  status: 'filled' },
+                    { sym: 'EURUSD', side: 'BUY',  qty: '1000', price: '1.0842', pnl: '-$64',   status: 'filled' },
+                    { sym: 'XAUUSD', side: 'BUY',  qty: '0.2',  price: '2,312',  pnl: '+$96',   status: 'open'   },
+                  ].map((r, i) => (
+                    <div key={i} className="grid items-center px-3 py-2" style={{ gridTemplateColumns: '70px 50px 38px 70px 60px 52px', gap: 4, borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                      <span className="font-mono font-semibold" style={{ fontSize: 10, color: '#c8d8e8' }}>{r.sym}</span>
+                      <span className="font-mono font-bold" style={{ fontSize: 10, color: r.side === 'BUY' ? '#00c878' : '#ef4444' }}>{r.side}</span>
+                      <span className="font-mono" style={{ fontSize: 10, color: '#6b8099' }}>{r.qty}</span>
+                      <span className="font-mono" style={{ fontSize: 10, color: '#6b8099' }}>{r.price}</span>
+                      <span className="font-mono font-bold" style={{ fontSize: 10, color: r.pnl.startsWith('+') ? '#00c878' : '#ef4444' }}>{r.pnl}</span>
+                      <span className="text-center rounded px-1 py-0.5 font-semibold" style={{ fontSize: 8.5, background: r.status === 'open' ? 'rgba(14,165,233,0.12)' : 'rgba(0,200,120,0.1)', color: r.status === 'open' ? '#38bdf8' : '#00c878' }}>{r.status}</span>
+                    </div>
+                  ))}
+                  <div className="px-3 py-2 flex items-center justify-between" style={{ background: 'rgba(255,255,255,0.02)', borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+                    <span style={{ fontSize: 9, color: '#3a5060' }}>247 total orders exported</span>
+                    <span className="font-mono font-bold" style={{ fontSize: 10, color: '#00c878' }}>Net: +$34,218</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* ─ Portfolio Analytics ─ */}
+            <div className="feature-card-light group" style={{ padding: '2rem' }}>
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0"
+                     style={{ background: 'linear-gradient(135deg,#e0f2fe,#bae6fd)', border: '1px solid #38bdf844' }}>
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="#0369a1" strokeWidth={1.8}>
+                    <path d="M18 20V10M12 20V4M6 20v-6"/>
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold" style={{ color: '#0a1520' }}>Portfolio Analytics</h3>
+                  <p className="text-xs" style={{ color: '#0ea5e9' }}>Know your numbers</p>
+                </div>
+              </div>
+              <p className="text-xs leading-relaxed mb-4" style={{ color: '#64748b' }}>
+                Equity curve, win rate, average R:R, Sharpe ratio, max drawdown - all auto-calculated from your real trade history.
+              </p>
+
+              {/* Analytics mockup */}
+              <div className="rounded-xl overflow-hidden" style={{ background: '#0a111e', border: '1px solid rgba(255,255,255,0.07)' }}>
+                {/* Equity curve mini chart */}
+                <div className="px-4 pt-3 pb-1">
+                  <div className="flex items-center justify-between mb-2">
+                    <span style={{ fontSize: 10, color: '#6b8099', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.07em' }}>Equity Curve</span>
+                    <span className="font-mono font-bold" style={{ fontSize: 12, color: '#00c878' }}>+$34,218 <span style={{ fontSize: 9, color: '#3a5060' }}>(+34.2%)</span></span>
+                  </div>
+                  <svg width="100%" height="70" viewBox="0 0 300 70" preserveAspectRatio="none">
+                    <defs>
+                      <linearGradient id="eqGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#00c878" stopOpacity="0.3"/>
+                        <stop offset="100%" stopColor="#00c878" stopOpacity="0"/>
+                      </linearGradient>
+                    </defs>
+                    <path d="M0,65 L15,60 L30,58 L45,52 L60,55 L75,48 L90,42 L105,45 L120,38 L135,32 L150,35 L165,28 L180,22 L195,25 L210,18 L225,14 L240,10 L255,12 L270,8 L285,5 L300,4"
+                          fill="none" stroke="#00c878" strokeWidth="1.8"/>
+                    <path d="M0,65 L15,60 L30,58 L45,52 L60,55 L75,48 L90,42 L105,45 L120,38 L135,32 L150,35 L165,28 L180,22 L195,25 L210,18 L225,14 L240,10 L255,12 L270,8 L285,5 L300,4 L300,70 L0,70 Z"
+                          fill="url(#eqGrad)"/>
+                    {/* Drawdown period */}
+                    <rect x="96" y="0" width="40" height="70" fill="rgba(239,68,68,0.05)"/>
+                  </svg>
+                </div>
+
+                {/* Stats grid */}
+                <div className="grid grid-cols-3 gap-0" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                  {[
+                    { label: 'Win Rate',     value: '64.8%',   color: '#00c878' },
+                    { label: 'Avg R:R',      value: '2.3 : 1', color: '#38bdf8' },
+                    { label: 'Sharpe',       value: '1.84',    color: '#8b5cf6' },
+                    { label: 'Max DD',       value: '-8.4%',   color: '#ef4444' },
+                    { label: 'Total Trades', value: '247',     color: '#f59e0b' },
+                    { label: 'Net P&L',      value: '+$34.2k', color: '#00c878' },
+                  ].map((s, i) => (
+                    <div key={i} className="flex flex-col items-center py-3 px-2"
+                         style={{ borderRight: (i + 1) % 3 !== 0 ? '1px solid rgba(255,255,255,0.05)' : 'none', borderTop: i >= 3 ? '1px solid rgba(255,255,255,0.05)' : 'none' }}>
+                      <span style={{ fontSize: 8.5, color: '#3a5060', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 3 }}>{s.label}</span>
+                      <span className="font-mono font-bold" style={{ fontSize: 13, color: s.color }}>{s.value}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
@@ -874,10 +1059,10 @@ export default function LandingPage() {
                style={{ background: 'linear-gradient(135deg,#0ea5e9,#0369a1)', boxShadow: '0 4px 20px #0ea5e940' }}>
               Start Trading Free
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                <path d="M5 12h14M12 5l7 7-7 7" />
+                <path d="M5 12h14M12 5l7 7-7 7"/>
               </svg>
             </a>
-            <p className="mt-3 text-sm" style={{ color: '#64748b' }}>No credit card required · $100k virtual funds · instant access</p>
+            <p className="mt-3 text-sm" style={{ color: '#64748b' }}>No credit card required · $100k demo funds · instant access</p>
           </div>
         </div>
       </section>
