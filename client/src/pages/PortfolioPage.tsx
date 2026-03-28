@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+﻿import React, { useEffect } from 'react'
 import PortfolioSummary from '../components/portfolio/PortfolioSummary'
 import PositionsTable from '../components/portfolio/PositionsTable'
 import { useTradingStore } from '../store/tradingStore'
@@ -53,11 +53,11 @@ export default function PortfolioPage() {
             <PerfMetric label="Win Rate" value={`${(ps.winRate * 100).toFixed(1)}%`}
               sub={`${ps.winningTrades}W / ${ps.losingTrades}L`}
               accent={ps.winRate >= 0.5 ? '#00c878' : '#f59e0b'} />
-            <PerfMetric label="Profit Factor" value={ps.profitFactor > 0 ? ps.profitFactor.toFixed(2) : '—'}
+            <PerfMetric label="Profit Factor" value={ps.profitFactor > 0 ? ps.profitFactor.toFixed(2) : '-'}
               sub="Gross profit / loss" accent={ps.profitFactor >= 1.5 ? '#00c878' : ps.profitFactor >= 1 ? '#f59e0b' : '#ff3047'} />
             <PerfMetric label="Max Drawdown" value={`${ps.maxDrawdownPercent.toFixed(1)}%`}
               sub={formatCurrency(ps.maxDrawdown)} warn={ps.maxDrawdownPercent > 20} />
-            <PerfMetric label="Sharpe Ratio" value={ps.sharpeRatio > 0 ? ps.sharpeRatio.toFixed(2) : '—'}
+            <PerfMetric label="Sharpe Ratio" value={ps.sharpeRatio > 0 ? ps.sharpeRatio.toFixed(2) : '-'}
               accent={ps.sharpeRatio >= 1.5 ? '#00c878' : ps.sharpeRatio >= 0.5 ? '#f59e0b' : '#ff3047'} />
             <PerfMetric label="Expectancy" value={formatCurrency(ps.expectancy)}
               sub="Per trade avg" accent={ps.expectancy >= 0 ? '#00c878' : '#ff3047'} />

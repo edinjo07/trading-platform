@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express'
+﻿import { Request, Response, NextFunction } from 'express'
 import jwt from 'jsonwebtoken'
 import { config } from '../config'
 import { JWTPayload } from '../types'
@@ -53,7 +53,7 @@ export async function authenticate(req: AuthRequest, res: Response, next: NextFu
 
   // Fast path: verify as custom JWT (no network call).
   // Supabase JWTs are also signed with SUPABASE_JWT_SECRET (= our JWT_SECRET),
-  // so they verify here too — but their user ID is in `sub`, not `userId`.
+  // so they verify here too - but their user ID is in `sub`, not `userId`.
   try {
     const decoded = jwt.verify(token, config.jwtSecret) as Record<string, unknown>
     const userId = (decoded.userId ?? decoded.sub) as string | undefined
@@ -62,9 +62,9 @@ export async function authenticate(req: AuthRequest, res: Response, next: NextFu
       next()
       return
     }
-    // Decoded but missing user ID — fall through to Supabase verification
+    // Decoded but missing user ID - fall through to Supabase verification
   } catch {
-    // Not a custom JWT — try Supabase
+    // Not a custom JWT - try Supabase
   }
 
   // Slow path: verify via Supabase Auth API (Supabase-issued tokens)

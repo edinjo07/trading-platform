@@ -1,11 +1,11 @@
-import { Router } from 'express'
+﻿import { Router } from 'express'
 import { authenticate, AuthRequest } from '../middleware/auth'
 import { botEngine, BotStrategy, BotParams } from '../services/botEngine'
 
 const router = Router()
 router.use(authenticate)
 
-// GET /api/bots — list all bots for current user
+// GET /api/bots - list all bots for current user
 router.get('/', (req: AuthRequest, res) => {
   try {
     const bots = botEngine.getBotsForUser(req.user!.userId)
@@ -15,7 +15,7 @@ router.get('/', (req: AuthRequest, res) => {
   }
 })
 
-// GET /api/bots/:id — get single bot (with logs)
+// GET /api/bots/:id - get single bot (with logs)
 router.get('/:id', (req: AuthRequest, res) => {
   try {
     const bot = botEngine.getBotById(req.params.id)
@@ -29,7 +29,7 @@ router.get('/:id', (req: AuthRequest, res) => {
   }
 })
 
-// POST /api/bots — create a new bot
+// POST /api/bots - create a new bot
 router.post('/', (req: AuthRequest, res) => {
   try {
     const { name, symbol, strategy, params } = req.body as {
@@ -54,7 +54,7 @@ router.post('/', (req: AuthRequest, res) => {
   }
 })
 
-// POST /api/bots/:id/start — start bot
+// POST /api/bots/:id/start - start bot
 router.post('/:id/start', (req: AuthRequest, res) => {
   try {
     const bot = botEngine.startBot(req.params.id, req.user!.userId)
@@ -64,7 +64,7 @@ router.post('/:id/start', (req: AuthRequest, res) => {
   }
 })
 
-// POST /api/bots/:id/stop — stop bot
+// POST /api/bots/:id/stop - stop bot
 router.post('/:id/stop', (req: AuthRequest, res) => {
   try {
     const bot = botEngine.stopBot(req.params.id, req.user!.userId)
@@ -74,7 +74,7 @@ router.post('/:id/stop', (req: AuthRequest, res) => {
   }
 })
 
-// DELETE /api/bots/:id — delete bot
+// DELETE /api/bots/:id - delete bot
 router.delete('/:id', (req: AuthRequest, res) => {
   try {
     botEngine.deleteBot(req.params.id, req.user!.userId)

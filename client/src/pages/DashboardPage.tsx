@@ -86,9 +86,9 @@ function MiniTickerRow({ sym, ticker, onClick }: { sym: MarketSymbol; ticker?: T
         </div>
       </div>
       <div className="text-right">
-        <p className="font-mono text-xs font-semibold text-text-primary">{ticker ? formatPrice(ticker.price, sym.symbol) : '—'}</p>
+        <p className="font-mono text-xs font-semibold text-text-primary">{ticker ? formatPrice(ticker.price, sym.symbol) : '-'}</p>
         <p className={`text-2xs font-semibold ${isUp ? 'text-bull' : 'text-bear'}`}>
-          {ticker ? (isUp ? '+' : '') + ticker.changePercent.toFixed(2) + '%' : '—'}
+          {ticker ? (isUp ? '+' : '') + ticker.changePercent.toFixed(2) + '%' : '-'}
         </p>
       </div>
     </div>
@@ -411,7 +411,7 @@ export default function DashboardPage() {
         <div className="card p-5 flex flex-col gap-4">
           <p className="text-xs font-bold uppercase tracking-widest text-text-muted">Your Performance</p>
           <div className="grid grid-cols-2 gap-2">
-            <QuickStat label="Win Rate"     value={totalTrades > 0 ? `${(winRate * 100).toFixed(1)}%` : '—'} color={winRate >= 0.5 ? 'text-bull' : 'text-bear'} sub="Filled trades" />
+            <QuickStat label="Win Rate"     value={totalTrades > 0 ? `${(winRate * 100).toFixed(1)}%` : '-'} color={winRate >= 0.5 ? 'text-bull' : 'text-bear'} sub="Filled trades" />
             <QuickStat label="Total Trades" value={String(totalTrades)} color="text-text-primary" sub="All time" />
             <QuickStat label="Open Pos."    value={String(openPos)} color="text-brand-300" sub={openPos === 0 ? 'None active' : 'Live'} />
             <QuickStat label="Realised P&L" value={(rpnl >= 0 ? '+' : '') + formatCurrency(rpnl)} color={rpnl >= 0 ? 'text-bull' : 'text-bear'} />

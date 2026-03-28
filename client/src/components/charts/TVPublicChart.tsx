@@ -1,4 +1,4 @@
-/**
+﻿/**
  * TVPublicChart
  *
  * Uses the TradingView FREE public widget API (tv.js from s.tradingview.com).
@@ -199,7 +199,7 @@ const TO_TV_INTERVAL: Record<string, string> = {
   '1w':  'W',
 }
 
-// TradingView public widget (tv.js) — separate from the Charting Library.
+// TradingView public widget (tv.js) - separate from the Charting Library.
 // We cast to `any` to avoid clashing with the charting_library.d.ts Window augmentation.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const getTradingViewPublic = (): any => (window as any).TradingView

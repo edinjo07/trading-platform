@@ -1,5 +1,5 @@
-/**
- * TradingView Charting Library — Custom Datafeed
+﻿/**
+ * TradingView Charting Library - Custom Datafeed
  *
  * Implements IExternalDatafeed to connect TradingView Advanced Charts to our
  * backend API.  History is loaded via REST; real-time updates flow through a
@@ -122,7 +122,7 @@ export class TVDatafeed implements Charting_Library.IExternalDatafeed {
   private quoteTimer: ReturnType<typeof setInterval> | null = null
 
   // ---------------------------------------------------------------------------
-  // IExternalDatafeed — onReady
+  // IExternalDatafeed - onReady
   // ---------------------------------------------------------------------------
   onReady(callback: (cfg: Charting_Library.DatafeedConfiguration) => void): void {
     // Fetch symbol list once
@@ -156,7 +156,7 @@ export class TVDatafeed implements Charting_Library.IExternalDatafeed {
   }
 
   // ---------------------------------------------------------------------------
-  // IExternalDatafeed — searchSymbols
+  // IExternalDatafeed - searchSymbols
   // ---------------------------------------------------------------------------
   searchSymbols(
     userInput: string,
@@ -186,7 +186,7 @@ export class TVDatafeed implements Charting_Library.IExternalDatafeed {
   }
 
   // ---------------------------------------------------------------------------
-  // IExternalDatafeed — resolveSymbol
+  // IExternalDatafeed - resolveSymbol
   // ---------------------------------------------------------------------------
   resolveSymbol(
     symbolName: string,
@@ -231,7 +231,7 @@ export class TVDatafeed implements Charting_Library.IExternalDatafeed {
   }
 
   // ---------------------------------------------------------------------------
-  // IExternalDatafeed — getBars
+  // IExternalDatafeed - getBars
   // ---------------------------------------------------------------------------
   async getBars(
     symbolInfo: Charting_Library.LibrarySymbolInfo,
@@ -278,7 +278,7 @@ export class TVDatafeed implements Charting_Library.IExternalDatafeed {
         } satisfies Charting_Library.Bar))
 
       // If no bars match the window but we do have data, TV is asking for a
-      // range before our history starts — signal noData so it stops paging.
+      // range before our history starts - signal noData so it stops paging.
       onResult(bars, { noData: bars.length === 0 })
     } catch (err) {
       onError(err instanceof Error ? err.message : String(err))
@@ -286,7 +286,7 @@ export class TVDatafeed implements Charting_Library.IExternalDatafeed {
   }
 
   // ---------------------------------------------------------------------------
-  // IExternalDatafeed — subscribeBars
+  // IExternalDatafeed - subscribeBars
   // ---------------------------------------------------------------------------
   subscribeBars(
     symbolInfo: Charting_Library.LibrarySymbolInfo,
@@ -311,7 +311,7 @@ export class TVDatafeed implements Charting_Library.IExternalDatafeed {
   }
 
   // ---------------------------------------------------------------------------
-  // IExternalDatafeed — unsubscribeBars
+  // IExternalDatafeed - unsubscribeBars
   // ---------------------------------------------------------------------------
   unsubscribeBars(listenerGuid: string): void {
     const sub = this.subscribers.get(listenerGuid)
@@ -345,7 +345,7 @@ export class TVDatafeed implements Charting_Library.IExternalDatafeed {
 
     return new Promise((resolve, reject) => {
       if (this.ws && this.ws.readyState === WebSocket.CONNECTING) {
-        // Already connecting — wait for it
+        // Already connecting - wait for it
         this.ws.addEventListener('open',  () => resolve(), { once: true })
         this.ws.addEventListener('error', () => reject(new Error('WS connection failed')), { once: true })
         return
@@ -430,14 +430,14 @@ export class TVDatafeed implements Charting_Library.IExternalDatafeed {
   }
 
   // ---------------------------------------------------------------------------
-  // IExternalDatafeed — getServerTime  (optional)
+  // IExternalDatafeed - getServerTime  (optional)
   // ---------------------------------------------------------------------------
   getServerTime(callback: Charting_Library.ServerTimeCallback): void {
     setTimeout(() => callback(Math.floor(Date.now() / 1000)), 0)
   }
 
   // ---------------------------------------------------------------------------
-  // IExternalDatafeed — calculateHistoryDepth  (optional)
+  // IExternalDatafeed - calculateHistoryDepth  (optional)
   // Gives TV paging hints so it doesn't request data beyond our history depth.
   // ---------------------------------------------------------------------------
   calculateHistoryDepth(
@@ -453,7 +453,7 @@ export class TVDatafeed implements Charting_Library.IExternalDatafeed {
   }
 
   // ---------------------------------------------------------------------------
-  // IExternalDatafeed — getMarks  (optional)
+  // IExternalDatafeed - getMarks  (optional)
   // Renders colored buy/sell markers on bars from the trade journal.
   // Mark.time is in Unix **seconds** (unlike Bar.time which is ms).
   // ---------------------------------------------------------------------------
@@ -487,7 +487,7 @@ export class TVDatafeed implements Charting_Library.IExternalDatafeed {
   }
 
   // ---------------------------------------------------------------------------
-  // IExternalDatafeed — getQuotes  (optional, powers Watchlist last-price column)
+  // IExternalDatafeed - getQuotes  (optional, powers Watchlist last-price column)
   // ---------------------------------------------------------------------------
   getQuotes(
     symbols: string[],
@@ -526,7 +526,7 @@ export class TVDatafeed implements Charting_Library.IExternalDatafeed {
   }
 
   // ---------------------------------------------------------------------------
-  // IExternalDatafeed — subscribeQuotes / unsubscribeQuotes  (optional)
+  // IExternalDatafeed - subscribeQuotes / unsubscribeQuotes  (optional)
   // Drives the Watchlist real-time price column via polling every 1.5 s.
   // ---------------------------------------------------------------------------
   subscribeQuotes(
@@ -579,9 +579,9 @@ export class TVDatafeed implements Charting_Library.IExternalDatafeed {
           sub.onTick(quotes)
         }
       })
-      .catch(() => {}) // silent — next poll will retry
+      .catch(() => {}) // silent - next poll will retry
   }
 }
 
-/** Singleton datafeed instance — one WS connection for all TV chart instances. */
+/** Singleton datafeed instance - one WS connection for all TV chart instances. */
 export const tvDatafeed = new TVDatafeed()

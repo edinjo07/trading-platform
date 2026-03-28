@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+﻿import React, { useState, useMemo } from 'react'
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 export type ColumnDef<T> = {
@@ -257,7 +257,7 @@ export default function AdminListPage<T extends object>({
                       <td key={String(col.key)} className="px-5 py-3 text-text-secondary">
                         {col.render
                           ? col.render(row)
-                          : <span className="text-text-primary">{String((row as Record<string, unknown>)[col.key as string] ?? '—')}</span>
+                          : <span className="text-text-primary">{String((row as Record<string, unknown>)[col.key as string] ?? '-')}</span>
                         }
                       </td>
                     ))}

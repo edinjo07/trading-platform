@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+﻿import React, { useState } from 'react'
 import { useTradingStore } from '../../store/tradingStore'
 import { useToastStore } from '../../store/toastStore'
 import { formatCurrency, formatPrice, formatPnl } from '../../utils/formatters'
@@ -104,7 +104,7 @@ export default function PositionsTable() {
                     ? <span className="font-mono text-[10px] font-semibold" style={{ color: '#ef4444' }}>
                         {formatPrice(pos.liquidationPrice, pos.symbol)}
                       </span>
-                    : <span style={{ color: '#2d4460' }}>—</span>
+                    : <span style={{ color: '#2d4460' }}>-</span>
                   }
                 </td>
                 <td className="px-4 py-3 text-right">

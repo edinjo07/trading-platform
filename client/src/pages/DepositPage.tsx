@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+﻿import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
 import { formatCurrency } from '../utils/formatters'
@@ -212,7 +212,7 @@ export default function DepositPage() {
           />
         </div>
         {isValid && feeAmount > 0 && (
-          <p className="text-xs text-text-muted mt-2">Processing fee: <span className="text-bear font-mono">{formatCurrency(feeAmount)}</span> — Total: <span className="text-text-primary font-mono font-semibold">{formatCurrency(totalDebit)}</span></p>
+          <p className="text-xs text-text-muted mt-2">Processing fee: <span className="text-bear font-mono">{formatCurrency(feeAmount)}</span> - Total: <span className="text-text-primary font-mono font-semibold">{formatCurrency(totalDebit)}</span></p>
         )}
       </div>
 

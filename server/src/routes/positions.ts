@@ -1,4 +1,4 @@
-import { Router, Response } from 'express'
+﻿import { Router, Response } from 'express'
 import { authenticate, AuthRequest } from '../middleware/auth'
 import { getPortfolio, closePosition, executeOrder, portfolios, orders, tradeJournal, refreshPortfolio } from '../services/tradingEngine'
 import { dbLoadPortfolio, dbLoadTradeJournal, dbSaveOrder, dbSavePortfolio, dbSaveTradeRecord, dbEnsureUser } from '../services/dbSync'
@@ -6,7 +6,7 @@ import { dbLoadPortfolio, dbLoadTradeJournal, dbSaveOrder, dbSavePortfolio, dbSa
 const router = Router()
 router.use(authenticate)
 
-// GET /api/positions  — list all open positions for the authenticated user
+// GET /api/positions  - list all open positions for the authenticated user
 router.get('/', async (req: AuthRequest, res: Response) => {
   const userId = req.user!.userId
   try {
@@ -21,7 +21,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
   res.json({ success: true, data: portfolio.positions })
 })
 
-// DELETE /api/positions/:symbol  — close an open position at market
+// DELETE /api/positions/:symbol  - close an open position at market
 router.delete('/:symbol', async (req: AuthRequest, res: Response) => {
   const userId = req.user!.userId
   const { symbol } = req.params
@@ -37,7 +37,7 @@ router.delete('/:symbol', async (req: AuthRequest, res: Response) => {
         const dbJournal = await dbLoadTradeJournal(userId)
         if (dbJournal.length > 0) tradeJournal.set(userId, [...dbJournal].reverse())
       }
-    } catch { /* non-fatal — proceed with whatever is in memory */ }
+    } catch { /* non-fatal - proceed with whatever is in memory */ }
 
     const order = closePosition(userId, symbol)
 
@@ -45,7 +45,7 @@ router.delete('/:symbol', async (req: AuthRequest, res: Response) => {
     // without this the position stays open until the tick loop fires it)
     executeOrder(order.id)
 
-    // Now the sell has filled — grab the fresh order, portfolio, and journal states
+    // Now the sell has filled - grab the fresh order, portfolio, and journal states
     const filledOrder = orders.get(order.id) ?? order
     const portfolio   = portfolios.get(userId)
     const journal     = tradeJournal.get(userId) ?? []

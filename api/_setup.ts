@@ -1,8 +1,8 @@
-/**
- * _setup.ts — must be the FIRST import in api/[...path].ts
+﻿/**
+ * _setup.ts - must be the FIRST import in api/[...path].ts
  * Applies non-sensitive defaults and bridges Vercel's auto-injected Supabase
  * variable names to the names our app expects.
- * Secrets are never hardcoded — they come from Vercel Environment Variables.
+ * Secrets are never hardcoded - they come from Vercel Environment Variables.
  */
 
 // ── Non-sensitive defaults ────────────────────────────────────────────────
@@ -10,7 +10,7 @@ const NON_SECRET_DEFAULTS: Record<string, string> = {
   NODE_ENV: 'production',
   JWT_EXPIRES_IN: '7d',
   CORS_ORIGIN: 'https://trading-platform-client.vercel.app',
-  // Public project URL — not a secret
+  // Public project URL - not a secret
   SUPABASE_URL: 'https://tkplwifmstnkecevgbyi.supabase.co',
 }
 for (const [k, v] of Object.entries(NON_SECRET_DEFAULTS)) {

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * TypeScript ambient declarations for TradingView Charting Library.
  *
  * Covers both Advanced Charts (free, public) and Trading Platform (licensed).
@@ -109,9 +109,9 @@ declare namespace Charting_Library {
   }
 
   interface PeriodParams {
-    /** Unix timestamp in **seconds** — start of the requested range. */
+    /** Unix timestamp in **seconds** - start of the requested range. */
     from: number
-    /** Unix timestamp in **seconds** — end of the requested range. */
+    /** Unix timestamp in **seconds** - end of the requested range. */
     to: number
     firstDataRequest: boolean
     /** Number of bars the library wants to preload. */

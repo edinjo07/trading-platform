@@ -1,4 +1,4 @@
-import { v4 as uuidv4 } from 'uuid'
+﻿import { v4 as uuidv4 } from 'uuid'
 import { EventEmitter } from 'events'
 import {
   Order, OrderSide, OrderType, OrderStatus, TimeInForce,
@@ -24,7 +24,7 @@ export const tradeJournal= new Map<string, TradeRecord[]>()   // userId -> trade
 export const equityCurve = new Map<string, EquityPoint[]>()   // userId -> equity points
 
 // ---------------------------------------------------------------------------
-// IC Markets account types — commission & spread model
+// IC Markets account types - commission & spread model
 // https://www.icmarkets.com/global/en/trading-accounts/overview
 //
 //  Account        | Platform          | Commission/lot/side | Spreads from | Min Dep | Stop-out
@@ -70,14 +70,14 @@ function calcCommission(symbol: string, quantity: number, price: number, account
   let flatUsd = 0
 
   if (acctDef.commissionPerLot > 0) {
-    // Raw Spread (MetaTrader) — per-lot commission for forex/metals/bonds
+    // Raw Spread (MetaTrader) - per-lot commission for forex/metals/bonds
     const lotClasses = ['forex', 'commodity', 'bond']
     if (lotClasses.includes(ac)) {
       const lots = quantity / (LOT_SIZE[ac] ?? 100_000)
       flatUsd = lots * acctDef.commissionPerLot
     }
   } else if (acctDef.commissionPer100k > 0) {
-    // cTrader — commission per USD 100k notional for forex/metals/bonds
+    // cTrader - commission per USD 100k notional for forex/metals/bonds
     const lotClasses = ['forex', 'commodity', 'bond']
     if (lotClasses.includes(ac)) {
       const notional = quantity * price
@@ -91,7 +91,7 @@ function calcCommission(symbol: string, quantity: number, price: number, account
 }
 
 // ---------------------------------------------------------------------------
-// Slippage model — market impact proportional to order size
+// Slippage model - market impact proportional to order size
 // ---------------------------------------------------------------------------
 function calcSlippage(symbol: string, quantity: number, price: number, side: OrderSide): number {
   const ac = getAssetClass(symbol)
@@ -213,7 +213,7 @@ export function refreshPortfolio(p: Portfolio): Portfolio {
 }
 
 // ---------------------------------------------------------------------------
-// Leverage limits — IC Markets Global (FSA Seychelles)
+// Leverage limits - IC Markets Global (FSA Seychelles)
 //   Forex majors/minors/exotics : 1:1000
 //   Precious metals (spot)      : 1:500
 //   Energies & soft commodities : 1:200 / 1:100
@@ -249,7 +249,7 @@ export function getOrdersByUser(userId: string): Order[] {
 }
 
 // ---------------------------------------------------------------------------
-// createOrder — the main order entry point
+// createOrder - the main order entry point
 // ---------------------------------------------------------------------------
 export function createOrder(
   userId: string,
@@ -287,7 +287,7 @@ export function createOrder(
   const estimatedCommission = calcCommission(symbol, quantity, estimatedFillPrice, user?.accountType)
 
   if (side === 'buy') {
-    // Check if closing a short — no cash needed
+    // Check if closing a short - no cash needed
     const existingShort = portfolio.positions.find(p => p.symbol === symbol && p.side === 'short')
     if (!existingShort) {
       if (portfolio.cashBalance < estimatedMargin + estimatedCommission) {
@@ -311,7 +311,7 @@ export function createOrder(
     } else {
       // Leveraged sell: can open short if no long position, OR close existing long
       if (!pos) {
-        // Opening a leveraged short — check margin
+        // Opening a leveraged short - check margin
         if (portfolio.cashBalance < estimatedMargin + estimatedCommission) {
           throw new Error(`Insufficient margin for short: need $${(estimatedMargin + estimatedCommission).toFixed(2)} (${leverage}x), have $${portfolio.cashBalance.toFixed(2)}`)
         }
@@ -356,7 +356,7 @@ export function createOrder(
   // NOTE: We do NOT fire-and-forget dbSaveOrder here with status='pending'.
   // The route handler (orders.ts) awaits dbSaveOrder AFTER executeOrder sets
   // the status to 'filled'.  A premature 'pending' save arriving at Supabase
-  // AFTER the 'filled' save would revert the order — causing it to "disappear"
+  // AFTER the 'filled' save would revert the order - causing it to "disappear"
   // from the client's perspective.  The route handler is the single owner of
   // DB persistence for every order lifecycle event.
 
@@ -364,7 +364,7 @@ export function createOrder(
     if (!process.env.VERCEL) {
       // Local dev only: simulate fill latency with setTimeout.
       // On Vercel serverless the container may be frozen before the callback
-      // fires — the route handler calls executeOrder() synchronously instead.
+      // fires - the route handler calls executeOrder() synchronously instead.
       const latency = 50 + Math.random() * 250
       setTimeout(() => executeOrder(order.id), latency)
     }
@@ -372,7 +372,7 @@ export function createOrder(
   } else {
     order.status = 'open'
     order.updatedAt = new Date().toISOString()
-    // Handle IOC/FOK — immediately cancel if not fillable at current price
+    // Handle IOC/FOK - immediately cancel if not fillable at current price
     if (timeInForce === 'IOC' || timeInForce === 'FOK') {
       const canFillNow =
         (type === 'limit' && side === 'buy'  && currentPrice <= price!) ||
@@ -391,7 +391,7 @@ export function createOrder(
 }
 
 // ---------------------------------------------------------------------------
-// executeOrder — fills an order, updates portfolio, records trade, schedules TP/SL
+// executeOrder - fills an order, updates portfolio, records trade, schedules TP/SL
 // ---------------------------------------------------------------------------
 export function executeOrder(orderId: string, overrideFillPrice?: number): void {
   const order = orders.get(orderId)
@@ -606,7 +606,7 @@ export function executeOrder(orderId: string, overrideFillPrice?: number): void 
   recordEquityPoint(order.userId, portfolio)
 
   // DB persistence is handled exclusively by the route handler (orders.ts).
-  // No fire-and-forget saves here — concurrent writes race against the route
+  // No fire-and-forget saves here - concurrent writes race against the route
   // handler's awaited saves and can cause non-deterministic results in Supabase.
 
   // Emit events
@@ -648,7 +648,7 @@ setInterval(() => {
 }, 5 * 60 * 1000)
 
 // ---------------------------------------------------------------------------
-// Overnight swap engine — IC Markets rules
+// Overnight swap engine - IC Markets rules
 //   Triple swap on Wednesday night  : Forex, Metals, Bonds, Soft Commodities
 //   Triple swap on Friday   night   : Energies, Indices, Crypto
 //   Applied once per day when the server clock passes midnight (GMT+2)
@@ -806,7 +806,7 @@ export function getTradeJournal(userId: string): TradeRecord[] {
 }
 
 // ---------------------------------------------------------------------------
-// Watcher system — processes limit, stop, stop-limit, trailing-stop, TP/SL
+// Watcher system - processes limit, stop, stop-limit, trailing-stop, TP/SL
 // ---------------------------------------------------------------------------
 type WatchKind = 'limit' | 'stop' | 'stop_limit' | 'trailing_stop' | 'take_profit' | 'stop_loss'
 
@@ -859,7 +859,7 @@ function syncOrderWatchers(): void {
   }
 }
 
-// Master poller — 500ms interval
+// Master poller - 500ms interval
 setInterval(() => {
   syncOrderWatchers()
 
@@ -928,7 +928,7 @@ setInterval(() => {
         // Fill the existing order record
         executeOrder(w.orderId, fillPrice)
       } else {
-        // TP/SL — create and fill a synthetic market order
+        // TP/SL - create and fill a synthetic market order
         try {
           const syntheticOrder = createOrder(w.userId, w.symbol, w.side, 'market', w.quantity)
           setTimeout(() => executeOrder(syntheticOrder.id, fillPrice ?? mp), 50)
@@ -937,7 +937,7 @@ setInterval(() => {
     }
   }
 
-  // ── Liquidation checker — force-close leveraged positions at 90% margin loss ──
+  // ── Liquidation checker - force-close leveraged positions at 90% margin loss ──
   for (const [userId, portfolio] of portfolios.entries()) {
     for (const pos of [...portfolio.positions]) {
       const lev = pos.leverage ?? 1

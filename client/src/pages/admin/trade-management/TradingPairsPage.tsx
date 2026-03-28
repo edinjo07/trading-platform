@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react'
+﻿import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import { useAuthStore } from '../../../store/authStore'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -234,7 +234,7 @@ function PairFormFields({ form, setForm }: {
       <Field label="Swap Short" hint="Overnight swap rate (short)">
         <Input value={form.swapShort} onChange={set('swapShort')} type="number" placeholder="0.18" />
       </Field>
-      {/* Description — full width */}
+      {/* Description - full width */}
       <div className="col-span-2">
         <Field label="Description">
           <textarea
@@ -324,7 +324,7 @@ export default function TradingPairsPage() {
       setPairs(await pairsRes.json())
       if (statsRes.ok) setStats(await statsRes.json())
     } catch (e: any) {
-      // Fallback to empty — server may not be running
+      // Fallback to empty - server may not be running
       setError(e.message)
     } finally {
       setLoading(false)
@@ -531,12 +531,12 @@ export default function TradingPairsPage() {
       {/* ── Stats row ─────────────────────────────────────────────────────── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
         <StatCard label="Total Pairs"  value={stats?.total   ?? pairs.length}   />
-        <StatCard label="Enabled"      value={stats?.enabled ?? '—'} color="text-bull" />
-        <StatCard label="Disabled"     value={stats?.disabled ?? '—'} color="text-bear" />
-        <StatCard label="Forex"        value={stats?.byCategory?.forex     ?? '—'} color="text-sky-400" />
-        <StatCard label="Crypto"       value={stats?.byCategory?.crypto    ?? '—'} color="text-amber-400" />
-        <StatCard label="Commodities"  value={stats?.byCategory?.commodity ?? '—'} color="text-orange-400" />
-        <StatCard label="Indices"      value={stats?.byCategory?.index     ?? '—'} color="text-emerald-400" />
+        <StatCard label="Enabled"      value={stats?.enabled ?? '-'} color="text-bull" />
+        <StatCard label="Disabled"     value={stats?.disabled ?? '-'} color="text-bear" />
+        <StatCard label="Forex"        value={stats?.byCategory?.forex     ?? '-'} color="text-sky-400" />
+        <StatCard label="Crypto"       value={stats?.byCategory?.crypto    ?? '-'} color="text-amber-400" />
+        <StatCard label="Commodities"  value={stats?.byCategory?.commodity ?? '-'} color="text-orange-400" />
+        <StatCard label="Indices"      value={stats?.byCategory?.index     ?? '-'} color="text-emerald-400" />
       </div>
 
       {/* ── Table card ────────────────────────────────────────────────────── */}
@@ -731,7 +731,7 @@ export default function TradingPairsPage() {
 
       {/* ── Edit Modal ─────────────────────────────────────────────────────── */}
       {editPair && (
-        <Modal title={`Edit — ${editPair.symbol}`} onClose={() => setEditPair(null)} wide>
+        <Modal title={`Edit - ${editPair.symbol}`} onClose={() => setEditPair(null)} wide>
           <PairFormFields form={form} setForm={setForm} />
           {formErr && (
             <p className="px-6 pb-2 text-xs text-bear">{formErr}</p>

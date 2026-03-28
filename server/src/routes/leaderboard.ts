@@ -1,10 +1,10 @@
-import { Router, Request, Response } from 'express'
+﻿import { Router, Request, Response } from 'express'
 import { authenticate } from '../middleware/auth'
 
 const router = Router()
 router.use(authenticate)
 
-// Seeded mock leaderboard — deterministic per run
+// Seeded mock leaderboard - deterministic per run
 const BASE_USERS = [
   { username: 'AlphaTrader',   avatar: 'A', country: 'US' },
   { username: 'CryptoKing',    avatar: 'C', country: 'UK' },

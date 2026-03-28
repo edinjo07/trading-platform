@@ -189,7 +189,7 @@ export function useWebSocket() {
     reconnectRef.current = setTimeout(connectFn, delay)
   }, [])
 
-  // When an explicit WS endpoint is configured (VITE_WS_URL — e.g. Railway) we know
+  // When an explicit WS endpoint is configured (VITE_WS_URL - e.g. Railway) we know
   // WebSocket WILL work; transient failures on cold-start should be retried indefinitely.
   // When WS is derived from window.location.host (e.g. Vercel serverless) we give up
   // after a few attempts and fall back to REST polling permanently.
@@ -305,9 +305,9 @@ export function useWebSocket() {
           stopPollRef.current = startPolling(() => selectedSymRef.current, mountedRef)
         }
       } else {
-        // Same-host endpoint (Vercel etc.): WS likely not supported — start polling now.
+        // Same-host endpoint (Vercel etc.): WS likely not supported - start polling now.
         if (failCount === 0) {
-          console.info('[WS] WebSocket unavailable — using REST polling fallback')
+          console.info('[WS] WebSocket unavailable - using REST polling fallback')
         }
         if (!stopPollRef.current) {
           stopPollRef.current = startPolling(() => selectedSymRef.current, mountedRef)
@@ -340,10 +340,10 @@ export function useWebSocket() {
       retryCountRef.current = 0
       const state = wsRef.current?.readyState
       if (state === WebSocket.OPEN) {
-        // Already open — re-authenticate in-place without disrupting the connection
+        // Already open - re-authenticate in-place without disrupting the connection
         if (token) wsRef.current!.send(JSON.stringify({ type: 'auth', payload: { token } }))
       } else if (state !== WebSocket.CONNECTING) {
-        // Closed or no connection — start fresh with the new token
+        // Closed or no connection - start fresh with the new token
         connect()
       }
       // If CONNECTING, the CONNECTING guard in connect() lets it establish;

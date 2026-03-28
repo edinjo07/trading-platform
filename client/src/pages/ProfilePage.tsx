@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+﻿import React, { useState } from 'react'
 import { useAuthStore } from '../store/authStore'
 import { useTradingStore } from '../store/tradingStore'
 import { formatCurrency } from '../utils/formatters'
@@ -142,7 +142,7 @@ export default function ProfilePage() {
 
   const joined = user?.id
     ? new Date(parseInt(user.id.slice(-8), 16) * 1000).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
-    : '—'
+    : '-'
 
   const winRate = performanceStats?.winRate ?? 0
   const totalTrades = (portfolio?.positions?.length ?? 0) + 12
@@ -178,7 +178,7 @@ export default function ProfilePage() {
             <h1 className="text-xl font-bold text-white">{user?.username ?? 'User'}</h1>
             <RoleBadge role="trader" />
           </div>
-          <div className="text-sm text-text-secondary">{user?.email ?? '—'}</div>
+          <div className="text-sm text-text-secondary">{user?.email ?? '-'}</div>
           <div className="text-xs text-text-muted mt-1">Member since {joined}</div>
         </div>
 
@@ -231,9 +231,9 @@ export default function ProfilePage() {
           {/* Account details */}
           <Card title="Account Details">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Field label="User ID" value={user?.id ?? '—'} readOnly />
-              <Field label="Username" value={user?.username ?? '—'} readOnly />
-              <Field label="Email Address" value={user?.email ?? '—'} readOnly />
+              <Field label="User ID" value={user?.id ?? '-'} readOnly />
+              <Field label="Username" value={user?.username ?? '-'} readOnly />
+              <Field label="Email Address" value={user?.email ?? '-'} readOnly />
               <Field label="Account Type" value={ACCOUNT_LABELS[user?.accountType ?? 'raw_spread']} readOnly />
               <Field label="Status" value="Active" readOnly />
               <Field label="Member Since" value={joined} readOnly />
@@ -293,8 +293,8 @@ export default function ProfilePage() {
 
           <Card title="Active Sessions">
             {[
-              { device: 'Windows — Chrome', location: 'Current session', time: 'Active now', current: true },
-              { device: 'iPhone — Safari',  location: 'Last active',     time: '2 days ago', current: false },
+              { device: 'Windows - Chrome', location: 'Current session', time: 'Active now', current: true },
+              { device: 'iPhone - Safari',  location: 'Last active',     time: '2 days ago', current: false },
             ].map((s, i) => (
               <div key={i} className="flex items-center justify-between py-3 rounded-lg px-3 mb-2 last:mb-0"
                 style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}>

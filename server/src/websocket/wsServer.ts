@@ -1,4 +1,4 @@
-import { WebSocketServer, WebSocket } from 'ws'
+﻿import { WebSocketServer, WebSocket } from 'ws'
 import { Server } from 'http'
 import jwt from 'jsonwebtoken'
 import {
@@ -83,7 +83,7 @@ tradeEvents.on('orderFill', (data: { userId: string; [key: string]: unknown }) =
   notifyUser(data.userId, 'order_fill', data)
 })
 
-// Bot update events — push real-time bot state to owner's WebSocket
+// Bot update events - push real-time bot state to owner's WebSocket
 botEvents.on('botUpdate', (userId: string, _botId: string, bot: unknown) => {
   notifyUser(userId, 'bot_update', bot)
 })
@@ -98,7 +98,7 @@ export function initWebSocket(server: Server): WebSocketServer {
     const client: Client = { ws, subscriptions: new Set() }
     clients.add(client)
 
-    // Resolve auth asynchronously — handles custom HS256 and Supabase ES256 tokens
+    // Resolve auth asynchronously - handles custom HS256 and Supabase ES256 tokens
     ;(async () => {
       try {
         const url = new URL(req.url ?? '', 'http://localhost')
@@ -110,7 +110,7 @@ export function initWebSocket(server: Server): WebSocketServer {
           const uid = (decoded.userId ?? decoded.sub) as string | undefined
           if (uid) { client.userId = uid; registerUserClient(uid, client) }
         } catch {
-          // Slow path: Supabase ES256 token — verify via Supabase API
+          // Slow path: Supabase ES256 token - verify via Supabase API
           const payload = await verifySupabaseToken(token)
           if (payload?.userId) { client.userId = payload.userId; registerUserClient(payload.userId, client) }
         }
@@ -142,7 +142,7 @@ export function initWebSocket(server: Server): WebSocketServer {
           const channel = payload?.channel as string
           if (channel) client.subscriptions.delete(channel)
         } else if (type === 'auth') {
-          // Late auth — async to handle Supabase ES256 tokens
+          // Late auth - async to handle Supabase ES256 tokens
           ;(async () => {
             try {
               const token = payload?.token as string
@@ -177,7 +177,7 @@ export function initWebSocket(server: Server): WebSocketServer {
   })
 
   // ---------------------------------------------------------------------------
-  // GBM tick loop — every 500 ms, tick all symbols
+  // GBM tick loop - every 500 ms, tick all symbols
   // ---------------------------------------------------------------------------
   let tickCount = 0
   setInterval(() => {

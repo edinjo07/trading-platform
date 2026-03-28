@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useCallback } from 'react'
+﻿import React, { useEffect, useRef, useCallback } from 'react'
 import {
   createChart,
   IChartApi,
@@ -116,7 +116,7 @@ export default function CandlestickChart({ candles, symbol, interval, onInterval
 
   // Candle data updates
   // ─ Initial load / symbol+interval change (big batch): full setData + fitContent
-  // ─ Live WS tick (1-2 candle diff): series.update() only — never resets viewport
+  // ─ Live WS tick (1-2 candle diff): series.update() only - never resets viewport
   //   This is what allows the user to zoom/pan freely while prices stream live.
   useEffect(() => {
     if (!candleSeriesRef.current || !volumeSeriesRef.current) return
@@ -127,7 +127,7 @@ export default function CandlestickChart({ candles, symbol, interval, onInterval
     const isBigReload = !isInitialLoad && Math.abs(candles.length - prev) > 2
 
     if (isInitialLoad || isBigReload) {
-      // Full reload — replace all data and fit the viewport
+      // Full reload - replace all data and fit the viewport
       const cData: CandleData[] = candles.map(c => ({
         time: c.time as unknown as number,
         open: c.open, high: c.high, low: c.low, close: c.close,
@@ -141,7 +141,7 @@ export default function CandlestickChart({ candles, symbol, interval, onInterval
       volumeSeriesRef.current.setData(vData as Parameters<typeof volumeSeriesRef.current.setData>[0])
       chartRef.current?.timeScale().fitContent()
     } else {
-      // Live tick — update only the last candle without touching the viewport
+      // Live tick - update only the last candle without touching the viewport
       const last = candles[candles.length - 1]
       if (!last) return
       const cPoint = { time: last.time as unknown as number, open: last.open, high: last.high, low: last.low, close: last.close }

@@ -1,4 +1,4 @@
-import { create } from 'zustand'
+﻿import { create } from 'zustand'
 import { Ticker, OrderBook, Trade, Order, Portfolio, MarketSymbol, Candle, PerformanceStats, TradeRecord } from '../types'
 import { getSymbols, getCandles, getOrderBook, getRecentTrades } from '../api/markets'
 import { getOrders, placeOrder, cancelOrder, PlaceOrderParams } from '../api/orders'
@@ -99,7 +99,7 @@ export const useTradingStore = create<TradingState>((set, get) => ({
       if (Array.isArray(result) && result.length > 0) {
         set({ candles: result, loading: false })
       } else {
-        // API unavailable — use client-side mock data so chart always renders
+        // API unavailable - use client-side mock data so chart always renders
         set({ candles: generateMockCandles(selectedSymbol, chartInterval, 300), loading: false })
       }
     } catch {
@@ -112,14 +112,14 @@ export const useTradingStore = create<TradingState>((set, get) => ({
       const result = await getOrders()
       if (!Array.isArray(result)) return
       // If the server returns an empty array but we already have orders in state,
-      // keep the existing state — a 200 [] response right after order placement
+      // keep the existing state - a 200 [] response right after order placement
       // would otherwise wipe the optimistically-added order from the UI.
       // The 5-second polling loop will eventually reconcile once the DB confirms.
       const current = get().orders
       if (result.length === 0 && current.length > 0) return
       set({ orders: result })
     } catch {
-      // 503 / network error — keep existing orders list
+      // 503 / network error - keep existing orders list
     }
   },
 
@@ -133,7 +133,7 @@ export const useTradingStore = create<TradingState>((set, get) => ({
 
         if (current) {
           // Guard 1: incoming is a plain cold-start default ($100k, no positions,
-          // no updatedAt). Reject it if we have any real state — placed orders,
+          // no updatedAt). Reject it if we have any real state - placed orders,
           // open positions, actual cash balance, or a previous DB-confirmed timestamp.
           const incomingIsDefault = !incoming.updatedAt &&
             incoming.cashBalance >= 99_999.99 &&
@@ -144,7 +144,7 @@ export const useTradingStore = create<TradingState>((set, get) => ({
           if (incomingIsDefault && currentHasRealData) return
 
           // Guard 2: server returned unconfirmed data (no updatedAt) but we have
-          // a DB-confirmed timestamp — discard cold-start Default.
+          // a DB-confirmed timestamp - discard cold-start Default.
           if (!incoming.updatedAt && current.updatedAt) return
 
           // Guard 3: incoming is older than what we already have.
@@ -195,7 +195,7 @@ export const useTradingStore = create<TradingState>((set, get) => ({
 
       // Optimistically update state from the fill response so the UI is
       // correct immediately without waiting for the server sync.
-      // Do NOT stamp a client-side updatedAt — the routine loadPortfolio
+      // Do NOT stamp a client-side updatedAt - the routine loadPortfolio
       // staleness guard compares against the DB timestamp, and a client
       // timestamp would be newer than the DB's, causing the 1.5s sync to
       // be rejected and positions never appearing.
@@ -255,7 +255,7 @@ export const useTradingStore = create<TradingState>((set, get) => ({
 
       // Delayed sync: pull authoritative state from server after DB write completes.
       // Accept any response with a DB-confirmed updatedAt (bypass the staleness
-      // guard used for routine polling — we know an order just executed).
+      // guard used for routine polling - we know an order just executed).
       // Exception: if the DB returns empty positions but the current store has
       // positions (our optimistic update is more accurate than the DB in this window),
       // keep the current positions and only update financials.
@@ -290,7 +290,7 @@ export const useTradingStore = create<TradingState>((set, get) => ({
             }
           }
           // Only replace orders list if the server has a non-empty result or we
-          // have no orders yet — never wipe a known order with an empty array.
+          // have no orders yet - never wipe a known order with an empty array.
           if (Array.isArray(fetchedOrders)) {
             const current = get().orders
             if (fetchedOrders.length > 0 || current.length === 0) {
@@ -419,7 +419,7 @@ export const useTradingStore = create<TradingState>((set, get) => ({
   },
 
   updateOrderBook: (orderBook) => {
-    // Validate shape before storing — malformed API responses must not reach render
+    // Validate shape before storing - malformed API responses must not reach render
     if (orderBook && Array.isArray(orderBook.asks) && Array.isArray(orderBook.bids)) {
       set({ orderBook })
     }
@@ -450,7 +450,7 @@ export const useTradingStore = create<TradingState>((set, get) => ({
         updated[updated.length - 1] = candle
         return { candles: updated, liveCandle: candle }
       } else if (candle.time > last.time) {
-        // New candle — append
+        // New candle - append
         return { candles: [...existing, candle], liveCandle: candle }
       }
       return { liveCandle: candle }

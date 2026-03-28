@@ -1,4 +1,4 @@
-// Shared mock data generator for admin pages
+﻿// Shared mock data generator for admin pages
 
 export interface TradeRow {
   id: string; user: string; symbol: string; type: string; side: string
@@ -61,7 +61,7 @@ export function generateTrades(count = 80): TradeRow[] {
       pnl: Math.round(pnl * 100) / 100,
       status,
       openTime: fmt(new Date(Date.now() - rand(0, 30 * 86400000))),
-      closeTime: status === 'closed' ? fmt(new Date(Date.now() - rand(0, 5 * 86400000))) : '—',
+      closeTime: status === 'closed' ? fmt(new Date(Date.now() - rand(0, 5 * 86400000))) : '-',
     }
   })
 }

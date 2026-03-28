@@ -58,7 +58,7 @@ function RiskDisclosureModal({ onAccept, onClose }: { onAccept: () => void; onCl
               color: '#38bdf8',
             },
             {
-              title: 'Paper trading environment — mirrors real risk',
+              title: 'Paper trading environment - mirrors real risk',
               body:  'Simulated results may differ from live trading due to slippage, liquidity constraints, and execution delays that paper trading does not replicate.',
               icon:  '🧪',
               color: '#00c878',

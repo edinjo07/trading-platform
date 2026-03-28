@@ -1,4 +1,4 @@
-const fs = require('fs')
+﻿const fs = require('fs')
 const path = require('path')
 
 const code = `import React, { useEffect, useRef } from 'react'
@@ -50,7 +50,7 @@ function EquityCurve({ points }: { points: EquityPoint[] }) {
   if (points.length < 2) {
     return (
       <div className="flex items-center justify-center h-full text-text-muted text-sm">
-        Not enough data yet — start trading to build your equity curve
+        Not enough data yet - start trading to build your equity curve
       </div>
     )
   }
@@ -145,13 +145,13 @@ function JournalRow({ trade, idx }: { trade: TradeRecord; idx: number }) {
       </td>
       <td className="px-4 py-2.5 text-xs text-right font-mono font-semibold tabular"
           style={{ color: isClosed ? pnlColor(pnl) : '#6b8099' }}>
-        {isClosed ? formatPnl(pnl) : '—'}
+        {isClosed ? formatPnl(pnl) : '-'}
       </td>
       <td className="px-4 py-2.5 text-xs text-right font-mono text-text-muted tabular">
         {formatCurrency(trade.commission)}
       </td>
       <td className="px-4 py-2.5 text-xs text-right font-mono text-text-muted">
-        {isClosed && trade.holdingPeriodMs ? fmtDuration(trade.holdingPeriodMs) : '—'}
+        {isClosed && trade.holdingPeriodMs ? fmtDuration(trade.holdingPeriodMs) : '-'}
       </td>
       <td className="px-4 py-2.5 text-xs text-center">
         <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase"
@@ -339,4 +339,4 @@ export default function AnalyticsPage() {
 
 const filePath = path.join(__dirname, 'client', 'src', 'pages', 'AnalyticsPage.tsx')
 fs.writeFileSync(filePath, code, 'utf8')
-console.log('Written:', filePath, '—', code.length, 'chars')
+console.log('Written:', filePath, '-', code.length, 'chars')

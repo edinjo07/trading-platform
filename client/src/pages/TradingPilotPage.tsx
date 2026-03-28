@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+﻿import React, { useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
 
@@ -37,7 +37,7 @@ const STRATEGIES = [
         <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
       </svg>
     ),
-    desc: 'The Relative Strength Index measures market exhaustion. When the crowd has sold too aggressively, Pilot buys the rebound. When euphoria peaks, it sells the top — a discipline no human can maintain.',
+    desc: 'The Relative Strength Index measures market exhaustion. When the crowd has sold too aggressively, Pilot buys the rebound. When euphoria peaks, it sells the top - a discipline no human can maintain.',
     bullets: ['RSI period and threshold fully tunable', 'Anti-whipsaw confirmation bars', 'News sentiment cross-check', 'Daily loss circuit-breaker'],
     badge: 'MEAN REVERSION',
     winRate: '58%',
@@ -56,7 +56,7 @@ const STRATEGIES = [
         <path d="M18 20V10M12 20V4M6 20v-6" />
       </svg>
     ),
-    desc: 'MACD captures the gap between two exponential averages and watches for line convergence. It catches momentum shifts early — often before the rest of the market even notices the move has begun.',
+    desc: 'MACD captures the gap between two exponential averages and watches for line convergence. It catches momentum shifts early - often before the rest of the market even notices the move has begun.',
     bullets: ['Fast, slow & signal periods configurable', 'Histogram divergence detection', 'Claude AI news sentiment overlay', 'Max daily trade circuit-breaker'],
     badge: 'MOMENTUM',
     winRate: '63%',
@@ -76,7 +76,7 @@ const STRATEGIES = [
         <polygon points="22 2 15 22 11 13 2 9 22 2" />
       </svg>
     ),
-    desc: "The simplest truth in markets: a moving object tends to keep moving. Pilot calculates directional strength over a configurable lookback window and rides the trend until it exhausts — no noise, no hesitation.",
+    desc: "The simplest truth in markets: a moving object tends to keep moving. Pilot calculates directional strength over a configurable lookback window and rides the trend until it exhausts - no noise, no hesitation.",
     bullets: ['Lookback period fully configurable', 'Directional strength filter', 'Sentiment-weighted position sizing', 'Equity curve stop protection'],
     badge: 'BREAKOUT',
     winRate: '55%',
@@ -97,7 +97,7 @@ const HOW_IT_WORKS = [
   {
     n: '01',
     title: 'Choose Your Strategy',
-    desc: 'Pick from four AI-enhanced strategies. Each one has been engineered for a different market condition — trending, ranging, momentum, or reversal.',
+    desc: 'Pick from four AI-enhanced strategies. Each one has been engineered for a different market condition - trending, ranging, momentum, or reversal.',
     color: '#0ea5e9',
   },
   {
@@ -109,7 +109,7 @@ const HOW_IT_WORKS = [
   {
     n: '03',
     title: 'Activate & Monitor',
-    desc: 'Hit start. Pilot monitors every tick. When signal conditions are met, it enters, manages, and exits positions — with zero latency and zero emotion.',
+    desc: 'Hit start. Pilot monitors every tick. When signal conditions are met, it enters, manages, and exits positions - with zero latency and zero emotion.',
     color: '#00c878',
   },
   {
@@ -227,7 +227,7 @@ export default function TradingPilotPage() {
           </h1>
 
           <p className="text-xl max-w-3xl mx-auto mb-6 leading-relaxed" style={{ color: 'rgba(255,255,255,0.72)' }}>
-            The first autonomous trading intelligence engine that fuses <strong style={{ color: '#fff' }}>real-time technical signals</strong> with <strong style={{ color: '#38bdf8' }}>Claude AI news sentiment</strong> — executing trades 24/7 with the discipline no human can sustain.
+            The first autonomous trading intelligence engine that fuses <strong style={{ color: '#fff' }}>real-time technical signals</strong> with <strong style={{ color: '#38bdf8' }}>Claude AI news sentiment</strong> - executing trades 24/7 with the discipline no human can sustain.
           </p>
 
           <p className="text-sm max-w-xl mx-auto mb-12" style={{ color: 'rgba(255,255,255,0.38)' }}>
@@ -298,7 +298,7 @@ export default function TradingPilotPage() {
                 <span style={{ color: '#a78bfa' }}>Intelligence.</span>
               </h2>
               <p className="text-lg mb-6 leading-relaxed" style={{ color: 'rgba(255,255,255,0.65)' }}>
-                Every strategy in Trading Pilot can optionally connect to <strong style={{ color: '#fff' }}>Claude AI</strong> — Anthropic's frontier language model — to analyse live financial news and market commentary in real-time.
+                Every strategy in Trading Pilot can optionally connect to <strong style={{ color: '#fff' }}>Claude AI</strong> - Anthropic's frontier language model - to analyse live financial news and market commentary in real-time.
               </p>
               <p className="text-base mb-8 leading-relaxed" style={{ color: 'rgba(255,255,255,0.5)' }}>
                 Before placing any trade, Pilot checks whether market sentiment aligns with the technical signal. A perfect crossover in a sea of negative headlines? Pilot waits. A confirmed RSI reversal with bullish sentiment? Pilot acts with full conviction.
@@ -307,7 +307,7 @@ export default function TradingPilotPage() {
                 {[
                   { label: 'Real-time news sentiment scoring', desc: 'Headlines scored positive, negative, or neutral per asset' },
                   { label: 'Sentiment-weighted confidence', desc: 'Signal strength blended with news context before entry' },
-                  { label: 'Conflict avoidance', desc: 'Opposing sentiment suppresses trades — protecting from news-driven crashes' },
+                  { label: 'Conflict avoidance', desc: 'Opposing sentiment suppresses trades - protecting from news-driven crashes' },
                 ].map(f => (
                   <div key={f.label} className="flex items-start gap-3">
                     <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5"
@@ -318,7 +318,7 @@ export default function TradingPilotPage() {
                     </div>
                     <div>
                       <span className="text-sm font-semibold text-white">{f.label}</span>
-                      <span className="text-sm ml-2" style={{ color: 'rgba(255,255,255,0.4)' }}>— {f.desc}</span>
+                      <span className="text-sm ml-2" style={{ color: 'rgba(255,255,255,0.4)' }}>- {f.desc}</span>
                     </div>
                   </div>
                 ))}
@@ -378,7 +378,7 @@ export default function TradingPilotPage() {
                     <span className="text-sm font-black" style={{ color: '#00c878' }}>BULLISH · 0.73</span>
                   </div>
                   <div className="text-xs font-semibold" style={{ color: '#00c878' }}>
-                    ✓ Signal approved — MA crossover trade will execute
+                    ✓ Signal approved - MA crossover trade will execute
                   </div>
                 </div>
               </div>
@@ -399,7 +399,7 @@ export default function TradingPilotPage() {
               Four Weapons.<br />One System.
             </h2>
             <p className="text-lg max-w-2xl mx-auto" style={{ color: 'rgba(255,255,255,0.5)' }}>
-              Each strategy is purpose-built for a different market condition. Deploy one — or run multiple pilots simultaneously across different assets.
+              Each strategy is purpose-built for a different market condition. Deploy one - or run multiple pilots simultaneously across different assets.
             </p>
           </div>
 
@@ -554,7 +554,7 @@ export default function TradingPilotPage() {
                 <div className="w-3 h-3 rounded-full" style={{ background: '#febc2e' }} />
                 <div className="w-3 h-3 rounded-full" style={{ background: '#28c840' }} />
               </div>
-              <span className="text-xs font-mono" style={{ color: '#3a5060' }}>TradePilot — BTCUSD · MA Crossover · RUNNING</span>
+              <span className="text-xs font-mono" style={{ color: '#3a5060' }}>TradePilot - BTCUSD · MA Crossover · RUNNING</span>
               <div className="ml-auto flex items-center gap-1.5 text-xs font-bold" style={{ color: '#00c878' }}>
                 <span className="w-1.5 h-1.5 rounded-full bg-current" style={{ animation: 'pulse 1.5s infinite' }} />
                 LIVE
@@ -564,16 +564,16 @@ export default function TradingPilotPage() {
             {/* Log lines */}
             <div className="p-5 space-y-2 font-mono text-xs" style={{ minHeight: 280 }}>
               {[
-                { ts: '14:32:01', level: 'INFO',   color: '#3a5060', msg: 'Bot initialised — Loading 200 candles for BTCUSD 1h...' },
+                { ts: '14:32:01', level: 'INFO',   color: '#3a5060', msg: 'Bot initialised - Loading 200 candles for BTCUSD 1h...' },
                 { ts: '14:32:02', level: 'INFO',   color: '#3a5060', msg: 'Warming up: fast MA (9) = 67,312.40 · slow MA (21) = 67,180.22' },
-                { ts: '14:32:02', level: 'INFO',   color: '#3a5060', msg: 'News filter enabled — querying Claude AI for BTCUSD sentiment...' },
-                { ts: '14:32:03', level: 'SIGNAL', color: '#0ea5e9', msg: '▲ CROSSOVER DETECTED — fast MA crossed above slow MA' },
-                { ts: '14:32:03', level: 'SIGNAL', color: '#a78bfa', msg: 'Claude AI sentiment: BULLISH (0.81) — trade approved' },
-                { ts: '14:32:03', level: 'TRADE',  color: '#00c878', msg: '✓ BUY 0.15 BTCUSD @ 67,420.50 — SL: 65,880 | TP: 70,320' },
-                { ts: '14:45:12', level: 'INFO',   color: '#3a5060', msg: 'Position monitoring — current price 67,890.20 · unrealised P&L: +$70.46' },
+                { ts: '14:32:02', level: 'INFO',   color: '#3a5060', msg: 'News filter enabled - querying Claude AI for BTCUSD sentiment...' },
+                { ts: '14:32:03', level: 'SIGNAL', color: '#0ea5e9', msg: '▲ CROSSOVER DETECTED - fast MA crossed above slow MA' },
+                { ts: '14:32:03', level: 'SIGNAL', color: '#a78bfa', msg: 'Claude AI sentiment: BULLISH (0.81) - trade approved' },
+                { ts: '14:32:03', level: 'TRADE',  color: '#00c878', msg: '✓ BUY 0.15 BTCUSD @ 67,420.50 - SL: 65,880 | TP: 70,320' },
+                { ts: '14:45:12', level: 'INFO',   color: '#3a5060', msg: 'Position monitoring - current price 67,890.20 · unrealised P&L: +$70.46' },
                 { ts: '15:02:44', level: 'RISK',   color: '#f59e0b', msg: 'Drawdown check: peak $100,070 · current $100,070 · max DD: 0.0%' },
-                { ts: '15:18:30', level: 'TRADE',  color: '#00c878', msg: '✓ TAKE-PROFIT HIT — CLOSED BTCUSD @ 70,320.00 · P&L: +$434.93' },
-                { ts: '15:18:30', level: 'INFO',   color: '#0ea5e9', msg: 'Daily stats — Trades: 1 · Wins: 1 · P&L: +$434.93 · Win rate: 100%' },
+                { ts: '15:18:30', level: 'TRADE',  color: '#00c878', msg: '✓ TAKE-PROFIT HIT - CLOSED BTCUSD @ 70,320.00 · P&L: +$434.93' },
+                { ts: '15:18:30', level: 'INFO',   color: '#0ea5e9', msg: 'Daily stats - Trades: 1 · Wins: 1 · P&L: +$434.93 · Win rate: 100%' },
               ].map((line, i) => (
                 <div key={i} className="flex items-start gap-3">
                   <span style={{ color: '#2a3a4a', whiteSpace: 'nowrap' }}>{line.ts}</span>
@@ -609,7 +609,7 @@ export default function TradingPilotPage() {
           </h2>
 
           <p className="text-lg mb-12 leading-relaxed" style={{ color: 'rgba(255,255,255,0.55)', maxWidth: 520, margin: '0 auto 3rem' }}>
-            While you rest, research, or live your life — Trading Pilot scans every tick, fires precise signals, and manages risk in real time. This is the edge you've been looking for.
+            While you rest, research, or live your life - Trading Pilot scans every tick, fires precise signals, and manages risk in real time. This is the edge you've been looking for.
           </p>
 
           <button onClick={goToBots}
@@ -642,7 +642,7 @@ export default function TradingPilotPage() {
             <span className="font-bold text-sm text-white">TradeX<span style={{ color: '#38bdf8' }}> Pro</span></span>
           </button>
           <p className="text-xs" style={{ color: 'rgba(255,255,255,0.25)' }}>
-            Paper trading only — for educational purposes. Not financial advice.
+            Paper trading only - for educational purposes. Not financial advice.
           </p>
         </div>
       </footer>

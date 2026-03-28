@@ -1,4 +1,4 @@
-import { Router, Response } from 'express'
+﻿import { Router, Response } from 'express'
 import { authenticate, AuthRequest } from '../middleware/auth'
 import { getPortfolio, portfolios, refreshPortfolio } from '../services/tradingEngine'
 import { dbLoadPortfolio, dbLoadOrders, dbEnsureUser, dbSavePortfolio, rebuildPositionsFromOrders } from '../services/dbSync'
@@ -9,7 +9,7 @@ router.use(authenticate)
 // GET /api/portfolio
 // ─── Design rule ────────────────────────────────────────────────────────────
 // Supabase is the SINGLE SOURCE OF TRUTH.  The in-memory map is only a warm
-// cache — it is never trusted over a successful DB read.
+// cache - it is never trusted over a successful DB read.
 //
 // On every request:
 //   1. Ensure the user stub exists in public.users (FK guard, no-op if exists).
@@ -24,7 +24,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
   const userId = req.user!.userId
 
   try {
-    // Step 1: ensure FK row — fast ignoreDuplicates upsert.
+    // Step 1: ensure FK row - fast ignoreDuplicates upsert.
     // Non-fatal for GET: if this fails we still serve in-memory state below.
     try { await dbEnsureUser(userId, req.user!.email) } catch { /* non-fatal on GET */ }
 
@@ -73,10 +73,10 @@ router.get('/', async (req: AuthRequest, res: Response) => {
     return res.json(memPortfolio)
 
   } catch (err) {
-    // Step 5: DB unreachable (e.g. missing env vars) — serve in-memory state
+    // Step 5: DB unreachable (e.g. missing env vars) - serve in-memory state
     // so the client is usable rather than permanently broken.  On a cold start
     // with no DB, this returns the $100k default which is correct for a new user.
-    console.error('[Portfolio] DB error — serving in-memory fallback:', err)
+    console.error('[Portfolio] DB error - serving in-memory fallback:', err)
     const fallback = getPortfolio(userId)
     return res.json(refreshPortfolio(fallback))
   }

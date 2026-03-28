@@ -1,4 +1,4 @@
-import { v4 as uuidv4 } from 'uuid'
+﻿import { v4 as uuidv4 } from 'uuid'
 import { EventEmitter } from 'events'
 import { getLivePrice, marketEvents } from './mockDataService'
 import { getCandles } from './candleService'
@@ -8,7 +8,7 @@ import { dbSaveBot, dbDeleteBot, dbLoadAllBots, BotRow } from './dbSync'
 import { Candle } from '../types'
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Public event bus — forward bot events to wsServer without circular deps
+// Public event bus - forward bot events to wsServer without circular deps
 // ─────────────────────────────────────────────────────────────────────────────
 export const botEvents = new EventEmitter()
 botEvents.setMaxListeners(1000)
@@ -245,7 +245,7 @@ class BotEngine {
     }
     this.bots.set(bot.id, bot)
     this.log(bot, 'info',
-      `[TradePilot] Bot created — ${strategy.toUpperCase()} on ${symbol} | size=${params.tradeSize}` +
+      `[TradePilot] Bot created - ${strategy.toUpperCase()} on ${symbol} | size=${params.tradeSize}` +
       (params.stopLossPercent   ? ` | SL=${params.stopLossPercent}%`   : '') +
       (params.takeProfitPercent ? ` | TP=${params.takeProfitPercent}%` : '') +
       ` | warmup=${needed} bars`)
@@ -288,8 +288,8 @@ class BotEngine {
 
     if (bot.params.useNewsFilter) {
       getSentiment(bot.symbol)
-        .then(s => this.log(bot, 'info', `News cache warm — ${s.label} (${s.score >= 0 ? '+' : ''}${s.score.toFixed(2)}) — "${s.headlines[0]?.title?.slice(0, 60)}…"`))
-        .catch(() => this.log(bot, 'info', 'News cache warm — using fallback sentiment'))
+        .then(s => this.log(bot, 'info', `News cache warm - ${s.label} (${s.score >= 0 ? '+' : ''}${s.score.toFixed(2)}) - "${s.headlines[0]?.title?.slice(0, 60)}…"`))
+        .catch(() => this.log(bot, 'info', 'News cache warm - using fallback sentiment'))
     }
   }
 
@@ -298,7 +298,7 @@ class BotEngine {
     if (bot.status === 'running' || bot.status === 'warming_up')
       throw new Error('Bot is already running')
 
-    this.bootBot(bot, `Bot started — fetching real historical bars for ${bot.symbol}…`)
+    this.bootBot(bot, `Bot started - fetching real historical bars for ${bot.symbol}…`)
     return this.wireView(bot)
   }
 
@@ -318,7 +318,7 @@ class BotEngine {
 
   // ── Warmup ─────────────────────────────────────────────────────────────────
 
-  // ── Async warmup — populates priceBuffer from real OHLCV data ──────────────
+  // ── Async warmup - populates priceBuffer from real OHLCV data ──────────────
   //   Crypto  → Binance REST klines (free, no auth needed)
   //   Stocks  → Twelve Data REST (TWELVE_DATA_API_KEY env var)
   //   Fallback → live candles accumulate organically during warming_up
@@ -329,7 +329,7 @@ class BotEngine {
       // Bot may have been stopped while the fetch was in-flight
       if (bot.status === 'stopped' || bot.status === 'error') return
       if (candles.length === 0) {
-        this.log(bot, 'warn', 'No historical bars returned — accumulating from live candles')
+        this.log(bot, 'warn', 'No historical bars returned - accumulating from live candles')
         // Safety: if the bot is still warming_up after 5 minutes, seed the buffer
         // and force-start so it can never be permanently stuck.
         setTimeout(() => {
@@ -337,7 +337,7 @@ class BotEngine {
           const livePrice = getLivePrice(bot.symbol)
           if (!livePrice && bot.priceBuffer.length === 0) {
             bot.status = 'error'
-            this.log(bot, 'error', `Warmup failed — no price data available for ${bot.symbol}`)
+            this.log(bot, 'error', `Warmup failed - no price data available for ${bot.symbol}`)
             this.emit(bot)
             return
           }
@@ -346,7 +346,7 @@ class BotEngine {
           bot.warmupBarsCurrent = bot.warmupBarsNeeded
           bot.status = 'running'
           this.log(bot, 'warn',
-            `Warmup timeout — seeded buffer with ${bot.warmupBarsNeeded} bars @ ${seedPrice?.toFixed(5)} — bot now running`)
+            `Warmup timeout - seeded buffer with ${bot.warmupBarsNeeded} bars @ ${seedPrice?.toFixed(5)} - bot now running`)
           this.emit(bot)
         }, 5 * 60_000)
         return
@@ -358,16 +358,16 @@ class BotEngine {
       if (bot.warmupBarsCurrent >= bot.warmupBarsNeeded) {
         if (bot.status === 'warming_up') bot.status = 'running'
         this.log(bot, 'info',
-          `✅ Warmup complete — ${candles.length} real bars loaded for ${bot.symbol}` +
+          `✅ Warmup complete - ${candles.length} real bars loaded for ${bot.symbol}` +
           (bot.symbol.endsWith('USD') && bot.symbol.length <= 7 ? ' (Binance/CoinGecko)' : ' (Twelve Data/fallback)'))
         this.emit(bot)
       } else {
         this.log(bot, 'warn',
-          `Partial warmup: ${bot.warmupBarsCurrent}/${bot.warmupBarsNeeded} bars — collecting live candles`)
+          `Partial warmup: ${bot.warmupBarsCurrent}/${bot.warmupBarsNeeded} bars - collecting live candles`)
       }
     } catch (e: any) {
       if (bot.status !== 'stopped' && bot.status !== 'error') {
-        this.log(bot, 'warn', `Warmup fetch failed (${e.message}) — bot will warm up from live candles`)
+        this.log(bot, 'warn', `Warmup fetch failed (${e.message}) - bot will warm up from live candles`)
       }
     }
   }
@@ -384,7 +384,7 @@ class BotEngine {
       bot.warmupBarsCurrent++
       if (bot.warmupBarsCurrent >= bot.warmupBarsNeeded) {
         bot.status = 'running'
-        this.log(bot, 'info', `Warmup complete (${bot.warmupBarsCurrent} bars) — now trading live`)
+        this.log(bot, 'info', `Warmup complete (${bot.warmupBarsCurrent} bars) - now trading live`)
         this.emit(bot)
       }
       return
@@ -396,13 +396,13 @@ class BotEngine {
     const p = bot.params
 
     if (p.maxDailyTrades && bot.dailyTrades >= p.maxDailyTrades) {
-      this.log(bot, 'risk', `Daily trade cap (${bot.dailyTrades}/${p.maxDailyTrades}) — skipping signal`)
+      this.log(bot, 'risk', `Daily trade cap (${bot.dailyTrades}/${p.maxDailyTrades}) - skipping signal`)
       return
     }
     if (p.maxDailyLoss && bot.dailyLoss >= p.maxDailyLoss) {
       bot.status = 'paused'
       this.log(bot, 'risk',
-        `Daily loss limit $${p.maxDailyLoss} reached ($${bot.dailyLoss.toFixed(2)}) — pausing until tomorrow`)
+        `Daily loss limit $${p.maxDailyLoss} reached ($${bot.dailyLoss.toFixed(2)}) - pausing until tomorrow`)
       this.emit(bot); return
     }
 
@@ -441,14 +441,14 @@ class BotEngine {
             const tag = `[News: ${s.label} ${s.score >= 0 ? '+' : ''}${s.score.toFixed(2)}]`
             if (s.score < -0.1) {
               this.log(bot, 'risk',
-                `Buy blocked by news filter ${tag} — "${s.headlines[0]?.title?.slice(0, 55)}…"`)
+                `Buy blocked by news filter ${tag} - "${s.headlines[0]?.title?.slice(0, 55)}…"`)
               // refresh cache in background so next candle has fresh data
               getSentiment(bot.symbol).catch(() => {})
               return
             }
             this.log(bot, 'info', `News filter passed ${tag}`)
           } else {
-            // no cache yet — fire off async fetch and proceed (don't block)
+            // no cache yet - fire off async fetch and proceed (don't block)
             getSentiment(bot.symbol).catch(() => {})
           }
         }
@@ -466,7 +466,7 @@ class BotEngine {
     const portfolio = getPortfolio(bot.userId)
     if (portfolio.cashBalance < p.tradeSize * price) {
       this.log(bot, 'warn',
-        `Skipping buy — need $${(p.tradeSize * price).toFixed(2)}, have $${portfolio.cashBalance.toFixed(2)}`)
+        `Skipping buy - need $${(p.tradeSize * price).toFixed(2)}, have $${portfolio.cashBalance.toFixed(2)}`)
       return
     }
     createOrder(bot.userId, bot.symbol, 'buy', 'market', p.tradeSize)
@@ -489,7 +489,7 @@ class BotEngine {
     if (!pos || pos.quantity < p.tradeSize - 1e-6) {
       bot.position = 'none'; bot.currentEntryPrice = undefined
       bot.currentSL = undefined; bot.currentTP = undefined
-      this.log(bot, 'info', 'Position closed externally — bot re-synced'); return
+      this.log(bot, 'info', 'Position closed externally - bot re-synced'); return
     }
     createOrder(bot.userId, bot.symbol, 'sell', 'market', p.tradeSize)
     const tradePnl = (price - (bot.currentEntryPrice ?? price)) * p.tradeSize
@@ -536,7 +536,7 @@ class BotEngine {
       bot.dailyTrades = 0; bot.dailyLoss = 0; bot.dailyResetDate = t
       if (bot.status === 'paused') {
         bot.status = 'running'
-        this.log(bot, 'info', 'New trading day — daily limits reset, bot resumed')
+        this.log(bot, 'info', 'New trading day - daily limits reset, bot resumed')
         this.emit(bot)
       }
     }
@@ -666,7 +666,7 @@ class BotEngine {
       for (const row of toResume) {
         const bot = this.bots.get(row.id)
         if (bot) {
-          this.bootBot(bot, `Bot auto-resumed after server restart — warming up ${bot.symbol}…`)
+          this.bootBot(bot, `Bot auto-resumed after server restart - warming up ${bot.symbol}…`)
           console.log(`[Bot] ⏩ Auto-resumed "${bot.name}" (${bot.symbol})`)
         }
       }

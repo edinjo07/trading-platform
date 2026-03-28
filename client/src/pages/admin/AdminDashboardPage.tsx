@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react'
+﻿import React, { useEffect, useState, useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../../api/client'
 import { useAuthStore } from '../../store/authStore'
@@ -142,7 +142,7 @@ function TradeEngagement() {
     <div className="rounded-xl overflow-hidden" style={{ background: '#0c1220', border: '1px solid rgba(56,189,248,0.08)' }}>
       <div className="px-5 py-4" style={{ borderBottom: '1px solid rgba(56,189,248,0.07)' }}>
         <h2 className="text-sm font-semibold text-text-primary">Trade Engagement</h2>
-        <p className="text-xs text-text-secondary mt-0.5">Daily trade volume — last 30 days</p>
+        <p className="text-xs text-text-secondary mt-0.5">Daily trade volume - last 30 days</p>
       </div>
       <div className="px-5 py-4 space-y-4">
         {/* Legend */}
@@ -241,31 +241,31 @@ export default function AdminDashboardPage() {
   const STAT_CARDS = [
     {
       label: 'Total Deposits', prefix: '',
-      value: stats ? fmtEur(stats.totalDeposits) : '—',
+      value: stats ? fmtEur(stats.totalDeposits) : '-',
       change: 12.4, accent: '#0ea5e9',
       icon: <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M12 5v14M19 12l-7 7-7-7" /></svg>,
     },
     {
       label: 'Total Withdraws', prefix: '',
-      value: stats ? fmtEur(stats.totalWithdraws) : '—',
+      value: stats ? fmtEur(stats.totalWithdraws) : '-',
       change: -3.1, accent: '#f59e0b',
       icon: <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M12 19V5M5 12l7-7 7 7" /></svg>,
     },
     {
       label: 'Total Trades', prefix: '',
-      value: stats ? stats.totalTrades.toLocaleString() : '—',
+      value: stats ? stats.totalTrades.toLocaleString() : '-',
       change: 28.7, accent: '#a78bfa',
       icon: <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><polyline points="22 7 13.5 15.5 8.5 10.5 2 17" /><polyline points="16 7 22 7 22 13" /></svg>,
     },
     {
       label: 'Total Users', prefix: '',
-      value: stats ? stats.totalUsers.toLocaleString() : '—',
+      value: stats ? stats.totalUsers.toLocaleString() : '-',
       change: 5.9, accent: '#34d399',
       icon: <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" /></svg>,
     },
     {
       label: 'Profit / Loss', prefix: '',
-      value: stats ? (stats.profitLoss < 0 ? '-' : '') + fmtEur(stats.profitLoss) : '—',
+      value: stats ? (stats.profitLoss < 0 ? '-' : '') + fmtEur(stats.profitLoss) : '-',
       change: stats ? (stats.profitLoss >= 0 ? 18.2 : -18.2) : 18.2, accent: stats && stats.profitLoss >= 0 ? '#00c878' : '#ff3047',
       icon: <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" /></svg>,
     },
@@ -318,7 +318,7 @@ export default function AdminDashboardPage() {
         <div>
           <h1 className="text-xl font-bold text-text-primary">Dashboard</h1>
           <p className="text-sm text-text-secondary mt-0.5">
-            Welcome back{user?.username ? `, ${user.username}` : ''} — platform performance overview
+            Welcome back{user?.username ? `, ${user.username}` : ''} - platform performance overview
           </p>
         </div>
         <div className="flex items-center gap-3 flex-wrap">

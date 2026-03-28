@@ -1,4 +1,4 @@
-import http from 'http'
+﻿import http from 'http'
 import https from 'https'
 import fs from 'fs'
 import { config } from './config'
@@ -22,16 +22,16 @@ const sslCertPath = process.env.SSL_CERT_FILE
 
 function createServer() {
   if (sslKeyPath && sslCertPath) {
-    console.log('[Server] SSL certs found — starting HTTPS server')
+    console.log('[Server] SSL certs found - starting HTTPS server')
     return https.createServer(
       { key: fs.readFileSync(sslKeyPath), cert: fs.readFileSync(sslCertPath) },
       app,
     )
   }
   if (config.isProd) {
-    console.log('[Server] No SSL certs — starting HTTP server (TLS terminated by platform proxy)')
+    console.log('[Server] No SSL certs - starting HTTP server (TLS terminated by platform proxy)')
   } else {
-    console.warn('[Server] No SSL certs — starting plain HTTP server (local dev)')
+    console.warn('[Server] No SSL certs - starting plain HTTP server (local dev)')
   }
   return http.createServer(app)
 }

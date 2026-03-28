@@ -1,14 +1,14 @@
-/**
+﻿/**
  * TradePilot News & Sentiment Service
  *
  * Fetches financial news headlines from multiple free public APIs,
  * scores sentiment with a keyword/NLP approach, and caches results.
  *
  * Sources:
- *   - CryptoCompare News API (free, no key) — for crypto symbols
- *   - Yahoo Finance RSS                    — for equities
- *   - Forex Factory RSS                    — for forex pairs
- *   - Deterministic price-action fallback  — if all fetches fail
+ *   - CryptoCompare News API (free, no key) - for crypto symbols
+ *   - Yahoo Finance RSS                    - for equities
+ *   - Forex Factory RSS                    - for forex pairs
+ *   - Deterministic price-action fallback  - if all fetches fail
  */
 
 import https from 'https'
@@ -249,11 +249,11 @@ function mockSentiment(symbol: string): SymbolSentiment {
     bearish: [
       `${symbol} faces headwinds as macro uncertainty weighs on risk assets`,
       `Traders cautious on ${symbol} ahead of key economic data release`,
-      `${symbol} approaches support zone — bears in control short-term`,
+      `${symbol} approaches support zone - bears in control short-term`,
     ],
     neutral: [
       `${symbol} consolidates in tight range awaiting catalyst`,
-      `Mixed signals for ${symbol} — market awaits next move`,
+      `Mixed signals for ${symbol} - market awaits next move`,
       `${symbol} holds steady as buyers and sellers reach equilibrium`,
     ],
   }
@@ -271,7 +271,7 @@ function mockSentiment(symbol: string): SymbolSentiment {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Public API — get sentiment for a symbol
+// Public API - get sentiment for a symbol
 // ─────────────────────────────────────────────────────────────────────────────
 
 export async function getSentiment(symbol: string): Promise<SymbolSentiment> {
@@ -291,7 +291,7 @@ export async function getSentiment(symbol: string): Promise<SymbolSentiment> {
       items      = await fetchYahooRSS(symbol)
       sourceName = 'Yahoo Finance'
     } else {
-      // forex — try forex factory calendar + general market news
+      // forex - try forex factory calendar + general market news
       items      = await fetchForexRSS()
       sourceName = 'Forex Factory'
     }
@@ -342,7 +342,7 @@ export function getCachedSentiment(symbol: string): SymbolSentiment | null {
   return cached.data
 }
 
-/** Pre-warm cache for a set of symbols — call on server startup */
+/** Pre-warm cache for a set of symbols - call on server startup */
 export async function prewarmNews(symbols: string[]): Promise<void> {
   for (const s of symbols) {
     try { await getSentiment(s) } catch { /* ignore */ }

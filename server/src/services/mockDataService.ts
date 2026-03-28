@@ -1,10 +1,10 @@
-import { Candle, Ticker, OrderBook, OrderBookEntry, Trade, Symbol } from '../types'
+﻿import { Candle, Ticker, OrderBook, OrderBookEntry, Trade, Symbol } from '../types'
 import { v4 as uuidv4 } from 'uuid'
 import { EventEmitter } from 'events'
 import { startRealDataFeeds } from './realDataService'
 
 // ---------------------------------------------------------------------------
-// Public event bus — emits 'candle' events for live streaming
+// Public event bus - emits 'candle' events for live streaming
 // ---------------------------------------------------------------------------
 export const marketEvents = new EventEmitter()
 marketEvents.setMaxListeners(1000)
@@ -440,7 +440,7 @@ function round(n: number, d: number): number {
 }
 
 // ---------------------------------------------------------------------------
-// GBM tick — called every 500ms per symbol
+// GBM tick - called every 500ms per symbol
 // ---------------------------------------------------------------------------
 export function tickSymbol(symbol: string): { trade: Trade; candleUpdate: LiveCandle; isNewCandle: boolean } {
   const state = gbmState[symbol]
@@ -461,7 +461,7 @@ export function tickSymbol(symbol: string): { trade: Trade; candleUpdate: LiveCa
 
   // ── Mean-revert toward real price when available ──────────────────────
   // Use a time-weighted blend so fresh real data dominates almost entirely.
-  // Anchor window is 20 minutes — long enough to cover the 15-min TD REST
+  // Anchor window is 20 minutes - long enough to cover the 15-min TD REST
   // forex polling interval so prices never drift freely between polls.
   //
   //  <  5 s old  → 99 % real  (tick-level (Binance WS / fresh seed))
@@ -555,7 +555,7 @@ export function getMarketSession(symbol: string): 'pre' | 'regular' | 'post' | '
 }
 
 // ---------------------------------------------------------------------------
-// Overnight swap rates — IC Markets typical values
+// Overnight swap rates - IC Markets typical values
 //   Expressed as USD per 1 base-currency unit per night.
 //   Positive  = credited,  negative = debited.
 //   Source: IC Markets MetaTrader 4 swap specifications (approximate, 2025).
@@ -626,7 +626,7 @@ const SWAP_RATES: Record<string, { long: number; short: number }> = {
   NOKJPY: { long: -0.0000020, short: -0.0000150 },
   SGDJPY: { long: -0.0000020, short: -0.0000200 },
   EURCZK: { long: -0.0000100, short: -0.0000300 },
-  // Precious Metals (triple swap on Wednesday — high carry cost to hold long)
+  // Precious Metals (triple swap on Wednesday - high carry cost to hold long)
   XAUUSD: { long: -0.0000634, short:  0.0000167 },
   XAGUSD: { long: -0.0000879, short:  0.0000175 },
   XPTUSD: { long: -0.0000500, short:  0.0000100 },
@@ -649,7 +649,7 @@ const SWAP_RATES: Record<string, { long: number; short: number }> = {
   SOYBEAN: { long: -0.0000300, short: -0.0000300 },
   SUGAR:   { long: -0.0000450, short: -0.0000450 },
   WHEAT:   { long: -0.0000300, short: -0.0000300 },
-  // Indices (triple swap on Friday — typically negative both sides)
+  // Indices (triple swap on Friday - typically negative both sides)
   US500:   { long: -0.0000593, short: -0.0000593 },
   USTEC:   { long: -0.0000509, short: -0.0000509 },
   US30:    { long: -0.0000209, short: -0.0000209 },
@@ -685,7 +685,7 @@ const SWAP_RATES: Record<string, { long: number; short: number }> = {
   AUB:    { long: -0.0000207, short:  0.0000103 },
   BONO:   { long: -0.0000089, short: -0.0000267 },
   USBOND: { long: -0.0000275, short:  0.0000092 },
-  // Crypto (triple swap on Friday — very high negative both sides)
+  // Crypto (triple swap on Friday - very high negative both sides)
   BTCUSD:   { long: -0.0004000, short: -0.0004000 },
   ETHUSD:   { long: -0.0003900, short: -0.0003900 },
   LTCUSD:   { long: -0.0004900, short: -0.0004900 },
@@ -707,7 +707,7 @@ const SWAP_RATES: Record<string, { long: number; short: number }> = {
   ATOMUSD:  { long: -0.0005000, short: -0.0005000 },
   ALGOUSD:  { long: -0.0004000, short: -0.0004000 },
   FILUSD:   { long: -0.0005000, short: -0.0005000 },
-  // Stocks — no overnight swap (CFD dividends handled separately)
+  // Stocks - no overnight swap (CFD dividends handled separately)
 }
 
 /** Returns overnight swap rate: USD per base-currency unit per night.
@@ -727,13 +727,13 @@ export function getSwapRate(symbol: string): { long: number; short: number } {
 }
 
 // ---------------------------------------------------------------------------
-// Trading hours — IC Markets server time (GMT+2 / GMT+3 DST)
+// Trading hours - IC Markets server time (GMT+2 / GMT+3 DST)
 //   Forex / Currency pairs : Mon 00:01 – Fri 23:57
 //   Gold (XAUUSD)          : Mon 01:02 – Fri 23:57
 //   Other precious metals  : Mon 01:02 – Fri 23:59
 //   Crypto CFDs            : 24/7 (no break)
 //   Stocks CFDs            : exchange session only (US = 13:30–20:00 UTC)
-//   Indices / Energies     : extended hours — mostly 24/5 with short breaks
+//   Indices / Energies     : extended hours - mostly 24/5 with short breaks
 //   Bonds                  : typically 00:05 – 23:55 Mon–Fri
 // ---------------------------------------------------------------------------
 function getServerMinutes(): { dayOfWeek: number; minuteOfDay: number } {
@@ -995,7 +995,7 @@ export function seedTradeHistory(): void {
 seedTradeHistory()
 
 // ---------------------------------------------------------------------------
-// Real-price injection — called by realDataService on every live tick
+// Real-price injection - called by realDataService on every live tick
 // ---------------------------------------------------------------------------
 export function injectRealPrice(symbol: string, price: number): void {
   const state = gbmState[symbol]
@@ -1039,7 +1039,7 @@ export function inject24hStats(
 }
 
 // Auto-connect to live market feeds (Binance WS + Twelve Data WS)
-// Skipped on Vercel (serverless) — prices are seeded via REST in api/[...path].ts instead
+// Skipped on Vercel (serverless) - prices are seeded via REST in api/[...path].ts instead
 if (!process.env.VERCEL) {
   startRealDataFeeds(injectRealPrice, inject24hStats)
 }

@@ -4,7 +4,7 @@ import { authenticate, AuthRequest } from '../middleware/auth'
 
 const router = Router()
 
-// POST /api/auth/login — delegates to Supabase Auth, returns Supabase JWT
+// POST /api/auth/login - delegates to Supabase Auth, returns Supabase JWT
 router.post('/login', async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body
@@ -25,7 +25,7 @@ router.post('/login', async (req: Request, res: Response) => {
   }
 })
 
-// POST /api/auth/register — creates account in Supabase Auth
+// POST /api/auth/register - creates account in Supabase Auth
 router.post('/register', async (req: Request, res: Response) => {
   try {
     const { email, username, password, accountType } = req.body

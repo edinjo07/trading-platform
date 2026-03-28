@@ -1,4 +1,4 @@
-export type AssetClass = 'stock' | 'crypto' | 'forex' | 'commodity' | 'index' | 'bond'
+﻿export type AssetClass = 'stock' | 'crypto' | 'forex' | 'commodity' | 'index' | 'bond'
 export type AccountType = 'raw_spread' | 'ctrader' | 'standard'
 export type OrderSide = 'buy' | 'sell'
 export type OrderType = 'market' | 'limit' | 'stop' | 'stop_limit' | 'trailing_stop'
@@ -186,7 +186,7 @@ export interface Portfolio {
   todayPnlPercent?: number
   peakEquity?: number
   drawdown?: number
-  updatedAt?: string   // ISO timestamp — used by client to reject stale serverless responses
+  updatedAt?: string   // ISO timestamp - used by client to reject stale serverless responses
 }
 
 export interface JWTPayload {

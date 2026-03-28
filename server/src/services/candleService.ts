@@ -1,4 +1,4 @@
-/**
+﻿/**
  * candleService.ts
  *
  * Fetches real OHLCV candlestick data from Twelve Data REST API.
@@ -74,7 +74,7 @@ function tdSymbol(symbol: string): string {
 interface CacheEntry { candles: Candle[]; fetchedAt: number }
 const cache = new Map<string, CacheEntry>()
 
-/** TTL per interval (ms) — shorter intervals refresh more often */
+/** TTL per interval (ms) - shorter intervals refresh more often */
 function cacheTtl(interval: string): number {
   if (interval.endsWith('min') || interval === '1m' || interval === '5m') return 60_000      // 1 min
   if (interval === '15m' || interval === '30m')                             return 3 * 60_000 // 3 min
@@ -172,7 +172,7 @@ async function fetchFromTwelveData(
 }
 
 // ---------------------------------------------------------------------------
-// Binance — crypto OHLCV klines (free REST API, no key required)
+// Binance - crypto OHLCV klines (free REST API, no key required)
 // ---------------------------------------------------------------------------
 const BINANCE_INTERVAL: Record<string, string> = {
   '1m': '1m',  '3m': '3m',   '5m': '5m',  '15m': '15m', '30m': '30m',

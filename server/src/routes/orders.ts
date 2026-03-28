@@ -1,4 +1,4 @@
-import { Router, Response } from 'express'
+﻿import { Router, Response } from 'express'
 import { authenticate, AuthRequest } from '../middleware/auth'
 import {
   createOrder,
@@ -49,10 +49,10 @@ router.get('/', async (req: AuthRequest, res: Response) => {
       : dbOrders
     return res.json(result)
   } catch (err) {
-    // DB unavailable (e.g. missing env vars) — serve in-memory orders so the
+    // DB unavailable (e.g. missing env vars) - serve in-memory orders so the
     // client is usable rather than permanently broken.  On a cold start with
     // no DB, this returns an empty list which is correct for a new user.
-    console.error('[Orders] DB read failed — serving in-memory fallback:', err)
+    console.error('[Orders] DB read failed - serving in-memory fallback:', err)
     const memOrders = getOrdersByUser(userId)
     const result2 = status ? memOrders.filter(o => o.status === (status as string)) : memOrders
     return res.json(result2)
@@ -65,22 +65,22 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     const userId = req.user!.userId
 
     // Step 1: ensure user row exists in public.users (FK guard).
-    // Best-effort — if DB is unavailable (e.g. missing env var) we still allow
+    // Best-effort - if DB is unavailable (e.g. missing env var) we still allow
     // the order to execute in-memory rather than permanently blocking the user.
     try {
       await dbEnsureUser(userId, req.user!.email)
     } catch (e) {
-      console.warn('[Orders] dbEnsureUser failed — continuing in-memory only:', e)
+      console.warn('[Orders] dbEnsureUser failed - continuing in-memory only:', e)
     }
 
     // Step 2: reload the portfolio from DB so the balance check uses the real
-    // balance. Best-effort — if DB is unavailable fall back to the in-memory
+    // balance. Best-effort - if DB is unavailable fall back to the in-memory
     // value (correct on this container; may be stale across cold starts).
     try {
       const dbPort = await dbLoadPortfolio(userId)
       if (dbPort) portfolios.set(userId, dbPort)
     } catch (e) {
-      console.warn('[Orders] Failed to load portfolio from DB — using in-memory balance:', e)
+      console.warn('[Orders] Failed to load portfolio from DB - using in-memory balance:', e)
     }
 
     const {
@@ -171,9 +171,9 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       await Promise.all(dbSaves)
     } catch (err) {
       // DB persistence failed (e.g. missing SUPABASE_SERVICE_ROLE_KEY).
-      // Log the failure but still return 201 — the order is live in-memory on
+      // Log the failure but still return 201 - the order is live in-memory on
       // this container. Once the env var is added it will persist correctly.
-      console.warn('[Orders] DB persistence failed — order executed in-memory only:', err)
+      console.warn('[Orders] DB persistence failed - order executed in-memory only:', err)
     }
 
     return res.status(201).json(filled ?? order)
@@ -187,7 +187,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 router.delete('/:id', async (req: AuthRequest, res: Response) => {
   try {
     const order = cancelOrder(req.params.id, req.user!.userId)
-    // Await the DB write — fire-and-forget would leave the order as 'open' in DB
+    // Await the DB write - fire-and-forget would leave the order as 'open' in DB
     // if the container is frozen before the promise resolves (Vercel behaviour).
     try {
       await dbSaveOrder(order)

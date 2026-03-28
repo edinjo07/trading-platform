@@ -1,13 +1,13 @@
-/**
+﻿/**
  * api/index.ts
  *
- * Vercel serverless function — ALL /api/* requests are rewritten here by
+ * Vercel serverless function - ALL /api/* requests are rewritten here by
  * vercel.json: { "source": "/api/(.*)", "destination": "/api/index" }
  * Vercel preserves the original req.url, so Express sees the correct path.
  * WebSocket is unavailable on Vercel; the frontend falls back to REST polling.
  */
 
-// _setup MUST be first — sets process.env before config.ts reads it
+// _setup MUST be first - sets process.env before config.ts reads it
 import './_setup'
 
 import type { IncomingMessage, ServerResponse } from 'http'
@@ -38,7 +38,7 @@ async function initialize(): Promise<void> {
       await seedInitialPrices(injectRealPrice, inject24hStats)
       lastSeed = now
     } catch {
-      // non-fatal — serve stale prices
+      // non-fatal - serve stale prices
     }
   }
 }
@@ -94,7 +94,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
   const effectiveUrl = resolveUrl(req)
   console.error('[handler] rawUrl:', (req as any).url, '→ effective:', effectiveUrl)
 
-  // Diagnostic: GET /api/ping — confirms function is deployed and running
+  // Diagnostic: GET /api/ping - confirms function is deployed and running
   if (effectiveUrl === '/api/ping' || effectiveUrl.startsWith('/api/ping?')) {
     res.writeHead(200, { 'Content-Type': 'application/json' })
     res.end(JSON.stringify({

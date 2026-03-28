@@ -1,4 +1,4 @@
-/**
+﻿/**
  * realDataService.ts
  *
  * Connects to two live market-data sources and calls onPrice() for every tick:
@@ -18,7 +18,7 @@ export type PriceCallback   = (symbol: string, price: number) => void
 export type StatsCallback   = (symbol: string, open: number, high: number, low: number, volume: number) => void
 
 // ---------------------------------------------------------------------------
-// Binance — crypto mapping
+// Binance - crypto mapping
 // ---------------------------------------------------------------------------
 const BINANCE_STREAM_TO_SYMBOL: Record<string, string> = {
   btcusdt:   'BTCUSD',
@@ -57,7 +57,7 @@ function startBinanceFeed(onPrice: PriceCallback, retryMs = 3000): void {
 
     ws.on('open', () => {
       retryDelay = retryMs
-      console.log('[Market] ✅ Binance WebSocket connected — streaming crypto')
+      console.log('[Market] ✅ Binance WebSocket connected - streaming crypto')
     })
 
     ws.on('message', (raw: Buffer) => {
@@ -75,7 +75,7 @@ function startBinanceFeed(onPrice: PriceCallback, retryMs = 3000): void {
 
     ws.on('close', () => {
       if (gaveUp) return
-      console.warn(`[Market] ⚠️  Binance WebSocket closed — retrying in ${retryDelay / 1000}s`)
+      console.warn(`[Market] ⚠️  Binance WebSocket closed - retrying in ${retryDelay / 1000}s`)
       setTimeout(connect, retryDelay)
       retryDelay = Math.min(retryDelay * 2, 60_000)
     })
@@ -83,7 +83,7 @@ function startBinanceFeed(onPrice: PriceCallback, retryMs = 3000): void {
     ws.on('error', (err: Error) => {
       console.error('[Market] Binance WS error:', err.message)
       if (err.message.includes('451')) {
-        console.warn('[Market] Binance geo-blocked (HTTP 451) — crypto will use GBM simulation')
+        console.warn('[Market] Binance geo-blocked (HTTP 451) - crypto will use GBM simulation')
         gaveUp = true
       }
       // 'close' fires after 'error', so reconnect is handled there
@@ -94,7 +94,7 @@ function startBinanceFeed(onPrice: PriceCallback, retryMs = 3000): void {
 }
 
 // ---------------------------------------------------------------------------
-// Twelve Data — stocks + forex
+// Twelve Data - stocks + forex
 // ---------------------------------------------------------------------------
 /**
  * Maps Twelve Data symbol → internal IC Markets symbol.
@@ -102,7 +102,7 @@ function startBinanceFeed(onPrice: PriceCallback, retryMs = 3000): void {
  */
 const TD_SYMBOL_TO_INTERNAL: Record<string, string> = {}
 
-// ── Stocks (23) — TD symbol matches internal symbol ─────────────────────
+// ── Stocks (23) - TD symbol matches internal symbol ─────────────────────
 const TD_STOCKS = [
   'AAPL', 'TSLA', 'NVDA', 'MSFT', 'GOOGL', 'AMZN', 'META',
   'JPM', 'NFLX', 'COIN', 'AMD', 'DIS',
@@ -111,7 +111,7 @@ const TD_STOCKS = [
 ]
 TD_STOCKS.forEach(s => { TD_SYMBOL_TO_INTERNAL[s] = s })
 
-// ── Forex (61 pairs) — TD uses 'EUR/USD', internal is 'EURUSD' ─────────
+// ── Forex (61 pairs) - TD uses 'EUR/USD', internal is 'EURUSD' ─────────
 const TD_FOREX = [
   // Majors
   'EUR/USD', 'GBP/USD', 'USD/JPY', 'USD/CHF', 'USD/CAD', 'AUD/USD', 'NZD/USD',
@@ -135,7 +135,7 @@ TD_FOREX.forEach(p => { TD_SYMBOL_TO_INTERNAL[p] = p.replace('/', '') })
   TD_SYMBOL_TO_INTERNAL[m] = m.replace('/', '')
 })
 
-// ── Indices — TD symbol differs from internal IC Markets symbol ─────────
+// ── Indices - TD symbol differs from internal IC Markets symbol ─────────
 const TD_INDEX_ENTRIES: [string, string][] = [
   ['SPX',      'US500'],
   ['NDX',      'USTEC'],
@@ -197,7 +197,7 @@ const TD_WS_BASE = 'wss://ws.twelvedata.com/v1/quotes/price'
 function startTwelveDataFeed(onPrice: PriceCallback, retryMs = 5000): void {
   const apiKey = config.twelveDataApiKey
   if (!apiKey) {
-    console.warn('[Market] ⚠️  TWELVE_DATA_API_KEY not set — stocks & forex will use GBM simulation')
+    console.warn('[Market] ⚠️  TWELVE_DATA_API_KEY not set - stocks & forex will use GBM simulation')
     console.warn('[Market]    Add TWELVE_DATA_API_KEY=<key> to server/.env (get a free key at twelvedata.com)')
     return
   }
@@ -217,7 +217,7 @@ function startTwelveDataFeed(onPrice: PriceCallback, retryMs = 5000): void {
 
     ws.on('open', () => {
       retryDelay = retryMs
-      console.log('[Market] ✅ Twelve Data WebSocket connected — streaming forex majors + XAU/USD')
+      console.log('[Market] ✅ Twelve Data WebSocket connected - streaming forex majors + XAU/USD')
 
       // Subscribe to top 8 majors (free plan limit)
       ws.send(JSON.stringify({
@@ -248,14 +248,14 @@ function startTwelveDataFeed(onPrice: PriceCallback, retryMs = 5000): void {
           if (ourSymbol && price > 0) onPrice(ourSymbol, price)
         } else if (msg.event === 'subscribe-status') {
           if (msg.status === 'warning' || msg.status === 'error') {
-            // WS subscription rejected — give up immediately and fall back to REST
+            // WS subscription rejected - give up immediately and fall back to REST
             gaveUp = true
             clearHB()
-            console.warn('[Market] ⚠️  Twelve Data WS requires a paid plan — switching to REST polling for forex')
+            console.warn('[Market] ⚠️  Twelve Data WS requires a paid plan - switching to REST polling for forex')
             startForexRestPolling(onPrice)
             try { ws.terminate() } catch { /* ignore */ }
           } else {
-            console.log(`[Market] Twelve Data subscription: ${msg.status ?? ''} — ${msg.message ?? ''}`)
+            console.log(`[Market] Twelve Data subscription: ${msg.status ?? ''} - ${msg.message ?? ''}`)
           }
         }
       } catch {
@@ -266,7 +266,7 @@ function startTwelveDataFeed(onPrice: PriceCallback, retryMs = 5000): void {
     ws.on('close', () => {
       clearHB()
       if (gaveUp) return  // REST polling already started, don't retry
-      console.warn(`[Market] ⚠️  Twelve Data WebSocket closed — retrying in ${retryDelay / 1000}s`)
+      console.warn(`[Market] ⚠️  Twelve Data WebSocket closed - retrying in ${retryDelay / 1000}s`)
       setTimeout(connect, retryDelay)
       retryDelay = Math.min(retryDelay * 2, 60_000)
     })
@@ -280,7 +280,7 @@ function startTwelveDataFeed(onPrice: PriceCallback, retryMs = 5000): void {
 }
 
 // ---------------------------------------------------------------------------
-// Twelve Data REST polling — fallback when WS is unavailable (free plan).
+// Twelve Data REST polling - fallback when WS is unavailable (free plan).
 // Polls forex majors + XAU/XAG/XPT/XPD every 20 minutes to anchor GBM.
 // Free plan: 800 credits/day. 11 symbols × 72 polls/day = 792 credits/day ✅
 // GBM anchor window is 20 min so prices stay tight between polls.
@@ -432,7 +432,7 @@ export async function seedInitialPrices(
   onPrice: PriceCallback,
   onStats?: StatsCallback,
 ): Promise<void> {
-  // 1. CoinMarketCap — authenticated, covers all 20+ crypto, most reliable
+  // 1. CoinMarketCap - authenticated, covers all 20+ crypto, most reliable
   if (config.cmcApiKey) {
     await seedFromCMC(onPrice, onStats)
     return
@@ -441,13 +441,13 @@ export async function seedInitialPrices(
   // 2. Binance REST (free, fast; geo-blocked in some regions)
   try {
     // Use the 24-hour ticker endpoint so we get the real openPrice, highPrice,
-    // lowPrice and volume — not just the current price. This gives an accurate
+    // lowPrice and volume - not just the current price. This gives an accurate
     // 24-hour change % from the very first cold start.
     const symbolsJson = JSON.stringify(Object.keys(BINANCE_SEED_SYMBOLS))
     const url = `https://api.binance.com/api/v3/ticker/24hr?symbols=${encodeURIComponent(symbolsJson)}`
     const resp = await fetch(url, { signal: AbortSignal.timeout(8_000) })
     if (!resp.ok) {
-      console.warn('[Market] Binance price seed HTTP', resp.status, '— falling back to CoinGecko')
+      console.warn('[Market] Binance price seed HTTP', resp.status, '- falling back to CoinGecko')
       // Always fall back to CoinGecko on any Binance failure (geo-block, rate limit, etc.)
       await seedFromCoinGecko(onPrice, onStats)
       return
@@ -566,7 +566,7 @@ export function startRealDataFeeds(onPrice: PriceCallback, onStats?: StatsCallba
   startTwelveDataFeed(onPrice)
   // CMC polling: 60-second refresh for all crypto (no-op if key not set)
   startCMCPolling(onPrice, onStats)
-  // Always start REST polling as a safety net — if WebSocket is delivering
+  // Always start REST polling as a safety net - if WebSocket is delivering
   // data the REST prices simply reinforce the anchor; if WS is down the REST
   // poll keeps prices accurate.
   startRestPolling(onPrice, onStats)

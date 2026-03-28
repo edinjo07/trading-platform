@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react'
+﻿import React, { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
 
@@ -341,8 +341,8 @@ const ID_REQUIREMENTS = [
   'Document must be valid and not expired',
   'All four corners of the document must be visible',
   'Your full name and date of birth must be clearly readable',
-  'Photo must be in colour — black & white not accepted',
-  'File must be JPG, PNG or PDF — maximum 10 MB',
+  'Photo must be in colour - black & white not accepted',
+  'File must be JPG, PNG or PDF - maximum 10 MB',
 ]
 
 const POA_REQUIREMENTS = [
@@ -350,7 +350,7 @@ const POA_REQUIREMENTS = [
   'Your full name and current residential address must be visible',
   'Document must not be cropped or edited in any way',
   'Bank statements must show the bank logo or official letterhead',
-  'File must be JPG, PNG or PDF — maximum 10 MB',
+  'File must be JPG, PNG or PDF - maximum 10 MB',
 ]
 
 const OVERALL_STEPS: { key: string; label: string; done: (s: KYCState) => boolean }[] = [

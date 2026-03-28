@@ -1,4 +1,4 @@
-/**
+﻿/**
  * TVChartContainer
  *
  * React wrapper for the TradingView Advanced Charts (Charting Library) widget.
@@ -48,7 +48,7 @@ export default function TVChartContainer({ symbol, interval = '1h' }: Props) {
   const scriptRef     = useRef<HTMLScriptElement | null>(null)
   const readyRef      = useRef(false)
 
-  // Initial symbol / interval — kept in refs so the effect closure stays stable
+  // Initial symbol / interval - kept in refs so the effect closure stays stable
   const initSymbolRef   = useRef(symbol)
   const initIntervalRef = useRef(interval)
 
@@ -137,7 +137,7 @@ export default function TVChartContainer({ symbol, interval = '1h' }: Props) {
       readyRef.current  = false
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []) // intentionally run once — symbol/interval changes handled below
+  }, []) // intentionally run once - symbol/interval changes handled below
 
   // ─── React to symbol changes ───────────────────────────────────────────────
   useEffect(() => {

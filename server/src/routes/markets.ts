@@ -1,4 +1,4 @@
-import { Router, Request, Response } from 'express'
+﻿import { Router, Request, Response } from 'express'
 import {
   SYMBOLS,
   generateTicker,
@@ -103,14 +103,14 @@ router.get('/trades/:symbol', (req: Request, res: Response) => {
   return res.json(generateRecentTrades(found.symbol, count))
 })
 
-// GET /api/markets/hours  — returns open/closed status for every symbol
+// GET /api/markets/hours  - returns open/closed status for every symbol
 router.get('/hours', (_req: Request, res: Response) => {
   const result: Record<string, { isOpen: boolean }> = {}
   for (const s of SYMBOLS) result[s.symbol] = { isOpen: isMarketOpen(s.symbol) }
   return res.json(result)
 })
 
-// GET /api/markets/swap/:symbol  — returns overnight swap rate for a symbol
+// GET /api/markets/swap/:symbol  - returns overnight swap rate for a symbol
 router.get('/swap/:symbol', (req: Request, res: Response) => {
   const raw = sanitizeSymbol(decodeURIComponent(req.params.symbol))
   if (!raw) return res.status(400).json({ error: 'Invalid symbol' })

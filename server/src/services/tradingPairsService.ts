@@ -1,6 +1,6 @@
-/**
+﻿/**
  * Trading Pairs Service
- * Manages all tradeable instruments — their parameters, status, and settings.
+ * Manages all tradeable instruments - their parameters, status, and settings.
  * In production this would be backed by a database; here we use an in-memory store
  * seeded from the mockDataService SYMBOLS list.
  */
@@ -92,7 +92,7 @@ const SEED: SeedEntry[] = [
     spread: 0.00014, digits: 5, tickSize: 0.00001,
     minLot: 0.01, maxLot: 100, stepLot: 0.01,
     leverage: 500, commission: 0, swapLong: -0.48, swapShort: 0.14,
-    description: 'Cable — highly liquid major pair',
+    description: 'Cable - highly liquid major pair',
   },
   {
     symbol: 'USD/JPY', name: 'US Dollar / Japanese Yen', category: 'forex',
@@ -156,7 +156,7 @@ const SEED: SeedEntry[] = [
     spread: 0.022, digits: 3, tickSize: 0.001,
     minLot: 0.01, maxLot: 100, stepLot: 0.01,
     leverage: 500, commission: 0, swapLong: 0.28, swapShort: -1.05,
-    description: 'GBP/JPY — high volatility cross pair',
+    description: 'GBP/JPY - high volatility cross pair',
   },
   // ── Crypto ─────────────────────────────────────────────────────────────────
   {
@@ -173,7 +173,7 @@ const SEED: SeedEntry[] = [
     spread: 2.50, digits: 2, tickSize: 0.01,
     minLot: 0.01, maxLot: 100, stepLot: 0.01,
     leverage: 100, commission: 0.05, swapLong: -0.01, swapShort: -0.01,
-    description: 'Ethereum — smart contract platform',
+    description: 'Ethereum - smart contract platform',
   },
   {
     symbol: 'SOL/USDT', name: 'Solana / Tether', category: 'crypto',
@@ -197,7 +197,7 @@ const SEED: SeedEntry[] = [
     spread: 0.0005, digits: 4, tickSize: 0.0001,
     minLot: 1, maxLot: 100000, stepLot: 1,
     leverage: 50, commission: 0.05, swapLong: -0.01, swapShort: -0.01,
-    description: 'XRP — payment protocol and exchange network',
+    description: 'XRP - payment protocol and exchange network',
   },
   {
     symbol: 'DOGE/USDT', name: 'Dogecoin / Tether', category: 'crypto',
@@ -279,7 +279,7 @@ const SEED: SeedEntry[] = [
     spread: 0.28, digits: 2, tickSize: 0.01,
     minLot: 0.01, maxLot: 100, stepLot: 0.01,
     leverage: 200, commission: 0, swapLong: -0.42, swapShort: -0.12,
-    description: 'Gold spot — premier safe-haven commodity',
+    description: 'Gold spot - premier safe-haven commodity',
   },
   {
     symbol: 'XAG/USD', name: 'Silver / US Dollar', category: 'commodity',
@@ -287,7 +287,7 @@ const SEED: SeedEntry[] = [
     spread: 0.035, digits: 3, tickSize: 0.001,
     minLot: 0.01, maxLot: 500, stepLot: 0.01,
     leverage: 100, commission: 0, swapLong: -0.30, swapShort: -0.10,
-    description: 'Silver spot — industrial and monetary metal',
+    description: 'Silver spot - industrial and monetary metal',
   },
   {
     symbol: 'OIL/USD', name: 'WTI Crude Oil / USD', category: 'commodity',
@@ -320,7 +320,7 @@ const SEED: SeedEntry[] = [
     spread: 0.50, digits: 2, tickSize: 0.01,
     minLot: 0.01, maxLot: 100, stepLot: 0.01,
     leverage: 200, commission: 0, swapLong: -0.28, swapShort: -0.08,
-    description: 'S&P 500 — 500 largest US companies',
+    description: 'S&P 500 - 500 largest US companies',
   },
   {
     symbol: 'US30', name: 'Dow Jones Industrial Average', category: 'index',
@@ -328,7 +328,7 @@ const SEED: SeedEntry[] = [
     spread: 2.50, digits: 2, tickSize: 0.01,
     minLot: 0.01, maxLot: 100, stepLot: 0.01,
     leverage: 200, commission: 0, swapLong: -0.25, swapShort: -0.06,
-    description: 'Dow Jones — 30 blue-chip US stocks',
+    description: 'Dow Jones - 30 blue-chip US stocks',
   },
   {
     symbol: 'NAS100', name: 'NASDAQ 100 Index', category: 'index',
@@ -336,10 +336,10 @@ const SEED: SeedEntry[] = [
     spread: 1.00, digits: 2, tickSize: 0.01,
     minLot: 0.01, maxLot: 100, stepLot: 0.01,
     leverage: 200, commission: 0, swapLong: -0.32, swapShort: -0.10,
-    description: 'NASDAQ 100 — top tech companies',
+    description: 'NASDAQ 100 - top tech companies',
   },
   {
-    symbol: 'GER40', name: 'DAX 40 — Germany', category: 'index',
+    symbol: 'GER40', name: 'DAX 40 - Germany', category: 'index',
     baseAsset: 'GER40', quoteAsset: 'EUR',
     spread: 1.20, digits: 2, tickSize: 0.01,
     minLot: 0.01, maxLot: 100, stepLot: 0.01,
@@ -347,7 +347,7 @@ const SEED: SeedEntry[] = [
     description: 'Germany DAX 40 blue-chip index',
   },
   {
-    symbol: 'UK100', name: 'FTSE 100 — UK', category: 'index',
+    symbol: 'UK100', name: 'FTSE 100 - UK', category: 'index',
     baseAsset: 'UK100', quoteAsset: 'GBP',
     spread: 1.00, digits: 2, tickSize: 0.01,
     minLot: 0.01, maxLot: 100, stepLot: 0.01,

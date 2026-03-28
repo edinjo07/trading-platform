@@ -1,4 +1,4 @@
-import { create } from 'zustand'
+﻿import { create } from 'zustand'
 import { User, AccountType } from '../types'
 import { login, register, signOut } from '../api/auth'
 import { supabase } from '../lib/supabase'
@@ -100,7 +100,7 @@ export const useAuthStore = create<AuthState>((set, get) => {
       set({ user: null, token: null })
     },
 
-    // Never wipes auth on network errors — only clears on genuine SIGNED_OUT event
+    // Never wipes auth on network errors - only clears on genuine SIGNED_OUT event
     loadUser: async () => {
       set({ loading: true })
       try {
@@ -113,7 +113,7 @@ export const useAuthStore = create<AuthState>((set, get) => {
           set({ user: null, token: null, loading: false })
         }
       } catch {
-        // Network error — keep existing auth, just stop loading
+        // Network error - keep existing auth, just stop loading
         set({ loading: false })
       }
     },

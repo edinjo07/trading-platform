@@ -1,5 +1,5 @@
-/**
- * dbSync.ts — Supabase persistence layer
+﻿/**
+ * dbSync.ts - Supabase persistence layer
  * Wraps all DB operations. Called fire-and-forget from tradingEngine.ts
  * so the in-memory engine never blocks on DB I/O.
  */
@@ -24,12 +24,12 @@ async function dbRetry<T>(fn: () => Promise<T>): Promise<T> {
 /**
  * Ensure a user stub exists in public.users for FK constraints.
  * Users who authenticate via Supabase Auth are NOT automatically added to this
- * table — this function inserts a minimal row on first access so that orders
+ * table - this function inserts a minimal row on first access so that orders
  * and portfolios (which REFERENCES users(id)) can be persisted.
  * Uses ignoreDuplicates so existing rows are never overwritten.
  */
 export async function dbEnsureUser(userId: string, email: string, username?: string): Promise<void> {
-  // Guard against empty strings — `email.split('@')[0]` returns '' for '',
+  // Guard against empty strings - `email.split('@')[0]` returns '' for '',
   // and '' ?? 'Trader' still returns '' because ?? only checks null/undefined.
   const safeEmail    = email    || `${userId}@unknown.invalid`
   const safeUsername = username || email.split('@')[0] || `user_${userId.slice(0, 8)}`
@@ -38,7 +38,7 @@ export async function dbEnsureUser(userId: string, email: string, username?: str
       id: userId,
       email: safeEmail,
       username: safeUsername,
-      password_hash: '$supabase_auth$', // placeholder — password is managed by Supabase Auth
+      password_hash: '$supabase_auth$', // placeholder - password is managed by Supabase Auth
       balance: 100_000,
       created_at: new Date().toISOString(),
     },
@@ -181,7 +181,7 @@ export async function dbSaveTradeRecord(record: TradeRecord): Promise<void> {
 // IMPORTANT: use .maybeSingle() NOT .single().
 // .single() converts a 0-row result into a PostgREST error (PGRST116), which
 // is indistinguishable from a real DB failure.  With .maybeSingle(), a missing
-// row returns { data: null, error: null } — we can treat that as "new user".
+// row returns { data: null, error: null } - we can treat that as "new user".
 // Any remaining error is a genuine DB problem and must be thrown so the caller
 // can return 503 instead of silently falling back to the $100k default.
 
@@ -195,7 +195,7 @@ export async function dbLoadPortfolio(userId: string): Promise<Portfolio | null>
     if (error) {
       throw new Error(`[DB] loadPortfolio: ${error.message}`)
     }
-    if (!data) return null   // genuine new user — no portfolio row yet
+    if (!data) return null   // genuine new user - no portfolio row yet
     return {
       userId: data.user_id,
       cashBalance: parseFloat(data.cash_balance),
@@ -386,7 +386,7 @@ export async function dbLoadTradeJournal(userId: string): Promise<TradeRecord[]>
   })
 }
 
-// ─── Bootstrap — load all data from DB into in-memory maps ───────────────────
+// ─── Bootstrap - load all data from DB into in-memory maps ───────────────────
 
 export async function loadFromDB(params: {
   users: Map<string, User>
@@ -509,7 +509,7 @@ export async function loadFromDB(params: {
 
 // ─── Bots ─────────────────────────────────────────────────────────────────────
 
-// Minimal shape needed for DB persistence — avoids importing Bot from botEngine
+// Minimal shape needed for DB persistence - avoids importing Bot from botEngine
 export interface BotRow {
   id: string; userId: string; name: string; symbol: string
   strategy: string; params: object; status: string; position: string

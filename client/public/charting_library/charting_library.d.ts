@@ -1,4 +1,4 @@
-/**
+﻿/**
  * TradingView Advanced Charts
  * @packageDocumentation
  * @module Charting Library
@@ -18104,14 +18104,14 @@ export type RawStudyMetaInformation = Omit<RawStudyMetaInfo, "defaults" | "plots
  *
  * Resolution | Format | Example
  * ---------|----------|---------
- * Ticks | `xT` | `1T` — one tick
- * Seconds | `xS` | `1S` — one second
- * Minutes | `x` | `1` — one minute
- * Hours | `x` minutes | `60` — one hour
- * Days | `xD` | `1D` — one day
- * Weeks | `xW` | `1W` — one week
- * Months | `xM` | `1M` — one month
- * Years | `xM` months | `12M` — one year
+ * Ticks | `xT` | `1T` - one tick
+ * Seconds | `xS` | `1S` - one second
+ * Minutes | `x` | `1` - one minute
+ * Hours | `x` minutes | `60` - one hour
+ * Days | `xD` | `1D` - one day
+ * Weeks | `xW` | `1W` - one week
+ * Months | `xM` | `1M` - one month
+ * Years | `xM` months | `12M` - one year
  *
  * Refer to [Resolution](https://www.tradingview.com/charting-library-docs/latest/core_concepts/Resolution) for more information.
  */

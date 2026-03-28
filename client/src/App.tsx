@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+﻿import React, { useEffect } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuthStore } from './store/authStore'
 import { ErrorBoundary } from './components/ui/ErrorBoundary'
@@ -76,7 +76,7 @@ import ServerInfoPage from './pages/admin/server-management/ServerInfoPage'
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { user, token, loading } = useAuthStore()
-  // Still bootstrapping — don't redirect yet
+  // Still bootstrapping - don't redirect yet
   if (loading) return null
   if (!token && !user) return <Navigate to="/login" replace />
   return <>{children}</>

@@ -2,11 +2,11 @@
  * api/[...path].ts
  *
  * Vercel serverless catch-all that wraps the Express app.
- * REST endpoints work fully. WebSocket is not available (Vercel limitation) —
+ * REST endpoints work fully. WebSocket is not available (Vercel limitation) -
  * the frontend falls back to polling /api/markets/tickers automatically.
  */
 
-// _setup MUST be first — sets process.env before config.ts reads it
+// _setup MUST be first - sets process.env before config.ts reads it
 import './_setup'
 
 import type { IncomingMessage, ServerResponse } from 'http'
@@ -42,7 +42,7 @@ async function initialize(): Promise<void> {
       await seedInitialPrices(injectRealPrice)
       lastSeed = now
     } catch {
-      // non-fatal — serve stale prices
+      // non-fatal - serve stale prices
     }
   }
 }
@@ -53,9 +53,9 @@ async function initialize(): Promise<void> {
  * Vercel's @vercel/node runtime can pass the path in THREE different ways
  * depending on the runtime version:
  *
- *   A) req.url = '/api/markets/tickers'          (full path — ideal)
+ *   A) req.url = '/api/markets/tickers'          (full path - ideal)
  *   B) req.url = '/markets/tickers'              (api prefix stripped)
- *   C) req.url = '/?path=markets&path=tickers'   (path as query params — legacy runtime)
+ *   C) req.url = '/?path=markets&path=tickers'   (path as query params - legacy runtime)
  *
  * We normalise all three to '/api/<rest>?<original-qs>'
  */
@@ -69,9 +69,9 @@ function resolveUrl(req: IncomingMessage): string {
   const rawQs   = qMark === -1 ? '' : raw.slice(qMark + 1)
 
   if (rawPath !== '/' && rawPath !== '') {
-    // Already has a real path segment — just ensure /api prefix
-    if (rawPath.startsWith('/api')) return raw          // Case A — correct already
-    return '/api' + (rawPath.startsWith('/') ? raw : '/' + raw)  // Case B — restore prefix
+    // Already has a real path segment - just ensure /api prefix
+    if (rawPath.startsWith('/api')) return raw          // Case A - correct already
+    return '/api' + (rawPath.startsWith('/') ? raw : '/' + raw)  // Case B - restore prefix
   }
 
   // ── Case C: path[] encoded as query-string params by Vercel ─────────────
@@ -98,7 +98,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
   const effectiveUrl = resolveUrl(req)
   console.error('[handler] rawUrl:', (req as any).url, '→ effective:', effectiveUrl)
 
-  // Diagnostic: GET /api/ping — confirms function is deployed and running
+  // Diagnostic: GET /api/ping - confirms function is deployed and running
   if (effectiveUrl === '/api/ping' || effectiveUrl.startsWith('/api/ping?')) {
     res.writeHead(200, { 'Content-Type': 'application/json' })
     res.end(JSON.stringify({

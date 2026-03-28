@@ -1,5 +1,5 @@
-/**
- * TradingView Trading Platform — Broker API
+﻿/**
+ * TradingView Trading Platform - Broker API
  *
  * Implements IBrokerTerminal to enable chart-native trading: order lines,
  * position lines, execution marks, and the Account Manager panel.
@@ -13,7 +13,7 @@ import { getPortfolio } from './portfolio'
 import type { Order, Position } from '../types'
 
 // ---------------------------------------------------------------------------
-// Mapping helpers — our domain types ↔ TV numeric codes
+// Mapping helpers - our domain types ↔ TV numeric codes
 // TV const enum values (inlined by TypeScript): OrderStatus.Working=8, Filled=6,
 // Cancelled=4, Rejected=5; OrderType.Market=1,Limit=2,Stop=3,StopLimit=4,TrailingStop=5
 // Side.Buy=1, Side.Sell=2
@@ -86,7 +86,7 @@ function positionToTvPosition(p: Position): Charting_Library.BrokerPosition {
 }
 
 // ---------------------------------------------------------------------------
-// Noop delegate — required by AccountManagerTable but we push updates via fullUpdate()
+// Noop delegate - required by AccountManagerTable but we push updates via fullUpdate()
 // ---------------------------------------------------------------------------
 const noopDelegate: Charting_Library.SimpleDelegate = {
   subscribe: () => {},
@@ -107,7 +107,7 @@ export class TVBrokerApi implements Charting_Library.IBrokerTerminal {
     this.host = host
   }
 
-  // Real-time symbol feed is handled by TVDatafeed's WebSocket — nothing extra here.
+  // Real-time symbol feed is handled by TVDatafeed's WebSocket - nothing extra here.
   subscribeRealtime(_symbol: string): void {}
   unsubscribeRealtime(_symbol: string): void {}
 

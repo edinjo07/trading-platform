@@ -1,4 +1,4 @@
-import { Router, Response } from 'express'
+﻿import { Router, Response } from 'express'
 import { authenticate, AuthRequest } from '../middleware/auth'
 import { getAllUsers, getAllOrders, getAllPositions } from '../services/tradingEngine'
 import {
@@ -28,7 +28,7 @@ router.get('/stats', async (req: AuthRequest, res: Response) => {
     const stats = await dbGetPlatformStats()
     return res.json(stats)
   } catch {
-    // Supabase unavailable — fall back to in-memory counts (no fake monetary amounts)
+    // Supabase unavailable - fall back to in-memory counts (no fake monetary amounts)
     const users  = getAllUsers()
     const orders = getAllOrders()
     const filled = orders.filter(o => o.status === 'filled')

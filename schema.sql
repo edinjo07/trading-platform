@@ -1,5 +1,5 @@
--- ============================================================
--- TradeX Pro — Supabase Schema
+﻿-- ============================================================
+-- TradeX Pro - Supabase Schema
 -- Run this in the Supabase SQL Editor:
 -- https://supabase.com/dashboard/project/tkplwifmstnkecevgbyi/sql
 -- ============================================================
@@ -133,7 +133,7 @@ CREATE INDEX IF NOT EXISTS idx_transactions_user_id ON transactions(user_id);
 CREATE INDEX IF NOT EXISTS idx_transactions_type    ON transactions(type);
 CREATE INDEX IF NOT EXISTS idx_transactions_status  ON transactions(status);
 
--- ── Row Level Security (optional — disable for server-side service role) ──
+-- ── Row Level Security (optional - disable for server-side service role) ──
 -- The server uses the service_role key which bypasses RLS automatically.
 -- Enable RLS if you also expose Supabase directly to the client:
 -- ALTER TABLE users        ENABLE ROW LEVEL SECURITY;

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * cmcService.ts
  *
  * Fetches real-time cryptocurrency prices and 24-hour stats from the
@@ -138,7 +138,7 @@ export async function seedFromCMC(
   onStats?: StatsCallback,
 ): Promise<void> {
   if (!config.cmcApiKey) {
-    console.warn('[CMC] ⚠️  CMC_API_KEY not set — skipping CoinMarketCap seed')
+    console.warn('[CMC] ⚠️  CMC_API_KEY not set - skipping CoinMarketCap seed')
     return
   }
 

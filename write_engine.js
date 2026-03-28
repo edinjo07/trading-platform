@@ -1,4 +1,4 @@
-const fs = require('fs');
+﻿const fs = require('fs');
 const content = `import { v4 as uuidv4 } from 'uuid'
 import { EventEmitter } from 'events'
 import {
@@ -23,7 +23,7 @@ const tradeJournal= new Map<string, TradeRecord[]>()   // userId -> trade record
 const equityCurve = new Map<string, EquityPoint[]>()   // userId -> equity points
 
 // ---------------------------------------------------------------------------
-// Commission schedule (paper trading — mirrors real broker fee structures)
+// Commission schedule (paper trading - mirrors real broker fee structures)
 // ---------------------------------------------------------------------------
 const COMMISSION = {
   crypto: 0.001,   // 0.10% taker
@@ -38,7 +38,7 @@ function calcCommission(symbol: string, quantity: number, price: number): number
 }
 
 // ---------------------------------------------------------------------------
-// Slippage model — market impact proportional to order size
+// Slippage model - market impact proportional to order size
 // ---------------------------------------------------------------------------
 function calcSlippage(symbol: string, quantity: number, price: number, side: OrderSide): number {
   const ac = getAssetClass(symbol)
@@ -154,7 +154,7 @@ export function getOrdersByUser(userId: string): Order[] {
 }
 
 // ---------------------------------------------------------------------------
-// createOrder — the main order entry point
+// createOrder - the main order entry point
 // ---------------------------------------------------------------------------
 export function createOrder(
   userId: string,
@@ -232,7 +232,7 @@ export function createOrder(
   } else {
     order.status = 'open'
     order.updatedAt = new Date().toISOString()
-    // Handle IOC/FOK — immediately cancel if not fillable at current price
+    // Handle IOC/FOK - immediately cancel if not fillable at current price
     if (timeInForce === 'IOC' || timeInForce === 'FOK') {
       const canFillNow =
         (type === 'limit' && side === 'buy'  && currentPrice <= price!) ||
@@ -251,7 +251,7 @@ export function createOrder(
 }
 
 // ---------------------------------------------------------------------------
-// executeOrder — fills an order, updates portfolio, records trade, schedules TP/SL
+// executeOrder - fills an order, updates portfolio, records trade, schedules TP/SL
 // ---------------------------------------------------------------------------
 export function executeOrder(orderId: string, overrideFillPrice?: number): void {
   const order = orders.get(orderId)
@@ -325,7 +325,7 @@ export function executeOrder(orderId: string, overrideFillPrice?: number): void 
     tradeJournal.set(order.userId, journal)
 
   } else {
-    // SELL — close or reduce position
+    // SELL - close or reduce position
     portfolio.cashBalance = parseFloat((portfolio.cashBalance + totalCost - commission).toFixed(2))
 
     const existingIdx = portfolio.positions.findIndex(p => p.symbol === order.symbol)
@@ -335,7 +335,7 @@ export function executeOrder(orderId: string, overrideFillPrice?: number): void 
       const netPnl    = grossPnl - commission
       portfolio.realizedPnl = parseFloat((portfolio.realizedPnl + netPnl).toFixed(2))
 
-      // Update journal — find the open buy trade and close it
+      // Update journal - find the open buy trade and close it
       const journal = tradeJournal.get(order.userId) ?? []
       const openTrade = [...journal].reverse().find(t => t.symbol === order.symbol && t.side === 'buy' && !t.closedAt)
       if (openTrade) {
@@ -484,7 +484,7 @@ export function getTradeJournal(userId: string): TradeRecord[] {
 }
 
 // ---------------------------------------------------------------------------
-// Watcher system — processes limit, stop, stop-limit, trailing-stop, TP/SL
+// Watcher system - processes limit, stop, stop-limit, trailing-stop, TP/SL
 // ---------------------------------------------------------------------------
 type WatchKind = 'limit' | 'stop' | 'stop_limit' | 'trailing_stop' | 'take_profit' | 'stop_loss'
 
@@ -537,7 +537,7 @@ function syncOrderWatchers(): void {
   }
 }
 
-// Master poller — 500ms interval
+// Master poller - 500ms interval
 setInterval(() => {
   syncOrderWatchers()
 
@@ -606,7 +606,7 @@ setInterval(() => {
         // Fill the existing order record
         executeOrder(w.orderId, fillPrice)
       } else {
-        // TP/SL — create and fill a synthetic market order
+        // TP/SL - create and fill a synthetic market order
         try {
           const syntheticOrder = createOrder(w.userId, w.symbol, w.side, 'market', w.quantity)
           setTimeout(() => executeOrder(syntheticOrder.id, fillPrice ?? mp), 50)

@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------
+﻿// ---------------------------------------------------------------------------
 // Primitive enums / unions
 // ---------------------------------------------------------------------------
 export type AssetClass = 'stock' | 'crypto' | 'forex' | 'commodity' | 'index' | 'bond'
@@ -124,7 +124,7 @@ export interface Portfolio {
   todayPnlPercent?: number
   peakEquity?: number
   drawdown?: number
-  updatedAt?: string   // ISO timestamp — used to reject stale cold-start container responses
+  updatedAt?: string   // ISO timestamp - used to reject stale cold-start container responses
 }
 
 // ---------------------------------------------------------------------------

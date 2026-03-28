@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+﻿import React, { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
 
@@ -259,7 +259,7 @@ export default function LandingPage() {
             backgroundRepeat: 'no-repeat',
           }}
         />
-        {/* Dark overlay — keeps text readable, fades bottom into page bg */}
+        {/* Dark overlay - keeps text readable, fades bottom into page bg */}
         <div
           className="absolute inset-0"
           style={{
@@ -594,7 +594,7 @@ export default function LandingPage() {
             <p className="text-sm font-semibold uppercase tracking-widest mb-3" style={{ color: '#0369a1' }}>Platform Features</p>
             <h2 className="text-4xl font-bold mb-4" style={{ color: '#0a1520' }}>Built for Serious Traders</h2>
             <p className="text-lg max-w-2xl mx-auto" style={{ color: '#4b6280' }}>
-              Every tool you need — from precision order entry to deep performance analytics — built into one professional platform.
+              Every tool you need - from precision order entry to deep performance analytics - built into one professional platform.
             </p>
           </div>
 
@@ -662,7 +662,7 @@ export default function LandingPage() {
                 </div>
               </div>
               <p className="text-sm leading-relaxed mb-5" style={{ color: '#4b6280' }}>
-                Set your account risk % and stop-loss level — the calculator instantly shows dollar risk and exact position size.
+                Set your account risk % and stop-loss level - the calculator instantly shows dollar risk and exact position size.
                 One click applies it to your order quantity.
               </p>
               {/* Mini calculator preview */}
@@ -685,7 +685,7 @@ export default function LandingPage() {
           {/* ── ROW 2: P&L Calendar (wide) + Price Alerts ── */}
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-6">
 
-            {/* P&L Calendar — spans 3 cols */}
+            {/* P&L Calendar - spans 3 cols */}
             <div className="feature-card-light group lg:col-span-3" style={{ padding: '2rem' }}>
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0"
@@ -701,7 +701,7 @@ export default function LandingPage() {
                 </div>
               </div>
               <p className="text-sm leading-relaxed mb-5" style={{ color: '#4b6280' }}>
-                Navigate month-by-month through your trading history. Each day is colour-coded by P&L — instantly spot your best streaks and worst drawdowns.
+                Navigate month-by-month through your trading history. Each day is colour-coded by P&L - instantly spot your best streaks and worst drawdowns.
               </p>
               {/* Mini calendar heatmap */}
               <div className="rounded-xl p-3" style={{ background: '#f8f9ff', border: '1px solid #e0e7ff' }}>
@@ -731,7 +731,7 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* Price Alerts — spans 2 cols */}
+            {/* Price Alerts - spans 2 cols */}
             <div className="feature-card-light group lg:col-span-2" style={{ padding: '2rem' }}>
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0"
@@ -747,7 +747,7 @@ export default function LandingPage() {
                 </div>
               </div>
               <p className="text-sm leading-relaxed mb-5" style={{ color: '#4b6280' }}>
-                Set price targets on any symbol. Alerts fire instantly when your level is hit — even while you're away from the screen.
+                Set price targets on any symbol. Alerts fire instantly when your level is hit - even while you're away from the screen.
               </p>
               {/* Mini alert list */}
               <div className="space-y-2">
@@ -793,7 +793,7 @@ export default function LandingPage() {
                 </div>
               </div>
               <p className="text-sm leading-relaxed mb-5" style={{ color: '#4b6280' }}>
-                Download your complete order history in one click — symbol, type, side, quantity, fill price, status and timestamps.
+                Download your complete order history in one click - symbol, type, side, quantity, fill price, status and timestamps.
                 Open in Excel, Google Sheets, or any analysis tool.
               </p>
               {/* Mini CSV preview */}
@@ -846,7 +846,7 @@ export default function LandingPage() {
                 </div>
               </div>
               <p className="text-sm leading-relaxed mb-5" style={{ color: '#4b6280' }}>
-                Equity curve, win rate, average R:R, max drawdown, Sharpe ratio — all calculated automatically.
+                Equity curve, win rate, average R:R, max drawdown, Sharpe ratio - all calculated automatically.
                 The P&L calendar and performance breakdown show exactly where you win and lose.
               </p>
               {/* Mini stats grid */}
@@ -969,16 +969,16 @@ export default function LandingPage() {
                   NEVER TRIED BEFORE
                 </div>
                 <h3 className="text-3xl font-black text-white mb-4" style={{ letterSpacing: '-0.02em', lineHeight: 1.1 }}>
-                  The Market Never<br />Sleeps — and<br />
+                  The Market Never<br />Sleeps - and<br />
                   <span style={{ color: '#38bdf8' }}>Neither Does Pilot.</span>
                 </h3>
                 <p className="text-base leading-relaxed mb-6" style={{ color: 'rgba(255,255,255,0.55)' }}>
                   While you rest, Pilot monitors every tick on every enabled asset. It doesn't panic. It doesn't get greedy. It doesn't override its own rules.
-                  It just executes — with cold, precise, AI-enhanced intelligence that no human can replicate.
+                  It just executes - with cold, precise, AI-enhanced intelligence that no human can replicate.
                 </p>
                 <div className="space-y-2 mb-8">
                   {[
-                    'Runs 24/7 autonomously — no babysitting needed',
+                    'Runs 24/7 autonomously - no babysitting needed',
                     'Claude AI reads news before every single trade',
                     'Multiple bots on multiple assets simultaneously',
                     'Full trade log with timestamps and P&L tracking',
@@ -1110,7 +1110,7 @@ export default function LandingPage() {
           <div className="text-center mb-10">
             <p className="text-brand-400 text-sm font-semibold uppercase tracking-widest mb-3">Live Markets</p>
             <h2 className="text-4xl font-bold text-white mb-3">Trade 20+ Instruments</h2>
-            <p className="text-text-secondary">Crypto, Forex, Stocks, Commodities — all in one platform</p>
+            <p className="text-text-secondary">Crypto, Forex, Stocks, Commodities - all in one platform</p>
           </div>
 
           {/* Category pills */}
@@ -1274,7 +1274,7 @@ export default function LandingPage() {
                 Join thousands of traders who use TradeX Pro to sharpen their edge and master the markets.
               </p>
               <button onClick={goToApp} className="btn-primary text-base px-10 py-4 rounded-xl mx-auto">
-                Get Started Free — 30 seconds
+                Get Started Free - 30 seconds
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                   <polyline points="9 18 15 12 9 6" />
                 </svg>
@@ -1365,7 +1365,7 @@ export default function LandingPage() {
                style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
             <p className="text-text-muted text-xs">© 2026 TradeX Pro. All rights reserved.</p>
             <p className="text-text-muted text-xs">
-              Paper trading platform — for educational purposes only.
+              Paper trading platform - for educational purposes only.
               <span className="text-brand-400/60"> Not financial advice.</span>
             </p>
           </div>

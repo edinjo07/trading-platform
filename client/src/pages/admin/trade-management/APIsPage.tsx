@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+﻿import React, { useState } from 'react'
 
 interface ApiEntry { id: string; name: string; provider: string; type: string; endpoint: string; status: string; latency: number; lastCheck: string }
 
@@ -72,7 +72,7 @@ export default function APIsPage() {
                   </td>
                   <td className="px-5 py-3 font-mono text-text-muted text-xs max-w-[200px] truncate">{api.endpoint}</td>
                   <td className="px-5 py-3 font-mono font-semibold" style={{ color: latencyColor(api.latency) }}>
-                    {api.latency === 0 ? '—' : `${api.latency}ms`}
+                    {api.latency === 0 ? '-' : `${api.latency}ms`}
                   </td>
                   <td className="px-5 py-3">
                     <span className="flex items-center gap-1.5 text-xs font-medium"

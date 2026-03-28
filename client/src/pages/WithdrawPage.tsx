@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+﻿import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
 import { useTradingStore } from '../store/tradingStore'
@@ -54,7 +54,7 @@ export default function WithdrawPage() {
             </p>
           </div>
           <div className="w-full rounded-xl p-4 text-sm space-y-2" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
-            <div className="flex justify-between"><span className="text-text-muted">Method</span><span className="text-text-primary font-medium">{method === 'bank' ? 'Bank Transfer' : `Crypto — ${crypto}`}</span></div>
+            <div className="flex justify-between"><span className="text-text-muted">Method</span><span className="text-text-primary font-medium">{method === 'bank' ? 'Bank Transfer' : `Crypto - ${crypto}`}</span></div>
             <div className="flex justify-between"><span className="text-text-muted">Requested</span><span className="text-text-primary font-mono font-semibold">{formatCurrency(parsedAmount)}</span></div>
             {networkFee > 0 && <div className="flex justify-between"><span className="text-text-muted">Network fee</span><span className="text-bear font-mono">−{formatCurrency(networkFee)}</span></div>}
             <div className="h-px" style={{ background: 'rgba(255,255,255,0.06)' }} />
@@ -85,7 +85,7 @@ export default function WithdrawPage() {
             <p className="text-text-muted text-sm mt-0.5">Please review your withdrawal request carefully.</p>
           </div>
           <div className="rounded-xl p-4 space-y-3 text-sm" style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.05)' }}>
-            <div className="flex justify-between"><span className="text-text-muted">Method</span><span className="text-text-primary font-medium">{method === 'bank' ? 'Bank Transfer' : `Crypto — ${crypto}`}</span></div>
+            <div className="flex justify-between"><span className="text-text-muted">Method</span><span className="text-text-primary font-medium">{method === 'bank' ? 'Bank Transfer' : `Crypto - ${crypto}`}</span></div>
             {method === 'bank' && bankName && <div className="flex justify-between"><span className="text-text-muted">Bank</span><span className="text-text-primary">{bankName}</span></div>}
             {method === 'bank' && iban && <div className="flex justify-between"><span className="text-text-muted">IBAN</span><span className="text-text-primary font-mono text-xs">{iban}</span></div>}
             {method === 'crypto' && walletAddress && <div className="flex justify-between gap-4"><span className="text-text-muted shrink-0">Wallet</span><span className="text-text-primary font-mono text-xs break-all text-right">{walletAddress}</span></div>}
@@ -95,7 +95,7 @@ export default function WithdrawPage() {
             <div className="flex justify-between font-bold"><span className="text-text-primary">You will receive</span><span className="font-mono text-base" style={{ color: '#fb923c' }}>{formatCurrency(willReceive)}</span></div>
           </div>
           <div className="rounded-lg p-3 text-xs" style={{ background: 'rgba(251,146,60,0.08)', border: '1px solid rgba(251,146,60,0.2)', color: '#fb923c' }}>
-            ⚠ Withdrawals are reviewed by our team within 24 hours. Ensure your details are correct — funds sent to wrong addresses cannot be recovered.
+            ⚠ Withdrawals are reviewed by our team within 24 hours. Ensure your details are correct - funds sent to wrong addresses cannot be recovered.
           </div>
           <div className="flex gap-3">
             <button onClick={() => setStep('form')}

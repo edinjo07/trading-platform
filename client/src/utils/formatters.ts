@@ -1,5 +1,5 @@
-export function formatPrice(price: number, symbol?: string): string {
-  if (!price && price !== 0) return '—'
+﻿export function formatPrice(price: number, symbol?: string): string {
+  if (!price && price !== 0) return '-'
   // Large indices / high-value crypto (USTEC=18000, BTC=74000, ZA50=74000, etc.)
   if (price >= 10000) return price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
   // JPY cross pairs (USDJPY=149.320, GBPJPY=190.200)
