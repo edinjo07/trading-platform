@@ -19,6 +19,7 @@ import BotsPage from './pages/BotsPage'
 import DepositPage from './pages/DepositPage'
 import WithdrawPage from './pages/WithdrawPage'
 import UserKYCPage from './pages/KYCPage'
+import TradingPilotPage from './pages/TradingPilotPage'
 
 // Admin
 import AdminLayout from './components/admin/AdminLayout'
@@ -93,6 +94,7 @@ export default function App() {
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/" element={<LandingPage />} />
+        <Route path="/trading-pilot" element={<TradingPilotPage />} />
 
         {/* Main App */}
         <Route

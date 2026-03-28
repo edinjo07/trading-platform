@@ -1,7 +1,8 @@
-import React, { useEffect, useState, useCallback } from 'react'
+import React, { useEffect, useState, useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../../api/client'
 import { useAuthStore } from '../../store/authStore'
+import { generateTrades } from '../../utils/adminMock'
 
 // ─── Types ──────────────────────────────────────────────────────────────────────────────
 interface LiveStats {
@@ -23,6 +24,10 @@ interface ServerInfo {
 }
 
 // ─── Helpers ────────────────────────────────────────────────────────────────────────────
+function fmtEur(n: number): string {
+  return '€' + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+}
+
 function formatUptime(seconds: number): string {
   const d = Math.floor(seconds / 86400)
   const h = Math.floor((seconds % 86400) / 3600)
@@ -122,6 +127,75 @@ function QuickAction({ label, sub, icon, accent, onClick }: {
   )
 }
 
+// ─── Trade Engagement Chart ──────────────────────────────────────────────────
+function TradeEngagement() {
+  const bars = useMemo(() =>
+    Array.from({ length: 30 }, (_, i) => ({
+      h: Math.round(20 + Math.abs(Math.sin(i * 0.45 + 1)) * 70 + Math.random() * 25),
+      profitable: Math.random() > 0.38,
+    }))
+  , [])
+  const max = Math.max(...bars.map(b => b.h))
+  const profitable = bars.filter(b => b.profitable).length
+
+  return (
+    <div className="rounded-xl overflow-hidden" style={{ background: '#0c1220', border: '1px solid rgba(56,189,248,0.08)' }}>
+      <div className="px-5 py-4" style={{ borderBottom: '1px solid rgba(56,189,248,0.07)' }}>
+        <h2 className="text-sm font-semibold text-text-primary">Trade Engagement</h2>
+        <p className="text-xs text-text-secondary mt-0.5">Daily trade volume — last 30 days</p>
+      </div>
+      <div className="px-5 py-4 space-y-4">
+        {/* Legend */}
+        <div className="flex items-center gap-4">
+          <span className="flex items-center gap-1.5 text-xs text-text-secondary">
+            <span className="w-2.5 h-2.5 rounded-sm inline-block" style={{ background: '#00c878' }} /> Profitable
+          </span>
+          <span className="flex items-center gap-1.5 text-xs text-text-secondary">
+            <span className="w-2.5 h-2.5 rounded-sm inline-block" style={{ background: '#ff3047' }} /> Loss
+          </span>
+        </div>
+        {/* Bars */}
+        <svg viewBox="0 0 300 96" className="w-full" preserveAspectRatio="none" style={{ height: '96px' }}>
+          {/* Grid lines */}
+          {[0.25, 0.5, 0.75].map(p => (
+            <line key={p} x1="0" x2="300" y1={96 * p} y2={96 * p} stroke="rgba(56,189,248,0.07)" strokeWidth="0.5" />
+          ))}
+          {bars.map((b, i) => {
+            const bw = 300 / 30 - 1.5
+            const bh = (b.h / max) * 88
+            return (
+              <rect
+                key={i}
+                x={i * (300 / 30) + 0.75}
+                y={96 - bh}
+                width={bw}
+                height={bh}
+                rx="1.5"
+                fill={b.profitable ? 'rgba(0,200,120,0.7)' : 'rgba(255,48,71,0.6)'}
+              />
+            )
+          })}
+        </svg>
+        {/* X-axis labels */}
+        <div className="flex justify-between" style={{ fontSize: '9px', color: '#4a6478' }}>
+          <span>30d ago</span><span>15d ago</span><span>Today</span>
+        </div>
+        {/* Summary pills */}
+        <div className="grid grid-cols-2 gap-2">
+          <div className="rounded-lg p-3" style={{ background: 'rgba(0,200,120,0.07)', border: '1px solid rgba(0,200,120,0.13)' }}>
+            <p className="text-sm font-bold font-mono text-bull">{profitable}</p>
+            <p className="text-text-secondary mt-0.5" style={{ fontSize: '10px' }}>Profitable Days</p>
+          </div>
+          <div className="rounded-lg p-3" style={{ background: 'rgba(255,48,71,0.07)', border: '1px solid rgba(255,48,71,0.13)' }}>
+            <p className="text-sm font-bold font-mono text-bear">{30 - profitable}</p>
+            <p className="text-text-secondary mt-0.5" style={{ fontSize: '10px' }}>Loss Days</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // =============================================================================
 // Main Dashboard
 // =============================================================================
@@ -129,10 +203,13 @@ export default function AdminDashboardPage() {
   const { user } = useAuthStore()
   const navigate  = useNavigate()
 
+  const [from,      setFrom]      = useState('')
+  const [to,        setTo]        = useState('')
   const [stats,     setStats]     = useState<LiveStats | null>(null)
   const [server,    setServer]    = useState<ServerInfo | null>(null)
   const [loading,   setLoading]   = useState(true)
   const [lastFetch, setLastFetch] = useState<Date | null>(null)
+  const recentTrades = useMemo(() => generateTrades(20), [])
 
   const fetchStats = useCallback(async () => {
     try {
@@ -146,8 +223,8 @@ export default function AdminDashboardPage() {
     } catch {
       if (!stats) {
         setStats({
-          totalUsers: 3214, totalTrades: 14872, openTrades: 248,
-          closedTrades: 14624, totalDeposits: 1248530, totalWithdraws: 387200, profitLoss: 860330,
+          totalUsers: 0, totalTrades: 0, openTrades: 0,
+          closedTrades: 0, totalDeposits: 0, totalWithdraws: 0, profitLoss: 0,
         })
       }
     } finally {
@@ -163,14 +240,14 @@ export default function AdminDashboardPage() {
 
   const STAT_CARDS = [
     {
-      label: 'Total Deposits', prefix: '$',
-      value: stats ? stats.totalDeposits.toLocaleString() : '—',
+      label: 'Total Deposits', prefix: '',
+      value: stats ? fmtEur(stats.totalDeposits) : '—',
       change: 12.4, accent: '#0ea5e9',
       icon: <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M12 5v14M19 12l-7 7-7-7" /></svg>,
     },
     {
-      label: 'Total Withdraws', prefix: '$',
-      value: stats ? stats.totalWithdraws.toLocaleString() : '—',
+      label: 'Total Withdraws', prefix: '',
+      value: stats ? fmtEur(stats.totalWithdraws) : '—',
       change: -3.1, accent: '#f59e0b',
       icon: <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M12 19V5M5 12l7-7 7 7" /></svg>,
     },
@@ -187,9 +264,9 @@ export default function AdminDashboardPage() {
       icon: <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" /></svg>,
     },
     {
-      label: 'Profit / Loss', prefix: '$',
-      value: stats ? Math.abs(stats.profitLoss).toLocaleString() : '—',
-      change: 18.2, accent: '#00c878',
+      label: 'Profit / Loss', prefix: '',
+      value: stats ? (stats.profitLoss < 0 ? '-' : '') + fmtEur(stats.profitLoss) : '—',
+      change: stats ? (stats.profitLoss >= 0 ? 18.2 : -18.2) : 18.2, accent: stats && stats.profitLoss >= 0 ? '#00c878' : '#ff3047',
       icon: <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" /></svg>,
     },
   ]
@@ -239,12 +316,31 @@ export default function AdminDashboardPage() {
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold text-text-primary">Admin Dashboard</h1>
+          <h1 className="text-xl font-bold text-text-primary">Dashboard</h1>
           <p className="text-sm text-text-secondary mt-0.5">
             Welcome back{user?.username ? `, ${user.username}` : ''} — platform performance overview
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
+          {/* Date range picker */}
+          <div className="flex items-center gap-2 rounded-xl px-4 py-2" style={{ background: '#0c1220', border: '1px solid rgba(56,189,248,0.12)' }}>
+            <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} style={{ color: '#6b8099' }}>
+              <rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" />
+            </svg>
+            <span className="text-xs text-text-secondary">From</span>
+            <input
+              type="date" value={from} onChange={e => setFrom(e.target.value)}
+              className="text-xs bg-transparent text-text-primary focus:outline-none"
+              style={{ colorScheme: 'dark' }}
+            />
+            <span className="text-text-muted text-xs">–</span>
+            <span className="text-xs text-text-secondary">To</span>
+            <input
+              type="date" value={to} onChange={e => setTo(e.target.value)}
+              className="text-xs bg-transparent text-text-primary focus:outline-none"
+              style={{ colorScheme: 'dark' }}
+            />
+          </div>
           {lastFetch && (
             <span className="font-mono text-text-muted" style={{ fontSize: '10px' }}>
               Updated {lastFetch.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
@@ -277,7 +373,7 @@ export default function AdminDashboardPage() {
           {[
             { label: 'Open Positions',   value: String(stats.openTrades),   color: '#f43f5e', bg: 'rgba(244,63,94,0.08)',  border: 'rgba(244,63,94,0.18)' },
             { label: 'Closed Trades',    value: String(stats.closedTrades), color: '#00c878', bg: 'rgba(0,200,120,0.08)',  border: 'rgba(0,200,120,0.18)' },
-            { label: 'Net P&L',          value: `${stats.profitLoss >= 0 ? '+' : '-'}$${Math.abs(stats.profitLoss).toLocaleString()}`, color: stats.profitLoss >= 0 ? '#00c878' : '#ff3047', bg: 'rgba(56,189,248,0.05)', border: 'rgba(56,189,248,0.12)' },
+            { label: 'Net P&L',          value: `${stats.profitLoss >= 0 ? '+' : '-'}${fmtEur(stats.profitLoss)}`, color: stats.profitLoss >= 0 ? '#00c878' : '#ff3047', bg: 'rgba(56,189,248,0.05)', border: 'rgba(56,189,248,0.12)' },
             { label: 'Registered Users', value: String(stats.totalUsers),   color: '#38bdf8', bg: 'rgba(56,189,248,0.05)', border: 'rgba(56,189,248,0.12)' },
           ].map(s => (
             <div key={s.label} className="rounded-xl px-4 py-3" style={{ background: s.bg, border: `1px solid ${s.border}` }}>
@@ -296,6 +392,60 @@ export default function AdminDashboardPage() {
             <QuickAction key={a.label} label={a.label} sub={a.sub} icon={a.icon} accent={a.accent} onClick={() => navigate(a.to)} />
           ))}
         </div>
+      </div>
+
+      {/* Recent Transactions + Trade Engagement */}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
+        {/* Recent Transactions */}
+        <div className="xl:col-span-2 rounded-xl overflow-hidden" style={{ background: '#0c1220', border: '1px solid rgba(56,189,248,0.08)' }}>
+          <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid rgba(56,189,248,0.07)' }}>
+            <h2 className="text-sm font-semibold text-text-primary">Recent Transactions</h2>
+            <button onClick={() => navigate('/admin/transactions/all')} className="text-xs font-medium text-brand-300 hover:text-brand-200 transition-colors">
+              View all →
+            </button>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs">
+              <thead>
+                <tr style={{ borderBottom: '1px solid rgba(56,189,248,0.06)' }}>
+                  {['Trade ID', 'User', 'Symbol', 'Side', 'Lots', 'P&L', 'Status', 'Date'].map(h => (
+                    <th key={h} className="text-left px-4 py-2.5 font-medium whitespace-nowrap" style={{ color: '#6b8099', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {recentTrades.slice(0, 8).map(t => (
+                  <tr key={t.id} className="hover:bg-white/[0.015] transition-colors cursor-pointer" style={{ borderBottom: '1px solid rgba(56,189,248,0.04)' }}>
+                    <td className="px-4 py-3 font-mono text-brand-300 whitespace-nowrap">{t.id}</td>
+                    <td className="px-4 py-3 text-text-primary">{t.user}</td>
+                    <td className="px-4 py-3 font-mono font-semibold text-text-primary">{t.symbol}</td>
+                    <td className="px-4 py-3">
+                      <span className={`font-semibold ${t.side === 'buy' ? 'text-bull' : 'text-bear'}`}>{t.side.toUpperCase()}</span>
+                    </td>
+                    <td className="px-4 py-3 font-mono text-text-secondary">{t.lots}</td>
+                    <td className="px-4 py-3 font-mono font-semibold whitespace-nowrap" style={{ color: t.pnl >= 0 ? '#00c878' : '#ff3047' }}>
+                      {t.pnl >= 0 ? '+' : '-'}{fmtEur(t.pnl)}
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className="inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full"
+                        style={{
+                          color: t.status === 'open' ? '#38bdf8' : t.status === 'closed' ? '#6b8099' : '#f59e0b',
+                          background: t.status === 'open' ? 'rgba(56,189,248,0.1)' : t.status === 'closed' ? 'rgba(107,128,153,0.1)' : 'rgba(245,158,11,0.1)',
+                        }}>
+                        <span className="w-1 h-1 rounded-full" style={{ background: 'currentColor' }} />
+                        {t.status}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 font-mono text-text-muted whitespace-nowrap">{t.openTime}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Trade Engagement Chart */}
+        <TradeEngagement />
       </div>
 
       {/* System Health summary */}

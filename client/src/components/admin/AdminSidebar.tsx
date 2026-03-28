@@ -61,13 +61,6 @@ interface NavItem { label: string; path?: string; children?: NavItem[] }
 
 const NAV_GROUPS: { label: string; icon: React.ReactNode; items: NavItem[] }[] = [
   {
-    label: 'Analytics',
-    icon: Ic.trade,
-    items: [
-      { label: 'Overview', path: '/admin/analytics' },
-    ],
-  },
-  {
     label: 'Transactions',
     icon: Ic.transactions,
     items: [

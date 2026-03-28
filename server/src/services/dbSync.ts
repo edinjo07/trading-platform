@@ -603,3 +603,109 @@ export async function dbLoadAllBots(): Promise<BotRow[]> {
     } as BotRow))
   })
 }
+
+// ─── Admin Platform Stats (queried directly from Supabase) ────────────────────
+export interface PlatformStats {
+  totalUsers:     number
+  totalTrades:    number
+  openTrades:     number
+  closedTrades:   number
+  totalDeposits:  number
+  totalWithdraws: number
+  profitLoss:     number
+}
+
+export async function dbGetPlatformStats(): Promise<PlatformStats> {
+  const [usersRes, ordersRes, openRes, closedRes, depositsRes, withdrawsRes, pnlRes] =
+    await Promise.allSettled([
+      // Total registered users
+      supabase.from('users').select('id', { count: 'exact', head: true }),
+      // Total orders ever placed
+      supabase.from('orders').select('id', { count: 'exact', head: true }),
+      // Currently open orders
+      supabase.from('orders').select('id', { count: 'exact', head: true }).eq('status', 'open'),
+      // Filled (closed) orders
+      supabase.from('orders').select('id', { count: 'exact', head: true }).eq('status', 'filled'),
+      // Sum of completed deposits
+      supabase.from('transactions').select('amount').eq('type', 'deposit').eq('status', 'completed'),
+      // Sum of completed withdrawals
+      supabase.from('transactions').select('amount').eq('type', 'withdraw').eq('status', 'completed'),
+      // Sum of net_pnl from closed trades
+      supabase.from('trade_journal').select('net_pnl').not('net_pnl', 'is', null),
+    ])
+
+  function countOf(res: PromiseSettledResult<any>): number {
+    if (res.status === 'fulfilled') return res.value.count ?? 0
+    return 0
+  }
+  function sumOf(res: PromiseSettledResult<any>, field: string): number {
+    if (res.status !== 'fulfilled') return 0
+    const rows: any[] = res.value.data ?? []
+    return rows.reduce((acc: number, row: any) => acc + parseFloat(row[field] ?? 0), 0)
+  }
+
+  return {
+    totalUsers:     countOf(usersRes),
+    totalTrades:    countOf(ordersRes),
+    openTrades:     countOf(openRes),
+    closedTrades:   countOf(closedRes),
+    totalDeposits:  Math.round(sumOf(depositsRes,  'amount')  * 100) / 100,
+    totalWithdraws: Math.round(sumOf(withdrawsRes, 'amount')  * 100) / 100,
+    profitLoss:     Math.round(sumOf(pnlRes,       'net_pnl') * 100) / 100,
+  }
+}
+
+// ─── Transactions ─────────────────────────────────────────────────────────────
+export interface TransactionRow {
+  id: string; userId: string; type: 'deposit' | 'withdraw'
+  amount: number; currency: string; method?: string; gateway?: string
+  status: string; txRef?: string; notes?: string; createdAt: string
+}
+
+export async function dbSaveTransaction(tx: TransactionRow): Promise<void> {
+  const { error } = await supabase.from('transactions').upsert(
+    {
+      id:         tx.id,
+      user_id:    tx.userId,
+      type:       tx.type,
+      amount:     tx.amount,
+      currency:   tx.currency,
+      method:     tx.method ?? null,
+      gateway:    tx.gateway ?? null,
+      status:     tx.status,
+      tx_ref:     tx.txRef ?? null,
+      notes:      tx.notes ?? null,
+      created_at: tx.createdAt,
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: 'id' },
+  )
+  if (error) console.error('[DB] saveTransaction:', error.message)
+}
+
+export async function dbGetTransactions(params?: {
+  userId?: string; type?: 'deposit' | 'withdraw'; status?: string; limit?: number
+}): Promise<TransactionRow[]> {
+  return dbRetry(async () => {
+    let q = supabase.from('transactions').select('*').order('created_at', { ascending: false })
+    if (params?.userId) q = q.eq('user_id', params.userId)
+    if (params?.type)   q = q.eq('type', params.type)
+    if (params?.status) q = q.eq('status', params.status)
+    if (params?.limit)  q = q.limit(params.limit)
+    const { data, error } = await q
+    if (error) throw new Error(`[DB] getTransactions: ${error.message}`)
+    return (data ?? []).map(r => ({
+      id:        r.id,
+      userId:    r.user_id,
+      type:      r.type,
+      amount:    parseFloat(r.amount),
+      currency:  r.currency,
+      method:    r.method ?? undefined,
+      gateway:   r.gateway ?? undefined,
+      status:    r.status,
+      txRef:     r.tx_ref ?? undefined,
+      notes:     r.notes ?? undefined,
+      createdAt: r.created_at,
+    }))
+  })
+}

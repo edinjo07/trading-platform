@@ -113,6 +113,26 @@ CREATE TABLE IF NOT EXISTS bots (
 
 CREATE INDEX IF NOT EXISTS idx_bots_user_id ON bots(user_id);
 
+-- ── Transactions (Deposits & Withdrawals) ────────────────────────────────────
+CREATE TABLE IF NOT EXISTS transactions (
+  id            UUID          PRIMARY KEY,
+  user_id       UUID          NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  type          TEXT          NOT NULL CHECK (type IN ('deposit','withdraw')),
+  amount        NUMERIC       NOT NULL,
+  currency      TEXT          NOT NULL DEFAULT 'EUR',
+  method        TEXT,
+  gateway       TEXT,
+  status        TEXT          NOT NULL DEFAULT 'pending' CHECK (status IN ('pending','completed','failed','rejected')),
+  tx_ref        TEXT,
+  notes         TEXT,
+  created_at    TIMESTAMPTZ   NOT NULL DEFAULT NOW(),
+  updated_at    TIMESTAMPTZ   NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_transactions_user_id ON transactions(user_id);
+CREATE INDEX IF NOT EXISTS idx_transactions_type    ON transactions(type);
+CREATE INDEX IF NOT EXISTS idx_transactions_status  ON transactions(status);
+
 -- ── Row Level Security (optional — disable for server-side service role) ──
 -- The server uses the service_role key which bypasses RLS automatically.
 -- Enable RLS if you also expose Supabase directly to the client:

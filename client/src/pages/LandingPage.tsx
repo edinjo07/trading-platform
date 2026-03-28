@@ -882,7 +882,200 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── DATA PARTNERS ──────────────────────────────────────────────────── */}
+      {/* ── TRADING PILOT PITCH ──────────────────────────────────────────── */}
+      <section className="relative py-28 overflow-hidden">
+        {/* Background */}
+        <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #060d18 0%, #04080f 100%)' }} />
+        <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse 70% 50% at 50% 50%, rgba(14,165,233,0.07) 0%, transparent 65%)' }} />
+        {/* Grid */}
+        <div className="absolute inset-0 pointer-events-none" style={{ opacity: 0.04 }}>
+          <svg width="100%" height="100%"><defs><pattern id="pg" width="60" height="60" patternUnits="userSpaceOnUse"><path d="M 60 0 L 0 0 0 60" fill="none" stroke="#0ea5e9" strokeWidth="0.5"/></pattern></defs><rect width="100%" height="100%" fill="url(#pg)"/></svg>
+        </div>
+
+        <div className="relative max-w-6xl mx-auto px-6">
+          {/* Section label */}
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold mb-6"
+                 style={{ background: 'rgba(14,165,233,0.08)', border: '1px solid rgba(14,165,233,0.2)', color: '#38bdf8', letterSpacing: '0.08em' }}>
+              <span className="w-1.5 h-1.5 rounded-full bg-current" style={{ animation: 'pulse 1.5s ease-in-out infinite' }} />
+              INTRODUCING · CLAUDE AI POWERED
+            </div>
+            <h2 className="text-5xl md:text-6xl font-black text-white mb-5"
+                style={{ letterSpacing: '-0.03em', lineHeight: 1.05 }}>
+              Meet{' '}
+              <span style={{ background: 'linear-gradient(135deg,#0ea5e9 0%,#8b5cf6 50%,#00c878 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+                Trading Pilot
+              </span>
+            </h2>
+            <p className="text-xl max-w-2xl mx-auto leading-relaxed" style={{ color: 'rgba(255,255,255,0.6)' }}>
+              The world's first trading bot that combines institutional-grade strategies with
+              live <strong style={{ color: '#a78bfa' }}>Claude AI</strong> sentiment intelligence.
+              It trades while you sleep.
+            </p>
+          </div>
+
+          {/* Feature pillars */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-14">
+            {[
+              {
+                color: '#0ea5e9', bg: 'rgba(14,165,233,0.06)', border: 'rgba(14,165,233,0.15)',
+                icon: 'M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z',
+                title: 'Claude AI Sentiment',
+                desc: 'Before every trade, Pilot reads the news. Claude analyses financial headlines in real-time and only approves entries when market sentiment agrees with the technical signal.',
+              },
+              {
+                color: '#8b5cf6', bg: 'rgba(139,92,246,0.06)', border: 'rgba(139,92,246,0.15)',
+                icon: 'M13 10V3L4 14h7v7l9-11h-7z',
+                title: '4 Battle-Tested Strategies',
+                desc: 'MA Crossover, RSI Reversal, MACD Momentum, Pure Momentum. Each one engineered for a different market condition. Configure once, deploy forever.',
+              },
+              {
+                color: '#00c878', bg: 'rgba(0,200,120,0.06)', border: 'rgba(0,200,120,0.15)',
+                icon: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z',
+                title: '6-Layer Risk Shield',
+                desc: 'Stop-loss, take-profit, daily loss limits, max trade caps, confirmation filters, and equity curve protection. Your capital is never left unguarded.',
+              },
+            ].map(f => (
+              <div key={f.title} className="rounded-2xl p-7"
+                   style={{ background: f.bg, border: `1px solid ${f.border}` }}>
+                <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-5"
+                     style={{ background: `${f.color}18`, border: `1px solid ${f.color}30` }}>
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke={f.color} strokeWidth={1.8}>
+                    <path d={f.icon} />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-bold text-white mb-3">{f.title}</h3>
+                <p className="text-sm leading-relaxed" style={{ color: 'rgba(255,255,255,0.5)' }}>{f.desc}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Wide preview card */}
+          <div className="relative rounded-3xl overflow-hidden"
+               style={{ background: 'linear-gradient(135deg,rgba(10,16,30,0.95),rgba(6,9,20,0.98))', border: '1px solid rgba(14,165,233,0.12)', boxShadow: '0 0 80px rgba(14,165,233,0.06)' }}>
+            {/* Left glow */}
+            <div className="absolute -left-20 top-1/2 -translate-y-1/2 w-60 h-60 rounded-full pointer-events-none"
+                 style={{ background: 'radial-gradient(circle, rgba(14,165,233,0.12) 0%, transparent 70%)' }} />
+            {/* Right glow */}
+            <div className="absolute -right-20 top-1/2 -translate-y-1/2 w-60 h-60 rounded-full pointer-events-none"
+                 style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.1) 0%, transparent 70%)' }} />
+
+            <div className="relative grid grid-cols-1 lg:grid-cols-2 gap-0">
+              {/* Left: pitch copy */}
+              <div className="p-10 lg:p-12">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold mb-6"
+                     style={{ background: 'rgba(0,200,120,0.1)', border: '1px solid rgba(0,200,120,0.2)', color: '#00c878' }}>
+                  <span className="w-1.5 h-1.5 rounded-full bg-current" style={{ animation: 'pulse 1.5s infinite' }} />
+                  NEVER TRIED BEFORE
+                </div>
+                <h3 className="text-3xl font-black text-white mb-4" style={{ letterSpacing: '-0.02em', lineHeight: 1.1 }}>
+                  The Market Never<br />Sleeps — and<br />
+                  <span style={{ color: '#38bdf8' }}>Neither Does Pilot.</span>
+                </h3>
+                <p className="text-base leading-relaxed mb-6" style={{ color: 'rgba(255,255,255,0.55)' }}>
+                  While you rest, Pilot monitors every tick on every enabled asset. It doesn't panic. It doesn't get greedy. It doesn't override its own rules.
+                  It just executes — with cold, precise, AI-enhanced intelligence that no human can replicate.
+                </p>
+                <div className="space-y-2 mb-8">
+                  {[
+                    'Runs 24/7 autonomously — no babysitting needed',
+                    'Claude AI reads news before every single trade',
+                    'Multiple bots on multiple assets simultaneously',
+                    'Full trade log with timestamps and P&L tracking',
+                  ].map((b, i) => (
+                    <div key={i} className="flex items-center gap-3">
+                      <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0"
+                           style={{ background: 'rgba(0,200,120,0.15)', border: '1px solid rgba(0,200,120,0.3)' }}>
+                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="#00c878" strokeWidth={3}>
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                      </div>
+                      <span className="text-sm" style={{ color: 'rgba(255,255,255,0.65)' }}>{b}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex flex-wrap gap-3">
+                  <a href="/trading-pilot"
+                     className="inline-flex items-center gap-2 text-sm font-bold px-6 py-3 rounded-xl transition-all"
+                     style={{ background: 'linear-gradient(135deg,#0ea5e9,#0369a1)', color: '#fff', boxShadow: '0 0 30px rgba(14,165,233,0.3)' }}>
+                    Explore Trading Pilot
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                      <polyline points="9 18 15 12 9 6" />
+                    </svg>
+                  </a>
+                  <a href="/login"
+                     className="inline-flex items-center gap-2 text-sm font-semibold px-6 py-3 rounded-xl transition-all"
+                     style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#d4dde8' }}>
+                    Start Free Now
+                  </a>
+                </div>
+              </div>
+
+              {/* Right: mini bot card */}
+              <div className="p-10 lg:p-12 flex items-center" style={{ borderLeft: '1px solid rgba(255,255,255,0.05)' }}>
+                <div className="w-full">
+                  {/* Bot status card */}
+                  <div className="rounded-2xl p-5 mb-4"
+                       style={{ background: 'rgba(14,165,233,0.05)', border: '1px solid rgba(14,165,233,0.12)' }}>
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-xl flex items-center justify-center"
+                             style={{ background: 'linear-gradient(135deg,#0ea5e9,#0369a1)' }}>
+                          <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                            <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
+                          </svg>
+                        </div>
+                        <div>
+                          <div className="text-sm font-bold text-white">BTC Trend Bot</div>
+                          <div className="text-xs" style={{ color: '#3a5060' }}>MA Crossover · BTCUSD</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold"
+                           style={{ background: 'rgba(0,200,120,0.1)', color: '#00c878', border: '1px solid rgba(0,200,120,0.2)' }}>
+                        <span className="w-1.5 h-1.5 rounded-full bg-current" style={{ animation: 'pulse 1.5s infinite' }} />
+                        RUNNING
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-3 gap-3">
+                      {[
+                        { label: 'P&L', value: '+$1,247', color: '#00c878' },
+                        { label: 'Trades', value: '14', color: '#0ea5e9' },
+                        { label: 'Win Rate', value: '71%', color: '#8b5cf6' },
+                      ].map(s => (
+                        <div key={s.label} className="text-center rounded-xl py-2"
+                             style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}>
+                          <div className="text-xs font-bold" style={{ color: s.color }}>{s.value}</div>
+                          <div className="text-2xs mt-0.5" style={{ color: '#3a5060', fontSize: 10 }}>{s.label}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  {/* Log snippet */}
+                  <div className="rounded-xl p-4 font-mono text-xs space-y-1.5"
+                       style={{ background: '#030810', border: '1px solid rgba(255,255,255,0.05)' }}>
+                    {[
+                      { time: '15:18:30', color: '#00c878',  msg: '✓ BUY 0.15 BTCUSD @ 67,420' },
+                      { time: '15:18:30', color: '#a78bfa', msg: 'Claude: BULLISH (0.81)' },
+                      { time: '15:22:01', color: '#00c878',  msg: '✓ TP HIT · P&L +$434.93' },
+                    ].map((l, i) => (
+                      <div key={i} className="flex gap-2">
+                        <span style={{ color: '#1a2a3a' }}>{l.time}</span>
+                        <span style={{ color: l.color }}>{l.msg}</span>
+                      </div>
+                    ))}
+                    <div className="flex gap-2">
+                      <span style={{ color: '#1a2a3a' }}>15:22:02</span>
+                      <span style={{ color: '#0ea5e9', animation: 'pulse 1s infinite' }}>█ Scanning next signal...</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── DATA PARTNERS ──────────────────────────────────────────────────── */
       <section style={{ background: 'rgba(14,165,233,0.04)', borderTop: '1px solid rgba(14,165,233,0.08)', borderBottom: '1px solid rgba(14,165,233,0.08)', padding: '20px 0' }}>
         <div className="landing-container">
           <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-4">

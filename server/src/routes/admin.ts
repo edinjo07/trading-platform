@@ -5,6 +5,7 @@ import {
   getAllPairs, getPairById, createPair, updatePair, deletePair, togglePair, getPairStats,
   PairCategory,
 } from '../services/tradingPairsService'
+import { dbGetPlatformStats } from '../services/dbSync'
 
 const router = Router()
 
@@ -20,31 +21,36 @@ function adminGuard(req: AuthRequest, res: Response): boolean {
 }
 
 // ─── GET /api/admin/stats ─────────────────────────────────────────────────────
-router.get('/stats', (req: AuthRequest, res: Response) => {
+router.get('/stats', async (req: AuthRequest, res: Response) => {
   if (!adminGuard(req, res)) return
-
-  const users   = getAllUsers()
-  const orders  = getAllOrders()
-  const filled  = orders.filter(o => o.status === 'filled')
-  const totalPnl = filled.reduce((acc, o) => {
-    if (o.avgFillPrice && o.price) {
-      const diff = o.side === 'buy'
-        ? o.avgFillPrice - o.price
-        : o.price - o.avgFillPrice
-      return acc + diff * o.filledQuantity
-    }
-    return acc
-  }, 0)
-
-  return res.json({
-    totalUsers:     users.length,
-    totalTrades:    orders.length,
-    openTrades:     orders.filter(o => o.status === 'open').length,
-    closedTrades:   filled.length,
-    totalDeposits:  users.reduce((a, u) => a + (u.balance > 100000 ? u.balance - 100000 : 0), 0),
-    totalWithdraws: 0,
-    profitLoss:     Math.round(totalPnl * 100) / 100,
-  })
+  try {
+    // Query Supabase for accurate platform-wide totals
+    const stats = await dbGetPlatformStats()
+    return res.json(stats)
+  } catch {
+    // Supabase unavailable — fall back to in-memory counts (no fake monetary amounts)
+    const users  = getAllUsers()
+    const orders = getAllOrders()
+    const filled = orders.filter(o => o.status === 'filled')
+    const totalPnl = filled.reduce((acc, o) => {
+      if (o.avgFillPrice && o.price) {
+        const diff = o.side === 'buy'
+          ? o.avgFillPrice - o.price
+          : o.price - o.avgFillPrice
+        return acc + diff * o.filledQuantity
+      }
+      return acc
+    }, 0)
+    return res.json({
+      totalUsers:     users.length,
+      totalTrades:    orders.length,
+      openTrades:     orders.filter(o => o.status === 'open').length,
+      closedTrades:   filled.length,
+      totalDeposits:  0,
+      totalWithdraws: 0,
+      profitLoss:     Math.round(totalPnl * 100) / 100,
+    })
+  }
 })
 
 // ─── GET /api/admin/users ─────────────────────────────────────────────────────

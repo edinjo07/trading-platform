@@ -14,6 +14,11 @@
     "server": "npm run dev --workspace=server",
     "client": "npm run dev --workspace=client"
   },
+  "overrides": {
+    "express": {
+      "path-to-regexp": "0.1.13"
+    }
+  },
   "devDependencies": {
     "concurrently": "^8.2.2"
   }
