@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <defs>
+    <radialGradient id="bgGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#fde68a"/>
+      <stop offset="60%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#b45309"/>
+    </radialGradient>
+    <radialGradient id="innerGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#1c0a00"/>
+      <stop offset="100%" stop-color="#0a0400"/>
+    </radialGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
+      <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Outer ring -->
+  <circle cx="60" cy="60" r="58" fill="url(#bgGrad)" opacity="0.15"/>
+  <circle cx="60" cy="60" r="58" fill="none" stroke="url(#bgGrad)" stroke-width="2"/>
+
+  <!-- Dashed decorative ring -->
+  <circle cx="60" cy="60" r="53" fill="none" stroke="#f59e0b" stroke-width="0.6" stroke-dasharray="3 2" opacity="0.5"/>
+
+  <!-- Main medal body -->
+  <circle cx="60" cy="60" r="48" fill="url(#innerGrad)"/>
+  <circle cx="60" cy="60" r="48" fill="none" stroke="#f59e0b" stroke-width="1.5"/>
+
+  <!-- Inner accent ring -->
+  <circle cx="60" cy="60" r="42" fill="none" stroke="#f59e0b" stroke-width="0.4" opacity="0.4"/>
+
+  <!-- Laurel left -->
+  <g fill="#f59e0b" opacity="0.75">
+    <ellipse cx="22" cy="60" rx="4" ry="2" transform="rotate(-10 22 60)"/>
+    <ellipse cx="24" cy="51" rx="4" ry="2" transform="rotate(-25 24 51)"/>
+    <ellipse cx="29" cy="43" rx="4" ry="2" transform="rotate(-40 29 43)"/>
+    <ellipse cx="36" cy="37" rx="4" ry="2" transform="rotate(-55 36 37)"/>
+    <ellipse cx="24" cy="69" rx="4" ry="2" transform="rotate(10 24 69)"/>
+    <ellipse cx="29" cy="77" rx="4" ry="2" transform="rotate(25 29 77)"/>
+    <ellipse cx="36" cy="83" rx="4" ry="2" transform="rotate(40 36 83)"/>
+    <path d="M20 60 Q17 50 22 42" stroke="#f59e0b" stroke-width="1" fill="none" opacity="0.5"/>
+    <path d="M20 60 Q17 70 22 78" stroke="#f59e0b" stroke-width="1" fill="none" opacity="0.5"/>
+  </g>
+
+  <!-- Laurel right -->
+  <g fill="#f59e0b" opacity="0.75">
+    <ellipse cx="98" cy="60" rx="4" ry="2" transform="rotate(10 98 60)"/>
+    <ellipse cx="96" cy="51" rx="4" ry="2" transform="rotate(25 96 51)"/>
+    <ellipse cx="91" cy="43" rx="4" ry="2" transform="rotate(40 91 43)"/>
+    <ellipse cx="84" cy="37" rx="4" ry="2" transform="rotate(55 84 37)"/>
+    <ellipse cx="96" cy="69" rx="4" ry="2" transform="rotate(-10 96 69)"/>
+    <ellipse cx="91" cy="77" rx="4" ry="2" transform="rotate(-25 91 77)"/>
+    <ellipse cx="84" cy="83" rx="4" ry="2" transform="rotate(-40 84 83)"/>
+    <path d="M100 60 Q103 50 98 42" stroke="#f59e0b" stroke-width="1" fill="none" opacity="0.5"/>
+    <path d="M100 60 Q103 70 98 78" stroke="#f59e0b" stroke-width="1" fill="none" opacity="0.5"/>
+  </g>
+
+  <!-- Star top -->
+  <path d="M60 20l2 5.5h5.8l-4.7 3.4 1.8 5.5L60 31l-4.9 3.4 1.8-5.5-4.7-3.4H58.1z" fill="#f59e0b" filter="url(#glow)"/>
+
+  <!-- LE FONTI text -->
+  <text x="60" y="55" text-anchor="middle" font-family="Georgia, serif" font-size="10" font-weight="700" letter-spacing="3" fill="#f59e0b">LE FONTI</text>
+
+  <!-- AWARDS text -->
+  <text x="60" y="67" text-anchor="middle" font-family="Georgia, serif" font-size="7.5" font-weight="400" letter-spacing="2.5" fill="#fde68a" opacity="0.9">AWARDS</text>
+
+  <!-- Year -->
+  <text x="60" y="82" text-anchor="middle" font-family="Arial, sans-serif" font-size="8" font-weight="700" letter-spacing="1" fill="#f59e0b" opacity="0.7">2025</text>
+
+  <!-- Bottom dots -->
+  <circle cx="50" cy="89" r="1.5" fill="#f59e0b" opacity="0.4"/>
+  <circle cx="60" cy="91" r="1.5" fill="#f59e0b" opacity="0.6"/>
+  <circle cx="70" cy="89" r="1.5" fill="#f59e0b" opacity="0.4"/>
+</svg>

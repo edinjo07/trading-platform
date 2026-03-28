@@ -1479,12 +1479,20 @@ export default function LandingPage() {
                 </div>
               </a>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+              {/* Le Fonti Awards — uses real SVG badge */}
+              <div className="rounded-xl p-5 text-center flex flex-col items-center gap-2 md:col-span-1"
+                   style={{ background: 'rgba(245,158,11,0.04)', border: '1px solid rgba(245,158,11,0.18)' }}>
+                <img src="/le-fonti-awards-gold.svg" alt="Le Fonti Awards" style={{ width: 52, height: 52 }} />
+                <div className="text-[10px] font-bold uppercase tracking-widest" style={{ color: '#f59e0b' }}>2025</div>
+                <div className="text-sm font-bold text-white leading-tight">Best Online Broker</div>
+                <div className="text-xs" style={{ color: '#6b8099' }}>Le Fonti Awards</div>
+              </div>
               {[
-                { year: '2025', award: 'Best CFD Broker', body: 'Global Forex Awards', accent: '#f59e0b' },
-                { year: '2025', award: 'Best Trading Platform', body: 'European FinTech Awards', accent: '#38bdf8' },
-                { year: '2024', award: 'Most Trusted Broker', body: 'Finance Magnates Intelligence', accent: '#8b5cf6' },
-                { year: '2024', award: 'Best Crypto CFD Platform', body: 'The Banker Awards', accent: '#00c878' },
+                { year: '2025', award: 'Best CFD Broker',         body: 'Global Forex Awards',            accent: '#f59e0b' },
+                { year: '2025', award: 'Best Trading Platform',   body: 'European FinTech Awards',         accent: '#38bdf8' },
+                { year: '2024', award: 'Most Trusted Broker',     body: 'Finance Magnates Intelligence',   accent: '#8b5cf6' },
+                { year: '2024', award: 'Best Crypto CFD Platform',body: 'The Banker Awards',               accent: '#00c878' },
               ].map(a => (
                 <div key={a.award} className="rounded-xl p-5 text-center flex flex-col items-center gap-2"
                      style={{ background: 'rgba(255,255,255,0.025)', border: `1px solid rgba(255,255,255,0.06)` }}>
