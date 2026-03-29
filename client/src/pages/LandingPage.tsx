@@ -1329,22 +1329,37 @@ export default function LandingPage() {
             <span className="text-text-muted text-xs font-semibold uppercase tracking-widest">Powered by real data from</span>
             {/* Binance */}
             <div className="flex items-center gap-2.5 opacity-70 hover:opacity-100 transition-opacity">
-              <img src="https://cryptologos.cc/logos/binance-bnb-logo.png" alt="Binance" width={22} height={22} style={{ borderRadius: 4 }} />
+              <div style={{ width: 22, height: 22, borderRadius: 4, background: '#F3BA2F', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="#181A20">
+                  <path d="M12 0L7.19 4.81 9.38 7 12 4.38 14.62 7 16.81 4.81 12 0ZM4.81 7.19L0 12l4.81 4.81L7 14.62 4.38 12 7 9.38 4.81 7.19ZM19.19 7.19L17 9.38 19.62 12 17 14.62 19.19 16.81 24 12l-4.81-4.81ZM7.19 19.19L12 24l4.81-4.81L14.62 17 12 19.62 9.38 17 7.19 19.19ZM12 9.38L9.38 12 12 14.62 14.62 12 12 9.38Z"/>
+                </svg>
+              </div>
               <span className="text-white font-bold text-sm tracking-tight">Binance</span>
             </div>
             {/* Twelve Data */}
             <div className="flex items-center gap-2.5 opacity-70 hover:opacity-100 transition-opacity">
-              <div style={{ width: 22, height: 22, borderRadius: 4, background: 'linear-gradient(135deg,#7c3aed,#4f46e5)', display:'flex',alignItems:'center',justifyContent:'center', fontSize: 10, fontWeight: 800, color: '#fff' }}>12</div>
+              <div style={{ width: 22, height: 22, borderRadius: 4, background: 'linear-gradient(135deg,#7c3aed,#4f46e5)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 800, color: '#fff' }}>12</div>
               <span className="text-white font-bold text-sm tracking-tight">Twelve Data</span>
             </div>
             {/* Supabase */}
             <div className="flex items-center gap-2.5 opacity-70 hover:opacity-100 transition-opacity">
-              <img src="https://avatars.githubusercontent.com/u/54469796" alt="Supabase" width={22} height={22} style={{ borderRadius: 4 }} />
+              <div style={{ width: 22, height: 22, borderRadius: 4, background: '#1C1C1C', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+                  <path d="M11.9 1.036c-.015-.986-1.26-1.41-1.874-.637L.764 12.05C.131 12.888.745 14.09 1.824 14.09h9.174l.102 8.874c.015.986 1.26 1.41 1.874.637l9.262-11.653c.633-.837.02-2.04-1.06-2.04h-9.174L11.9 1.036z" fill="#3ECF8E"/>
+                </svg>
+              </div>
               <span className="text-white font-bold text-sm tracking-tight">Supabase</span>
             </div>
             {/* CoinGecko */}
             <div className="flex items-center gap-2.5 opacity-70 hover:opacity-100 transition-opacity">
-              <img src="/coingecko-logo.png" alt="CoinGecko" width={22} height={22} style={{ borderRadius: 4 }} />
+              <div style={{ width: 22, height: 22, borderRadius: 4, background: '#8DC63F', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="white">
+                  <circle cx="12" cy="12" r="10"/>
+                  <circle cx="9" cy="10" r="1.5" fill="#8DC63F"/>
+                  <path d="M8 14c1 1.5 3 1.5 4 0" stroke="#8DC63F" strokeWidth="1.2" strokeLinecap="round" fill="none"/>
+                  <path d="M16 8c1-1 3-.5 3 1" stroke="white" strokeWidth="1.2" strokeLinecap="round" fill="none"/>
+                </svg>
+              </div>
               <span className="text-white font-bold text-sm tracking-tight">CoinGecko</span>
             </div>
           </div>
