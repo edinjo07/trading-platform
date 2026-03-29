@@ -63,6 +63,18 @@ function CategoryBadge({ cat }: { cat: string }) {
   )
 }
 
+const FALLBACK_URL = 'https://www.bloomberg.com/markets'
+
+function safeUrl(url: string | undefined): string {
+  try {
+    const parsed = new URL(url ?? '')
+    if (parsed.protocol === 'https:' || parsed.protocol === 'http:') return parsed.href
+  } catch {
+    // fall through
+  }
+  return FALLBACK_URL
+}
+
 function fmtDate(iso: string) {
   try {
     return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
@@ -250,7 +262,7 @@ export default function BlogPage() {
             filtered.map((article, i) => (
               <a
                 key={`${article.url}-${i}`}
-                href={article.url || 'https://www.bloomberg.com/markets'}
+                href={safeUrl(article.url)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-between px-4 py-3.5 transition-all group"
