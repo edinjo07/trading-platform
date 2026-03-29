@@ -148,9 +148,19 @@ const TESTIMONIALS = [
   },
 ]
 
+const NAVBAR_MORE_LINKS = [
+  { label: 'Blog',               path: '/dashboard/blog',               desc: 'Market insights & analysis' },
+  { label: 'Web TV',             path: '/dashboard/web-tv',             desc: 'Daily video commentary' },
+  { label: 'Economic Calendar',  path: '/dashboard/economic-calendar',  desc: 'Upcoming economic events' },
+  { label: 'Forex Calculators',  path: '/dashboard/forex-calculators',  desc: 'Pip, margin & position size' },
+  { label: 'Trading Scams',      path: '/dashboard/trading-scams',      desc: 'Protect yourself from scams' },
+]
+
 // ─── Navbar ───────────────────────────────────────────────────────────────────
 function Navbar({ onLogin }: { onLogin: () => void }) {
   const [scrolled, setScrolled] = useState(false)
+  const [showMore, setShowMore] = useState(false)
+  const moreRef = useRef<HTMLDivElement>(null)
   const navigate = useNavigate()
   const { user } = useAuthStore()
 
@@ -158,6 +168,14 @@ function Navbar({ onLogin }: { onLogin: () => void }) {
     const fn = () => setScrolled(window.scrollY > 20)
     window.addEventListener('scroll', fn)
     return () => window.removeEventListener('scroll', fn)
+  }, [])
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (moreRef.current && !moreRef.current.contains(e.target as Node)) setShowMore(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
   }, [])
 
   return (
@@ -196,6 +214,40 @@ function Navbar({ onLogin }: { onLogin: () => void }) {
              className="text-sm text-text-secondary hover:text-white transition-colors cursor-pointer">
             Account Types
           </a>
+          {/* More dropdown */}
+          <div ref={moreRef} className="relative">
+            <button
+              onClick={() => setShowMore(v => !v)}
+              className="flex items-center gap-1 text-sm transition-colors cursor-pointer"
+              style={{ color: showMore ? '#fff' : 'rgba(255,255,255,0.55)' }}
+            >
+              More
+              <svg className="w-3.5 h-3.5 transition-transform" style={{ transform: showMore ? 'rotate(180deg)' : 'none' }}
+                   fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
+            </button>
+            {showMore && (
+              <div
+                className="absolute top-full left-1/2 mt-3 w-60 rounded-xl overflow-hidden z-50"
+                style={{ transform: 'translateX(-50%)', background: '#0c1420', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 16px 48px rgba(0,0,0,0.7)' }}
+              >
+                {NAVBAR_MORE_LINKS.map((link, i) => (
+                  <button
+                    key={link.path}
+                    onClick={() => { navigate(link.path); setShowMore(false) }}
+                    className="w-full flex flex-col px-4 py-3 text-left transition-colors"
+                    style={{ borderBottom: i < NAVBAR_MORE_LINKS.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none' }}
+                    onMouseEnter={e => (e.currentTarget.style.background = 'rgba(14,165,233,0.06)')}
+                    onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                  >
+                    <span className="text-white text-sm font-semibold">{link.label}</span>
+                    <span className="text-xs mt-0.5" style={{ color: '#6b8099' }}>{link.desc}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
           <a href="/trading-pilot"
              className="text-sm font-semibold transition-colors cursor-pointer px-3 py-1.5 rounded-full"
              style={{ color: '#f59e0b', background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)' }}>
