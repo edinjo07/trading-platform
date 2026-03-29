@@ -1513,39 +1513,145 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── PARTNERS & SPONSORS ──────────────────────────────────────────────── */}
-      <section style={{ background: '#040711', borderTop: '1px solid rgba(255,255,255,0.04)', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-        <div className="max-w-6xl mx-auto px-6 py-5 flex flex-wrap items-center justify-center gap-6 md:gap-10">
-          <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#3a5060' }}>Official Partners</span>
-          {/* TradingView */}
-          <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-lg"
-               style={{ background: 'rgba(41,98,255,0.06)', border: '1px solid rgba(41,98,255,0.14)' }}>
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="none">
-              <path d="M12 3L22 20H2L12 3Z" fill="#2962FF"/>
-              <path d="M12 9L17 18H7L12 9Z" fill="white" opacity="0.25"/>
+      {/* ── PARTNERS & SPONSORS — infinite marquee stripe ───────────────────── */}
+      <style>{`
+        @keyframes marquee { from { transform: translateX(0) } to { transform: translateX(-50%) } }
+        .marquee-track { animation: marquee 32s linear infinite; display:flex; align-items:center; width:max-content; }
+        .marquee-track:hover { animation-play-state: paused; }
+      `}</style>
+      <section style={{ background: '#030610', borderTop: '1px solid rgba(255,255,255,0.05)', borderBottom: '1px solid rgba(255,255,255,0.05)', overflow: 'hidden', position: 'relative' }}>
+        {/* fade edges */}
+        <div style={{ position:'absolute', left:0, top:0, bottom:0, width:80, background:'linear-gradient(to right, #030610, transparent)', zIndex:2, pointerEvents:'none' }}/>
+        <div style={{ position:'absolute', right:0, top:0, bottom:0, width:80, background:'linear-gradient(to left, #030610, transparent)', zIndex:2, pointerEvents:'none' }}/>
+        <div style={{ padding:'14px 0' }}>
+          <div className="marquee-track" style={{ gap: 56 }}>
+            {/* ── set A ── */}
+            {/* Bloomberg */}
+            <svg viewBox="0 0 200 52" height="22" fill="none" style={{ flexShrink:0 }}>
+              <text x="0" y="40" fontFamily="'Helvetica Neue',Arial,sans-serif" fontWeight="400" fontSize="46" fill="rgba(255,255,255,0.35)" letterSpacing="-1">Bloomberg</text>
             </svg>
-            <div>
-              <div style={{ fontSize: 11, fontWeight: 700, color: '#a0b4d0', letterSpacing: '0.02em' }}>TradingView</div>
-              <div style={{ fontSize: 9, color: '#3a5060' }}>Chart Technology Partner</div>
-            </div>
-          </div>
-          {/* Motorsport Sponsor */}
-          <div className="flex items-center gap-3 px-4 py-2.5 rounded-lg"
-               style={{ background: 'rgba(220,38,38,0.05)', border: '1px solid rgba(220,38,38,0.18)' }}>
-            <svg viewBox="0 0 56 26" width="56" height="26" fill="none">
-              <path d="M6 15L10 10L18 8L30 8L36 10L50 13L50 17L6 17Z" fill="#dc2626" opacity="0.85"/>
-              <path d="M18 8L21 5L27 5L30 8" fill="#1f0000" opacity="0.7"/>
-              <ellipse cx="13" cy="17" rx="4" ry="4" fill="#111" stroke="#444" strokeWidth="1"/>
-              <ellipse cx="44" cy="17" rx="4" ry="4" fill="#111" stroke="#444" strokeWidth="1"/>
-              <ellipse cx="13" cy="17" rx="2" ry="2" fill="#2a2a2a"/>
-              <ellipse cx="44" cy="17" rx="2" ry="2" fill="#2a2a2a"/>
-              <path d="M46 13L56 12L56 15L46 15Z" fill="#b91c1c" opacity="0.7"/>
-              <path d="M6 12L0 11L0 15L6 15Z" fill="#b91c1c" opacity="0.7"/>
+            {/* Twelve Data */}
+            <svg viewBox="0 0 56 56" height="28" style={{ flexShrink:0, borderRadius:8, overflow:'visible' }}>
+              <rect width="56" height="56" rx="10" fill="#1565C0"/>
+              <text x="28" y="42" textAnchor="middle" fontFamily="'Helvetica Neue',Arial,sans-serif" fontWeight="900" fontSize="30" fill="white">12</text>
             </svg>
-            <div>
-              <div style={{ fontSize: 9, fontWeight: 700, color: '#ef4444', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Official Sponsor</div>
-              <div style={{ fontSize: 12, fontWeight: 700, color: '#fff', lineHeight: 1.2 }}>Apex Racing Team</div>
-            </div>
+            {/* TradingView */}
+            <svg viewBox="0 0 56 56" height="28" style={{ flexShrink:0 }}>
+              <rect width="56" height="56" rx="12" fill="#1C2030"/>
+              <rect x="9" y="18" width="15" height="20" rx="2" fill="white"/>
+              <circle cx="24" cy="18" r="5" fill="white"/>
+              <path d="M29 38L45 18" stroke="white" strokeWidth="8" strokeLinecap="round"/>
+            </svg>
+            {/* Binance */}
+            <svg viewBox="0 0 160 40" height="22" fill="none" style={{ flexShrink:0 }}>
+              <g transform="translate(0,4)">
+                <rect x="14" y="0" width="8" height="8" transform="rotate(45 18 4)" fill="#F3BA2F"/>
+                <rect x="4" y="10" width="8" height="8" transform="rotate(45 8 14)" fill="#F3BA2F"/>
+                <rect x="24" y="10" width="8" height="8" transform="rotate(45 28 14)" fill="#F3BA2F"/>
+                <rect x="14" y="20" width="8" height="8" transform="rotate(45 18 24)" fill="#F3BA2F"/>
+                <rect x="14" y="10" width="8" height="8" transform="rotate(45 18 14)" fill="#F3BA2F"/>
+              </g>
+              <text x="46" y="28" fontFamily="'Helvetica Neue',Arial,sans-serif" fontWeight="700" fontSize="22" fill="#F3BA2F" letterSpacing="2">BINANCE</text>
+            </svg>
+            {/* Shell */}
+            <svg viewBox="0 0 120 44" height="26" fill="none" style={{ flexShrink:0 }}>
+              <g transform="translate(2,2) scale(0.47)">
+                <path d="M40 0C18 0 0 18 0 40C0 62 18 80 40 80C62 80 80 62 80 40" fill="#DD1D21" opacity="0.9"/>
+                <path d="M40 8C44 8 48 10 50 14L78 38L72 44L46 22C44 20 42 19 40 19C32 19 26 26 26 34C26 42 32 48 40 48C44 48 48 46 50 43L54 47C50 52 45 55 40 55C27 55 17 45 17 32C17 20 27 10 40 8Z" fill="#FCD900"/>
+              </g>
+              <text x="46" y="30" fontFamily="'Helvetica Neue',Arial,sans-serif" fontWeight="700" fontSize="22" fill="#DD1D21" opacity="0.8">Shell</text>
+            </svg>
+            {/* Bridgestone */}
+            <svg viewBox="0 0 44 44" height="26" fill="none" style={{ flexShrink:0 }}>
+              <path d="M4 44L0 0L28 0C38 0 44 6 44 16C44 22 40 27 34 29L44 44Z" fill="#1a1a1a"/>
+              <path d="M4 44L0 0L28 0C38 0 44 6 44 16C44 22 40 27 34 29L44 44Z" fill="url(#bsGrad)"/>
+              <defs>
+                <linearGradient id="bsGrad" x1="0" y1="0" x2="44" y2="44">
+                  <stop offset="0%" stopColor="#e02020"/>
+                  <stop offset="45%" stopColor="#111"/>
+                  <stop offset="100%" stopColor="#111"/>
+                </linearGradient>
+              </defs>
+              <text x="8" y="30" fontFamily="'Arial Black',sans-serif" fontWeight="900" fontSize="22" fill="white" opacity="0.9">B</text>
+            </svg>
+            {/* New Balance */}
+            <svg viewBox="0 0 110 36" height="22" fill="none" style={{ flexShrink:0 }}>
+              <text x="0" y="28" fontFamily="'Arial Black','Helvetica Neue',sans-serif" fontWeight="900" fontSize="13" fill="#e5190a" opacity="0.8" letterSpacing="0.5">new balance</text>
+            </svg>
+            {/* Spotify */}
+            <svg viewBox="0 0 32 32" height="26" style={{ flexShrink:0 }}>
+              <circle cx="16" cy="16" r="16" fill="#1DB954" opacity="0.85"/>
+              <path d="M8 12.5C12 11 18 11 23 13" stroke="white" strokeWidth="2.2" strokeLinecap="round" fill="none"/>
+              <path d="M9 16.5C12.5 15 18 15 22 17" stroke="white" strokeWidth="2" strokeLinecap="round" fill="none"/>
+              <path d="M10 20.5C13 19 17 19 21 20.5" stroke="white" strokeWidth="1.8" strokeLinecap="round" fill="none"/>
+            </svg>
+            {/* Bodø/Glimt */}
+            <svg viewBox="0 0 44 44" height="28" style={{ flexShrink:0 }}>
+              <circle cx="22" cy="22" r="22" fill="#111"/>
+              <circle cx="22" cy="22" r="20" fill="#111" stroke="#F5C518" strokeWidth="2.5"/>
+              <circle cx="22" cy="22" r="15" fill="none" stroke="#F5C518" strokeWidth="1.2"/>
+              <text x="22" y="20" textAnchor="middle" fontFamily="'Arial Black',sans-serif" fontWeight="900" fontSize="7" fill="#F5C518" letterSpacing="1">GLIMT</text>
+              <text x="22" y="29" textAnchor="middle" fontFamily="'Arial Black',sans-serif" fontWeight="900" fontSize="5.5" fill="#F5C518" letterSpacing="0.5">BODØ 1916</text>
+            </svg>
+
+            {/* ── set B (duplicate for seamless loop) ── */}
+            <svg viewBox="0 0 200 52" height="22" fill="none" style={{ flexShrink:0 }}>
+              <text x="0" y="40" fontFamily="'Helvetica Neue',Arial,sans-serif" fontWeight="400" fontSize="46" fill="rgba(255,255,255,0.35)" letterSpacing="-1">Bloomberg</text>
+            </svg>
+            <svg viewBox="0 0 56 56" height="28" style={{ flexShrink:0, borderRadius:8, overflow:'visible' }}>
+              <rect width="56" height="56" rx="10" fill="#1565C0"/>
+              <text x="28" y="42" textAnchor="middle" fontFamily="'Helvetica Neue',Arial,sans-serif" fontWeight="900" fontSize="30" fill="white">12</text>
+            </svg>
+            <svg viewBox="0 0 56 56" height="28" style={{ flexShrink:0 }}>
+              <rect width="56" height="56" rx="12" fill="#1C2030"/>
+              <rect x="9" y="18" width="15" height="20" rx="2" fill="white"/>
+              <circle cx="24" cy="18" r="5" fill="white"/>
+              <path d="M29 38L45 18" stroke="white" strokeWidth="8" strokeLinecap="round"/>
+            </svg>
+            <svg viewBox="0 0 160 40" height="22" fill="none" style={{ flexShrink:0 }}>
+              <g transform="translate(0,4)">
+                <rect x="14" y="0" width="8" height="8" transform="rotate(45 18 4)" fill="#F3BA2F"/>
+                <rect x="4" y="10" width="8" height="8" transform="rotate(45 8 14)" fill="#F3BA2F"/>
+                <rect x="24" y="10" width="8" height="8" transform="rotate(45 28 14)" fill="#F3BA2F"/>
+                <rect x="14" y="20" width="8" height="8" transform="rotate(45 18 24)" fill="#F3BA2F"/>
+                <rect x="14" y="10" width="8" height="8" transform="rotate(45 18 14)" fill="#F3BA2F"/>
+              </g>
+              <text x="46" y="28" fontFamily="'Helvetica Neue',Arial,sans-serif" fontWeight="700" fontSize="22" fill="#F3BA2F" letterSpacing="2">BINANCE</text>
+            </svg>
+            <svg viewBox="0 0 120 44" height="26" fill="none" style={{ flexShrink:0 }}>
+              <g transform="translate(2,2) scale(0.47)">
+                <path d="M40 0C18 0 0 18 0 40C0 62 18 80 40 80C62 80 80 62 80 40" fill="#DD1D21" opacity="0.9"/>
+                <path d="M40 8C44 8 48 10 50 14L78 38L72 44L46 22C44 20 42 19 40 19C32 19 26 26 26 34C26 42 32 48 40 48C44 48 48 46 50 43L54 47C50 52 45 55 40 55C27 55 17 45 17 32C17 20 27 10 40 8Z" fill="#FCD900"/>
+              </g>
+              <text x="46" y="30" fontFamily="'Helvetica Neue',Arial,sans-serif" fontWeight="700" fontSize="22" fill="#DD1D21" opacity="0.8">Shell</text>
+            </svg>
+            <svg viewBox="0 0 44 44" height="26" fill="none" style={{ flexShrink:0 }}>
+              <path d="M4 44L0 0L28 0C38 0 44 6 44 16C44 22 40 27 34 29L44 44Z" fill="url(#bsGrad2)"/>
+              <defs>
+                <linearGradient id="bsGrad2" x1="0" y1="0" x2="44" y2="44">
+                  <stop offset="0%" stopColor="#e02020"/>
+                  <stop offset="45%" stopColor="#111"/>
+                  <stop offset="100%" stopColor="#111"/>
+                </linearGradient>
+              </defs>
+              <text x="8" y="30" fontFamily="'Arial Black',sans-serif" fontWeight="900" fontSize="22" fill="white" opacity="0.9">B</text>
+            </svg>
+            <svg viewBox="0 0 110 36" height="22" fill="none" style={{ flexShrink:0 }}>
+              <text x="0" y="28" fontFamily="'Arial Black','Helvetica Neue',sans-serif" fontWeight="900" fontSize="13" fill="#e5190a" opacity="0.8" letterSpacing="0.5">new balance</text>
+            </svg>
+            <svg viewBox="0 0 32 32" height="26" style={{ flexShrink:0 }}>
+              <circle cx="16" cy="16" r="16" fill="#1DB954" opacity="0.85"/>
+              <path d="M8 12.5C12 11 18 11 23 13" stroke="white" strokeWidth="2.2" strokeLinecap="round" fill="none"/>
+              <path d="M9 16.5C12.5 15 18 15 22 17" stroke="white" strokeWidth="2" strokeLinecap="round" fill="none"/>
+              <path d="M10 20.5C13 19 17 19 21 20.5" stroke="white" strokeWidth="1.8" strokeLinecap="round" fill="none"/>
+            </svg>
+            <svg viewBox="0 0 44 44" height="28" style={{ flexShrink:0 }}>
+              <circle cx="22" cy="22" r="22" fill="#111"/>
+              <circle cx="22" cy="22" r="20" fill="#111" stroke="#F5C518" strokeWidth="2.5"/>
+              <circle cx="22" cy="22" r="15" fill="none" stroke="#F5C518" strokeWidth="1.2"/>
+              <text x="22" y="20" textAnchor="middle" fontFamily="'Arial Black',sans-serif" fontWeight="900" fontSize="7" fill="#F5C518" letterSpacing="1">GLIMT</text>
+              <text x="22" y="29" textAnchor="middle" fontFamily="'Arial Black',sans-serif" fontWeight="900" fontSize="5.5" fill="#F5C518" letterSpacing="0.5">BODØ 1916</text>
+            </svg>
           </div>
         </div>
       </section>
