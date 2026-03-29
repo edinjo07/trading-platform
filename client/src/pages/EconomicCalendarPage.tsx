@@ -41,8 +41,7 @@ function CurrencyFlag({ currency, size = 20 }: { currency: string; size?: number
   if (!code) return null
   return (
     <img
-      src={`https://flagcdn.com/w${size}/${code}.png`}
-      srcSet={`https://flagcdn.com/w${size * 2}/${code}.png 2x`}
+      src={`https://flagcdn.com/${code}.svg`}
       width={size}
       height={Math.round(size * 0.75)}
       alt={currency}
