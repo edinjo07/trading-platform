@@ -32,8 +32,23 @@ const IMPACT_STYLE: Record<string, { bg: string; text: string; dot: string }> = 
 }
 
 const CURRENCY_FLAG: Record<string, string> = {
-  USD: '🇺🇸', EUR: '🇪🇺', GBP: '🇬🇧', JPY: '🇯🇵',
-  AUD: '🇦🇺', CAD: '🇨🇦', CHF: '🇨🇭', NZD: '🇳🇿',
+  USD: 'us', EUR: 'eu', GBP: 'gb', JPY: 'jp',
+  AUD: 'au', CAD: 'ca', CHF: 'ch', NZD: 'nz',
+}
+
+function CurrencyFlag({ currency, size = 20 }: { currency: string; size?: number }) {
+  const code = CURRENCY_FLAG[currency]
+  if (!code) return null
+  return (
+    <img
+      src={`https://flagcdn.com/w${size}/${code}.png`}
+      srcSet={`https://flagcdn.com/w${size * 2}/${code}.png 2x`}
+      width={size}
+      height={Math.round(size * 0.75)}
+      alt={currency}
+      style={{ borderRadius: 2, objectFit: 'cover', flexShrink: 0 }}
+    />
+  )
 }
 
 export default function EconomicCalendarPage() {
@@ -115,7 +130,8 @@ export default function EconomicCalendarPage() {
                 : { background: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.4)', border: '1px solid rgba(255,255,255,0.07)' }
               }
             >
-              {cur !== 'All' && CURRENCY_FLAG[cur] ? `${CURRENCY_FLAG[cur]} ` : ''}{cur}
+              {cur !== 'All' && <CurrencyFlag currency={cur} size={16} />}
+              {cur}
             </button>
           ))}
         </div>
@@ -164,8 +180,8 @@ export default function EconomicCalendarPage() {
                 <span className="col-span-1 text-xs font-mono text-text-secondary">{event.time}</span>
 
                 {/* Currency */}
-                <div className="col-span-1 flex items-center gap-1">
-                  <span className="text-sm">{CURRENCY_FLAG[event.currency] ?? ''}</span>
+                <div className="col-span-1 flex items-center gap-1.5">
+                  <CurrencyFlag currency={event.currency} size={18} />
                   <span className="text-xs font-semibold text-text-primary">{event.currency}</span>
                 </div>
 
