@@ -1292,7 +1292,7 @@ export default function LandingPage() {
             </div>
             {/* CoinGecko */}
             <div className="flex items-center gap-2.5 opacity-70 hover:opacity-100 transition-opacity">
-              <img src="https://static.coingecko.com/s/thumbnail-007177f3eca19695592f0b8b0eabbdae4523e8c2d81234d04c1a35975ce50a7d.png" alt="CoinGecko" width={22} height={22} style={{ borderRadius: 4 }} />
+              <img src="/coingecko-logo.png" alt="CoinGecko" width={22} height={22} style={{ borderRadius: 4 }} />
               <span className="text-white font-bold text-sm tracking-tight">CoinGecko</span>
             </div>
           </div>
@@ -1496,13 +1496,10 @@ export default function LandingPage() {
               ].map(a => (
                 <div key={a.award} className="rounded-xl p-5 text-center flex flex-col items-center gap-2"
                      style={{ background: 'rgba(255,255,255,0.025)', border: `1px solid rgba(255,255,255,0.06)` }}>
-                  <svg viewBox="0 0 40 48" width="44" height="52" fill="none">
-                    <path d="M14 2L26 2L28 12L20 16L12 12Z" fill={a.accent} opacity="0.25"/>
-                    <path d="M16 2H24" stroke={a.accent} strokeWidth="2.5" strokeLinecap="round" opacity="0.6"/>
-                    <circle cx="20" cy="32" r="14" fill={a.accent} opacity="0.1" stroke={a.accent} strokeWidth="1.5"/>
-                    <circle cx="20" cy="32" r="10" fill={a.accent} opacity="0.08"/>
-                    <path d="M20 24l2.2 6.7h7l-5.7 4.2 2.2 6.7L20 37.3l-5.7 4.2 2.2-6.7-5.7-4.2h7z" fill={a.accent}/>
-                  </svg>
+                  <div className="relative">
+                    <img src="/award-trophy.svg" alt="Award Trophy" style={{ width: 52, height: 61, filter: `drop-shadow(0 0 6px ${a.accent}66)` }} />
+                    <div className="absolute inset-0 rounded-full pointer-events-none" style={{ background: `radial-gradient(circle at 50% 40%, ${a.accent}22, transparent 70%)` }} />
+                  </div>
                   <div className="text-[10px] font-bold uppercase tracking-widest" style={{ color: a.accent }}>{a.year}</div>
                   <div className="text-sm font-bold text-white leading-tight">{a.award}</div>
                   <div className="text-xs" style={{ color: '#6b8099' }}>{a.body}</div>

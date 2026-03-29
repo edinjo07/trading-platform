@@ -335,6 +335,59 @@ export async function getSentiment(symbol: string): Promise<SymbolSentiment> {
   return result
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Bloomberg RSS proxy
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface BloombergArticle {
+  title:       string
+  url:         string
+  publishedAt: string
+  category:    string
+  source:      'Bloomberg'
+}
+
+const BLOOMBERG_FEEDS = [
+  { url: 'https://feeds.bloomberg.com/markets/news.rss',    category: 'Markets'    },
+  { url: 'https://feeds.bloomberg.com/technology/news.rss', category: 'Technology' },
+  { url: 'https://feeds.bloomberg.com/politics/news.rss',   category: 'Politics'   },
+]
+
+const BLOOMBERG_CACHE_TTL = 10 * 60 * 1_000   // 10 minutes
+let   bloombergCache: { data: BloombergArticle[]; ts: number } = { data: [], ts: 0 }
+
+async function fetchBloombergFeed(feedUrl: string, category: string): Promise<BloombergArticle[]> {
+  const body   = await fetchUrl(feedUrl, 8_000)
+  const parsed = parseRssTitles(body)
+  return parsed.slice(0, 15).map(item => ({
+    title:       item.title,
+    url:         item.link || 'https://www.bloomberg.com/markets',
+    publishedAt: new Date(item.pubDate || Date.now()).toISOString(),
+    category,
+    source:      'Bloomberg' as const,
+  }))
+}
+
+export async function getBloombergNews(): Promise<BloombergArticle[]> {
+  if (bloombergCache.ts && Date.now() - bloombergCache.ts < BLOOMBERG_CACHE_TTL) {
+    return bloombergCache.data
+  }
+
+  const results = await Promise.allSettled(
+    BLOOMBERG_FEEDS.map(f => fetchBloombergFeed(f.url, f.category))
+  )
+
+  const articles = results
+    .filter((r): r is PromiseFulfilledResult<BloombergArticle[]> => r.status === 'fulfilled')
+    .flatMap(r => r.value)
+    .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
+
+  if (articles.length > 0) {
+    bloombergCache = { data: articles, ts: Date.now() }
+  }
+  return articles
+}
+
 /** Synchronous read from cache only (returns null if not cached) */
 export function getCachedSentiment(symbol: string): SymbolSentiment | null {
   const cached = cache.get(symbol)

@@ -213,6 +213,7 @@ function VideoModal({ video, onClose }: { video: typeof VIDEOS[0]; onClose: () =
 export default function WebTVPage() {
   const [category, setCategory] = useState('All')
   const [activeVideo, setActiveVideo] = useState<typeof VIDEOS[0] | null>(null)
+  const [liveExpanded, setLiveExpanded] = useState(true)
 
   const filtered = VIDEOS.filter(v => category === 'All' || v.category === category)
   const [featured, ...rest] = filtered
@@ -233,12 +234,47 @@ export default function WebTVPage() {
           <div>
             <h1 className="text-text-primary text-2xl font-bold">Web TV</h1>
             <p className="text-text-muted text-sm mt-1.5 leading-relaxed max-w-2xl">
-              Actionable trade ideas and market commentary in short video format. Recorded daily from the floor of the
-              New York Stock Exchange, presented in association with <strong className="text-text-secondary">Trading Central</strong> —
-              offering unmatched coverage on global equities, currencies and CFDs on commodities.
+              Live market coverage from <strong className="text-text-secondary">Bloomberg Television</strong> plus
+              actionable trade ideas recorded daily at the NYSE in association with{' '}
+              <strong className="text-text-secondary">Trading Central</strong>.
             </p>
           </div>
         </div>
+      </div>
+
+      {/* Bloomberg TV Live */}
+      <div className="rounded-2xl overflow-hidden"
+           style={{ border: '1px solid rgba(239,68,68,0.2)', background: '#0c1829' }}>
+        {/* Live bar */}
+        <div
+          className="flex items-center gap-2.5 px-4 py-3 cursor-pointer select-none"
+          style={{ background: 'rgba(239,68,68,0.06)', borderBottom: liveExpanded ? '1px solid rgba(239,68,68,0.15)' : 'none' }}
+          onClick={() => setLiveExpanded(v => !v)}
+        >
+          <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse shrink-0" />
+          <span className="text-red-400 text-xs font-bold uppercase tracking-widest">LIVE</span>
+          <span className="text-text-primary text-sm font-semibold">Bloomberg Television</span>
+          <span className="text-text-muted text-xs ml-2 hidden sm:block">24/7 Global Market Coverage</span>
+          <svg
+            className="w-4 h-4 text-text-muted ml-auto transition-transform"
+            style={{ transform: liveExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }}
+            fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
+          >
+            <path d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
+        {/* Embed */}
+        {liveExpanded && (
+          <div className="relative" style={{ paddingTop: '56.25%' }}>
+            <iframe
+              className="absolute inset-0 w-full h-full"
+              src="https://www.youtube.com/embed/live_stream?channel=UCIALMKvObZNtJ6AmdCLP7Lg"
+              title="Bloomberg Television Live"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          </div>
+        )}
       </div>
 
       {/* Category filter */}

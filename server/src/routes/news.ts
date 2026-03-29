@@ -1,8 +1,19 @@
 ﻿import { Router } from 'express'
 import { authenticate, AuthRequest } from '../middleware/auth'
-import { getSentiment } from '../services/newsService'
+import { getSentiment, getBloombergNews } from '../services/newsService'
 
 const router = Router()
+
+/** GET /api/news/bloomberg - proxy Bloomberg RSS feeds (authenticated) */
+router.get('/bloomberg', authenticate, async (_req, res) => {
+  try {
+    const articles = await getBloombergNews()
+    res.json(articles)
+  } catch (err: any) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
 router.use(authenticate)
 
 /** GET /api/news/sentiment/:symbol - returns news sentiment for a given symbol */
