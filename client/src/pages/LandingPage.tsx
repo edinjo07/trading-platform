@@ -1495,11 +1495,8 @@ export default function LandingPage() {
                 { year: '2024', award: 'Best Crypto CFD Platform',body: 'The Banker Awards',               accent: '#00c878' },
               ].map(a => (
                 <div key={a.award} className="rounded-xl p-5 text-center flex flex-col items-center gap-2"
-                     style={{ background: 'rgba(255,255,255,0.025)', border: `1px solid rgba(255,255,255,0.06)` }}>
-                  <div className="relative">
-                    <img src="/award-trophy.svg" alt="Award Trophy" style={{ width: 52, height: 61, filter: `drop-shadow(0 0 6px ${a.accent}66)` }} />
-                    <div className="absolute inset-0 rounded-full pointer-events-none" style={{ background: `radial-gradient(circle at 50% 40%, ${a.accent}22, transparent 70%)` }} />
-                  </div>
+                     style={{ background: 'rgba(245,158,11,0.04)', border: '1px solid rgba(245,158,11,0.18)' }}>
+                  <img src="/le-fonti-awards-gold.svg" alt="Le Fonti Awards" style={{ width: 52, height: 52 }} />
                   <div className="text-[10px] font-bold uppercase tracking-widest" style={{ color: a.accent }}>{a.year}</div>
                   <div className="text-sm font-bold text-white leading-tight">{a.award}</div>
                   <div className="text-xs" style={{ color: '#6b8099' }}>{a.body}</div>
