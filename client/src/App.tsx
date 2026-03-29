@@ -21,6 +21,11 @@ import WithdrawPage from './pages/WithdrawPage'
 import UserKYCPage from './pages/KYCPage'
 import TradingPilotPage from './pages/TradingPilotPage'
 import AccountTypesPage from './pages/AccountTypesPage'
+import BlogPage from './pages/BlogPage'
+import TradingScamsPage from './pages/TradingScamsPage'
+import EconomicCalendarPage from './pages/EconomicCalendarPage'
+import ForexCalculatorsPage from './pages/ForexCalculatorsPage'
+import WebTVPage from './pages/WebTVPage'
 
 // Admin
 import AdminLayout from './components/admin/AdminLayout'
@@ -120,6 +125,11 @@ export default function App() {
           <Route path="withdraw" element={<WithdrawPage />} />
           <Route path="verify" element={<UserKYCPage />} />
           <Route path="profile" element={<ProfilePage />} />
+          <Route path="blog" element={<BlogPage />} />
+          <Route path="trading-scams" element={<TradingScamsPage />} />
+          <Route path="economic-calendar" element={<EconomicCalendarPage />} />
+          <Route path="forex-calculators" element={<ForexCalculatorsPage />} />
+          <Route path="web-tv" element={<WebTVPage />} />
         </Route>
 
         {/* Admin Panel */}
