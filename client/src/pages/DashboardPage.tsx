@@ -260,113 +260,36 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* ── Features & Tools ─────────────────────────────────────────────── */}
-      <div>
-        <p className="text-xs font-bold uppercase tracking-widest text-text-muted mb-3">Features &amp; Tools</p>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-
-          {/* WebTrader */}
-          <FeatureCard
-            title="WebTrader"
-            description="Professional trading terminal with live charts, order book, leverage &amp; one-click execution."
-            badge="Live"
-            accent="#0ea5e9"
-            onClick={() => navigate('/dashboard/trade')}
-            icon={<svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>}
-          />
-
-          {/* TradePilot */}
-          <FeatureCard
-            title="TradePilot AI"
-            description="Automated trading bots powered by technical analysis &amp; real-time news sentiment."
-            badge="AI"
-            accent="#8b5cf6"
-            onClick={() => navigate('/dashboard/bots')}
-            icon={<svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M9 11V7a3 3 0 016 0v4"/><circle cx="9" cy="16" r="1" fill="currentColor"/><circle cx="15" cy="16" r="1" fill="currentColor"/><path d="M12 2v2"/></svg>}
-          />
-
-          {/* Portfolio */}
-          <FeatureCard
-            title="Portfolio"
-            description="Track your positions, margin usage, P&amp;L, and overall account performance."
-            accent="#00c878"
-            onClick={() => navigate('/dashboard/portfolio')}
-            icon={<svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>}
-          />
-
-          {/* Market Scanner */}
-          <FeatureCard
-            title="Market Scanner"
-            description="Scan markets in real time for breakout signals, volatility &amp; trending instruments."
-            accent="#f59e0b"
-            onClick={() => navigate('/dashboard/scanner')}
-            icon={<svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>}
-          />
-
-          {/* Analytics */}
-          <FeatureCard
-            title="Analytics"
-            description="Deep-dive into your trading history, equity curve &amp; strategy performance metrics."
-            accent="#06b6d4"
-            onClick={() => navigate('/dashboard/analytics')}
-            icon={<svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path d="M18 20V10M12 20V4M6 20v-6"/></svg>}
-          />
-
-          {/* Orders */}
-          <FeatureCard
-            title="Orders"
-            description="View and manage all open, pending and filled orders across all instruments."
-            accent="#e879f9"
-            onClick={() => navigate('/dashboard/orders')}
-            icon={<svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg>}
-          />
-
-          {/* Deposit */}
-          <FeatureCard
-            title="Deposit Funds"
-            description="Add funds to your account via bank transfer, card or crypto wallet."
-            accent="#34d399"
-            onClick={() => navigate('/dashboard/deposit')}
-            icon={<svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path d="M12 5v14M5 12l7 7 7-7"/><path d="M5 5h14"/></svg>}
-          />
-
-          {/* Withdraw */}
-          <FeatureCard
-            title="Withdraw Funds"
-            description="Submit a withdrawal request to your bank account or crypto wallet."
-            accent="#fb923c"
-            onClick={() => navigate('/dashboard/withdraw')}
-            icon={<svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path d="M12 19V5M5 12l7-7 7 7"/><path d="M5 19h14"/></svg>}
-          />
-
-          {/* Leaderboard */}
-          <FeatureCard
-            title="Leaderboard"
-            description="See how you rank against other traders on the platform by P&amp;L and win rate."
-            accent="#f472b6"
-            onClick={() => navigate('/dashboard/leaderboard')}
-            icon={<svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path d="M8 21H5a2 2 0 01-2-2v-5m0 0V9a2 2 0 012-2h3m0 9H5m13 5h3a2 2 0 002-2v-5m0 0V9a2 2 0 00-2-2h-3m0 9h3M9 3h6a2 2 0 012 2v4H7V5a2 2 0 012-2z"/></svg>}
-          />
-
-          {/* Alerts */}
-          <FeatureCard
-            title="Price Alerts"
-            description="Set custom alerts for price levels, %moves and news events across all instruments."
-            accent="#a78bfa"
-            onClick={() => navigate('/dashboard/alerts')}
-            icon={<svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path d="M12 22c1.1 0 2-.9 2-2H10a2 2 0 002 2zm6-6V10c0-3.07-1.64-5.64-4.5-6.32V3a1.5 1.5 0 00-3 0v.68C7.63 4.36 6 6.92 6 10v6l-2 2v1h16v-1l-2-2z"/></svg>}
-          />
-
-          {/* Profile Settings */}
-          <FeatureCard
-            title="Profile Settings"
-            description="Update your personal info, change password and manage account security."
-            accent="#94a3b8"
-            onClick={() => navigate('/dashboard/profile')}
-            icon={<svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>}
-          />
-
-        </div>
+      {/* ── Quick Actions ──────────────────────────────────────────────────── */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <QuickAction
+          label="New Trade"
+          sub="Open a live position"
+          accent="#0ea5e9"
+          onClick={() => navigate('/dashboard/trade')}
+          icon={<svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>}
+        />
+        <QuickAction
+          label="Deposit"
+          sub="Fund your account"
+          accent="#00c878"
+          onClick={() => navigate('/dashboard/deposit')}
+          icon={<svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path d="M12 5v14M5 12l7 7 7-7"/><path d="M5 5h14"/></svg>}
+        />
+        <QuickAction
+          label="Portfolio"
+          sub="Positions & P&L"
+          accent="#8b5cf6"
+          onClick={() => navigate('/dashboard/portfolio')}
+          icon={<svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>}
+        />
+        <QuickAction
+          label="Set Alert"
+          sub="Price notifications"
+          accent="#f59e0b"
+          onClick={() => navigate('/dashboard/alerts')}
+          icon={<svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path d="M12 22c1.1 0 2-.9 2-2H10a2 2 0 002 2zm6-6V10c0-3.07-1.64-5.64-4.5-6.32V3a1.5 1.5 0 00-3 0v.68C7.63 4.36 6 6.92 6 10v6l-2 2v1h16v-1l-2-2z"/></svg>}
+        />
       </div>
 
       {/* ── Performance + Market ──────────────────────────────────────────── */}
@@ -490,6 +413,44 @@ export default function DashboardPage() {
             </table>
           </div>
         )}
+      </div>
+
+      {/* ── Explore More Tools ────────────────────────────────────────────────────────────────── */}
+      <div>
+        <p className="text-xs font-bold uppercase tracking-widest text-text-muted mb-3">More Tools</p>
+        <div className="grid grid-cols-3 sm:grid-cols-6 gap-2.5">
+          {[
+            { label: 'TradePilot', sub: 'AI Bots',        accent: '#8b5cf6', path: '/dashboard/bots',               icon: <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M9 11V7a3 3 0 016 0v4"/><circle cx="9" cy="16" r="1" fill="currentColor"/><circle cx="15" cy="16" r="1" fill="currentColor"/><path d="M12 2v2"/></svg> },
+            { label: 'Scanner',    sub: 'Market scan',    accent: '#f59e0b', path: '/dashboard/scanner',            icon: <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg> },
+            { label: 'Rankings',   sub: 'Leaderboard',    accent: '#f472b6', path: '/dashboard/leaderboard',        icon: <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path d="M8 21H5a2 2 0 01-2-2v-5m0 0V9a2 2 0 012-2h3m0 9H5m13 5h3a2 2 0 002-2v-5m0 0V9a2 2 0 00-2-2h-3m0 9h3M9 3h6a2 2 0 012 2v4H7V5a2 2 0 012-2z"/></svg> },
+            { label: 'Calendar',   sub: 'Eco events',     accent: '#06b6d4', path: '/dashboard/economic-calendar',  icon: <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> },
+            { label: 'Calculators',sub: 'Forex tools',    accent: '#34d399', path: '/dashboard/forex-calculators',  icon: <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="8.01" y2="10"/><line x1="12" y1="10" x2="12.01" y2="10"/><line x1="16" y1="10" x2="16.01" y2="10"/><line x1="8" y1="14" x2="8.01" y2="14"/><line x1="12" y1="14" x2="12.01" y2="14"/><line x1="16" y1="14" x2="16.01" y2="14"/><line x1="8" y1="18" x2="12" y2="18"/></svg> },
+            { label: 'Web TV',     sub: 'Live stream',    accent: '#fb923c', path: '/dashboard/web-tv',             icon: <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><rect x="2" y="7" width="20" height="15" rx="2"/><polyline points="17 2 12 7 7 2"/></svg> },
+          ].map(t => (
+            <button
+              key={t.label}
+              onClick={() => navigate(t.path)}
+              className="flex flex-col items-center gap-2 p-3 rounded-xl transition-all text-center"
+              style={{ background: `${t.accent}0a`, border: `1px solid ${t.accent}18` }}
+              onMouseEnter={e => {
+                ;(e.currentTarget as HTMLElement).style.borderColor = `${t.accent}40`
+                ;(e.currentTarget as HTMLElement).style.background  = `${t.accent}14`
+              }}
+              onMouseLeave={e => {
+                ;(e.currentTarget as HTMLElement).style.borderColor = `${t.accent}18`
+                ;(e.currentTarget as HTMLElement).style.background  = `${t.accent}0a`
+              }}
+            >
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: `${t.accent}18`, color: t.accent }}>
+                {t.icon}
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-text-primary leading-tight">{t.label}</p>
+                <p className="text-[10px] text-text-muted mt-0.5">{t.sub}</p>
+              </div>
+            </button>
+          ))}
+        </div>
       </div>
 
     </div>
