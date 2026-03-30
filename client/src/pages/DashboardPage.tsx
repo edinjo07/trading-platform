@@ -374,7 +374,8 @@ export default function DashboardPage() {
               <tbody>
                 {recentOrders.map((o: any) => (
                   <tr key={o.id} className="hover:bg-white/5 transition-colors" style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                    <td className="py-3 px-3 sm:px-4"> ? 'bg-bull-muted text-bull' : 'bg-bear-muted text-bear'}`}>
+                    <td className="py-3 px-3 sm:px-4">
+                      <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${o.side === 'buy' ? 'bg-bull-muted text-bull' : 'bg-bear-muted text-bear'}`}>
                         {o.side.toUpperCase()}
                       </span>
                     </td>
@@ -383,7 +384,7 @@ export default function DashboardPage() {
                     <td className="py-3 px-3 sm:px-4 font-mono text-xs text-text-secondary text-right hidden sm:table-cell">{o.quantity}</td>
                     <td className="py-3 px-3 sm:px-4 font-mono text-xs text-text-secondary text-right">{o.price ? formatPrice(o.price, o.symbol) : 'Market'}</td>
                     <td className="py-3 px-3 sm:px-4 text-right">
-                            style={{
+                      <span className="px-1.5 py-0.5 rounded text-[10px] font-bold uppercase" style={{
                               background: o.status === 'filled' ? 'rgba(0,200,120,0.1)' : o.status === 'open' ? 'rgba(14,165,233,0.1)' : 'rgba(107,128,153,0.1)',
                               color: o.status === 'filled' ? '#00c878' : o.status === 'open' ? '#38bdf8' : '#6b8099',
                             }}>
