@@ -12,6 +12,13 @@ api.interceptors.request.use((config) => {
   return config
 })
 
+// Attach account mode header so the server filters orders by demo/real partition
+api.interceptors.request.use((config) => {
+  const mode = localStorage.getItem('account_mode') ?? 'demo'
+  config.headers['X-Account-Mode'] = mode
+  return config
+})
+
 // Auto-logout on 401
 api.interceptors.response.use(
   (res) => res,

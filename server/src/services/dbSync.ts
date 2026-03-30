@@ -128,6 +128,7 @@ export async function dbSaveOrder(order: Order): Promise<void> {
       trailing_offset: order.trailingOffset ?? null,
       time_in_force: order.timeInForce,
       notes: order.notes ?? null,
+      account_mode: order.accountMode ?? 'demo',
       created_at: order.createdAt,
       updated_at: order.updatedAt,
       filled_at: order.filledAt ?? null,
@@ -139,10 +140,11 @@ export async function dbSaveOrder(order: Order): Promise<void> {
 
 // ─── Portfolios ───────────────────────────────────────────────────────────────
 
-export async function dbSavePortfolio(userId: string, portfolio: Portfolio): Promise<void> {
+export async function dbSavePortfolio(userId: string, portfolio: Portfolio, accountMode: AccountMode = 'demo'): Promise<void> {
   const { error } = await supabase.from('portfolios').upsert(
     {
       user_id: userId,
+      account_mode: accountMode,
       cash_balance: portfolio.cashBalance,
       total_market_value: portfolio.totalMarketValue,
       total_equity: portfolio.totalEquity,
@@ -154,7 +156,7 @@ export async function dbSavePortfolio(userId: string, portfolio: Portfolio): Pro
       positions: portfolio.positions as any,
       updated_at: new Date().toISOString(),
     },
-    { onConflict: 'user_id' }
+    { onConflict: 'user_id,account_mode' }
   )
   if (error) console.error('[DB] savePortfolio:', error.message)
 }
@@ -365,13 +367,16 @@ export function rebuildPositionsFromOrders(orders: Order[]): Position[] {
   return recalculateFromOrders(orders).positions
 }
 
-export async function dbLoadOrders(userId: string): Promise<Order[]> {
+export async function dbLoadOrders(userId: string, accountMode?: AccountMode): Promise<Order[]> {
   return dbRetry(async () => {
-    const { data, error } = await supabase
+    let query = supabase
       .from('orders')
       .select('*')
       .eq('user_id', userId)
-      .order('created_at', { ascending: false })
+    if (accountMode) {
+      query = query.eq('account_mode', accountMode)
+    }
+    const { data, error } = await query.order('created_at', { ascending: false })
     if (error) {
       throw new Error(`[DB] loadOrders: ${error.message}`)
     }
@@ -396,6 +401,7 @@ export async function dbLoadOrders(userId: string): Promise<Order[]> {
       trailingOffset: o.trailing_offset != null ? parseFloat(o.trailing_offset) : undefined,
       timeInForce: o.time_in_force ?? 'GTC',
       notes: o.notes,
+      accountMode: (o.account_mode === 'real' ? 'real' : 'demo') as AccountMode,
       createdAt: o.created_at,
       updatedAt: o.updated_at,
       filledAt: o.filled_at,

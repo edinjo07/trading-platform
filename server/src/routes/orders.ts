@@ -10,10 +10,16 @@ import {
   tradeJournal,
 } from '../services/tradingEngine'
 import { dbLoadOrders, dbLoadPortfolio, dbSaveOrder, dbSavePortfolio, dbSaveTradeRecord, dbEnsureUser, recalculateFromOrders } from '../services/dbSync'
-import { OrderSide, OrderType, TimeInForce } from '../types'
+import { AccountMode, OrderSide, OrderType, TimeInForce } from '../types'
 
 const router = Router()
 router.use(authenticate)
+
+/** Read and validate the X-Account-Mode header from the request. Defaults to 'demo'. */
+function getAccountMode(req: AuthRequest): AccountMode {
+  const header = req.headers['x-account-mode']
+  return header === 'real' ? 'real' : 'demo'
+}
 
 // GET /api/orders
 // ─── Design rule ────────────────────────────────────────────────────────────
@@ -24,17 +30,18 @@ router.use(authenticate)
 router.get('/', async (req: AuthRequest, res: Response) => {
   const { status } = req.query
   const userId = req.user!.userId
+  const accountMode = getAccountMode(req)
   try {
-    let dbOrders = await dbLoadOrders(userId)
+    let dbOrders = await dbLoadOrders(userId, accountMode)
 
     // DB returned nothing but in-memory has orders for this user.
     // This happens when the schema was created AFTER orders were already placed
     // (orders lived only in-memory). Backfill them to DB now so they survive
     // future restarts, then serve from memory.
     if (dbOrders.length === 0) {
-      const memOrders = getOrdersByUser(userId)
+      const memOrders = getOrdersByUser(userId).filter(o => (o.accountMode ?? 'demo') === accountMode)
       if (memOrders.length > 0) {
-        console.log(`[Orders] Backfilling ${memOrders.length} in-memory order(s) to DB for ${userId}`)
+        console.log(`[Orders] Backfilling ${memOrders.length} in-memory order(s) to DB for ${userId}/${accountMode}`)
         for (const o of memOrders) {
           dbSaveOrder(o).catch((e: unknown) => console.error('[Orders] backfill save failed:', e))
         }
@@ -49,11 +56,8 @@ router.get('/', async (req: AuthRequest, res: Response) => {
       : dbOrders
     return res.json(result)
   } catch (err) {
-    // DB unavailable (e.g. missing env vars) - serve in-memory orders so the
-    // client is usable rather than permanently broken.  On a cold start with
-    // no DB, this returns an empty list which is correct for a new user.
     console.error('[Orders] DB read failed - serving in-memory fallback:', err)
-    const memOrders = getOrdersByUser(userId)
+    const memOrders = getOrdersByUser(userId).filter(o => (o.accountMode ?? 'demo') === accountMode)
     const result2 = status ? memOrders.filter(o => o.status === (status as string)) : memOrders
     return res.json(result2)
   }
@@ -63,6 +67,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user!.userId
+    const accountMode = getAccountMode(req)
 
     // Step 1: ensure user row exists in public.users (FK guard).
     // Best-effort - if DB is unavailable (e.g. missing env var) we still allow
@@ -76,7 +81,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     // Step 2: recompute portfolio from order history so balance check is
     // always accurate, even after a cold start with stale DB portfolio data.
     try {
-      const allOrders = await dbLoadOrders(userId)
+      const allOrders = await dbLoadOrders(userId, accountMode)
       const { cashBalance, positions, realizedPnl } = recalculateFromOrders(allOrders)
       portfolios.set(userId, {
         userId, cashBalance, totalMarketValue: 0, totalEquity: cashBalance,
@@ -135,6 +140,8 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       notes as string | undefined,
       parsedLeverage,
     )
+    // Tag the order with the account mode so it's stored in the right partition
+    order.accountMode = accountMode
 
     // Step 3: execute market orders and persist to DB synchronously.
     // This must happen BEFORE res.json() because:
@@ -157,7 +164,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     ]
     if (portfolio) {
       dbSaves.push(
-        dbSavePortfolio(userId, portfolio).catch((e: unknown) => {
+        dbSavePortfolio(userId, portfolio, accountMode).catch((e: unknown) => {
           console.warn('[DB] Failed to save portfolio:', e)
         }),
       )

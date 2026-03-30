@@ -98,6 +98,7 @@ export interface Order {
   slippage?: number         // slippage on fill
   timeInForce: TimeInForce
   notes?: string
+  accountMode?: AccountMode // 'demo' | 'real' — which account this order belongs to
   createdAt: string
   updatedAt: string
   filledAt?: string

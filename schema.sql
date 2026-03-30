@@ -37,17 +37,26 @@ CREATE TABLE IF NOT EXISTS orders (
   trailing_offset  NUMERIC,
   time_in_force    TEXT          NOT NULL DEFAULT 'GTC',
   notes            TEXT,
+  account_mode     TEXT          NOT NULL DEFAULT 'demo' CHECK (account_mode IN ('real', 'demo')),
   created_at       TIMESTAMPTZ   NOT NULL DEFAULT NOW(),
   updated_at       TIMESTAMPTZ   NOT NULL DEFAULT NOW(),
   filled_at        TIMESTAMPTZ
 );
 
+CREATE INDEX IF NOT EXISTS idx_orders_account_mode ON orders(user_id, account_mode);
+
 CREATE INDEX IF NOT EXISTS idx_orders_user_id ON orders(user_id);
 CREATE INDEX IF NOT EXISTS idx_orders_status  ON orders(status);
 
 -- ── Portfolios ───────────────────────────────────────────────
+-- Migration for existing databases (run once):
+--   ALTER TABLE orders ADD COLUMN IF NOT EXISTS account_mode TEXT NOT NULL DEFAULT 'demo' CHECK (account_mode IN ('real', 'demo'));
+--   ALTER TABLE portfolios ADD COLUMN IF NOT EXISTS account_mode TEXT NOT NULL DEFAULT 'demo' CHECK (account_mode IN ('real', 'demo'));
+--   ALTER TABLE portfolios DROP CONSTRAINT IF EXISTS portfolios_pkey;
+--   ALTER TABLE portfolios ADD PRIMARY KEY (user_id, account_mode);
 CREATE TABLE IF NOT EXISTS portfolios (
-  user_id             UUID        PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+  user_id             UUID        NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  account_mode        TEXT        NOT NULL DEFAULT 'demo' CHECK (account_mode IN ('real', 'demo')),
   cash_balance        NUMERIC     NOT NULL DEFAULT 100000,
   total_market_value  NUMERIC     NOT NULL DEFAULT 0,
   total_equity        NUMERIC     NOT NULL DEFAULT 100000,
@@ -57,7 +66,8 @@ CREATE TABLE IF NOT EXISTS portfolios (
   peak_equity         NUMERIC     NOT NULL DEFAULT 100000,
   drawdown            NUMERIC     NOT NULL DEFAULT 0,
   positions           JSONB       NOT NULL DEFAULT '[]'::jsonb,
-  updated_at          TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  updated_at          TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  PRIMARY KEY (user_id, account_mode)
 );
 
 -- ── Trade Journal ────────────────────────────────────────────

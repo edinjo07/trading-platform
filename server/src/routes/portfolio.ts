@@ -2,7 +2,7 @@
 import { authenticate, AuthRequest } from '../middleware/auth'
 import { portfolios, refreshPortfolio } from '../services/tradingEngine'
 import { dbLoadOrders, dbEnsureUser, dbSavePortfolio, recalculateFromOrders } from '../services/dbSync'
-import type { Portfolio } from '../types'
+import type { AccountMode, Portfolio } from '../types'
 
 const router = Router()
 router.use(authenticate)
@@ -28,13 +28,14 @@ router.use(authenticate)
 // ─────────────────────────────────────────────────────────────────────────────
 router.get('/', async (req: AuthRequest, res: Response) => {
   const userId = req.user!.userId
+  const accountMode: AccountMode = req.headers['x-account-mode'] === 'real' ? 'real' : 'demo'
 
   try {
     // Best-effort FK guard — non-fatal if DB is slow/unreachable.
     try { await dbEnsureUser(userId, req.user!.email) } catch { /* ok */ }
 
-    // Load every order for this user.
-    const allOrders = await dbLoadOrders(userId)
+    // Load orders filtered by account mode.
+    const allOrders = await dbLoadOrders(userId, accountMode)
 
     // Replay orders → ground-truth cash, positions, realised P&L.
     const { cashBalance, positions, realizedPnl } = recalculateFromOrders(allOrders)
@@ -56,7 +57,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
     const fresh = refreshPortfolio(portfolio)
 
     // Persist back to DB (fire-and-forget — latency optimisation only).
-    dbSavePortfolio(userId, fresh).catch((e: unknown) =>
+    dbSavePortfolio(userId, fresh, accountMode).catch((e: unknown) =>
       console.error('[Portfolio] save failed:', e)
     )
 

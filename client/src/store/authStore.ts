@@ -40,7 +40,9 @@ export const useAuthStore = create<AuthState>((set, get) => {
       const { data: { session } } = await supabase.auth.getSession()
       if (session?.user && session.access_token) {
         localStorage.setItem('token', session.access_token)
-        set({ user: mapSupabaseUser(session.user), token: session.access_token })
+        const mappedUser = mapSupabaseUser(session.user)
+        localStorage.setItem('account_mode', mappedUser.accountMode)
+        set({ user: mappedUser, token: session.access_token })
       } else {
         localStorage.removeItem('token')
         set({ user: null, token: null })
@@ -56,9 +58,12 @@ export const useAuthStore = create<AuthState>((set, get) => {
   supabase.auth.onAuthStateChange((_event, session) => {
     if (session?.user && session.access_token) {
       localStorage.setItem('token', session.access_token)
-      set({ user: mapSupabaseUser(session.user), token: session.access_token })
+      const mappedUser = mapSupabaseUser(session.user)
+      localStorage.setItem('account_mode', mappedUser.accountMode)
+      set({ user: mappedUser, token: session.access_token })
     } else if (_event === 'SIGNED_OUT') {
       localStorage.removeItem('token')
+      localStorage.removeItem('account_mode')
       set({ user: null, token: null })
     }
   })
@@ -105,6 +110,7 @@ export const useAuthStore = create<AuthState>((set, get) => {
     },
 
     setAccountMode: async (mode: AccountMode) => {
+      localStorage.setItem('account_mode', mode)
       const { error } = await supabase.auth.updateUser({ data: { account_mode: mode } })
       if (!error) set(s => s.user ? { user: { ...s.user, accountMode: mode } } : {})
     },
@@ -121,7 +127,9 @@ export const useAuthStore = create<AuthState>((set, get) => {
         const { data: { session } } = await supabase.auth.getSession()
         if (session?.user && session.access_token) {
           localStorage.setItem('token', session.access_token)
-          set({ user: mapSupabaseUser(session.user), token: session.access_token, loading: false })
+          const mappedUser = mapSupabaseUser(session.user)
+          localStorage.setItem('account_mode', mappedUser.accountMode)
+          set({ user: mappedUser, token: session.access_token, loading: false })
         } else {
           localStorage.removeItem('token')
           set({ user: null, token: null, loading: false })
