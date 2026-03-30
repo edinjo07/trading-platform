@@ -2,97 +2,92 @@
 import { authenticate, AuthRequest } from '../middleware/auth'
 import { getPortfolio, portfolios, refreshPortfolio } from '../services/tradingEngine'
 import { dbLoadPortfolio, dbLoadOrders, dbEnsureUser, dbSavePortfolio, rebuildPositionsFromOrders } from '../services/dbSync'
+import type { Portfolio } from '../types'
 
 const router = Router()
 router.use(authenticate)
 
 // GET /api/portfolio
 // ─── Design rule ────────────────────────────────────────────────────────────
-// Supabase is the SINGLE SOURCE OF TRUTH.  The in-memory map is only a warm
-// cache - it is never trusted over a successful DB read.
+// Positions are ALWAYS rebuilt from the orders table rather than trusting the
+// JSONB positions blob.  The blob may have been written by older code that did
+// not persist leverage/margin on positions, which causes phantom equity
+// inflation (posMargin falls back to full notional when these fields are absent).
 //
-// On every request:
-//   1. Ensure the user stub exists in public.users (FK guard, no-op if exists).
-//   2. Always attempt dbLoadPortfolio from Supabase.
-//   3. If found   → refresh live prices and return it.
-//   4. If not found (genuinely new user) → create the $100k default, save it,
-//      return it.
-//   5. If DB is unreachable → 503 so the CLIENT keeps its existing state
-//      instead of overwriting it with a stale $100k default.
+// Cash balance, realised P&L, peak equity and drawdown ARE read from the DB
+// because they are updated atomically after each order fill.
+//
+// Flow per request:
+//   1. Ensure user FK row exists (no-op if already there).
+//   2. Load portfolio financials + order history in parallel.
+//   3. Rebuild positions from orders (guarantees leverage+margin accuracy).
+//   4. Compose portfolio: DB financials + rebuilt positions.
+//   5. refreshPortfolio → live prices + correct equity formula.
+//   6. Persist back to DB if equity or position count changed.
+//   7. Return.
 // ─────────────────────────────────────────────────────────────────────────────
 router.get('/', async (req: AuthRequest, res: Response) => {
   const userId = req.user!.userId
 
   try {
-    // Step 1: ensure FK row - fast ignoreDuplicates upsert.
-    // Non-fatal for GET: if this fails we still serve in-memory state below.
     try { await dbEnsureUser(userId, req.user!.email) } catch { /* non-fatal on GET */ }
 
-    // Step 2-3: always read from DB (authoritative state).
-    const dbPortfolio = await dbLoadPortfolio(userId)
+    // Load financials and order history in parallel.
+    const [dbPortfolio, allOrders] = await Promise.all([
+      dbLoadPortfolio(userId),
+      dbLoadOrders(userId),
+    ])
 
+    // Rebuild positions from orders — the only source that guarantees the
+    // leverage and margin fields are present and correct.
+    const rebuiltPositions = rebuildPositionsFromOrders(allOrders)
+
+    let portfolio: Portfolio
     if (dbPortfolio) {
-      // Guard: if the positions JSONB blob is missing or empty but the portfolio's
-      // financial figures indicate open positions exist (totalMarketValue > 0, or
-      // totalEquity > cashBalance), rebuild positions from the filled orders table.
-      // This self-heals the common case where dbSavePortfolio ran but
-      // Supabase silently dropped the positions column value.
-      const posArr = Array.isArray(dbPortfolio.positions) ? dbPortfolio.positions : []
-      if (posArr.length === 0 && dbPortfolio.totalEquity > dbPortfolio.cashBalance + 0.01) {
-        try {
-          const filledOrders = await dbLoadOrders(userId)
-          const rebuilt = rebuildPositionsFromOrders(filledOrders)
-          if (rebuilt.length > 0) {
-            dbPortfolio.positions = rebuilt
-            console.log(`[Portfolio] Rebuilt ${rebuilt.length} position(s) from orders for ${userId}`)
-          }
-        } catch (e) {
-          console.warn('[Portfolio] Failed to rebuild positions from orders:', e)
-        }
+      // Use DB for cash / P&L fields; replace positions with the order-derived set.
+      // Also clear a potentially-inflated peakEquity: if it is more than 50 %
+      // above cash balance AND we have positions, it was probably written by the
+      // old buggy equity formula and will produce a nonsensical drawdown figure.
+      const suspectPeak =
+        dbPortfolio.peakEquity != null &&
+        dbPortfolio.peakEquity > dbPortfolio.cashBalance * 1.5 + 500
+
+      portfolio = {
+        ...dbPortfolio,
+        positions:   rebuiltPositions,
+        peakEquity:  suspectPeak ? undefined : dbPortfolio.peakEquity,
+        drawdown:    suspectPeak ? 0         : dbPortfolio.drawdown,
       }
-
-      // Sync the warm-cache so in-process calls (e.g. createOrder) see the
-      // real balance, then refresh position prices before responding.
-      portfolios.set(userId, dbPortfolio)
-      // Capture BEFORE refreshPortfolio — that function mutates p in-place, so
-      // reading it afterwards would always give the new value and the comparison
-      // would always be 0, meaning dbSavePortfolio would never fire.
-      const storedEquity = dbPortfolio.totalEquity
-      const fresh = refreshPortfolio(dbPortfolio)
-
-      // If the recalculated equity differs from what's stored (e.g. stale DB
-      // value from a previous leverage-inflation bug), write it back now so the
-      // client-side staleness guard never blocks the corrected value.
-      if (Math.abs(storedEquity - fresh.totalEquity) > 0.01) {
-        dbSavePortfolio(userId, fresh).catch((e: unknown) =>
-          console.error('[Portfolio] equity correction save failed:', e)
-        )
-      }
-
-      return res.json(fresh)
+    } else {
+      // Genuine new user — start from the $100 k in-memory default.
+      portfolio = { ...getPortfolio(userId), positions: rebuiltPositions }
     }
 
-    // Step 4: no portfolio row in DB yet.
-    // Check in-memory: if this user has a non-default portfolio (balance changed
-    // or positions exist), the schema was created AFTER they started trading.
-    // Backfill to DB now so data survives the next restart, then return it.
-    const memPortfolio = getPortfolio(userId)
-    const hasRealData = memPortfolio.cashBalance < 99_999.99 || memPortfolio.positions.length > 0
-    if (hasRealData) {
-      console.log(`[Portfolio] Backfilling in-memory portfolio to DB for ${userId}`)
-      dbSavePortfolio(userId, memPortfolio).catch((e: unknown) =>
-        console.error('[Portfolio] backfill save failed:', e)
+    // Sync warm-cache so in-process order creation uses the real balance.
+    portfolios.set(userId, portfolio)
+
+    // Capture equity BEFORE refreshPortfolio mutates the object in-place.
+    const storedEquity    = dbPortfolio?.totalEquity ?? 0
+    const storedPosCount  = Array.isArray(dbPortfolio?.positions)
+      ? (dbPortfolio!.positions as unknown[]).length : 0
+    const fresh = refreshPortfolio(portfolio)
+
+    // Write back whenever equity or position count changed (self-healing).
+    if (
+      Math.abs(storedEquity - fresh.totalEquity) > 0.01 ||
+      storedPosCount !== fresh.positions.length
+    ) {
+      dbSavePortfolio(userId, fresh).catch((e: unknown) =>
+        console.error('[Portfolio] save failed:', e)
       )
     }
-    return res.json(memPortfolio)
+
+    return res.json(fresh)
 
   } catch (err) {
-    // Step 5: DB unreachable (e.g. missing env vars) - serve in-memory state
-    // so the client is usable rather than permanently broken.  On a cold start
-    // with no DB, this returns the $100k default which is correct for a new user.
+    // DB unreachable — serve in-memory so client remains usable.
     console.error('[Portfolio] DB error - serving in-memory fallback:', err)
-    const fallback = getPortfolio(userId)
-    return res.json(refreshPortfolio(fallback))
+    return res.json(refreshPortfolio(getPortfolio(userId)))
   }
 })
 
