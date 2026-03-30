@@ -6,50 +6,38 @@ import { formatCurrency, formatPrice } from '../utils/formatters'
 import { MarketSymbol, Ticker } from '../types'
 import { getKYCStatus } from './KYCPage'
 
-// ─── Feature Card ──────────────────────────────────────────────────────────────
-function FeatureCard({
-  title, description, badge, accent, icon, onClick, wide
+// ─── Quick Action ──────────────────────────────────────────────────────────────
+function QuickAction({
+  label, sub, accent, icon, onClick
 }: {
-  title: string; description: string; badge?: string; accent: string
-  icon: React.ReactNode; onClick?: () => void; wide?: boolean
+  label: string; sub: string; accent: string; icon: React.ReactNode; onClick: () => void
 }) {
   return (
-    <div
+    <button
       onClick={onClick}
-      className={`relative overflow-hidden rounded-2xl p-5 flex flex-col gap-3 cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg ${wide ? 'col-span-2' : ''}`}
-      style={{
-        background: `linear-gradient(135deg, ${accent}14 0%, ${accent}06 100%)`,
-        border: `1px solid ${accent}22`,
+      className="flex items-center gap-3 p-4 rounded-xl text-left transition-all w-full"
+      style={{ background: `${accent}0d`, border: `1px solid ${accent}22` }}
+      onMouseEnter={e => {
+        ;(e.currentTarget as HTMLElement).style.borderColor = `${accent}55`
+        ;(e.currentTarget as HTMLElement).style.background  = `${accent}18`
       }}
-      onMouseEnter={e => (e.currentTarget as HTMLElement).style.borderColor = `${accent}44`}
-      onMouseLeave={e => (e.currentTarget as HTMLElement).style.borderColor = `${accent}22`}
+      onMouseLeave={e => {
+        ;(e.currentTarget as HTMLElement).style.borderColor = `${accent}22`
+        ;(e.currentTarget as HTMLElement).style.background  = `${accent}0d`
+      }}
     >
-      {/* glow */}
-      <div className="absolute -top-6 -right-6 w-28 h-28 rounded-full opacity-10 blur-2xl pointer-events-none"
-           style={{ background: accent }} />
-      <div className="flex items-start justify-between gap-2">
-        <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
-             style={{ background: `${accent}20`, border: `1px solid ${accent}30`, color: accent }}>
-          {icon}
-        </div>
-        {badge && (
-          <span className="text-2xs font-bold px-2 py-0.5 rounded-full uppercase tracking-wide"
-                style={{ background: `${accent}20`, color: accent, border: `1px solid ${accent}30` }}>
-            {badge}
-          </span>
-        )}
+      <div className="w-10 h-10 rounded-xl shrink-0 flex items-center justify-center"
+           style={{ background: `${accent}18`, color: accent }}>
+        {icon}
       </div>
-      <div>
-        <p className="font-bold text-sm text-text-primary">{title}</p>
-        <p className="text-xs text-text-muted mt-0.5 leading-relaxed">{description}</p>
+      <div className="min-w-0">
+        <p className="text-sm font-semibold text-text-primary">{label}</p>
+        <p className="text-xs text-text-muted truncate mt-0.5">{sub}</p>
       </div>
-      <div className="flex items-center gap-1 mt-auto" style={{ color: accent }}>
-        <span className="text-xs font-semibold">Open</span>
-        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-          <polyline points="9 18 15 12 9 6" />
-        </svg>
-      </div>
-    </div>
+      <svg className="w-4 h-4 shrink-0 ml-auto opacity-30" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <polyline points="9 18 15 12 9 6" />
+      </svg>
+    </button>
   )
 }
 
