@@ -27,6 +27,23 @@
 
   /* Smooth scrolling */
   html { scroll-behavior: smooth; }
+
+  /* ── Mobile touch optimizations ── */
+  /* Remove tap flash on iOS/Android */
+  * { -webkit-tap-highlight-color: transparent; }
+
+  /* Prevent double-tap zoom on buttons/links; keeps single-tap fast */
+  button, a, [role="button"], input, select, textarea {
+    touch-action: manipulation;
+  }
+
+  /* Prevent rubber-band overscroll on the root */
+  body { overscroll-behavior: none; }
+
+  /* Momentum scrolling for scroll containers */
+  .overflow-auto, .overflow-y-auto, .overflow-x-auto, .overflow-scroll {
+    -webkit-overflow-scrolling: touch;
+  }
 }
 
 @layer components {

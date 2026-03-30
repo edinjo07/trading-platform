@@ -130,7 +130,7 @@ export default function DashboardPage() {
   const recentOrders = orders.slice(0, 5)
 
   return (
-    <div className="space-y-7">
+    <div className="space-y-4 sm:space-y-6">
 
       {/* ── KYC Verification Banner ───────────────────────────────────────── */}
       {kycStatus === 'unverified' && (
@@ -178,10 +178,10 @@ export default function DashboardPage() {
       {/* ── Greeting + status ────────────────────────────────────────────── */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-2xl font-bold text-text-primary">
+          <h1 className="text-xl sm:text-2xl font-bold text-text-primary">
             {greet()}, <span className="gradient-text">{user?.username ?? 'Trader'}</span>
           </h1>
-          <p className="text-text-muted text-sm mt-1">
+          <p className="text-text-muted text-xs sm:text-sm mt-1">
             {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
             {' · '}{user?.accountMode === 'real' ? 'Live Trading Account' : 'Demo Account'}
           </p>
@@ -205,7 +205,7 @@ export default function DashboardPage() {
       {/* ── Account Overview ──────────────────────────────────────────────── */}
       <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(135deg,#0c2245 0%,#0a1830 50%,#060e1c 100%)', border: '1px solid rgba(14,165,233,0.18)' }}>
         {/* top stripe */}
-        <div className="px-6 py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+        <div className="px-4 py-4 sm:px-6 sm:py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
           <div>
             <p className="text-xs font-bold uppercase tracking-widest text-text-muted mb-1">Account Overview</p>
             <p className="text-4xl font-bold font-mono text-white tabular">{formatCurrency(equity)}</p>
@@ -240,7 +240,7 @@ export default function DashboardPage() {
             { l: 'Unrealised P&L', v: (upnl >= 0 ? '+' : '') + formatCurrency(upnl), c: upnl >= 0 ? 'text-bull' : 'text-bear' },
             { l: 'Realised P&L',   v: (rpnl >= 0 ? '+' : '') + formatCurrency(rpnl), c: rpnl >= 0 ? 'text-bull' : 'text-bear' },
           ].map(r => (
-            <div key={r.l} className="px-5 py-4">
+            <div key={r.l} className="px-3 py-3 sm:px-5 sm:py-4">
               <p className="text-xs text-text-muted mb-1">{r.l}</p>
               <p className={`text-lg font-bold font-mono tabular ${r.c}`}>{r.v}</p>
             </div>
@@ -366,25 +366,23 @@ export default function DashboardPage() {
             <table className="w-full text-left">
               <thead style={{ background: 'rgba(255,255,255,0.02)', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
                 <tr>
-                  {['Side','Symbol','Type','Size','Price','Status','Time'].map((h,i) => (
-                    <th key={h} className={`py-2.5 px-4 text-xs font-semibold uppercase tracking-wider text-text-muted ${i > 1 ? 'text-right' : ''}`}>{h}</th>
+                  {[['Side',''],['Symbol',''],['Type','hidden sm:table-cell text-right'],['Size','hidden sm:table-cell text-right'],['Price','text-right'],['Status','text-right'],['Time','text-right']].map(([h,cls]) => (
+                    <th key={h} className={`py-2.5 px-3 sm:px-4 text-xs font-semibold uppercase tracking-wider text-text-muted ${cls}`}>{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {recentOrders.map((o: any) => (
                   <tr key={o.id} className="hover:bg-white/5 transition-colors" style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                    <td className="py-3 px-4">
-                      <span className={`text-xs font-bold px-2 py-0.5 rounded ${o.side === 'buy' ? 'bg-bull-muted text-bull' : 'bg-bear-muted text-bear'}`}>
+                    <td className="py-3 px-3 sm:px-4"> ? 'bg-bull-muted text-bull' : 'bg-bear-muted text-bear'}`}>
                         {o.side.toUpperCase()}
                       </span>
                     </td>
-                    <td className="py-3 px-4 font-mono font-semibold text-sm text-text-primary">{o.symbol}</td>
-                    <td className="py-3 px-4 text-xs text-text-muted text-right">{o.type}</td>
-                    <td className="py-3 px-4 font-mono text-xs text-text-secondary text-right">{o.quantity}</td>
-                    <td className="py-3 px-4 font-mono text-xs text-text-secondary text-right">{o.price ? formatPrice(o.price, o.symbol) : 'Market'}</td>
-                    <td className="py-3 px-4 text-right">
-                      <span className="text-xs px-1.5 py-0.5 rounded font-semibold"
+                    <td className="py-3 px-3 sm:px-4 font-mono font-semibold text-sm text-text-primary">{o.symbol}</td>
+                    <td className="py-3 px-3 sm:px-4 text-xs text-text-muted text-right hidden sm:table-cell">{o.type}</td>
+                    <td className="py-3 px-3 sm:px-4 font-mono text-xs text-text-secondary text-right hidden sm:table-cell">{o.quantity}</td>
+                    <td className="py-3 px-3 sm:px-4 font-mono text-xs text-text-secondary text-right">{o.price ? formatPrice(o.price, o.symbol) : 'Market'}</td>
+                    <td className="py-3 px-3 sm:px-4 text-right">
                             style={{
                               background: o.status === 'filled' ? 'rgba(0,200,120,0.1)' : o.status === 'open' ? 'rgba(14,165,233,0.1)' : 'rgba(107,128,153,0.1)',
                               color: o.status === 'filled' ? '#00c878' : o.status === 'open' ? '#38bdf8' : '#6b8099',
@@ -392,7 +390,7 @@ export default function DashboardPage() {
                         {o.status}
                       </span>
                     </td>
-                    <td className="py-3 px-4 text-xs text-text-muted text-right">
+                    <td className="py-3 px-3 sm:px-4 text-xs text-text-muted text-right">
                       {new Date(o.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </td>
                   </tr>
@@ -406,7 +404,7 @@ export default function DashboardPage() {
       {/* ── Explore More Tools ────────────────────────────────────────────────────────────────── */}
       <div>
         <p className="text-xs font-bold uppercase tracking-widest text-text-muted mb-3">More Tools</p>
-        <div className="grid grid-cols-3 sm:grid-cols-6 gap-2.5">
+        <div className="grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-6 gap-2">
           {[
             { label: 'TradePilot', sub: 'AI Bots',        accent: '#8b5cf6', path: '/dashboard/bots',               icon: <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M9 11V7a3 3 0 016 0v4"/><circle cx="9" cy="16" r="1" fill="currentColor"/><circle cx="15" cy="16" r="1" fill="currentColor"/><path d="M12 2v2"/></svg> },
             { label: 'Scanner',    sub: 'Market scan',    accent: '#f59e0b', path: '/dashboard/scanner',            icon: <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg> },

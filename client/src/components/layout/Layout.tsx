@@ -59,38 +59,67 @@ export default function Layout() {
       {/* ── Main column ── */}
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
         <Header onMenuClick={() => setMobileOpen(o => !o)} />
-        <main className="flex-1 overflow-auto pb-16 lg:pb-0" style={{ background: '#06090f' }}>
-          <div className="p-3 sm:p-4 h-full">
+        <main className="flex-1 overflow-auto" style={{ background: '#06090f', paddingBottom: 'calc(env(safe-area-inset-bottom) + 64px)' }}>
+          <div className="p-3 sm:p-5 lg:pb-4 min-h-full">
             <Outlet />
           </div>
         </main>
       </div>
 
-      {/* ── Bottom nav (mobile only) ── */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-30 flex items-stretch"
-           style={{ background: '#080e1a', borderTop: '1px solid rgba(255,255,255,0.07)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
+      {/* ── Bottom nav (mobile / tablet only) ── */}
+      <nav
+        className="lg:hidden fixed bottom-0 left-0 right-0 z-30 flex items-stretch"
+        style={{
+          background: 'rgba(7,12,24,0.96)',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+          borderTop: '1px solid rgba(255,255,255,0.07)',
+          paddingBottom: 'env(safe-area-inset-bottom)',
+        }}
+      >
         {BOTTOM_NAV.map(item => (
           <NavLink
             key={item.path}
             to={item.path}
             end={item.end}
             onClick={closeMobile}
-            className={({ isActive }) =>
-              `flex-1 flex flex-col items-center justify-center gap-0.5 py-2.5 text-[10px] font-semibold transition-colors ${
-                isActive ? 'text-brand-300' : 'text-text-muted'
-              }`
-            }
+            className="flex-1 flex flex-col items-center justify-center gap-0.5 pt-2 pb-1.5 min-h-[56px] relative"
+            style={{ WebkitTapHighlightColor: 'transparent' }}
           >
             {({ isActive }) => (
               <>
-                <span style={isActive ? { color: '#38bdf8', filter: 'drop-shadow(0 0 6px rgba(56,189,248,0.5))' } : {}}>
+                {/* active pill indicator */}
+                {isActive && (
+                  <span
+                    className="absolute top-0 left-1/2 -translate-x-1/2 rounded-full"
+                    style={{ width: 28, height: 3, background: '#38bdf8', boxShadow: '0 0 8px rgba(56,189,248,0.7)', borderRadius: '0 0 4px 4px' }}
+                  />
+                )}
+                <span style={isActive ? { color: '#38bdf8', filter: 'drop-shadow(0 0 5px rgba(56,189,248,0.45))' } : { color: 'rgba(148,163,184,0.55)' }}>
                   {item.icon}
                 </span>
-                <span>{item.label}</span>
+                <span
+                  className="text-[10px] font-semibold tracking-tight"
+                  style={{ color: isActive ? '#38bdf8' : 'rgba(148,163,184,0.45)' }}
+                >
+                  {item.label}
+                </span>
               </>
             )}
           </NavLink>
         ))}
+
+        {/* "More" button opens the sidebar drawer */}
+        <button
+          onClick={() => setMobileOpen(o => !o)}
+          className="flex-1 flex flex-col items-center justify-center gap-0.5 pt-2 pb-1.5 min-h-[56px]"
+          style={{ color: 'rgba(148,163,184,0.55)', WebkitTapHighlightColor: 'transparent' }}
+        >
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+            <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="15" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
+          </svg>
+          <span className="text-[10px] font-semibold tracking-tight">More</span>
+        </button>
       </nav>
     </div>
   )

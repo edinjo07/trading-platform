@@ -164,8 +164,9 @@ export default function Header({ onMenuClick }: HeaderProps) {
         </div>
 
         {showSearch && (
-          <div className="absolute top-full left-0 mt-1.5 w-80 rounded-xl overflow-hidden z-50 animate-fadeUp flex flex-col"
-               style={{ background: '#0c1420', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 16px 48px rgba(0,0,0,0.6)', maxHeight: '520px' }}>
+          <div
+            className="fixed sm:absolute top-[56px] sm:top-full left-0 sm:left-0 right-0 sm:right-auto mt-0 sm:mt-1.5 sm:w-80 rounded-none sm:rounded-xl overflow-hidden z-50 flex flex-col"
+            style={{ background: '#0c1420', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 16px 48px rgba(0,0,0,0.6)', maxHeight: 'calc(100dvh - 56px)', minHeight: '0' }}>
             {/* Search input */}
             <div className="p-2.5 border-b border-white/[0.05] shrink-0">
               <div className="flex items-center gap-2 px-2 py-1.5 rounded-lg" style={{ background: 'rgba(255,255,255,0.05)' }}>
@@ -266,7 +267,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
 
       {/* ── Ticker info strip ── */}
       {ticker ? (
-        <div className="flex items-center gap-4 text-xs font-mono overflow-hidden">
+        <div className="hidden sm:flex items-center gap-3 text-xs font-mono overflow-hidden">
           <span className="text-text-primary font-semibold text-base shrink-0">
             {formatPrice(ticker.price, selectedSymbol)}
           </span>
@@ -289,8 +290,8 @@ export default function Header({ onMenuClick }: HeaderProps) {
           ))}
         </div>
       ) : (
-        <div className="flex gap-2">
-          {[48, 32, 32, 28, 28].map((w, i) => (
+        <div className="hidden sm:flex gap-2">
+          {[48, 32, 32].map((w, i) => (
             <div key={i} className="h-4 rounded animate-pulse" style={{ width: `${w}px`, background: 'rgba(255,255,255,0.05)' }} />
           ))}
         </div>
@@ -332,8 +333,8 @@ export default function Header({ onMenuClick }: HeaderProps) {
           <span className="text-text-primary font-mono font-semibold">{formatCurrency(portfolio?.cashBalance ?? user?.balance ?? 0)}</span>
         </div>
 
-        {/* ── More dropdown ── */}
-        <div ref={moreRef} className="relative">
+        {/* ── More dropdown (desktop/tablet only — mobile uses sidebar) ── */}
+        <div ref={moreRef} className="relative hidden sm:block">
           <button
             onClick={() => setShowMore(s => !s)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
