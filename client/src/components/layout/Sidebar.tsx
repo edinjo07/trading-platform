@@ -179,8 +179,8 @@ export default function Sidebar({ mobileOpen, onClose }: SidebarProps) {
         </NavLink>
       </div>
 
-      {/* ── Navigation ── */}
-      <nav className="flex flex-col px-2 mt-2 shrink-0">
+      {/* ── Navigation + Watchlist (scrollable) ── */}
+      <nav className="flex flex-col px-2 mt-2 flex-1 overflow-y-auto min-h-0 pb-2">
         {NAV_GROUPS.map((group, gi) => (
           <div key={gi}>
             {gi > 0 && (
@@ -254,57 +254,57 @@ export default function Sidebar({ mobileOpen, onClose }: SidebarProps) {
             </NavLink>
           ))}
         </div>
-      </nav>
 
-      {/* ── Watchlist (scrollable middle area) ── */}
-      {!collapsed && (
-        <div className="mt-3 flex-1 overflow-y-auto px-2 min-h-0 pb-2">
-          <div className="flex items-center justify-between mb-1.5 px-1">
-            <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'rgba(100,130,160,0.55)' }}>Watchlist</span>
-            <span className="text-[10px]" style={{ color: 'rgba(100,130,160,0.55)' }}>{WATCHLIST.length}</span>
-          </div>
-          <div className="flex flex-col gap-px">
-            {WATCHLIST.map(sym => {
-              const ticker: Ticker | undefined = tickers[sym]
-              const symInfo = symbols.find(s => s.symbol === sym)
-              const isSelected = selectedSymbol === sym
-              const isUp = (ticker?.changePercent ?? 0) >= 0
-              return (
-                <button
-                  key={sym}
-                  onClick={() => handleSymbolClick(sym)}
-                  className={`flex items-center justify-between px-2.5 py-2 rounded-lg text-left w-full transition-all
-                    ${isSelected ? 'text-white' : 'text-text-secondary hover:text-text-primary'}`}
-                  style={isSelected
-                    ? { background: 'rgba(14,165,233,0.08)', border: '1px solid rgba(14,165,233,0.15)' }
-                    : { border: '1px solid transparent' }
-                  }
-                >
-                  <div className="min-w-0">
-                    <div className="font-mono font-semibold text-[11px] text-text-primary truncate">{sym}</div>
-                    {symInfo && (
-                      <div className="text-[9px] font-semibold mt-0.5"
-                           style={{ color: ASSET_COLOR[symInfo.assetClass] ?? '#6b8099' }}>
-                        {symInfo.assetClass.toUpperCase()}
-                      </div>
-                    )}
-                  </div>
-                  {ticker ? (
-                    <div className="text-right shrink-0 ml-2">
-                      <div className="font-mono text-[11px] text-text-primary">{formatPrice(ticker.price, sym)}</div>
-                      <div className={`text-[10px] font-semibold ${isUp ? 'text-bull' : 'text-bear'}`}>
-                        {isUp ? '+' : ''}{ticker.changePercent.toFixed(2)}%
-                      </div>
+        {/* ── Watchlist ── */}
+        {!collapsed && (
+          <div className="mt-3 px-0 pb-2">
+            <div className="flex items-center justify-between mb-1.5 px-1">
+              <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'rgba(100,130,160,0.55)' }}>Watchlist</span>
+              <span className="text-[10px]" style={{ color: 'rgba(100,130,160,0.55)' }}>{WATCHLIST.length}</span>
+            </div>
+            <div className="flex flex-col gap-px">
+              {WATCHLIST.map(sym => {
+                const ticker: Ticker | undefined = tickers[sym]
+                const symInfo = symbols.find(s => s.symbol === sym)
+                const isSelected = selectedSymbol === sym
+                const isUp = (ticker?.changePercent ?? 0) >= 0
+                return (
+                  <button
+                    key={sym}
+                    onClick={() => handleSymbolClick(sym)}
+                    className={`flex items-center justify-between px-2.5 py-2 rounded-lg text-left w-full transition-all
+                      ${isSelected ? 'text-white' : 'text-text-secondary hover:text-text-primary'}`}
+                    style={isSelected
+                      ? { background: 'rgba(14,165,233,0.08)', border: '1px solid rgba(14,165,233,0.15)' }
+                      : { border: '1px solid transparent' }
+                    }
+                  >
+                    <div className="min-w-0">
+                      <div className="font-mono font-semibold text-[11px] text-text-primary truncate">{sym}</div>
+                      {symInfo && (
+                        <div className="text-[9px] font-semibold mt-0.5"
+                             style={{ color: ASSET_COLOR[symInfo.assetClass] ?? '#6b8099' }}>
+                          {symInfo.assetClass.toUpperCase()}
+                        </div>
+                      )}
                     </div>
-                  ) : (
-                    <div className="w-12 h-4 rounded animate-pulse" style={{ background: 'rgba(255,255,255,0.05)' }} />
-                  )}
-                </button>
-              )
-            })}
+                    {ticker ? (
+                      <div className="text-right shrink-0 ml-2">
+                        <div className="font-mono text-[11px] text-text-primary">{formatPrice(ticker.price, sym)}</div>
+                        <div className={`text-[10px] font-semibold ${isUp ? 'text-bull' : 'text-bear'}`}>
+                          {isUp ? '+' : ''}{ticker.changePercent.toFixed(2)}%
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="w-12 h-4 rounded animate-pulse" style={{ background: 'rgba(255,255,255,0.05)' }} />
+                    )}
+                  </button>
+                )
+              })}
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </nav>
 
       {/* ── User footer ── */}
       <div className="shrink-0 px-2 py-3" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
