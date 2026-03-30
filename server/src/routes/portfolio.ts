@@ -74,5 +74,3 @@ router.get('/', async (req: AuthRequest, res: Response) => {
 })
 
 export default router
-
-export default router
