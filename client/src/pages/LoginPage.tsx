@@ -134,7 +134,7 @@ export default function LoginPage() {
           <p className="text-text-secondary text-sm mb-8">
             {mode === 'login'
               ? 'Sign in to access your trading account'
-              : 'Start trading with a $100,000 demo account. No risk, real platform.'}
+              : 'Open your live account and start trading 159+ instruments today.'}
           </p>
 
           {/* Mode toggle */}
@@ -269,23 +269,10 @@ export default function LoginPage() {
                     <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
                     Please wait...
                   </span>
-                : mode === 'login' ? 'Sign In to TradeX' : 'Create Free Account'
+                : mode === 'login' ? 'Sign In to TradeX' : 'Open Live Account'
               }
             </button>
           </form>
-
-          {/* Demo hint */}
-          {mode === 'login' && (
-            <div className="mt-5 rounded-lg px-4 py-3 text-center"
-                 style={{ background: 'rgba(14,165,233,0.06)', border: '1px solid rgba(14,165,233,0.12)' }}>
-              <p className="text-2xs text-text-secondary">
-                <span className="text-brand-400 font-medium">Demo:</span> register any email + password
-              </p>
-              <p className="text-2xs text-text-secondary mt-0.5">
-                Virtual balance: <span className="font-mono text-white font-semibold">$100,000.00</span>
-              </p>
-            </div>
-          )}
 
           <p className="mt-6 text-center text-2xs text-text-muted">
             By continuing you agree to our{' '}
