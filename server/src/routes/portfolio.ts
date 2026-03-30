@@ -55,6 +55,17 @@ router.get('/', async (req: AuthRequest, res: Response) => {
       // real balance, then refresh position prices before responding.
       portfolios.set(userId, dbPortfolio)
       const fresh = refreshPortfolio(dbPortfolio)
+
+      // If the recalculated equity differs from what's stored (e.g. stale DB
+      // value from a previous leverage-inflation bug), write it back now so the
+      // client-side staleness guard never blocks the corrected value.
+      const storedEquity = dbPortfolio.totalEquity
+      if (Math.abs(storedEquity - fresh.totalEquity) > 0.01) {
+        dbSavePortfolio(userId, fresh).catch((e: unknown) =>
+          console.error('[Portfolio] equity correction save failed:', e)
+        )
+      }
+
       return res.json(fresh)
     }
 

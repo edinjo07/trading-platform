@@ -148,8 +148,13 @@ export const useTradingStore = create<TradingState>((set, get) => ({
           if (!incoming.updatedAt && current.updatedAt) return
 
           // Guard 3: incoming is older than what we already have.
+          // Exception: always accept if the incoming equity is lower (could be a
+          // correction of an inflated stale value) — the equity field is
+          // recalculated server-side on every request so it is always authoritative
+          // even when the DB timestamp hasn't changed yet.
           if (incoming.updatedAt && current.updatedAt) {
-            if (incoming.updatedAt < current.updatedAt) return
+            const equityDecreased = incoming.totalEquity < current.totalEquity - 0.01
+            if (!equityDecreased && incoming.updatedAt < current.updatedAt) return
           }
 
           // Guard 4: incoming claims no open positions but market value says
