@@ -169,8 +169,9 @@ export function getPortfolio(userId: string): Portfolio {
 }
 
 export function refreshPortfolio(p: Portfolio): Portfolio {
-  let marketValue = 0
-  let unrealizedPnl = 0
+  let marketValue      = 0   // full notional (display only)
+  let unrealizedPnl    = 0
+  let equityFromPos    = 0   // margin locked in positions + unrealised P&L
 
   p.positions = p.positions.map(pos => {
     const currentPrice = getLivePrice(pos.symbol)
@@ -179,8 +180,12 @@ export function refreshPortfolio(p: Portfolio): Portfolio {
     const upnl         = (currentPrice - pos.avgCost) * pos.quantity * (pos.side === 'short' ? -1 : 1)
     const upnlPct      = posMargin > 0 ? (upnl / posMargin) * 100 : 0
     const mv           = pos.quantity * currentPrice
-    marketValue  += mv
+    marketValue   += mv
     unrealizedPnl += upnl
+    // Equity contribution = margin posted + unrealised P&L on that position.
+    // For L=1 this equals marketValue (same as before).
+    // For L>1 this prevents phantom equity inflation from unlocked notional.
+    equityFromPos += posMargin + upnl
     return {
       ...pos,
       currentPrice,
@@ -193,8 +198,9 @@ export function refreshPortfolio(p: Portfolio): Portfolio {
 
   const prevEquity = p.totalEquity
   p.totalMarketValue = parseFloat(marketValue.toFixed(2))
-  p.unrealizedPnl = parseFloat(unrealizedPnl.toFixed(2))
-  p.totalEquity = parseFloat((p.cashBalance + marketValue).toFixed(2))
+  p.unrealizedPnl    = parseFloat(unrealizedPnl.toFixed(2))
+  // Correct equity: cash on hand + margin in positions + unrealised P&L
+  p.totalEquity = parseFloat((p.cashBalance + equityFromPos).toFixed(2))
 
   // Track peak equity and drawdown
   if (!p.peakEquity || p.totalEquity > p.peakEquity) {
