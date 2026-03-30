@@ -32,7 +32,7 @@ export async function dbEnsureUser(
   userId: string,
   email: string,
   username?: string,
-  accountMode: AccountMode = 'demo',
+  accountMode: AccountMode = 'real',
   currency: Currency = 'USD',
 ): Promise<void> {
   const safeEmail    = email    || `${userId}@unknown.invalid`

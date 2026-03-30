@@ -225,10 +225,12 @@ export const useTradingStore = create<TradingState>((set, get) => ({
                 currentPrice: order.avgFillPrice, marketValue: newQty * order.avgFillPrice,
                 unrealizedPnl: 0, unrealizedPnlPercent: 0 }
             } else {
+              const orderLev = order.leverage ?? 1
+              const orderMargin = parseFloat((qty * order.avgFillPrice / orderLev).toFixed(2))
               newPositions.push({ symbol: order.symbol, quantity: qty, avgCost: order.avgFillPrice,
                 currentPrice: order.avgFillPrice, marketValue: qty * order.avgFillPrice,
                 unrealizedPnl: 0, unrealizedPnlPercent: 0, side: 'long', openedAt: new Date().toISOString(),
-                leverage: 1, margin: qty * order.avgFillPrice, notionalValue: qty * order.avgFillPrice })
+                leverage: orderLev, margin: orderMargin, notionalValue: qty * order.avgFillPrice })
             }
           } else if (order.side === 'sell') {
             const existingIdx = newPositions.findIndex(p => p.symbol === order.symbol && p.side === 'long')
@@ -242,12 +244,18 @@ export const useTradingStore = create<TradingState>((set, get) => ({
           }
 
           const newMarketValue = parseFloat(newPositions.reduce((s, p) => s + p.marketValue, 0).toFixed(2))
+          // equity = cash + Σ(margin locked in each position) + unrealised P&L
+          // Using margin (not full notional) prevents inflation on leveraged positions.
+          const equityFromPositions = parseFloat(newPositions.reduce((s, p) => {
+            const m = p.margin ?? p.marketValue  // margin field is set for leveraged; fallback to marketValue for L=1
+            return s + m + (p.unrealizedPnl ?? 0)
+          }, 0).toFixed(2))
           set({
             portfolio: {
               ...current,
               cashBalance:      newCash,
               totalMarketValue: newMarketValue,
-              totalEquity:      parseFloat((newCash + newMarketValue).toFixed(2)),
+              totalEquity:      parseFloat((newCash + equityFromPositions).toFixed(2)),
               positions:        newPositions,
               // Stamp client-side updatedAt so loadPortfolio Guards 1 & 2 protect
               // this optimistic state from being overwritten by the cold-start
@@ -279,13 +287,17 @@ export const useTradingStore = create<TradingState>((set, get) => ({
                 (!incoming.positions || incoming.positions.length === 0) &&
                 (currentPortfolio?.positions ?? []).length > 0
               if (serverMissingPositions && currentPortfolio) {
+                // equity = cash + Σ(margin + unrealisedPnl) to avoid notional inflation
+                const eqFromKnownPos = currentPortfolio.positions.reduce((s, p) => {
+                  const m = p.margin ?? p.marketValue
+                  return s + m + (p.unrealizedPnl ?? 0)
+                }, 0)
                 set({
                   portfolio: {
                     ...incoming,
                     positions:        currentPortfolio.positions,
                     totalMarketValue: currentPortfolio.totalMarketValue,
-                    // Recalculate equity from DB cash + our known market value
-                    totalEquity: parseFloat((incoming.cashBalance + currentPortfolio.totalMarketValue).toFixed(2)),
+                    totalEquity: parseFloat((incoming.cashBalance + eqFromKnownPos).toFixed(2)),
                     unrealizedPnl: currentPortfolio.unrealizedPnl,
                   }
                 })
