@@ -79,7 +79,6 @@ const DISCOVER_ITEMS = [
   { path: '/dashboard/web-tv',            label: 'Web TV',            icon: Icon.tv         },
   { path: '/dashboard/blog',              label: 'Blog & News',       icon: Icon.blog       },
   { path: '/dashboard/trading-scams',     label: 'Scam Awareness',    icon: Icon.warning    },
-  { path: '/dashboard/profile',           label: 'Profile Settings',  icon: Icon.profile    },
 ]
 
 const WATCHLIST = ['BTCUSD', 'ETHUSD', 'SOLUSD', 'AAPL', 'NVDA', 'EURUSD', 'TSLA', 'MSFT']
@@ -92,11 +91,25 @@ interface SidebarProps {
 
 export default function Sidebar({ mobileOpen, onClose }: SidebarProps) {
   const { tickers, symbols, selectedSymbol, setSelectedSymbol } = useTradingStore()
-  const { user, logout } = useAuthStore()
+  const { user, logout, setAccountMode } = useAuthStore()
   const navigate = useNavigate()
   const [collapsed, setCollapsed] = useState(false)
   const [discoverOpen, setDiscoverOpen] = useState(false)
+  const [profileOpen, setProfileOpen] = useState(false)
+  const profileRef = React.useRef<HTMLDivElement>(null)
   const kycStatus = getKYCStatus()
+
+  // Close dropdown when clicking outside
+  React.useEffect(() => {
+    if (!profileOpen) return
+    const handler = (e: MouseEvent) => {
+      if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
+        setProfileOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [profileOpen])
 
   const handleSymbolClick = (sym: string) => {
     setSelectedSymbol(sym)
@@ -306,41 +319,106 @@ export default function Sidebar({ mobileOpen, onClose }: SidebarProps) {
         )}
       </nav>
 
-      {/* ── User footer ── */}
-      <div className="shrink-0 px-2 py-3" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+      {/* ── User footer / profile dropdown ── */}
+      <div ref={profileRef} className="shrink-0 px-2 py-3 relative" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+
+        {/* Dropdown menu — opens upward */}
+        {profileOpen && (
+          <div
+            className="absolute left-2 right-2 bottom-full mb-2 z-50 rounded-xl overflow-hidden shadow-2xl"
+            style={{ background: '#0f1729', border: '1px solid rgba(255,255,255,0.1)' }}
+          >
+            {/* Header row */}
+            <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+              <div className="text-sm font-semibold text-text-primary truncate">{user?.username}</div>
+              <div className="text-xs text-text-muted truncate">{user?.email}</div>
+            </div>
+
+            {/* Nav items */}
+            {[
+              { label: 'Profile',         path: '/dashboard/profile', icon: <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg> },
+              { label: 'Account',         path: '/dashboard/profile?tab=account', icon: <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/></svg> },
+              { label: 'Security',        path: '/dashboard/profile?tab=security', icon: <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path d="M12 2L4 6v6c0 5.25 3.5 10.15 8 11.5C16.5 22.15 20 17.25 20 12V6L12 2z"/></svg> },
+              { label: 'Settings',        path: '/dashboard/profile?tab=settings', icon: <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg> },
+              { label: 'KYC Verification', path: '/dashboard/kyc', icon: <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg> },
+            ].map(item => (
+              <button
+                key={item.label}
+                onClick={() => { navigate(item.path); setProfileOpen(false); onClose() }}
+                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-text-secondary hover:text-text-primary hover:bg-white/[0.04] transition-colors text-left"
+              >
+                <span className="shrink-0 text-text-muted">{item.icon}</span>
+                {item.label}
+              </button>
+            ))}
+
+            {/* Mode switcher */}
+            <div className="px-4 py-3" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+              <div className="text-[10px] uppercase tracking-widest text-text-muted mb-2">Account Mode</div>
+              <div className="flex gap-2">
+                {(['demo', 'real'] as const).map(m => (
+                  <button
+                    key={m}
+                    onClick={() => { setAccountMode(m); setProfileOpen(false) }}
+                    className="flex-1 py-1.5 rounded-lg text-xs font-semibold transition-all"
+                    style={user?.accountMode === m
+                      ? { background: m === 'real' ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.15)', color: m === 'real' ? '#10b981' : '#f59e0b', border: `1px solid ${m === 'real' ? 'rgba(16,185,129,0.3)' : 'rgba(245,158,11,0.3)'}` }
+                      : { background: 'rgba(255,255,255,0.04)', color: '#6b8099', border: '1px solid rgba(255,255,255,0.07)' }}
+                  >
+                    {m === 'real' ? 'Live' : 'Demo'}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Sign out */}
+            <button
+              onClick={() => { logout(); setProfileOpen(false) }}
+              className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-bear hover:bg-white/[0.03] transition-colors"
+              style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}
+            >
+              {Icon.logout}
+              Sign Out
+            </button>
+          </div>
+        )}
+
+        {/* Trigger button */}
         {!collapsed ? (
-          <div className="flex items-center gap-2.5 px-2 py-2 rounded-lg"
-               style={{ background: 'rgba(255,255,255,0.025)' }}>
+          <button
+            onClick={() => setProfileOpen(o => !o)}
+            className="w-full flex items-center gap-2.5 px-2 py-2 rounded-lg transition-colors hover:bg-white/[0.04]"
+            style={{ background: profileOpen ? 'rgba(14,165,233,0.08)' : 'rgba(255,255,255,0.025)' }}
+          >
             <div className="w-7 h-7 rounded-full shrink-0 flex items-center justify-center text-xs font-bold text-white"
                  style={{ background: 'linear-gradient(135deg,#0ea5e9,#0369a1)' }}>
               {user?.username?.[0]?.toUpperCase() ?? 'U'}
             </div>
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0 text-left">
               <div className="text-xs font-semibold text-text-primary truncate">{user?.username}</div>
               <div className="flex items-center gap-1 mt-0.5">
                 <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${user?.accountMode === 'real' ? 'bg-bull' : 'bg-amber-400'}`} />
                 <span className="text-[10px] text-text-secondary">
-                  {user?.accountMode === 'real' ? 'Real Account' : 'Demo Account'}
+                  {user?.accountMode === 'real' ? 'Live' : 'Demo'}
                 </span>
               </div>
             </div>
-            <button onClick={logout} title="Sign out"
-              className="shrink-0 text-text-muted hover:text-bear transition-colors p-1">
-              {Icon.logout}
-            </button>
-          </div>
-        ) : (
-          <button onClick={logout} title="Sign out"
-            className="w-full flex items-center justify-center py-2 text-text-muted hover:text-bear transition-colors">
-            {Icon.logout}
-          </button>
-        )}
-        {!collapsed && (
-          <div className="mt-1.5 px-2">
-            <span className="text-[10px] font-mono" style={{ color: 'rgba(100,130,160,0.65)' }}>
-              Balance: <span className="text-text-primary">{formatCurrency(user?.balance ?? 0, 2, user?.currency ?? 'USD')}</span>
+            <span className="shrink-0 text-text-muted transition-transform" style={{ transform: profileOpen ? 'rotate(180deg)' : 'none' }}>
+              {Icon.chevronDown}
             </span>
-          </div>
+          </button>
+        ) : (
+          <button
+            onClick={() => setProfileOpen(o => !o)}
+            title={user?.username ?? 'Profile'}
+            className="w-full flex items-center justify-center py-1.5 rounded-lg transition-colors"
+            style={{ background: profileOpen ? 'rgba(14,165,233,0.1)' : undefined }}
+          >
+            <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white"
+                 style={{ background: 'linear-gradient(135deg,#0ea5e9,#0369a1)' }}>
+              {user?.username?.[0]?.toUpperCase() ?? 'U'}
+            </div>
+          </button>
         )}
       </div>
     </aside>

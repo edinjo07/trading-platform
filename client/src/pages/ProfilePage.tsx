@@ -1,4 +1,5 @@
 ﻿import React, { useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
 import { useTradingStore } from '../store/tradingStore'
 import { formatCurrency } from '../utils/formatters'
@@ -187,7 +188,9 @@ export default function ProfilePage() {
   const { user, setAccountMode, setCurrency } = useAuthStore()
   const { portfolio, performanceStats } = useTradingStore()
 
-  const [tab, setTab] = useState<Tab>('profile')
+  const [searchParams] = useSearchParams()
+  const initialTab = (['profile','account','security','settings'] as Tab[]).find(t => t === searchParams.get('tab')) ?? 'profile'
+  const [tab, setTab] = useState<Tab>(initialTab)
   const [toast, setToast] = useState<{ msg: string; type: 'ok' | 'err' } | null>(null)
 
   // Avatar gradient picker
