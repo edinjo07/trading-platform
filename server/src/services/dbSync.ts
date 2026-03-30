@@ -223,107 +223,146 @@ export async function dbLoadPortfolio(userId: string): Promise<Portfolio | null>
   })
 }
 
-// ─── Rebuild positions from order history ────────────────────────────────────
+// ─── Ground-truth portfolio recalculation from order history ─────────────────
 //
-// Called when the portfolios.positions JSONB blob is empty but the portfolio's
-// totalMarketValue > cashBalance, indicating positions exist but weren't saved.
-// Processes filled orders chronologically to compute net open positions and
-// their average cost, ready for refreshPortfolio() to add live prices.
+// Replays every filled order chronologically to produce the definitive
+// cashBalance, open positions (with correct leverage/margin), and realised P&L.
+// Starting balance is always $100,000 — no stale DB portfolio data is used.
+//
+// This is the ONLY source of truth for portfolio equity; it eliminates the
+// class of bugs where the DB positions JSONB blob is missing leverage/margin
+// fields (causing posMargin to fall back to full notional and inflating equity).
+//
+export function recalculateFromOrders(orders: Order[]): {
+  cashBalance: number
+  positions:   Position[]
+  realizedPnl: number
+} {
+  const STARTING_BALANCE = 100_000
 
-export function rebuildPositionsFromOrders(orders: Order[]): Position[] {
-  interface PosEntry {
+  interface NetPos {
     symbol:    string
     side:      'long' | 'short'
     quantity:  number
-    totalCost: number  // qty * avgFillPrice (running sum for avg-cost calc)
+    totalCost: number   // Σ(qty * fillPrice) for the still-open portion
     openedAt:  string
     leverage:  number
-    margin:    number  // cash locked up (totalCost / leverage)
+    margin:    number   // cash posted ( = totalCost / leverage )
   }
 
-  const posMap = new Map<string, PosEntry>()
+  const posMap = new Map<string, NetPos>()
+  let cash       = STARTING_BALANCE
+  let realizedPnl = 0
 
-  // Process oldest fills first so average-cost arithmetic is correct
   const filled = orders
-    .filter(o => o.status === 'filled' && (o.filledQuantity ?? 0) > 0)
-    .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+    .filter(o => o.status === 'filled' && (o.filledQuantity ?? 0) > 0 && (o.avgFillPrice ?? 0) > 0)
+    .sort((a, b) =>
+      new Date(a.filledAt ?? a.updatedAt ?? a.createdAt).getTime() -
+      new Date(b.filledAt ?? b.updatedAt ?? b.createdAt).getTime()
+    )
 
   for (const ord of filled) {
-    const qty      = ord.filledQuantity!
-    const price    = ord.avgFillPrice ?? 0
-    const notional = qty * price
-    const lev      = ord.leverage ?? 1
-    const margin   = notional / lev
-    const key      = ord.symbol
-    const pos      = posMap.get(key)
+    const qty        = ord.filledQuantity!
+    const fillPrice  = ord.avgFillPrice!
+    const notional   = qty * fillPrice
+    const lev        = Math.max(ord.leverage ?? 1, 1)
+    const margin     = notional / lev
+    const commission = ord.commission ?? 0
+    const key        = ord.symbol
+    const pos        = posMap.get(key)
 
     if (ord.side === 'buy') {
       if (pos?.side === 'short') {
-        // Closing (or reducing) a short
-        const rem = parseFloat((pos.quantity - qty).toFixed(8))
+        // ── Close / reduce short ─────────────────────────────────────────
+        const avgEntry  = pos.totalCost / pos.quantity
+        const grossPnl  = (avgEntry - fillPrice) * qty
+        const retMargin = (avgEntry / pos.leverage) * qty
+        cash         = parseFloat((cash + retMargin + grossPnl - commission).toFixed(2))
+        realizedPnl  = parseFloat((realizedPnl + grossPnl - commission).toFixed(2))
+        const rem    = parseFloat((pos.quantity - qty).toFixed(8))
         if (rem <= 1e-8) {
           posMap.delete(key)
         } else {
-          const frac      = rem / pos.quantity
-          pos.quantity    = rem
-          pos.totalCost   = parseFloat((pos.totalCost * frac).toFixed(8))
-          pos.margin      = parseFloat((pos.margin    * frac).toFixed(8))
+          const frac    = rem / pos.quantity
+          pos.quantity  = rem
+          pos.totalCost = parseFloat((pos.totalCost * frac).toFixed(8))
+          pos.margin    = parseFloat((pos.margin    * frac).toFixed(2))
         }
       } else {
-        // Opening / adding to long
-        if (pos) {
+        // ── Open / add to long ───────────────────────────────────────────
+        cash = parseFloat((cash - margin - commission).toFixed(2))
+        if (pos?.side === 'long') {
           pos.quantity  = parseFloat((pos.quantity  + qty     ).toFixed(8))
           pos.totalCost = parseFloat((pos.totalCost + notional).toFixed(8))
-          pos.margin    = parseFloat((pos.margin    + margin  ).toFixed(8))
+          pos.margin    = parseFloat((pos.margin    + margin  ).toFixed(2))
         } else {
           posMap.set(key, {
             symbol: ord.symbol, side: 'long', quantity: qty, totalCost: notional,
-            openedAt: ord.filledAt ?? ord.createdAt, leverage: lev, margin,
+            openedAt: ord.filledAt ?? ord.createdAt, leverage: lev,
+            margin: parseFloat(margin.toFixed(2)),
           })
         }
       }
-    } else if (ord.side === 'sell') {
+    } else {
       if (pos?.side === 'long') {
-        // Closing (or reducing) a long
-        const rem = parseFloat((pos.quantity - qty).toFixed(8))
+        // ── Close / reduce long ──────────────────────────────────────────
+        const avgEntry  = pos.totalCost / pos.quantity
+        const grossPnl  = (fillPrice - avgEntry) * qty
+        const retMargin = (avgEntry / pos.leverage) * qty
+        cash         = parseFloat((cash + retMargin + grossPnl - commission).toFixed(2))
+        realizedPnl  = parseFloat((realizedPnl + grossPnl - commission).toFixed(2))
+        const rem    = parseFloat((pos.quantity - qty).toFixed(8))
         if (rem <= 1e-8) {
           posMap.delete(key)
         } else {
-          const frac      = rem / pos.quantity
-          pos.quantity    = rem
-          pos.totalCost   = parseFloat((pos.totalCost * frac).toFixed(8))
-          pos.margin      = parseFloat((pos.margin    * frac).toFixed(8))
+          const frac    = rem / pos.quantity
+          pos.quantity  = rem
+          pos.totalCost = parseFloat((pos.totalCost * frac).toFixed(8))
+          pos.margin    = parseFloat((pos.margin    * frac).toFixed(2))
         }
       } else {
-        // Opening / adding to short
-        if (pos) {
+        // ── Open / add to short ──────────────────────────────────────────
+        cash = parseFloat((cash - margin - commission).toFixed(2))
+        if (pos?.side === 'short') {
           pos.quantity  = parseFloat((pos.quantity  + qty     ).toFixed(8))
           pos.totalCost = parseFloat((pos.totalCost + notional).toFixed(8))
-          pos.margin    = parseFloat((pos.margin    + margin  ).toFixed(8))
+          pos.margin    = parseFloat((pos.margin    + margin  ).toFixed(2))
         } else {
           posMap.set(key, {
             symbol: ord.symbol, side: 'short', quantity: qty, totalCost: notional,
-            openedAt: ord.filledAt ?? ord.createdAt, leverage: lev, margin,
+            openedAt: ord.filledAt ?? ord.createdAt, leverage: lev,
+            margin: parseFloat(margin.toFixed(2)),
           })
         }
       }
     }
   }
 
-  return [...posMap.values()].map(p => ({
+  const positions: Position[] = [...posMap.values()].map(p => ({
     symbol:               p.symbol,
     quantity:             parseFloat(p.quantity.toFixed(8)),
     avgCost:              parseFloat((p.totalCost / p.quantity).toFixed(6)),
-    currentPrice:         0,  // refreshPortfolio() will fill this in
+    currentPrice:         0,   // refreshPortfolio() fills this
     marketValue:          0,
     unrealizedPnl:        0,
     unrealizedPnlPercent: 0,
     side:                 p.side,
     openedAt:             p.openedAt,
     leverage:             p.leverage,
-    margin:               parseFloat(p.margin.toFixed(2)),
+    margin:               p.margin,
     notionalValue:        parseFloat(p.totalCost.toFixed(2)),
   }))
+
+  return {
+    cashBalance: parseFloat(cash.toFixed(2)),
+    positions,
+    realizedPnl: parseFloat(realizedPnl.toFixed(2)),
+  }
+}
+
+// Keep alias for any other callers that used the old name
+export function rebuildPositionsFromOrders(orders: Order[]): Position[] {
+  return recalculateFromOrders(orders).positions
 }
 
 export async function dbLoadOrders(userId: string): Promise<Order[]> {

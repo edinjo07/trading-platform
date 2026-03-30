@@ -1,94 +1,78 @@
 ﻿import { Router, Response } from 'express'
 import { authenticate, AuthRequest } from '../middleware/auth'
-import { getPortfolio, portfolios, refreshPortfolio } from '../services/tradingEngine'
-import { dbLoadPortfolio, dbLoadOrders, dbEnsureUser, dbSavePortfolio, rebuildPositionsFromOrders } from '../services/dbSync'
+import { portfolios, refreshPortfolio } from '../services/tradingEngine'
+import { dbLoadOrders, dbEnsureUser, dbSavePortfolio, recalculateFromOrders } from '../services/dbSync'
 import type { Portfolio } from '../types'
 
 const router = Router()
 router.use(authenticate)
 
 // GET /api/portfolio
-// ─── Design rule ────────────────────────────────────────────────────────────
-// Positions are ALWAYS rebuilt from the orders table rather than trusting the
-// JSONB positions blob.  The blob may have been written by older code that did
-// not persist leverage/margin on positions, which causes phantom equity
-// inflation (posMargin falls back to full notional when these fields are absent).
+// ─────────────────────────────────────────────────────────────────────────────
+// Portfolio is computed ENTIRELY from the orders table on every request.
+// No stale positions JSONB or cashBalance from the portfolios table is used.
 //
-// Cash balance, realised P&L, peak equity and drawdown ARE read from the DB
-// because they are updated atomically after each order fill.
+// Why: the DB portfolios row may have been written by older code that:
+//   - omitted leverage/margin on the positions JSONB blob, causing posMargin to
+//     fall back to full notional (inflating equity for leveraged trades), OR
+//   - stored a totalEquity that was already inflated.
 //
-// Flow per request:
-//   1. Ensure user FK row exists (no-op if already there).
-//   2. Load portfolio financials + order history in parallel.
-//   3. Rebuild positions from orders (guarantees leverage+margin accuracy).
-//   4. Compose portfolio: DB financials + rebuilt positions.
-//   5. refreshPortfolio → live prices + correct equity formula.
-//   6. Persist back to DB if equity or position count changed.
-//   7. Return.
+// recalculateFromOrders() replays every filled order from a $100 k starting
+// balance to produce the ground-truth cashBalance, open positions, and
+// realised P&L — completely deterministically.
+//
+// The result is saved back to the DB so that:
+//   - orders.ts pre-flight balance checks see the real cash figure, and
+//   - subsequent requests have a warm DB row (latency optimisation only;
+//     this route never reads it back).
 // ─────────────────────────────────────────────────────────────────────────────
 router.get('/', async (req: AuthRequest, res: Response) => {
   const userId = req.user!.userId
 
   try {
-    try { await dbEnsureUser(userId, req.user!.email) } catch { /* non-fatal on GET */ }
+    // Best-effort FK guard — non-fatal if DB is slow/unreachable.
+    try { await dbEnsureUser(userId, req.user!.email) } catch { /* ok */ }
 
-    // Load financials and order history in parallel.
-    const [dbPortfolio, allOrders] = await Promise.all([
-      dbLoadPortfolio(userId),
-      dbLoadOrders(userId),
-    ])
+    // Load every order for this user.
+    const allOrders = await dbLoadOrders(userId)
 
-    // Rebuild positions from orders — the only source that guarantees the
-    // leverage and margin fields are present and correct.
-    const rebuiltPositions = rebuildPositionsFromOrders(allOrders)
+    // Replay orders → ground-truth cash, positions, realised P&L.
+    const { cashBalance, positions, realizedPnl } = recalculateFromOrders(allOrders)
 
-    let portfolio: Portfolio
-    if (dbPortfolio) {
-      // Use DB for cash / P&L fields; replace positions with the order-derived set.
-      // Also clear a potentially-inflated peakEquity: if it is more than 50 %
-      // above cash balance AND we have positions, it was probably written by the
-      // old buggy equity formula and will produce a nonsensical drawdown figure.
-      const suspectPeak =
-        dbPortfolio.peakEquity != null &&
-        dbPortfolio.peakEquity > dbPortfolio.cashBalance * 1.5 + 500
-
-      portfolio = {
-        ...dbPortfolio,
-        positions:   rebuiltPositions,
-        peakEquity:  suspectPeak ? undefined : dbPortfolio.peakEquity,
-        drawdown:    suspectPeak ? 0         : dbPortfolio.drawdown,
-      }
-    } else {
-      // Genuine new user — start from the $100 k in-memory default.
-      portfolio = { ...getPortfolio(userId), positions: rebuiltPositions }
+    const portfolio: Portfolio = {
+      userId,
+      cashBalance,
+      totalMarketValue: 0,   // refreshPortfolio fills in
+      totalEquity:      cashBalance,
+      unrealizedPnl:    0,
+      realizedPnl,
+      positions,
     }
 
-    // Sync warm-cache so in-process order creation uses the real balance.
+    // Warm the in-process cache so order pre-flight checks use the real balance.
     portfolios.set(userId, portfolio)
 
-    // Capture equity BEFORE refreshPortfolio mutates the object in-place.
-    const storedEquity    = dbPortfolio?.totalEquity ?? 0
-    const storedPosCount  = Array.isArray(dbPortfolio?.positions)
-      ? (dbPortfolio!.positions as unknown[]).length : 0
+    // Add live prices and correct equity formula.
     const fresh = refreshPortfolio(portfolio)
 
-    // Write back whenever equity or position count changed (self-healing).
-    if (
-      Math.abs(storedEquity - fresh.totalEquity) > 0.01 ||
-      storedPosCount !== fresh.positions.length
-    ) {
-      dbSavePortfolio(userId, fresh).catch((e: unknown) =>
-        console.error('[Portfolio] save failed:', e)
-      )
-    }
+    // Persist back to DB (fire-and-forget — latency optimisation only).
+    dbSavePortfolio(userId, fresh).catch((e: unknown) =>
+      console.error('[Portfolio] save failed:', e)
+    )
 
     return res.json(fresh)
 
   } catch (err) {
-    // DB unreachable — serve in-memory so client remains usable.
-    console.error('[Portfolio] DB error - serving in-memory fallback:', err)
-    return res.json(refreshPortfolio(getPortfolio(userId)))
+    console.error('[Portfolio] error — serving in-memory fallback:', err)
+    // DB unreachable: serve whatever the in-memory engine has for this user.
+    const fallback = portfolios.get(userId) ?? {
+      userId, cashBalance: 100_000, totalMarketValue: 0, totalEquity: 100_000,
+      unrealizedPnl: 0, realizedPnl: 0, positions: [],
+    }
+    return res.json(refreshPortfolio(fallback as Portfolio))
   }
 })
+
+export default router
 
 export default router

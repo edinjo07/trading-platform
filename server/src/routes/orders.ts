@@ -9,7 +9,7 @@ import {
   portfolios,
   tradeJournal,
 } from '../services/tradingEngine'
-import { dbLoadOrders, dbLoadPortfolio, dbSaveOrder, dbSavePortfolio, dbSaveTradeRecord, dbEnsureUser } from '../services/dbSync'
+import { dbLoadOrders, dbLoadPortfolio, dbSaveOrder, dbSavePortfolio, dbSaveTradeRecord, dbEnsureUser, recalculateFromOrders } from '../services/dbSync'
 import { OrderSide, OrderType, TimeInForce } from '../types'
 
 const router = Router()
@@ -73,14 +73,22 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       console.warn('[Orders] dbEnsureUser failed - continuing in-memory only:', e)
     }
 
-    // Step 2: reload the portfolio from DB so the balance check uses the real
-    // balance. Best-effort - if DB is unavailable fall back to the in-memory
-    // value (correct on this container; may be stale across cold starts).
+    // Step 2: recompute portfolio from order history so balance check is
+    // always accurate, even after a cold start with stale DB portfolio data.
     try {
-      const dbPort = await dbLoadPortfolio(userId)
-      if (dbPort) portfolios.set(userId, dbPort)
+      const allOrders = await dbLoadOrders(userId)
+      const { cashBalance, positions, realizedPnl } = recalculateFromOrders(allOrders)
+      portfolios.set(userId, {
+        userId, cashBalance, totalMarketValue: 0, totalEquity: cashBalance,
+        unrealizedPnl: 0, realizedPnl, positions,
+      })
     } catch (e) {
-      console.warn('[Orders] Failed to load portfolio from DB - using in-memory balance:', e)
+      // Fall back to stale DB portfolio rather than blocking the order
+      try {
+        const dbPort = await dbLoadPortfolio(userId)
+        if (dbPort) portfolios.set(userId, dbPort)
+      } catch { /* use in-memory */ }
+      console.warn('[Orders] recalculate failed - using cached balance:', e)
     }
 
     const {
