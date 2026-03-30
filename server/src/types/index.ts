@@ -1,5 +1,7 @@
 ﻿export type AssetClass = 'stock' | 'crypto' | 'forex' | 'commodity' | 'index' | 'bond'
 export type AccountType = 'raw_spread' | 'ctrader' | 'standard'
+export type AccountMode = 'real' | 'demo'
+export type Currency   = 'USD' | 'EUR' | 'GBP'
 export type OrderSide = 'buy' | 'sell'
 export type OrderType = 'market' | 'limit' | 'stop' | 'stop_limit' | 'trailing_stop'
 export type OrderStatus = 'pending' | 'open' | 'filled' | 'cancelled' | 'rejected'
@@ -14,6 +16,8 @@ export interface User {
   createdAt: string
   balance: number
   accountType: AccountType
+  accountMode: AccountMode
+  currency: Currency
 }
 
 export interface Symbol {

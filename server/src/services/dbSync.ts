@@ -4,7 +4,7 @@
  * so the in-memory engine never blocks on DB I/O.
  */
 import { supabase } from '../db'
-import { User, Order, Portfolio, Position, TradeRecord, EquityPoint } from '../types'
+import { User, Order, Portfolio, Position, TradeRecord, EquityPoint, AccountMode, Currency } from '../types'
 
 // ─── Retry helper ─────────────────────────────────────────────────────────────
 // Supabase free tier has occasional transient connection hiccups.  A single
@@ -28,9 +28,13 @@ async function dbRetry<T>(fn: () => Promise<T>): Promise<T> {
  * and portfolios (which REFERENCES users(id)) can be persisted.
  * Uses ignoreDuplicates so existing rows are never overwritten.
  */
-export async function dbEnsureUser(userId: string, email: string, username?: string): Promise<void> {
-  // Guard against empty strings - `email.split('@')[0]` returns '' for '',
-  // and '' ?? 'Trader' still returns '' because ?? only checks null/undefined.
+export async function dbEnsureUser(
+  userId: string,
+  email: string,
+  username?: string,
+  accountMode: AccountMode = 'demo',
+  currency: Currency = 'USD',
+): Promise<void> {
   const safeEmail    = email    || `${userId}@unknown.invalid`
   const safeUsername = username || email.split('@')[0] || `user_${userId.slice(0, 8)}`
   const { error } = await supabase.from('users').upsert(
@@ -38,8 +42,10 @@ export async function dbEnsureUser(userId: string, email: string, username?: str
       id: userId,
       email: safeEmail,
       username: safeUsername,
-      password_hash: '$supabase_auth$', // placeholder - password is managed by Supabase Auth
+      password_hash: '$supabase_auth$',
       balance: 100_000,
+      account_mode: accountMode,
+      currency,
       created_at: new Date().toISOString(),
     },
     { onConflict: 'id', ignoreDuplicates: true },
@@ -55,6 +61,8 @@ export async function dbSaveUser(user: User): Promise<void> {
       username: user.username,
       password_hash: user.passwordHash,
       balance: user.balance,
+      account_mode: user.accountMode ?? 'demo',
+      currency: user.currency ?? 'USD',
       created_at: user.createdAt,
     },
     { onConflict: 'id' }
@@ -89,8 +97,10 @@ function mapUser(row: any): User {
     username: row.username,
     passwordHash: row.password_hash,
     balance: parseFloat(row.balance),
-    createdAt: row.created_at,
     accountType: row.account_type ?? 'raw_spread',
+    accountMode: (row.account_mode === 'real' ? 'real' : 'demo') as AccountMode,
+    currency: (['USD', 'EUR', 'GBP'].includes(row.currency) ? row.currency : 'USD') as Currency,
+    createdAt: row.created_at,
   }
 }
 
