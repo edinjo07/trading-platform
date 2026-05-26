@@ -1,21 +1,28 @@
 ﻿import { Router, Response } from 'express'
 import { authenticate, AuthRequest } from '../middleware/auth'
 import { getPortfolio, closePosition, executeOrder, portfolios, orders, tradeJournal, refreshPortfolio } from '../services/tradingEngine'
-import { dbLoadPortfolio, dbLoadTradeJournal, dbSaveOrder, dbSavePortfolio, dbSaveTradeRecord, dbEnsureUser } from '../services/dbSync'
+import { dbLoadOrders, dbLoadTradeJournal, dbSaveOrder, dbSavePortfolio, dbSaveTradeRecord, dbEnsureUser, recalculateFromOrders } from '../services/dbSync'
+import type { AccountMode, Portfolio } from '../types'
 
 const router = Router()
 router.use(authenticate)
 
 // GET /api/positions  - list all open positions for the authenticated user
+// Mirrors portfolio.ts: always recompute from the orders table so positions
+// are consistent even after a server restart or if bots traded offline.
 router.get('/', async (req: AuthRequest, res: Response) => {
   const userId = req.user!.userId
+  const accountMode: AccountMode = req.headers['x-account-mode'] === 'real' ? 'real' : 'demo'
   try {
     try { await dbEnsureUser(userId, req.user!.email) } catch { /* non-fatal */ }
-    const dbPortfolio = await dbLoadPortfolio(userId)
-    if (dbPortfolio) {
-      portfolios.set(userId, dbPortfolio)
-      return res.json({ success: true, data: refreshPortfolio(dbPortfolio).positions })
+    const allOrders = await dbLoadOrders(userId, accountMode)
+    const { cashBalance, positions, realizedPnl } = recalculateFromOrders(allOrders)
+    const portfolio: Portfolio = {
+      userId, cashBalance, totalMarketValue: 0, totalEquity: cashBalance,
+      unrealizedPnl: 0, realizedPnl, positions,
     }
+    portfolios.set(userId, portfolio)
+    return res.json({ success: true, data: refreshPortfolio(portfolio).positions })
   } catch { /* fall through to in-memory */ }
   const portfolio = getPortfolio(userId)
   res.json({ success: true, data: portfolio.positions })
@@ -24,15 +31,20 @@ router.get('/', async (req: AuthRequest, res: Response) => {
 // DELETE /api/positions/:symbol  - close an open position at market
 router.delete('/:symbol', async (req: AuthRequest, res: Response) => {
   const userId = req.user!.userId
+  const accountMode: AccountMode = req.headers['x-account-mode'] === 'real' ? 'real' : 'demo'
   const { symbol } = req.params
   try {
-    // Always reload from DB first so in-memory has the current position
-    // even after a container restart
+    // Rebuild portfolio from order history so positions/leverage are always
+    // correct, even after a restart or when bots have been trading.
     try {
       await dbEnsureUser(userId, req.user!.email)
-      const dbPortfolio = await dbLoadPortfolio(userId)
-      if (dbPortfolio) portfolios.set(userId, dbPortfolio)
-      // Also restore trade journal so close-trade records are appended correctly
+      const allOrders = await dbLoadOrders(userId, accountMode)
+      const { cashBalance, positions, realizedPnl } = recalculateFromOrders(allOrders)
+      portfolios.set(userId, {
+        userId, cashBalance, totalMarketValue: 0, totalEquity: cashBalance,
+        unrealizedPnl: 0, realizedPnl, positions,
+      } as Portfolio)
+      // Restore trade journal so executeOrder can close the correct open entry.
       if ((tradeJournal.get(userId) ?? []).length === 0) {
         const dbJournal = await dbLoadTradeJournal(userId)
         if (dbJournal.length > 0) tradeJournal.set(userId, [...dbJournal].reverse())
@@ -62,7 +74,7 @@ router.delete('/:symbol', async (req: AuthRequest, res: Response) => {
         : []),
     ]
     if (portfolio) {
-      saves.push(dbSavePortfolio(userId, portfolio).catch((e: unknown) => console.error('[Positions] save portfolio failed:', e)))
+      saves.push(dbSavePortfolio(userId, portfolio, accountMode).catch((e: unknown) => console.error('[Positions] save portfolio failed:', e)))
     }
     await Promise.all(saves)
 

@@ -2,9 +2,9 @@
 import { EventEmitter } from 'events'
 import { getLivePrice, marketEvents } from './mockDataService'
 import { getCandles } from './candleService'
-import { createOrder, getPortfolio } from './tradingEngine'
+import { placeBotMarketOrder, getPortfolio, portfolios, tradeJournal } from './tradingEngine'
+import { dbSaveOrder, dbSavePortfolio, dbSaveTradeRecord, dbSaveBot, dbDeleteBot, dbLoadAllBots, BotRow } from './dbSync'
 import { getSentiment, getCachedSentiment } from './newsService'
-import { dbSaveBot, dbDeleteBot, dbLoadAllBots, BotRow } from './dbSync'
 import { Candle } from '../types'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -469,12 +469,25 @@ class BotEngine {
         `Skipping buy - need $${(p.tradeSize * price).toFixed(2)}, have $${portfolio.cashBalance.toFixed(2)}`)
       return
     }
-    createOrder(bot.userId, bot.symbol, 'buy', 'market', p.tradeSize)
+    // Execute synchronously — bots bypass the route handler so we cannot
+    // rely on the route's setTimeout/executeOrder path (breaks on Vercel).
+    const filledOrder = placeBotMarketOrder(bot.userId, bot.symbol, 'buy', p.tradeSize)
+    filledOrder.accountMode = 'demo'
+
     bot.position          = 'long'
     bot.currentEntryPrice = price
     bot.currentSL = p.stopLossPercent   ? price * (1 - p.stopLossPercent   / 100) : undefined
     bot.currentTP = p.takeProfitPercent ? price * (1 + p.takeProfitPercent / 100) : undefined
     bot.dailyTrades++
+
+    // Persist the filled order, updated portfolio, and new trade journal entry.
+    const livePort = portfolios.get(bot.userId)
+    const journal  = tradeJournal.get(bot.userId) ?? []
+    const newEntry = journal.find(t => t.orderId === filledOrder.id)
+    dbSaveOrder(filledOrder).catch(() => {})
+    if (livePort) dbSavePortfolio(bot.userId, livePort, 'demo').catch(() => {})
+    if (newEntry) dbSaveTradeRecord(newEntry).catch(() => {})
+
     this.log(bot, 'trade',
       `🟢 BUY  ${p.tradeSize} ${bot.symbol} @ ${price.toFixed(5)}` +
       (bot.currentSL ? ` | SL ${bot.currentSL.toFixed(5)}` : '') +
@@ -491,7 +504,10 @@ class BotEngine {
       bot.currentSL = undefined; bot.currentTP = undefined
       this.log(bot, 'info', 'Position closed externally - bot re-synced'); return
     }
-    createOrder(bot.userId, bot.symbol, 'sell', 'market', p.tradeSize)
+    // Execute synchronously — same reason as enterLong.
+    const filledOrder = placeBotMarketOrder(bot.userId, bot.symbol, 'sell', p.tradeSize)
+    filledOrder.accountMode = 'demo'
+
     const tradePnl = (price - (bot.currentEntryPrice ?? price)) * p.tradeSize
     bot.pnl += tradePnl; bot.trades++
     if (tradePnl < 0) { bot.dailyLoss += Math.abs(tradePnl); bot.losses++ } else { bot.wins++ }
@@ -501,6 +517,18 @@ class BotEngine {
     if (dd > bot.maxDrawdown) bot.maxDrawdown = dd
     bot.equityCurve.push({ ts: Date.now(), pnl: bot.pnl })
     if (bot.equityCurve.length > 200) bot.equityCurve.shift()
+
+    // Persist: the fill order, the updated portfolio, and the now-closed
+    // trade journal entry (the original buy record with exitPrice/closedAt set).
+    const livePort   = portfolios.get(bot.userId)
+    const journal    = tradeJournal.get(bot.userId) ?? []
+    const closedEntry = [...journal].reverse().find(
+      t => t.symbol === bot.symbol && t.side === 'buy' && t.closedAt
+    )
+    dbSaveOrder(filledOrder).catch(() => {})
+    if (livePort)    dbSavePortfolio(bot.userId, livePort, 'demo').catch(() => {})
+    if (closedEntry) dbSaveTradeRecord(closedEntry).catch(() => {})
+
     const lbl = reason === 'sl' ? '🔴 SL HIT' : reason === 'tp' ? '🟡 TP HIT' : '🔵 SELL'
     this.log(bot, 'trade',
       `${lbl} ${p.tradeSize} ${bot.symbol} @ ${price.toFixed(5)} | ` +

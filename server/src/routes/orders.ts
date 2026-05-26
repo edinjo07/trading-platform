@@ -170,13 +170,23 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       )
     }
 
-    // Persist any trade journal entry created/updated by executeOrder.
-    // A market buy that opens a long pushes a record with orderId === order.id.
+    // Persist the relevant trade journal entry created/updated by executeOrder.
+    // - Buy opening a long  → new entry pushed with orderId === filledOrderId
+    // - Sell closing a long → existing buy entry updated with exitPrice/closedAt
+    //   (no new entry; lookup by orderId misses it — find the most recently closed
+    //   entry for this symbol instead)
+    // - Buy closing a short → same pattern as sell-closes-long but side='sell'
     const filledOrderId = (filled ?? order).id
-    const newJournalEntry = (tradeJournal.get(userId) ?? []).find(t => t.orderId === filledOrderId)
-    if (newJournalEntry) {
+    const jEntries = tradeJournal.get(userId) ?? []
+    let journalEntry = jEntries.find(t => t.orderId === filledOrderId)
+    if (!journalEntry) {
+      journalEntry = [...jEntries].reverse().find(
+        t => t.symbol === order.symbol && t.closedAt
+      )
+    }
+    if (journalEntry) {
       dbSaves.push(
-        dbSaveTradeRecord(newJournalEntry).catch((e: unknown) => {
+        dbSaveTradeRecord(journalEntry).catch((e: unknown) => {
           console.warn('[DB] Failed to save trade record:', e)
         }),
       )

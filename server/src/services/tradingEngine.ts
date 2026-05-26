@@ -3,10 +3,10 @@ import { EventEmitter } from 'events'
 import {
   Order, OrderSide, OrderType, OrderStatus, TimeInForce,
   Portfolio, Position, User, TradeRecord, PerformanceStats, EquityPoint,
-  AccountType,
+  AccountType, AccountMode,
 } from '../types'
 import { getLivePrice, getAssetClass } from './mockDataService'
-import { dbSaveUser, dbSaveOrder } from './dbSync'
+import { dbSaveUser, dbSaveOrder, dbSavePortfolio, dbSaveTradeRecord } from './dbSync'
 
 // ---------------------------------------------------------------------------
 // Event bus
@@ -174,7 +174,9 @@ export function refreshPortfolio(p: Portfolio): Portfolio {
   let equityFromPos    = 0   // margin locked in positions + unrealised P&L
 
   p.positions = p.positions.map(pos => {
-    const currentPrice = getLivePrice(pos.symbol)
+    // Fall back to last-known price if the feed hasn't ticked yet for this symbol,
+    // so we don't show a catastrophic unrealized loss of near-full notional.
+    const currentPrice = getLivePrice(pos.symbol) || pos.currentPrice || pos.avgCost
     const lev          = pos.leverage ?? 1
     const posMargin    = pos.margin ?? (pos.avgCost * pos.quantity / lev)
     const upnl         = (currentPrice - pos.avgCost) * pos.quantity * (pos.side === 'short' ? -1 : 1)
@@ -210,9 +212,11 @@ export function refreshPortfolio(p: Portfolio): Portfolio {
     p.drawdown = parseFloat((((p.peakEquity - p.totalEquity) / p.peakEquity) * 100).toFixed(2))
   }
 
-  // Today P&L - approximate using unrealized change
-  if (prevEquity && prevEquity !== p.totalEquity) {
-    p.todayPnl = parseFloat((p.totalEquity - (p.peakEquity ?? p.totalEquity)).toFixed(2))
+  // Today P&L — change since the last snapshot (prevEquity).
+  // Using distance-from-peak produces values ≤ 0 always; this gives the real
+  // intra-session movement instead.
+  if (prevEquity) {
+    p.todayPnl = parseFloat((p.totalEquity - prevEquity).toFixed(2))
   }
 
   return p
@@ -293,9 +297,9 @@ export function createOrder(
   const estimatedCommission = calcCommission(symbol, quantity, estimatedFillPrice, user?.accountType)
 
   if (side === 'buy') {
-    // Check if closing a short - no cash needed
     const existingShort = portfolio.positions.find(p => p.symbol === symbol && p.side === 'short')
     if (!existingShort) {
+      // Opening or adding to a long — require sufficient margin/cash.
       if (portfolio.cashBalance < estimatedMargin + estimatedCommission) {
         throw new Error(
           leverage > 1
@@ -303,6 +307,12 @@ export function createOrder(
             : `Insufficient funds: need $${(estimatedMargin + estimatedCommission).toFixed(2)}, have $${portfolio.cashBalance.toFixed(2)}`
         )
       }
+    } else if (quantity > existingShort.quantity + 1e-8) {
+      // Closing more than the short position would over-return margin — disallow.
+      throw new Error(
+        `Buy quantity ${quantity} exceeds short position of ${existingShort.quantity.toFixed(6)}. ` +
+        `Reduce quantity to close the short, then open a separate long.`
+      )
     }
   }
 
@@ -404,6 +414,13 @@ export function executeOrder(orderId: string, overrideFillPrice?: number): void 
   if (!order || order.status === 'cancelled' || order.status === 'filled') return
 
   const rawFillPrice = overrideFillPrice ?? getLivePrice(order.symbol)
+  // Reject if price feed is unavailable — a zero fill price would create a
+  // position at zero cost and return incorrect margin to the user.
+  if (!rawFillPrice || rawFillPrice <= 0) {
+    order.status    = 'rejected' as OrderStatus
+    order.updatedAt = new Date().toISOString()
+    return
+  }
   // Apply slippage only for market orders
   const slippage = order.type === 'market' ? calcSlippage(order.symbol, order.quantity, rawFillPrice, order.side) : 0
   const fillPrice = parseFloat((rawFillPrice + slippage).toFixed(8))
@@ -622,11 +639,34 @@ export function executeOrder(orderId: string, overrideFillPrice?: number): void 
     commission, type: order.type,
   })
 
-  // Schedule TP/SL on buys
+  // Schedule TP/SL for long positions (buy orders) and short positions (leveraged sells).
   if (order.side === 'buy') {
-    if (order.takeProfit) scheduleWatcher(order.userId, order.symbol, 'sell', order.quantity, order.takeProfit,   undefined,         'take_profit')
-    if (order.stopLoss)   scheduleWatcher(order.userId, order.symbol, 'sell', order.quantity, undefined,          order.stopLoss,    'stop_loss')
+    // Long: TP triggers when price rises to takeProfit; SL triggers when price falls to stopLoss.
+    if (order.takeProfit) scheduleWatcher(order.userId, order.symbol, 'sell', order.quantity, order.takeProfit, undefined,       'take_profit', undefined, order.accountMode)
+    if (order.stopLoss)   scheduleWatcher(order.userId, order.symbol, 'sell', order.quantity, undefined,        order.stopLoss,  'stop_loss',   undefined, order.accountMode)
+  } else if (lev > 1 && existingLongIdx < 0) {
+    // Short: TP triggers when price falls to takeProfit (stop_loss kind: mp <= stopTrigger, fill at mp).
+    //        SL triggers when price rises to stopLoss   (stop      kind: mp >= stopTrigger, fill at mp).
+    if (order.takeProfit) scheduleWatcher(order.userId, order.symbol, 'buy', order.quantity, undefined, order.takeProfit, 'stop_loss', undefined, order.accountMode)
+    if (order.stopLoss)   scheduleWatcher(order.userId, order.symbol, 'buy', order.quantity, undefined, order.stopLoss,  'stop',      undefined, order.accountMode)
   }
+}
+
+// ---------------------------------------------------------------------------
+// placeBotMarketOrder - synchronous market fill for the bot engine.
+// Bots bypass the HTTP route handler, so we must execute immediately
+// (no setTimeout) to guarantee the fill happens in all environments
+// including Vercel serverless where frozen containers kill deferred callbacks.
+// ---------------------------------------------------------------------------
+export function placeBotMarketOrder(
+  userId: string,
+  symbol: string,
+  side: OrderSide,
+  quantity: number,
+): Order {
+  const order = createOrder(userId, symbol, side, 'market', quantity)
+  executeOrder(order.id)
+  return orders.get(order.id) ?? order
 }
 
 // ---------------------------------------------------------------------------
@@ -817,16 +857,17 @@ export function getTradeJournal(userId: string): TradeRecord[] {
 type WatchKind = 'limit' | 'stop' | 'stop_limit' | 'trailing_stop' | 'take_profit' | 'stop_loss'
 
 interface WatchEntry {
-  userId:      string
-  symbol:      string
-  side:        OrderSide
-  quantity:    number
-  limitPrice?: number      // fill price for limit-type triggers
-  stopTrigger?: number     // trigger price
-  trailingPct?: number     // trailing offset as decimal
-  highWater?:  number      // running high/low water mark for trailing
-  kind:        WatchKind
-  orderId?:    string      // if linked to an Order record
+  userId:       string
+  symbol:       string
+  side:         OrderSide
+  quantity:     number
+  limitPrice?:  number      // fill price for limit-type triggers
+  stopTrigger?: number      // trigger price
+  trailingPct?: number      // trailing offset as decimal
+  highWater?:   number      // running high/low water mark for trailing
+  kind:         WatchKind
+  orderId?:     string      // if linked to an Order record
+  accountMode?: AccountMode // inherited so fills are saved to the right partition
 }
 
 const watchers: WatchEntry[] = []
@@ -834,9 +875,9 @@ const watchers: WatchEntry[] = []
 function scheduleWatcher(
   userId: string, symbol: string, side: OrderSide, quantity: number,
   limitPrice: number | undefined, stopTrigger: number | undefined,
-  kind: WatchKind, orderId?: string,
+  kind: WatchKind, orderId?: string, accountMode?: AccountMode,
 ): void {
-  watchers.push({ userId, symbol, side, quantity, limitPrice, stopTrigger, kind, orderId })
+  watchers.push({ userId, symbol, side, quantity, limitPrice, stopTrigger, kind, orderId, accountMode })
 }
 
 // Link open limit/stop orders from the orders map into watchers
@@ -848,19 +889,22 @@ function syncOrderWatchers(): void {
 
     if (order.type === 'limit') {
       watchers.push({ userId: order.userId, symbol: order.symbol, side: order.side,
-        quantity: order.quantity, limitPrice: order.price, kind: 'limit', orderId: order.id })
+        quantity: order.quantity, limitPrice: order.price, kind: 'limit', orderId: order.id,
+        accountMode: order.accountMode })
     } else if (order.type === 'stop') {
       watchers.push({ userId: order.userId, symbol: order.symbol, side: order.side,
-        quantity: order.quantity, stopTrigger: order.stopPrice, kind: 'stop', orderId: order.id })
+        quantity: order.quantity, stopTrigger: order.stopPrice, kind: 'stop', orderId: order.id,
+        accountMode: order.accountMode })
     } else if (order.type === 'stop_limit') {
       watchers.push({ userId: order.userId, symbol: order.symbol, side: order.side,
         quantity: order.quantity, stopTrigger: order.stopPrice, limitPrice: order.price,
-        kind: 'stop_limit', orderId: order.id })
+        kind: 'stop_limit', orderId: order.id, accountMode: order.accountMode })
     } else if (order.type === 'trailing_stop') {
       const mp = getLivePrice(order.symbol)
       watchers.push({ userId: order.userId, symbol: order.symbol, side: order.side,
         quantity: order.quantity, trailingPct: order.trailingOffset,
-        highWater: order.trailingHighWater ?? mp, kind: 'trailing_stop', orderId: order.id })
+        highWater: order.trailingHighWater ?? mp, kind: 'trailing_stop', orderId: order.id,
+        accountMode: order.accountMode })
     }
   }
 }
@@ -931,13 +975,32 @@ setInterval(() => {
     if (triggered) {
       watchers.splice(i, 1)
       if (w.orderId && orders.has(w.orderId)) {
-        // Fill the existing order record
+        // Fill the existing limit/stop order record synchronously.
         executeOrder(w.orderId, fillPrice)
+        // Persist: update order status, portfolio, and journal to DB.
+        const filledOrd = orders.get(w.orderId)
+        const port      = portfolios.get(w.userId)
+        if (filledOrd) dbSaveOrder(filledOrd).catch(() => {})
+        if (port)      dbSavePortfolio(w.userId, port, w.accountMode ?? 'demo').catch(() => {})
+        const jEntries = tradeJournal.get(w.userId) ?? []
+        const jEntry   = jEntries.find(t => t.orderId === w.orderId) ??
+                         [...jEntries].reverse().find(t => t.symbol === w.symbol && !!t.closedAt)
+        if (jEntry) dbSaveTradeRecord(jEntry).catch(() => {})
       } else {
-        // TP/SL - create and fill a synthetic market order
+        // TP/SL — create and fill a synthetic market order synchronously.
+        // (Previously used setTimeout which would not fire on frozen Vercel containers.)
         try {
           const syntheticOrder = createOrder(w.userId, w.symbol, w.side, 'market', w.quantity)
-          setTimeout(() => executeOrder(syntheticOrder.id, fillPrice ?? mp), 50)
+          syntheticOrder.accountMode = w.accountMode ?? 'demo'
+          executeOrder(syntheticOrder.id, fillPrice ?? mp)
+          const filledOrd = orders.get(syntheticOrder.id)
+          const port      = portfolios.get(w.userId)
+          if (filledOrd) dbSaveOrder(filledOrd).catch(() => {})
+          if (port)      dbSavePortfolio(w.userId, port, w.accountMode ?? 'demo').catch(() => {})
+          const jEntries = tradeJournal.get(w.userId) ?? []
+          const jEntry   = jEntries.find(t => t.orderId === syntheticOrder.id) ??
+                           [...jEntries].reverse().find(t => t.symbol === w.symbol && !!t.closedAt)
+          if (jEntry) dbSaveTradeRecord(jEntry).catch(() => {})
         } catch { /* position may already be closed */ }
       }
     }
@@ -952,11 +1015,17 @@ setInterval(() => {
       const upnl     = (mp - pos.avgCost) * pos.quantity * (pos.side === 'short' ? -1 : 1)
       const posMargin = pos.margin ?? (pos.avgCost * pos.quantity / lev)
       if (upnl <= -(posMargin * 0.9)) {
-        // Mark liquidation price on position so UI can show it
         const closeSide: OrderSide = pos.side === 'long' ? 'sell' : 'buy'
         try {
           const liqOrder = createOrder(userId, pos.symbol, closeSide, 'market', pos.quantity, undefined, undefined, 'GTC', undefined, undefined, undefined, `LIQUIDATION ${lev}x`)
-          setTimeout(() => executeOrder(liqOrder.id, mp), 30)
+          executeOrder(liqOrder.id, mp)   // synchronous — no setTimeout
+          const filledOrd = orders.get(liqOrder.id)
+          const port      = portfolios.get(userId)
+          if (filledOrd) dbSaveOrder(filledOrd).catch(() => {})
+          if (port)      dbSavePortfolio(userId, port).catch(() => {})
+          const jEntries = tradeJournal.get(userId) ?? []
+          const jEntry   = [...jEntries].reverse().find(t => t.symbol === pos.symbol && !!t.closedAt)
+          if (jEntry) dbSaveTradeRecord(jEntry).catch(() => {})
           tradeEvents.emit('liquidation', { userId, symbol: pos.symbol, side: pos.side, leverage: lev, price: mp })
         } catch { /* best-effort */ }
       }
