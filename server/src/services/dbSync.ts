@@ -107,85 +107,91 @@ function mapUser(row: any): User {
 // ─── Orders ───────────────────────────────────────────────────────────────────
 
 export async function dbSaveOrder(order: Order): Promise<void> {
-  const { error } = await supabase.from('orders').upsert(
-    {
-      id: order.id,
-      user_id: order.userId,
-      symbol: order.symbol,
-      side: order.side,
-      type: order.type,
-      status: order.status,
-      quantity: order.quantity,
-      price: order.price ?? null,
-      stop_price: order.stopPrice ?? null,
-      filled_quantity: order.filledQuantity ?? 0,
-      avg_fill_price: order.avgFillPrice ?? null,
-      commission: order.commission ?? 0,
-      slippage: order.slippage ?? 0,
-      leverage: order.leverage ?? 1,
-      take_profit: order.takeProfit ?? null,
-      stop_loss: order.stopLoss ?? null,
-      trailing_offset: order.trailingOffset ?? null,
-      time_in_force: order.timeInForce,
-      notes: order.notes ?? null,
-      account_mode: order.accountMode ?? 'demo',
-      created_at: order.createdAt,
-      updated_at: order.updatedAt,
-      filled_at: order.filledAt ?? null,
-    },
-    { onConflict: 'id' }
-  )
-  if (error) console.error('[DB] saveOrder:', error.message)
+  return dbRetry(async () => {
+    const { error } = await supabase.from('orders').upsert(
+      {
+        id: order.id,
+        user_id: order.userId,
+        symbol: order.symbol,
+        side: order.side,
+        type: order.type,
+        status: order.status,
+        quantity: order.quantity,
+        price: order.price ?? null,
+        stop_price: order.stopPrice ?? null,
+        filled_quantity: order.filledQuantity ?? 0,
+        avg_fill_price: order.avgFillPrice ?? null,
+        commission: order.commission ?? 0,
+        slippage: order.slippage ?? 0,
+        leverage: order.leverage ?? 1,
+        take_profit: order.takeProfit ?? null,
+        stop_loss: order.stopLoss ?? null,
+        trailing_offset: order.trailingOffset ?? null,
+        time_in_force: order.timeInForce,
+        notes: order.notes ?? null,
+        account_mode: order.accountMode ?? 'demo',
+        created_at: order.createdAt,
+        updated_at: order.updatedAt,
+        filled_at: order.filledAt ?? null,
+      },
+      { onConflict: 'id' }
+    )
+    if (error) throw new Error(`[DB] saveOrder: ${error.message}`)
+  })
 }
 
 // ─── Portfolios ───────────────────────────────────────────────────────────────
 
 export async function dbSavePortfolio(userId: string, portfolio: Portfolio, accountMode: AccountMode = 'demo'): Promise<void> {
-  const { error } = await supabase.from('portfolios').upsert(
-    {
-      user_id: userId,
-      account_mode: accountMode,
-      cash_balance: portfolio.cashBalance,
-      total_market_value: portfolio.totalMarketValue,
-      total_equity: portfolio.totalEquity,
-      unrealized_pnl: portfolio.unrealizedPnl,
-      realized_pnl: portfolio.realizedPnl,
-      today_pnl: portfolio.todayPnl,
-      peak_equity: portfolio.peakEquity ?? portfolio.totalEquity,
-      drawdown: portfolio.drawdown,
-      positions: portfolio.positions as any,
-      updated_at: new Date().toISOString(),
-    },
-    { onConflict: 'user_id,account_mode' }
-  )
-  if (error) console.error('[DB] savePortfolio:', error.message)
+  return dbRetry(async () => {
+    const { error } = await supabase.from('portfolios').upsert(
+      {
+        user_id: userId,
+        account_mode: accountMode,
+        cash_balance: portfolio.cashBalance,
+        total_market_value: portfolio.totalMarketValue,
+        total_equity: portfolio.totalEquity,
+        unrealized_pnl: portfolio.unrealizedPnl,
+        realized_pnl: portfolio.realizedPnl,
+        today_pnl: portfolio.todayPnl,
+        peak_equity: portfolio.peakEquity ?? portfolio.totalEquity,
+        drawdown: portfolio.drawdown,
+        positions: portfolio.positions as any,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: 'user_id,account_mode' }
+    )
+    if (error) throw new Error(`[DB] savePortfolio: ${error.message}`)
+  })
 }
 
 // ─── Trade Journal ────────────────────────────────────────────────────────────
 
 export async function dbSaveTradeRecord(record: TradeRecord): Promise<void> {
-  const { error } = await supabase.from('trade_journal').upsert(
-    {
-      id: record.id,
-      user_id: record.userId,
-      order_id: record.orderId ?? null,
-      symbol: record.symbol,
-      side: record.side,
-      quantity: record.quantity,
-      entry_price: record.entryPrice,
-      exit_price: record.exitPrice ?? null,
-      pnl: record.pnl ?? null,
-      net_pnl: record.netPnl ?? null,
-      pnl_percent: record.pnlPercent ?? null,
-      commission: record.commission,
-      opened_at: record.openedAt,
-      closed_at: record.closedAt ?? null,
-      holding_period_ms: record.holdingPeriodMs ?? null,
-      asset_class: record.assetClass ?? null,
-    },
-    { onConflict: 'id' }
-  )
-  if (error) console.error('[DB] saveTradeRecord:', error.message)
+  return dbRetry(async () => {
+    const { error } = await supabase.from('trade_journal').upsert(
+      {
+        id: record.id,
+        user_id: record.userId,
+        order_id: record.orderId ?? null,
+        symbol: record.symbol,
+        side: record.side,
+        quantity: record.quantity,
+        entry_price: record.entryPrice,
+        exit_price: record.exitPrice ?? null,
+        pnl: record.pnl ?? null,
+        net_pnl: record.netPnl ?? null,
+        pnl_percent: record.pnlPercent ?? null,
+        commission: record.commission,
+        opened_at: record.openedAt,
+        closed_at: record.closedAt ?? null,
+        holding_period_ms: record.holdingPeriodMs ?? null,
+        asset_class: record.assetClass ?? null,
+      },
+      { onConflict: 'id' }
+    )
+    if (error) throw new Error(`[DB] saveTradeRecord: ${error.message}`)
+  })
 }
 
 // ─── Load a single user's portfolio from DB (on-demand fallback) ─────────────

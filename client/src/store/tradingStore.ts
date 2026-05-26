@@ -207,10 +207,13 @@ export const useTradingStore = create<TradingState>((set, get) => ({
       if (order.status === 'filled' && order.avgFillPrice != null) {
         const current = get().portfolio
         if (current) {
-          const qty  = order.filledQuantity ?? order.quantity
+          const qty      = order.filledQuantity ?? order.quantity
+          const leverage = order.leverage ?? 1
+          // Deduct/return margin (not full notional) so cash stays correct for leveraged orders
+          const margin   = qty * order.avgFillPrice / leverage
           const cost = order.side === 'buy'
-            ? qty * order.avgFillPrice + (order.commission ?? 0)
-            : -(qty * order.avgFillPrice - (order.commission ?? 0))
+            ? margin + (order.commission ?? 0)
+            : -(margin - (order.commission ?? 0))
           const newCash = parseFloat((current.cashBalance - cost).toFixed(2))
 
           // Build updated positions array
@@ -401,13 +404,15 @@ export const useTradingStore = create<TradingState>((set, get) => ({
         const ticker = tickerMap[pos.symbol]
         if (!ticker) return pos
         const markPrice = ticker.price
-        const leverage = pos.leverage ?? 1
-        const notionalValue = pos.quantity * markPrice * leverage
+        // Notional = quantity × price (no leverage multiplier — leverage determines margin, not exposure size)
+        const notionalValue = pos.quantity * markPrice
+        // P&L = absolute dollar gain/loss on the position (server uses same formula in refreshPortfolio)
         const unrealizedPnl = pos.side === 'long'
-          ? (markPrice - pos.avgCost) * pos.quantity * leverage
-          : (pos.avgCost - markPrice) * pos.quantity * leverage
-        const costBasis = pos.avgCost * pos.quantity
-        const unrealizedPnlPercent = costBasis !== 0 ? (unrealizedPnl / costBasis) * 100 : 0
+          ? (markPrice - pos.avgCost) * pos.quantity
+          : (pos.avgCost - markPrice) * pos.quantity
+        // P&L % relative to margin posted (matches server unrealizedPnlPercent)
+        const margin = pos.margin ?? (pos.avgCost * pos.quantity / (pos.leverage ?? 1))
+        const unrealizedPnlPercent = margin > 0 ? (unrealizedPnl / margin) * 100 : 0
         return {
           ...pos,
           currentPrice: markPrice,
@@ -419,13 +424,19 @@ export const useTradingStore = create<TradingState>((set, get) => ({
       })
       const totalMarketValue = parseFloat(updatedPositions.reduce((s, p) => s + p.marketValue, 0).toFixed(2))
       const totalUnrealizedPnl = parseFloat(updatedPositions.reduce((s, p) => s + p.unrealizedPnl, 0).toFixed(2))
+      // Equity = cash + Σ(margin locked in each position + unrealised P&L)
+      // Using margin (not notional) prevents phantom inflation on leveraged positions.
+      const equityFromPositions = parseFloat(updatedPositions.reduce((s, p) => {
+        const m = p.margin ?? (p.avgCost * p.quantity / (p.leverage ?? 1))
+        return s + m + (p.unrealizedPnl ?? 0)
+      }, 0).toFixed(2))
       set({
         tickers: tickerMap,
         portfolio: {
           ...portfolio,
           positions: updatedPositions,
           totalMarketValue,
-          totalEquity: parseFloat((portfolio.cashBalance + totalMarketValue).toFixed(2)),
+          totalEquity: parseFloat((portfolio.cashBalance + equityFromPositions).toFixed(2)),
           unrealizedPnl: totalUnrealizedPnl,
         },
       })

@@ -291,10 +291,11 @@ export function useWebSocket() {
     }
 
     ws.onerror = () => {
-      // Calling close() on a CONNECTING socket triggers the
-      // "closed before established" browser warning - only close if open.
+      // Only close if OPEN — calling close() on a CONNECTING socket produces
+      // a harmless but noisy "closed before connection established" browser warning.
+      // An erroring CONNECTING socket closes itself; we just need to null the handlers.
       ws.onclose = null
-      if (ws.readyState !== WebSocket.CLOSED) ws.close()
+      if (ws.readyState === WebSocket.OPEN) ws.close()
 
       const failCount = retryCountRef.current
 
