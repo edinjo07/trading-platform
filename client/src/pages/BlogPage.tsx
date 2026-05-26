@@ -65,14 +65,28 @@ function CategoryBadge({ cat }: { cat: string }) {
 
 const FALLBACK_URL = 'https://www.bloomberg.com/markets'
 
-function safeUrl(url: string | undefined): string {
+/**
+ * Sanitize a URL before placing it in an href attribute.
+ * Prevents DOM XSS (CWE-79) by:
+ *   1. Rejecting null/empty → safe fallback
+ *   2. Parsing with the URL Web API (throws on malformed input)
+ *   3. Strict protocol allowlist — only 'https:' and 'http:' are accepted,
+ *      which blocks javascript:, data:, vbscript: and any other scheme.
+ *   4. Returning parsed.href (the URL-API normalised string) not the raw input.
+ */
+function safeUrl(url: string | undefined | null): string {
+  if (!url || typeof url !== 'string') return FALLBACK_URL
+  
+  const trimmedUrl = url.trim()
+  if (!trimmedUrl) return FALLBACK_URL
+  
   try {
-    const parsed = new URL(url ?? '')
-    if (parsed.protocol === 'https:' || parsed.protocol === 'http:') return parsed.href
+    const parsed = new URL(trimmedUrl)
+    if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') return FALLBACK_URL
+    return parsed.href
   } catch {
-    // fall through
+    return FALLBACK_URL
   }
-  return FALLBACK_URL
 }
 
 function fmtDate(iso: string) {
@@ -99,7 +113,7 @@ export default function BlogPage() {
       setArticles(data)
       setLastUpdated(new Date())
     } catch (e: any) {
-      setError('Could not load Bloomberg news. Retrying shortlyâ€¦')
+      setError('Could not load Bloomberg news. Retrying shortly...')
     } finally {
       setLoading(false)
     }
@@ -238,7 +252,7 @@ export default function BlogPage() {
               <svg className="w-5 h-5 animate-spin text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
-              <span className="text-text-muted text-sm">Loading Bloomberg newsâ€¦</span>
+              <span className="text-text-muted text-sm">Loading Bloomberg news...</span>
             </div>
           ) : error && articles.length === 0 ? (
             <div className="flex flex-col items-center gap-3 py-12 text-center px-6">
@@ -292,7 +306,7 @@ export default function BlogPage() {
           <div className="flex items-center justify-between px-4 py-3"
                style={{ borderTop: '1px solid rgba(255,255,255,0.05)', background: 'rgba(255,255,255,0.015)' }}>
             <span className="text-text-muted text-xs">
-              {filtered.length} article{filtered.length !== 1 ? 's' : ''} Â· Source: Bloomberg
+              {filtered.length} article{filtered.length !== 1 ? 's' : ''} &middot; Source: Bloomberg
             </span>
             <a
               href="https://www.bloomberg.com/markets"

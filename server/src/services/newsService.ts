@@ -336,6 +336,35 @@ export async function getSentiment(symbol: string): Promise<SymbolSentiment> {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// URL resolver - converts relative URLs to absolute
+// ─────────────────────────────────────────────────────────────────────────────
+
+function resolveUrl(urlStr: string, baseUrl: string): string {
+  if (!urlStr || typeof urlStr !== 'string') return ''
+  urlStr = urlStr.trim()
+  if (!urlStr) return ''
+  
+  // Already absolute URL
+  if (urlStr.startsWith('http://') || urlStr.startsWith('https://')) {
+    try {
+      new URL(urlStr)
+      return urlStr
+    } catch {
+      return ''
+    }
+  }
+  
+  // Relative URL - resolve against base
+  try {
+    const base = new URL(baseUrl)
+    const resolved = new URL(urlStr, baseUrl)
+    return resolved.href
+  } catch {
+    return ''
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Bloomberg RSS proxy
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -359,13 +388,16 @@ let   bloombergCache: { data: BloombergArticle[]; ts: number } = { data: [], ts:
 async function fetchBloombergFeed(feedUrl: string, category: string): Promise<BloombergArticle[]> {
   const body   = await fetchUrl(feedUrl, 8_000)
   const parsed = parseRssTitles(body)
-  return parsed.slice(0, 15).map(item => ({
-    title:       item.title,
-    url:         item.link || 'https://www.bloomberg.com/markets',
-    publishedAt: new Date(item.pubDate || Date.now()).toISOString(),
-    category,
-    source:      'Bloomberg' as const,
-  }))
+  return parsed.slice(0, 15).map(item => {
+    const resolvedUrl = item.link ? resolveUrl(item.link, feedUrl) : ''
+    return {
+      title:       item.title,
+      url:         resolvedUrl || 'https://www.bloomberg.com/markets',
+      publishedAt: new Date(item.pubDate || Date.now()).toISOString(),
+      category,
+      source:      'Bloomberg' as const,
+    }
+  })
 }
 
 export async function getBloombergNews(): Promise<BloombergArticle[]> {
