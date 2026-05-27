@@ -253,8 +253,6 @@ export default function OrderForm() {
     }
   }
 
-  const handleSideChange = (s: OrderSide) => { setSide(s); setError('') }
-
   const handleSubmit = async (submitSide: OrderSide = side) => {
     const execBuy = submitSide === 'buy'
     const execPrice = execBuy ? ask : bid
@@ -303,15 +301,18 @@ export default function OrderForm() {
 
           {/* Sell side */}
           <button
-            onClick={() => handleSideChange('sell')}
+            onClick={() => handleSubmit('sell')}
+            disabled={submitting || !ticker}
             style={{
-              flex: 1, padding: '14px 14px', border: 'none', cursor: 'pointer',
-              background: !isBuy ? '#dc3826' : 'rgba(100,20,12,0.82)',
-              textAlign: 'left', transition: 'background 0.18s',
+              flex: 1, padding: '14px 14px', border: 'none', cursor: submitting ? 'not-allowed' : 'pointer',
+              background: '#dc3826', textAlign: 'left', transition: 'background 0.18s',
+              opacity: submitting || !ticker ? 0.65 : 1,
             }}
           >
-            <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 5, color: !isBuy ? '#fff' : 'rgba(255,160,140,0.45)' }}>Sell</div>
-            <div style={{ fontSize: 18, fontWeight: 800, fontFamily: 'monospace', lineHeight: 1.1, color: !isBuy ? '#fff' : 'rgba(255,160,140,0.45)' }}>
+            <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 5, color: '#fff' }}>
+              {submitting && side === 'sell' ? '…' : 'Sell'}
+            </div>
+            <div style={{ fontSize: 18, fontWeight: 800, fontFamily: 'monospace', lineHeight: 1.1, color: '#fff' }}>
               {bid > 0 ? formatPrice(bid, selectedSymbol) : '––'}
             </div>
           </button>
@@ -341,15 +342,18 @@ export default function OrderForm() {
 
           {/* Buy side */}
           <button
-            onClick={() => handleSideChange('buy')}
+            onClick={() => handleSubmit('buy')}
+            disabled={submitting || !ticker}
             style={{
-              flex: 1, padding: '14px 14px', border: 'none', cursor: 'pointer',
-              background: isBuy ? '#1a7af5' : 'rgba(10,38,110,0.82)',
-              textAlign: 'right', transition: 'background 0.18s',
+              flex: 1, padding: '14px 14px', border: 'none', cursor: submitting ? 'not-allowed' : 'pointer',
+              background: '#1a7af5', textAlign: 'right', transition: 'background 0.18s',
+              opacity: submitting || !ticker ? 0.65 : 1,
             }}
           >
-            <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 5, color: isBuy ? '#fff' : 'rgba(130,180,255,0.45)' }}>Buy</div>
-            <div style={{ fontSize: 18, fontWeight: 800, fontFamily: 'monospace', lineHeight: 1.1, color: isBuy ? '#fff' : 'rgba(130,180,255,0.45)' }}>
+            <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 5, color: '#fff' }}>
+              {submitting && side === 'buy' ? '…' : 'Buy'}
+            </div>
+            <div style={{ fontSize: 18, fontWeight: 800, fontFamily: 'monospace', lineHeight: 1.1, color: '#fff' }}>
               {ask > 0 ? formatPrice(ask, selectedSymbol) : '––'}
             </div>
           </button>
@@ -473,34 +477,6 @@ export default function OrderForm() {
           Order details · Commission ${commission.toFixed(2)}
         </button>
 
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button
-            onClick={() => handleSubmit('sell')}
-            disabled={submitting || !ticker}
-            style={{
-              flex: 1, padding: '16px 0', borderRadius: 14,
-              background: '#dc3826', color: '#fff', fontSize: 15, fontWeight: 800,
-              border: 'none', cursor: submitting ? 'not-allowed' : 'pointer',
-              opacity: submitting || !ticker ? 0.65 : 1, transition: 'opacity 0.15s',
-              letterSpacing: '0.02em',
-            }}
-          >
-            {submitting && side === 'sell' ? '…' : 'Sell'}
-          </button>
-          <button
-            onClick={() => handleSubmit('buy')}
-            disabled={submitting || !ticker}
-            style={{
-              flex: 1, padding: '16px 0', borderRadius: 14,
-              background: '#1a7af5', color: '#fff', fontSize: 15, fontWeight: 800,
-              border: 'none', cursor: submitting ? 'not-allowed' : 'pointer',
-              opacity: submitting || !ticker ? 0.65 : 1, transition: 'opacity 0.15s',
-              letterSpacing: '0.02em',
-            }}
-          >
-            {submitting && side === 'buy' ? '…' : 'Buy'}
-          </button>
-        </div>
       </div>
 
       {/* Price depth bottom sheet */}
