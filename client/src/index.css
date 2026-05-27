@@ -4,15 +4,15 @@
 
 /* ── Theme tokens ──────────────────────────────────────────────────────────── */
 :root, [data-theme="dark"] {
-  --t-bg:           #070d1a;
-  --t-surface:      #0d1528;
-  --t-surface-2:    #111e35;
-  --t-surface-3:    #1a2744;
-  --t-border:       rgba(255,255,255,0.06);
-  --t-border-hover: rgba(255,255,255,0.13);
-  --t-text-1:       #e2e8f0;
-  --t-text-2:       #8fa3be;
-  --t-text-3:       #4b6080;
+  --t-bg:           #000000;
+  --t-surface:      #0a0a0a;
+  --t-surface-2:    #111111;
+  --t-surface-3:    #1a1a1a;
+  --t-border:       rgba(255,255,255,0.08);
+  --t-border-hover: rgba(255,255,255,0.16);
+  --t-text-1:       #f0f0f0;
+  --t-text-2:       rgba(255,255,255,0.55);
+  --t-text-3:       rgba(255,255,255,0.3);
   --t-accent:       #3b82f6;
   --t-accent-h:     #2563eb;
   --t-accent-s:     rgba(59,130,246,0.10);

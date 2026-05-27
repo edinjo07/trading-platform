@@ -131,10 +131,9 @@ export default function Header({ onMenuClick }: HeaderProps) {
     <header
       className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 shrink-0"
       style={{
-        background: 'var(--t-surface)',
-        borderBottom: '1px solid var(--t-border)',
+        background: '#0a0a0a',
+        borderBottom: '1px solid rgba(255,255,255,0.08)',
         height: '56px',
-        transition: 'background 0.25s ease',
       }}
     >
       {/* ── Hamburger (mobile/tablet only) ── */}
@@ -169,7 +168,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
         {showSearch && (
           <div
             className="fixed sm:absolute top-[56px] sm:top-full left-0 sm:left-0 right-0 sm:right-auto mt-0 sm:mt-1.5 sm:w-80 rounded-none sm:rounded-xl overflow-hidden z-50 flex flex-col"
-            style={{ background: '#0c1420', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 16px 48px rgba(0,0,0,0.6)', maxHeight: 'calc(100dvh - 56px)', minHeight: '0' }}>
+            style={{ background: '#141414', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 16px 48px rgba(0,0,0,0.6)', maxHeight: 'calc(100dvh - 56px)', minHeight: '0' }}>
             {/* Search input */}
             <div className="p-2.5 border-b border-white/[0.05] shrink-0">
               <div className="flex items-center gap-2 px-2 py-1.5 rounded-lg" style={{ background: 'rgba(255,255,255,0.05)' }}>
@@ -355,7 +354,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
 
           {showMore && (
             <div className="absolute top-full right-0 mt-1.5 w-56 rounded-xl overflow-hidden z-50"
-                 style={{ background: '#0c1420', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 16px 48px rgba(0,0,0,0.6)' }}>
+                 style={{ background: '#141414', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 16px 48px rgba(0,0,0,0.6)' }}>
               {MORE_LINKS.map(link => (
                 <button
                   key={link.path}
@@ -380,9 +379,9 @@ export default function Header({ onMenuClick }: HeaderProps) {
         <button
           onClick={toggleTheme}
           className="w-8 h-8 rounded-lg flex items-center justify-center transition-all shrink-0"
-          style={{ color: 'var(--t-text-2)', border: '1px solid var(--t-border)' }}
-          onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--t-text-1)'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--t-border-hover)' }}
-          onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--t-text-2)'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--t-border)' }}
+          style={{ color: 'rgba(255,255,255,0.5)', border: '1px solid rgba(255,255,255,0.09)' }}
+          onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = '#fff'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(255,255,255,0.2)' }}
+          onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = 'rgba(255,255,255,0.5)'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(255,255,255,0.09)' }}
           title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
           aria-label="Toggle theme"
         >

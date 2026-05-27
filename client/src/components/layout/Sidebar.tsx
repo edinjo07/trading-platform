@@ -201,7 +201,7 @@ export default function Sidebar({ mobileOpen, onClose }: SidebarProps) {
             )}
             {group.label && !collapsed && (
               <p className="text-[10px] font-bold uppercase tracking-widest mb-1 mt-0.5 px-2.5"
-                 style={{ color: 'rgba(100,130,160,0.5)' }}>
+                 style={{ color: 'rgba(255,255,255,0.3)' }}>
                 {group.label}
               </p>
             )}
@@ -272,8 +272,8 @@ export default function Sidebar({ mobileOpen, onClose }: SidebarProps) {
         {!collapsed && (
           <div className="mt-3 px-0 pb-2">
             <div className="flex items-center justify-between mb-1.5 px-1">
-              <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'rgba(100,130,160,0.55)' }}>Watchlist</span>
-              <span className="text-[10px]" style={{ color: 'rgba(100,130,160,0.55)' }}>{WATCHLIST.length}</span>
+              <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.3)' }}>Watchlist</span>
+              <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.3)' }}>{WATCHLIST.length}</span>
             </div>
             <div className="flex flex-col gap-px">
               {WATCHLIST.map(sym => {
@@ -363,7 +363,7 @@ export default function Sidebar({ mobileOpen, onClose }: SidebarProps) {
                     className="flex-1 py-1.5 rounded-lg text-xs font-semibold transition-all"
                     style={user?.accountMode === m
                       ? { background: m === 'real' ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.15)', color: m === 'real' ? '#10b981' : '#f59e0b', border: `1px solid ${m === 'real' ? 'rgba(16,185,129,0.3)' : 'rgba(245,158,11,0.3)'}` }
-                      : { background: 'rgba(255,255,255,0.04)', color: '#6b8099', border: '1px solid rgba(255,255,255,0.07)' }}
+                      : { background: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.4)', border: '1px solid rgba(255,255,255,0.09)' }}
                   >
                     {m === 'real' ? 'Live' : 'Demo'}
                   </button>
@@ -398,7 +398,7 @@ export default function Sidebar({ mobileOpen, onClose }: SidebarProps) {
               <div className="text-xs font-semibold text-text-primary truncate">{user?.username}</div>
               <div className="flex items-center gap-1 mt-0.5">
                 <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${user?.accountMode === 'real' ? 'bg-bull' : 'bg-amber-400'}`} />
-                <span className="text-[10px] text-text-secondary">
+                <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.45)' }}>
                   {user?.accountMode === 'real' ? 'Live' : 'Demo'}
                 </span>
               </div>

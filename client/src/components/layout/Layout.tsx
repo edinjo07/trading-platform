@@ -56,7 +56,7 @@ export default function Layout() {
   const closeMobile = useCallback(() => setMobileOpen(false), [])
 
   return (
-    <div className="flex h-[100dvh] overflow-hidden" style={{ background: 'var(--t-bg)', fontFamily: "'Inter', system-ui, sans-serif", transition: 'background-color 0.25s ease' }}>
+    <div className="flex h-[100dvh] overflow-hidden" style={{ background: '#000', fontFamily: "'Inter', system-ui, sans-serif" }}>
       {/* ── Overlay (mobile sidebar backdrop) ── */}
       {mobileOpen && (
         <div
@@ -72,7 +72,7 @@ export default function Layout() {
       {/* ── Main column ── */}
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
         <Header onMenuClick={() => setMobileOpen(o => !o)} />
-        <main className="flex-1 overflow-auto" style={{ background: 'var(--t-bg)', paddingBottom: 'calc(env(safe-area-inset-bottom) + 64px)', transition: 'background-color 0.25s ease' }}>
+        <main className="flex-1 overflow-auto" style={{ background: '#000', paddingBottom: 'calc(env(safe-area-inset-bottom) + 64px)' }}>
           <div className="p-3 sm:p-5 lg:pb-4 min-h-full">
             <Outlet />
           </div>
