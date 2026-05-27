@@ -2,18 +2,78 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Theme tokens ──────────────────────────────────────────────────────────── */
+:root, [data-theme="dark"] {
+  --t-bg:           #070d1a;
+  --t-surface:      #0d1528;
+  --t-surface-2:    #111e35;
+  --t-surface-3:    #1a2744;
+  --t-border:       rgba(255,255,255,0.06);
+  --t-border-hover: rgba(255,255,255,0.13);
+  --t-text-1:       #e2e8f0;
+  --t-text-2:       #8fa3be;
+  --t-text-3:       #4b6080;
+  --t-accent:       #3b82f6;
+  --t-accent-h:     #2563eb;
+  --t-accent-s:     rgba(59,130,246,0.10);
+  --t-bull:         #10b981;
+  --t-bull-s:       rgba(16,185,129,0.10);
+  --t-bear:         #f43f5e;
+  --t-bear-s:       rgba(244,63,94,0.10);
+  --t-warn:         #f59e0b;
+  --t-warn-s:       rgba(245,158,11,0.10);
+  --t-shadow-sm:    0 1px 3px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.04);
+  --t-shadow-md:    0 4px 20px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.04);
+  --t-shadow-lg:    0 20px 60px rgba(0,0,0,0.7);
+}
+
+[data-theme="light"] {
+  --t-bg:           #f0f4f9;
+  --t-surface:      #ffffff;
+  --t-surface-2:    #f8fafc;
+  --t-surface-3:    #eef2f7;
+  --t-border:       rgba(15,23,42,0.07);
+  --t-border-hover: rgba(15,23,42,0.16);
+  --t-text-1:       #0f172a;
+  --t-text-2:       #475569;
+  --t-text-3:       #94a3b8;
+  --t-accent:       #2563eb;
+  --t-accent-h:     #1d4ed8;
+  --t-accent-s:     rgba(37,99,235,0.08);
+  --t-bull:         #059669;
+  --t-bull-s:       rgba(5,150,105,0.08);
+  --t-bear:         #e11d48;
+  --t-bear-s:       rgba(225,29,72,0.08);
+  --t-warn:         #d97706;
+  --t-warn-s:       rgba(217,119,6,0.08);
+  --t-shadow-sm:    0 1px 3px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.04);
+  --t-shadow-md:    0 4px 20px rgba(0,0,0,0.10), 0 0 0 1px rgba(0,0,0,0.04);
+  --t-shadow-lg:    0 20px 60px rgba(0,0,0,0.14);
+}
+
+/* ── Themed element base ───────────────────────────────────────────────────── */
+html {
+  /* Smooth theme transitions */
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+.t-surface   { background: var(--t-surface); color: var(--t-text-1); }
+.t-surface-2 { background: var(--t-surface-2); }
+.t-border    { border-color: var(--t-border); }
+
 @layer base {
   *, *::before, *::after { @apply box-border; }
 
   html, body, #root { @apply h-full; }
 
   body {
-    background-color: #06090f;
-    color: #d4dde8;
+    background-color: var(--t-bg);
+    color: var(--t-text-1);
     @apply antialiased;
     font-family: 'Inter', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    transition: background-color 0.25s ease, color 0.25s ease;
   }
 
   /* Slim dark scrollbar */
@@ -304,3 +364,30 @@
     box-shadow: none !important;
   }
 }
+
+/* ── Dashboard grid ─────────────────────────────────────────────────────────
+   Single column on mobile, two-column on desktop (main | right panel).    */
+.dash-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+  align-items: start;
+}
+@media (min-width: 1024px) {
+  .dash-grid {
+    grid-template-columns: 1fr 380px;
+  }
+}
+.dash-right {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Market table — hidden on mobile (horizontal cards shown instead) */
+.mkt-table { display: none; }
+@media (min-width: 768px) { .mkt-table { display: block; } }
+
+/* Hide scrollbar utility */
+.hide-scrollbar { scrollbar-width: none; }
+.hide-scrollbar::-webkit-scrollbar { display: none; }

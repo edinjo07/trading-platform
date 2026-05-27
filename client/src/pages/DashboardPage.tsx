@@ -1,441 +1,610 @@
-﻿import React, { useEffect, useState, useMemo } from 'react'
+import React, { useEffect, useState, useMemo, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTradingStore } from '../store/tradingStore'
 import { useAuthStore } from '../store/authStore'
 import { formatCurrency, formatPrice } from '../utils/formatters'
-import { MarketSymbol, Ticker } from '../types'
 import { getKYCStatus } from './KYCPage'
+import type { Position, Order } from '../types'
 
-// ─── Quick Action ──────────────────────────────────────────────────────────────
-function QuickAction({
-  label, sub, accent, icon, onClick
-}: {
-  label: string; sub: string; accent: string; icon: React.ReactNode; onClick: () => void
-}) {
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function greeting() {
+  const h = new Date().getHours()
+  return h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening'
+}
+
+function fmtChange(val: number, prefix = '') {
+  return (val >= 0 ? '+' : '') + prefix + formatCurrency(Math.abs(val))
+}
+
+function shortDate() {
+  return new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })
+}
+
+// ─── Micro-components ─────────────────────────────────────────────────────────
+
+function StatChip({ label, value, color }: { label: string; value: string; color?: string }) {
+  return (
+    <div style={{
+      background: 'var(--t-surface-2)',
+      border: '1px solid var(--t-border)',
+      borderRadius: 10,
+      padding: '10px 14px',
+      minWidth: 0,
+    }}>
+      <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--t-text-3)', marginBottom: 4 }}>{label}</p>
+      <p style={{ fontSize: 15, fontWeight: 700, fontFamily: 'JetBrains Mono, monospace', fontVariantNumeric: 'tabular-nums', color: color ?? 'var(--t-text-1)' }}>{value}</p>
+    </div>
+  )
+}
+
+// ─── Position Card (live prices) ──────────────────────────────────────────────
+
+function PositionCard({ pos, onClose }: { pos: Position; onClose: () => void }) {
+  const isLong    = pos.side === 'long'
+  const pnlColor  = pos.unrealizedPnl >= 0 ? 'var(--t-bull)' : 'var(--t-bear)'
+  const pnlBg     = pos.unrealizedPnl >= 0 ? 'var(--t-bull-s)' : 'var(--t-bear-s)'
+  const sideBg    = isLong ? 'var(--t-bull-s)' : 'var(--t-bear-s)'
+  const sideColor = isLong ? 'var(--t-bull)' : 'var(--t-bear)'
+  const liqPrice  = pos.liquidationPrice
+
+  return (
+    <div style={{
+      background: 'var(--t-surface)',
+      border: '1px solid var(--t-border)',
+      borderRadius: 12,
+      padding: '14px 16px',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 10,
+      transition: 'border-color 0.2s',
+    }}
+      onMouseEnter={e => (e.currentTarget.style.borderColor = 'var(--t-border-hover)')}
+      onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--t-border)')}
+    >
+      {/* Row 1: symbol + side + leverage */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ fontFamily: 'JetBrains Mono, monospace', fontWeight: 700, fontSize: 14, color: 'var(--t-text-1)' }}>{pos.symbol}</span>
+          <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 6, background: sideBg, color: sideColor }}>
+            {isLong ? 'LONG' : 'SHORT'}
+          </span>
+          {(pos.leverage ?? 1) > 1 && (
+            <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 6, background: 'var(--t-accent-s)', color: 'var(--t-accent)' }}>
+              {pos.leverage}x
+            </span>
+          )}
+        </div>
+        {/* P&L badge */}
+        <span style={{ fontSize: 12, fontWeight: 700, fontFamily: 'JetBrains Mono, monospace', fontVariantNumeric: 'tabular-nums', padding: '3px 8px', borderRadius: 8, background: pnlBg, color: pnlColor }}>
+          {pos.unrealizedPnl >= 0 ? '+' : ''}{formatCurrency(pos.unrealizedPnl)}
+        </span>
+      </div>
+
+      {/* Row 2: qty / entry / mark */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+        {[
+          { l: 'Quantity', v: pos.quantity.toFixed(pos.quantity < 1 ? 6 : 4) },
+          { l: 'Entry',    v: formatPrice(pos.avgCost, pos.symbol) },
+          { l: 'Mark',     v: pos.currentPrice > 0 ? formatPrice(pos.currentPrice, pos.symbol) : '—' },
+        ].map(item => (
+          <div key={item.l}>
+            <p style={{ fontSize: 10, color: 'var(--t-text-3)', marginBottom: 2 }}>{item.l}</p>
+            <p style={{ fontSize: 12, fontWeight: 600, fontFamily: 'JetBrains Mono, monospace', color: 'var(--t-text-1)' }}>{item.v}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Row 3: notional / margin / liq + close button */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+        <div style={{ display: 'flex', gap: 16 }}>
+          <div>
+            <p style={{ fontSize: 10, color: 'var(--t-text-3)', marginBottom: 1 }}>Notional</p>
+            <p style={{ fontSize: 11, fontFamily: 'JetBrains Mono, monospace', color: 'var(--t-text-2)' }}>{formatCurrency(pos.notionalValue ?? pos.quantity * pos.avgCost)}</p>
+          </div>
+          <div>
+            <p style={{ fontSize: 10, color: 'var(--t-text-3)', marginBottom: 1 }}>Margin</p>
+            <p style={{ fontSize: 11, fontFamily: 'JetBrains Mono, monospace', color: 'var(--t-text-2)' }}>{formatCurrency(pos.margin ?? pos.quantity * pos.avgCost)}</p>
+          </div>
+          {liqPrice && (
+            <div>
+              <p style={{ fontSize: 10, color: 'var(--t-text-3)', marginBottom: 1 }}>Liq.</p>
+              <p style={{ fontSize: 11, fontFamily: 'JetBrains Mono, monospace', color: 'var(--t-bear)' }}>{formatPrice(liqPrice, pos.symbol)}</p>
+            </div>
+          )}
+        </div>
+        <button
+          onClick={onClose}
+          style={{
+            fontSize: 11, fontWeight: 700, padding: '6px 14px', borderRadius: 8,
+            border: '1px solid var(--t-bear)', color: 'var(--t-bear)', background: 'var(--t-bear-s)',
+            cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0,
+          }}
+          onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'var(--t-bear)'; (e.currentTarget as HTMLButtonElement).style.color = '#fff' }}
+          onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'var(--t-bear-s)'; (e.currentTarget as HTMLButtonElement).style.color = 'var(--t-bear)' }}
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// ─── Market Ticker Card (horizontal scroll) ───────────────────────────────────
+
+function TickerCard({ symbol, name, onClick }: { symbol: string; name: string; onClick: () => void }) {
+  const { tickers } = useTradingStore()
+  const t = tickers[symbol]
+  const isUp = (t?.changePercent ?? 0) >= 0
+
   return (
     <button
       onClick={onClick}
-      className="flex items-center gap-3 p-4 rounded-xl text-left transition-all w-full"
-      style={{ background: `${accent}0d`, border: `1px solid ${accent}22` }}
-      onMouseEnter={e => {
-        ;(e.currentTarget as HTMLElement).style.borderColor = `${accent}55`
-        ;(e.currentTarget as HTMLElement).style.background  = `${accent}18`
+      style={{
+        minWidth: 120, background: 'var(--t-surface)', border: '1px solid var(--t-border)',
+        borderRadius: 12, padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 6,
+        cursor: 'pointer', transition: 'all 0.15s', textAlign: 'left', flexShrink: 0,
       }}
-      onMouseLeave={e => {
-        ;(e.currentTarget as HTMLElement).style.borderColor = `${accent}22`
-        ;(e.currentTarget as HTMLElement).style.background  = `${accent}0d`
-      }}
+      onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--t-border-hover)'; (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-1px)' }}
+      onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--t-border)'; (e.currentTarget as HTMLButtonElement).style.transform = 'none' }}
     >
-      <div className="w-10 h-10 rounded-xl shrink-0 flex items-center justify-center"
-           style={{ background: `${accent}18`, color: accent }}>
-        {icon}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 4 }}>
+        <span style={{ fontSize: 12, fontWeight: 700, fontFamily: 'JetBrains Mono, monospace', color: 'var(--t-text-1)' }}>{symbol}</span>
+        {t && (
+          <span style={{
+            fontSize: 10, fontWeight: 700, padding: '1px 5px', borderRadius: 5,
+            background: isUp ? 'var(--t-bull-s)' : 'var(--t-bear-s)',
+            color: isUp ? 'var(--t-bull)' : 'var(--t-bear)',
+          }}>
+            {isUp ? '+' : ''}{t.changePercent.toFixed(2)}%
+          </span>
+        )}
       </div>
-      <div className="min-w-0">
-        <p className="text-sm font-semibold text-text-primary">{label}</p>
-        <p className="text-xs text-text-muted truncate mt-0.5">{sub}</p>
-      </div>
-      <svg className="w-4 h-4 shrink-0 ml-auto opacity-30" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-        <polyline points="9 18 15 12 9 6" />
-      </svg>
+      <p style={{ fontSize: 13, fontWeight: 600, fontFamily: 'JetBrains Mono, monospace', fontVariantNumeric: 'tabular-nums', color: 'var(--t-text-1)' }}>
+        {t ? formatPrice(t.price, symbol) : '—'}
+      </p>
+      <p style={{ fontSize: 10, color: 'var(--t-text-3)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 100 }}>{name}</p>
     </button>
   )
 }
 
-// ─── Quick Stat ────────────────────────────────────────────────────────────────
-function QuickStat({ label, value, sub, color }: { label: string; value: string; sub?: string; color: string }) {
-  return (
-    <div className="flex flex-col gap-0.5 p-4 rounded-xl" style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.05)' }}>
-      <p className="text-2xs font-bold uppercase tracking-widest text-text-muted">{label}</p>
-      <p className={`text-xl font-bold font-mono tabular ${color}`}>{value}</p>
-      {sub && <p className="text-xs text-text-muted">{sub}</p>}
-    </div>
-  )
-}
+// ─── Order Row ────────────────────────────────────────────────────────────────
 
-// ─── Ticker Mini Row ───────────────────────────────────────────────────────────
-function MiniTickerRow({ sym, ticker, onClick }: { sym: MarketSymbol; ticker?: Ticker; onClick: () => void }) {
-  const isUp = (ticker?.changePercent ?? 0) >= 0
-  const ASSET_COLOR: Record<string, string> = {
-    crypto: 'linear-gradient(135deg,#f59e0b,#d97706)',
-    forex:  'linear-gradient(135deg,#0ea5e9,#0369a1)',
-    stock:  'linear-gradient(135deg,#8b5cf6,#6d28d9)',
-  }
+function OrderRow({ order }: { order: Order }) {
+  const isBuy   = order.side === 'buy'
+  const statColor = order.status === 'filled' ? 'var(--t-bull)' : order.status === 'open' ? 'var(--t-accent)' : 'var(--t-text-3)'
+  const statBg    = order.status === 'filled' ? 'var(--t-bull-s)' : order.status === 'open' ? 'var(--t-accent-s)' : 'var(--t-surface-2)'
+
   return (
-    <div onClick={onClick} className="flex items-center justify-between px-4 py-2.5 cursor-pointer hover:bg-white/5 transition-colors"
-         style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-      <div className="flex items-center gap-2.5">
-        <div className="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0"
-             style={{ background: ASSET_COLOR[sym.assetClass] ?? ASSET_COLOR.stock }}>
-          {sym.symbol.charAt(0)}
-        </div>
-        <div>
-          <p className="font-mono font-bold text-xs text-text-primary">{sym.symbol}</p>
-          <p className="text-2xs text-text-muted truncate max-w-[100px]">{sym.name}</p>
-        </div>
-      </div>
-      <div className="text-right">
-        <p className="font-mono text-xs font-semibold text-text-primary">{ticker ? formatPrice(ticker.price, sym.symbol) : '-'}</p>
-        <p className={`text-2xs font-semibold ${isUp ? 'text-bull' : 'text-bear'}`}>
-          {ticker ? (isUp ? '+' : '') + ticker.changePercent.toFixed(2) + '%' : '-'}
+    <div style={{
+      display: 'grid', gridTemplateColumns: '44px 1fr auto auto',
+      gap: '0 12px', alignItems: 'center',
+      padding: '11px 16px',
+      borderBottom: '1px solid var(--t-border)',
+    }}>
+      <span style={{
+        display: 'inline-block', textAlign: 'center', fontSize: 10, fontWeight: 700, padding: '3px 0',
+        borderRadius: 6, background: isBuy ? 'var(--t-bull-s)' : 'var(--t-bear-s)',
+        color: isBuy ? 'var(--t-bull)' : 'var(--t-bear)',
+      }}>
+        {order.side.toUpperCase()}
+      </span>
+      <div style={{ minWidth: 0 }}>
+        <p style={{ fontSize: 13, fontWeight: 700, fontFamily: 'JetBrains Mono, monospace', color: 'var(--t-text-1)' }}>{order.symbol}</p>
+        <p style={{ fontSize: 10, color: 'var(--t-text-3)', marginTop: 1 }}>
+          {order.quantity} · {order.avgFillPrice ? formatPrice(order.avgFillPrice, order.symbol) : order.price ? formatPrice(order.price, order.symbol) : 'Market'}
         </p>
       </div>
+      <span style={{ fontSize: 10, fontWeight: 700, padding: '3px 7px', borderRadius: 6, background: statBg, color: statColor }}>{order.status}</span>
+      <p style={{ fontSize: 10, color: 'var(--t-text-3)', textAlign: 'right', whiteSpace: 'nowrap' }}>
+        {new Date(order.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}{' '}
+        {new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+      </p>
     </div>
   )
 }
 
-// ─── Main ─────────────────────────────────────────────────────────────────────
-const CAT_TABS = ['All', 'Forex', 'Crypto', 'Stocks'] as const
-type CatTab = typeof CAT_TABS[number]
+// ─── Tool Button ─────────────────────────────────────────────────────────────
+
+function ToolButton({ label, sub, icon, accent, path }: { label: string; sub: string; icon: React.ReactNode; accent: string; path: string }) {
+  const navigate = useNavigate()
+  const [hov, setHov] = useState(false)
+  return (
+    <button
+      onClick={() => navigate(path)}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{
+        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
+        padding: '14px 8px', borderRadius: 12, cursor: 'pointer', textAlign: 'center',
+        background: hov ? `${accent}18` : `${accent}0c`,
+        border: `1px solid ${hov ? accent + '44' : accent + '1a'}`,
+        transition: 'all 0.15s',
+      }}
+    >
+      <div style={{ width: 36, height: 36, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', background: `${accent}1c`, color: accent }}>
+        {icon}
+      </div>
+      <div>
+        <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--t-text-1)', lineHeight: 1.3 }}>{label}</p>
+        <p style={{ fontSize: 10, color: 'var(--t-text-3)', marginTop: 2 }}>{sub}</p>
+      </div>
+    </button>
+  )
+}
+
+// ─── Main page ────────────────────────────────────────────────────────────────
+
+const WATCHLIST = [
+  { symbol: 'BTCUSD',  name: 'Bitcoin' },
+  { symbol: 'ETHUSD',  name: 'Ethereum' },
+  { symbol: 'XAUUSD',  name: 'Gold' },
+  { symbol: 'EURUSD',  name: 'EUR/USD' },
+  { symbol: 'GBPUSD',  name: 'GBP/USD' },
+  { symbol: 'US500',   name: 'S&P 500' },
+  { symbol: 'USTEC',   name: 'Nasdaq 100' },
+  { symbol: 'WTI',     name: 'Crude Oil' },
+]
+
+const TOOLS = [
+  { label: 'WebTrader', sub: 'Live charts',    accent: '#3b82f6', path: '/dashboard/trade',            icon: <svg width={18} height={18} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg> },
+  { label: 'TradePilot',sub: 'AI bots',        accent: '#8b5cf6', path: '/dashboard/bots',             icon: <svg width={18} height={18} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M9 11V7a3 3 0 016 0v4"/><circle cx="9" cy="16" r="1" fill="currentColor"/><circle cx="15" cy="16" r="1" fill="currentColor"/></svg> },
+  { label: 'Scanner',   sub: 'Market scan',    accent: '#f59e0b', path: '/dashboard/scanner',          icon: <svg width={18} height={18} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg> },
+  { label: 'Analytics', sub: 'Performance',    accent: '#06b6d4', path: '/dashboard/analytics',        icon: <svg width={18} height={18} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> },
+  { label: 'Calendar',  sub: 'Eco events',     accent: '#10b981', path: '/dashboard/economic-calendar',icon: <svg width={18} height={18} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> },
+  { label: 'Leaderboard',sub:'Rankings',       accent: '#f472b6', path: '/dashboard/leaderboard',      icon: <svg width={18} height={18} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg> },
+]
 
 export default function DashboardPage() {
   const navigate = useNavigate()
   const { user } = useAuthStore()
   const {
     tickers, symbols, portfolio, orders,
-    loadPortfolio, loadOrders, setSelectedSymbol,
-    performanceStats, loadAnalytics,
+    loadPortfolio, loadOrders, loadAnalytics,
+    performanceStats, closePosition, setSelectedSymbol,
   } = useTradingStore()
 
-  const [tab, setTab] = useState<CatTab>('All')
-  const [kycStatus] = useState(() => getKYCStatus())
+  const [kycStatus]   = useState(() => getKYCStatus())
+  const [closingPos, setClosingPos] = useState<string | null>(null)
 
   useEffect(() => {
-    loadPortfolio(); loadOrders(); loadAnalytics()
-    const id = setInterval(loadPortfolio, 8000)
+    loadPortfolio()
+    loadOrders()
+    loadAnalytics()
+    const id = setInterval(loadPortfolio, 6000)
     return () => clearInterval(id)
   }, [loadPortfolio, loadOrders, loadAnalytics])
 
-  const greet = () => {
-    const h = new Date().getHours()
-    return h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening'
+  const equity   = portfolio?.totalEquity  ?? user?.balance ?? 0
+  const cash     = portfolio?.cashBalance  ?? user?.balance ?? 0
+  const upnl     = portfolio?.unrealizedPnl ?? 0
+  const rpnl     = portfolio?.realizedPnl   ?? 0
+  const todayPnl = portfolio?.todayPnl      ?? 0
+  const positions = portfolio?.positions ?? []
+  const totalTrades = performanceStats?.totalTrades ?? 0
+  const winRate     = performanceStats?.winRate ?? 0
+
+  const recentOrders = orders.slice(0, 8)
+
+  const handleClose = useCallback(async (symbol: string) => {
+    setClosingPos(symbol)
+    try { await closePosition(symbol) } finally { setClosingPos(null) }
+  }, [closePosition])
+
+  const goTrade = useCallback((sym: string) => {
+    setSelectedSymbol(sym)
+    navigate('/dashboard/trade')
+  }, [setSelectedSymbol, navigate])
+
+  // ─── Layout vars ────────────────────────────────────────────────────────────
+  const cardStyle: React.CSSProperties = {
+    background: 'var(--t-surface)',
+    border: '1px solid var(--t-border)',
+    borderRadius: 14,
+    overflow: 'hidden',
+  }
+  const sectionHead: React.CSSProperties = {
+    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+    padding: '14px 18px',
+    borderBottom: '1px solid var(--t-border)',
+  }
+  const sectionTitle: React.CSSProperties = {
+    fontSize: 12, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase',
+    color: 'var(--t-text-2)',
+  }
+  const linkBtn: React.CSSProperties = {
+    fontSize: 12, fontWeight: 600, color: 'var(--t-accent)', cursor: 'pointer',
+    background: 'none', border: 'none', padding: 0,
   }
 
-  const equity      = portfolio?.totalEquity ?? user?.balance ?? 0
-  const cash        = portfolio?.cashBalance ?? user?.balance ?? 0
-  const upnl        = portfolio?.unrealizedPnl ?? 0
-  const rpnl        = portfolio?.realizedPnl   ?? 0
-  const openPos     = portfolio?.positions?.length ?? 0
-  const winRate     = performanceStats?.winRate ?? 0
-  const totalTrades = performanceStats?.totalTrades ?? 0
-
-  const filteredMarket = useMemo(() => {
-    const assetMap: Record<CatTab, string> = { All: '', Forex: 'forex', Crypto: 'crypto', Stocks: 'stock' }
-    let list = symbols
-    if (tab !== 'All') list = list.filter(s => s.assetClass === assetMap[tab])
-    return list.slice(0, 12)
-  }, [symbols, tab])
-
-  const goTrade = (sym: string) => { setSelectedSymbol(sym); navigate('/dashboard/trade') }
-
-  const recentOrders = orders.slice(0, 5)
-
   return (
-    <div className="space-y-4 sm:space-y-6">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 20, maxWidth: 1200, margin: '0 auto', paddingBottom: 8 }}>
 
-      {/* ── KYC Verification Banner ───────────────────────────────────────── */}
+      {/* ── KYC Banner ──────────────────────────────────────────────────────── */}
       {kycStatus === 'unverified' && (
-        <div className="flex items-center justify-between gap-4 rounded-2xl px-5 py-4 flex-wrap cursor-pointer"
-             onClick={() => navigate('/dashboard/verify')}
-             style={{ background: 'linear-gradient(135deg,#92400e18,#78350f0d)', border: '1px solid rgba(245,158,11,0.3)' }}
-             onMouseEnter={e => (e.currentTarget as HTMLElement).style.borderColor = 'rgba(245,158,11,0.55)'}
-             onMouseLeave={e => (e.currentTarget as HTMLElement).style.borderColor = 'rgba(245,158,11,0.3)'}>
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full shrink-0 flex items-center justify-center"
-                 style={{ background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.3)' }}>
-              <svg className="w-4 h-4" style={{ color: '#fbbf24' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <div
+          onClick={() => navigate('/dashboard/verify')}
+          style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16,
+            padding: '14px 18px', borderRadius: 12, cursor: 'pointer',
+            background: 'var(--t-warn-s)', border: '1px solid var(--t-warn)', flexWrap: 'wrap',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{ width: 34, height: 34, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--t-warn-s)', border: '1px solid var(--t-warn)', flexShrink: 0 }}>
+              <svg width={16} height={16} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} style={{ color: 'var(--t-warn)' }}>
                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
               </svg>
             </div>
             <div>
-              <p className="text-sm font-bold" style={{ color: '#fcd34d' }}>Verify your account</p>
-              <p className="text-xs text-text-muted mt-0.5">Submit your ID and proof of address to unlock full trading access &amp; withdraw limits.</p>
+              <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--t-warn)' }}>Verify your account</p>
+              <p style={{ fontSize: 11, color: 'var(--t-text-3)', marginTop: 2 }}>Submit your ID to unlock full trading access and withdrawal limits.</p>
             </div>
           </div>
-          <span className="text-xs font-bold px-3 py-1.5 rounded-lg shrink-0 flex items-center gap-1.5"
-                style={{ background: 'rgba(245,158,11,0.15)', color: '#fbbf24', border: '1px solid rgba(245,158,11,0.3)' }}>
-            Verify Now
-            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><polyline points="9 18 15 12 9 6"/></svg>
+          <span style={{ fontSize: 11, fontWeight: 700, padding: '6px 12px', borderRadius: 8, border: '1px solid var(--t-warn)', color: 'var(--t-warn)', background: 'var(--t-warn-s)', flexShrink: 0 }}>
+            Verify Now →
           </span>
         </div>
       )}
 
       {kycStatus === 'pending' && (
-        <div className="flex items-center gap-3 rounded-2xl px-5 py-4"
-             style={{ background: 'rgba(14,165,233,0.06)', border: '1px solid rgba(14,165,233,0.2)' }}>
-          <div className="w-9 h-9 rounded-full shrink-0 flex items-center justify-center"
-               style={{ background: 'rgba(14,165,233,0.12)', border: '1px solid rgba(14,165,233,0.25)' }}>
-            <svg className="w-4 h-4 text-brand-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 18px', borderRadius: 12, background: 'var(--t-accent-s)', border: '1px solid var(--t-accent)' }}>
+          <svg width={18} height={18} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} style={{ color: 'var(--t-accent)', flexShrink: 0 }}>
+            <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+          </svg>
+          <div style={{ flex: 1 }}>
+            <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--t-accent)' }}>Verification under review</p>
+            <p style={{ fontSize: 11, color: 'var(--t-text-3)', marginTop: 2 }}>Documents submitted — typically reviewed within 1–2 business days.</p>
           </div>
-          <div className="flex-1">
-            <p className="text-sm font-bold text-brand-300">Verification under review</p>
-            <p className="text-xs text-text-muted mt-0.5">Your documents are being reviewed by our compliance team. This typically takes 1–2 business days.</p>
-          </div>
-          <button onClick={e => { e.stopPropagation(); navigate('/dashboard/verify') }}
-            className="text-xs font-semibold text-brand-400 hover:text-brand-300 transition-colors shrink-0">Details →</button>
+          <button onClick={() => navigate('/dashboard/verify')} style={{ ...linkBtn, flexShrink: 0 }}>Details →</button>
         </div>
       )}
 
-      {/* ── Greeting + status ────────────────────────────────────────────── */}
-      <div className="flex items-center justify-between gap-4 flex-wrap">
+      {/* ── Greeting ────────────────────────────────────────────────────────── */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-text-primary">
-            {greet()}, <span className="gradient-text">{user?.username ?? 'Trader'}</span>
+          <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--t-text-1)', margin: 0 }}>
+            {greeting()},{' '}
+            <span style={{ color: 'var(--t-accent)' }}>{user?.username ?? 'Trader'}</span>
           </h1>
-          <p className="text-text-muted text-xs sm:text-sm mt-1">
-            {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
-          </p>
+          <p style={{ fontSize: 12, color: 'var(--t-text-3)', marginTop: 4 }}>{shortDate()}</p>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full"
-               style={{ background: 'rgba(0,200,120,0.08)', border: '1px solid rgba(0,200,120,0.2)' }}>
-            <span className="w-1.5 h-1.5 rounded-full bg-bull animate-pulse" />
-            <span className="text-xs font-bold text-bull">MARKETS LIVE</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 99, background: 'var(--t-bull-s)', border: '1px solid var(--t-bull)' }}>
+            <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--t-bull)', animation: 'pulse2 2s ease-in-out infinite', display: 'inline-block' }} />
+            <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--t-bull)' }}>MARKETS LIVE</span>
           </div>
-          <button onClick={() => navigate('/dashboard/trade')} className="btn-primary text-sm px-4 py-2">
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-              <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
-              <polyline points="16 7 22 7 22 13" />
-            </svg>
+          <button
+            onClick={() => navigate('/dashboard/trade')}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 10,
+              background: 'var(--t-accent)', color: '#fff', fontSize: 13, fontWeight: 700,
+              border: 'none', cursor: 'pointer', transition: 'opacity 0.15s',
+            }}
+            onMouseEnter={e => (e.currentTarget.style.opacity = '0.88')}
+            onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
+          >
+            <svg width={14} height={14} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
             New Trade
           </button>
         </div>
       </div>
 
-      {/* ── Account Overview ──────────────────────────────────────────────── */}
-      <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(135deg,#0c2245 0%,#0a1830 50%,#060e1c 100%)', border: '1px solid rgba(14,165,233,0.18)' }}>
-        {/* top stripe */}
-        <div className="px-4 py-4 sm:px-6 sm:py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-          <div>
-            <p className="text-xs font-bold uppercase tracking-widest text-text-muted mb-1">Account Overview</p>
-            <p className="text-4xl font-bold font-mono text-white tabular">{formatCurrency(equity)}</p>
-            <p className="text-sm text-text-secondary mt-1">Total Equity</p>
-          </div>
-          <div className="flex items-center gap-3 flex-wrap">
-            <button onClick={() => navigate('/dashboard/deposit')} className="btn-primary px-5 py-2 text-sm">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                <path d="M12 5v14M5 12l7 7 7-7" />
-              </svg>
-              Deposit
-            </button>
-            <button onClick={() => navigate('/dashboard/withdraw')}
-              className="px-5 py-2 text-sm font-semibold rounded-lg transition-all"
-              style={{ background: 'rgba(255,255,255,0.06)', color: '#e2e8f0', border: '1px solid rgba(255,255,255,0.1)' }}
-              onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.1)'}
-              onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.06)'}>
-              <span className="flex items-center gap-2">
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                  <path d="M12 19V5M5 12l7-7 7 7" />
-                </svg>
+      {/* ── Account Hero ─────────────────────────────────────────────────────── */}
+      <div style={{
+        ...cardStyle, padding: 0,
+        background: 'linear-gradient(160deg, var(--t-surface) 0%, var(--t-surface-2) 100%)',
+      }}>
+        {/* Main equity row */}
+        <div style={{ padding: '22px 22px 18px', borderBottom: '1px solid var(--t-border)' }}>
+          <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--t-text-3)', marginBottom: 6 }}>Total Equity</p>
+          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+            <div>
+              <p style={{ fontSize: 34, fontWeight: 800, fontFamily: 'JetBrains Mono, monospace', fontVariantNumeric: 'tabular-nums', color: 'var(--t-text-1)', lineHeight: 1 }}>
+                {formatCurrency(equity)}
+              </p>
+              {todayPnl !== 0 && (
+                <p style={{ fontSize: 12, fontWeight: 600, marginTop: 6, color: todayPnl >= 0 ? 'var(--t-bull)' : 'var(--t-bear)' }}>
+                  {fmtChange(todayPnl, '$')} today
+                </p>
+              )}
+            </div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button
+                onClick={() => navigate('/dashboard/deposit')}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 6, padding: '9px 18px', borderRadius: 10,
+                  background: 'var(--t-accent)', color: '#fff', fontSize: 13, fontWeight: 700,
+                  border: 'none', cursor: 'pointer', transition: 'opacity 0.15s',
+                }}
+                onMouseEnter={e => (e.currentTarget.style.opacity = '0.88')}
+                onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
+              >
+                <svg width={14} height={14} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+                Deposit
+              </button>
+              <button
+                onClick={() => navigate('/dashboard/withdraw')}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 6, padding: '9px 18px', borderRadius: 10,
+                  background: 'var(--t-surface-3)', color: 'var(--t-text-1)', fontSize: 13, fontWeight: 700,
+                  border: '1px solid var(--t-border)', cursor: 'pointer', transition: 'all 0.15s',
+                }}
+                onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--t-border-hover)'; (e.currentTarget as HTMLButtonElement).style.background = 'var(--t-surface-2)' }}
+                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--t-border)'; (e.currentTarget as HTMLButtonElement).style.background = 'var(--t-surface-3)' }}
+              >
+                <svg width={14} height={14} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path d="M12 19V5M5 12l7-7 7 7"/></svg>
                 Withdraw
-              </span>
-            </button>
+              </button>
+            </div>
           </div>
         </div>
-        {/* stats row */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-white/5">
+
+        {/* Stat chips grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 0 }}>
           {[
-            { l: 'Cash Balance',   v: formatCurrency(cash), c: 'text-text-primary' },
-            { l: 'Open Positions', v: String(openPos),      c: 'text-brand-300' },
-            { l: 'Unrealised P&L', v: (upnl >= 0 ? '+' : '') + formatCurrency(upnl), c: upnl >= 0 ? 'text-bull' : 'text-bear' },
-            { l: 'Realised P&L',   v: (rpnl >= 0 ? '+' : '') + formatCurrency(rpnl), c: rpnl >= 0 ? 'text-bull' : 'text-bear' },
-          ].map(r => (
-            <div key={r.l} className="px-3 py-3 sm:px-5 sm:py-4">
-              <p className="text-xs text-text-muted mb-1">{r.l}</p>
-              <p className={`text-lg font-bold font-mono tabular ${r.c}`}>{r.v}</p>
+            { l: 'Cash Balance',   v: formatCurrency(cash),                                      c: 'var(--t-text-1)' },
+            { l: 'Open Positions', v: String(positions.length),                                   c: 'var(--t-accent)' },
+            { l: 'Unrealized P&L', v: (upnl >= 0 ? '+' : '') + formatCurrency(upnl),             c: upnl >= 0 ? 'var(--t-bull)' : 'var(--t-bear)' },
+            { l: 'Realized P&L',   v: (rpnl >= 0 ? '+' : '') + formatCurrency(rpnl),             c: rpnl >= 0 ? 'var(--t-bull)' : 'var(--t-bear)' },
+          ].map((item, i) => (
+            <div key={item.l} style={{
+              padding: '14px 22px',
+              borderRight: i % 2 === 0 ? '1px solid var(--t-border)' : 'none',
+              borderTop: i >= 2 ? '1px solid var(--t-border)' : 'none',
+            }}>
+              <p style={{ fontSize: 11, color: 'var(--t-text-3)', marginBottom: 4 }}>{item.l}</p>
+              <p style={{ fontSize: 17, fontWeight: 700, fontFamily: 'JetBrains Mono, monospace', fontVariantNumeric: 'tabular-nums', color: item.c }}>{item.v}</p>
             </div>
           ))}
         </div>
       </div>
 
-      {/* ── Quick Actions ──────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <QuickAction
-          label="New Trade"
-          sub="Open a live position"
-          accent="#0ea5e9"
-          onClick={() => navigate('/dashboard/trade')}
-          icon={<svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>}
-        />
-        <QuickAction
-          label="Deposit"
-          sub="Fund your account"
-          accent="#00c878"
-          onClick={() => navigate('/dashboard/deposit')}
-          icon={<svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path d="M12 5v14M5 12l7 7 7-7"/><path d="M5 5h14"/></svg>}
-        />
-        <QuickAction
-          label="Portfolio"
-          sub="Positions & P&L"
-          accent="#8b5cf6"
-          onClick={() => navigate('/dashboard/portfolio')}
-          icon={<svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>}
-        />
-        <QuickAction
-          label="Set Alert"
-          sub="Price notifications"
-          accent="#f59e0b"
-          onClick={() => navigate('/dashboard/alerts')}
-          icon={<svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path d="M12 22c1.1 0 2-.9 2-2H10a2 2 0 002 2zm6-6V10c0-3.07-1.64-5.64-4.5-6.32V3a1.5 1.5 0 00-3 0v.68C7.63 4.36 6 6.92 6 10v6l-2 2v1h16v-1l-2-2z"/></svg>}
-        />
-      </div>
+      {/* ── Desktop 2-column from here ───────────────────────────────────────── */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 20 }} className="dash-grid">
 
-      {/* ── Performance + Market ──────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 xl:grid-cols-[1fr_320px] gap-5">
+        {/* LEFT: Positions + Orders */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 20, minWidth: 0 }}>
 
-        {/* Mini market */}
-        <div className="card overflow-hidden">
-          <div className="flex items-center gap-3 px-5 py-3.5 flex-wrap" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-            <span className="text-sm font-semibold text-text-primary">Live Markets</span>
-            <div className="flex gap-0.5 p-0.5 rounded-lg" style={{ background: 'rgba(255,255,255,0.04)' }}>
-              {CAT_TABS.map(t => (
-                <button key={t} onClick={() => setTab(t)}
-                  className="px-3 py-1 rounded text-xs font-semibold transition-all"
-                  style={tab === t ? { background: 'rgba(14,165,233,0.2)', color: '#38bdf8' } : { color: '#6b8099' }}>
-                  {t}
-                </button>
-              ))}
-            </div>
-            <button onClick={() => navigate('/dashboard/trade')} className="ml-auto text-xs text-brand-400 hover:text-brand-300 transition-colors">
-              Full terminal →
-            </button>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-white/5">
-            <div>
-              {filteredMarket.slice(0, 6).map(sym => (
-                <MiniTickerRow key={sym.symbol} sym={sym} ticker={tickers[sym.symbol]} onClick={() => goTrade(sym.symbol)} />
-              ))}
-            </div>
-            <div>
-              {filteredMarket.slice(6, 12).map(sym => (
-                <MiniTickerRow key={sym.symbol} sym={sym} ticker={tickers[sym.symbol]} onClick={() => goTrade(sym.symbol)} />
-              ))}
-            </div>
-          </div>
-          <div className="px-5 py-2 flex items-center gap-1.5" style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
-            <span className="w-1.5 h-1.5 rounded-full bg-bull animate-pulse" />
-            <span className="text-xs text-text-muted">Real-time · click any instrument to trade</span>
-          </div>
-        </div>
-
-        {/* Performance stats */}
-        <div className="card p-5 flex flex-col gap-4">
-          <p className="text-xs font-bold uppercase tracking-widest text-text-muted">Your Performance</p>
-          <div className="grid grid-cols-2 gap-2">
-            <QuickStat label="Win Rate"     value={totalTrades > 0 ? `${(winRate * 100).toFixed(1)}%` : '-'} color={winRate >= 0.5 ? 'text-bull' : 'text-bear'} sub="Filled trades" />
-            <QuickStat label="Total Trades" value={String(totalTrades)} color="text-text-primary" sub="All time" />
-            <QuickStat label="Open Pos."    value={String(openPos)} color="text-brand-300" sub={openPos === 0 ? 'None active' : 'Live'} />
-            <QuickStat label="Realised P&L" value={(rpnl >= 0 ? '+' : '') + formatCurrency(rpnl)} color={rpnl >= 0 ? 'text-bull' : 'text-bear'} />
-          </div>
-          <div className="mt-auto flex flex-col gap-2">
-            <button onClick={() => navigate('/dashboard/analytics')}
-              className="w-full py-2 rounded-lg text-xs font-semibold transition-all"
-              style={{ background: 'rgba(6,182,212,0.1)', color: '#22d3ee', border: '1px solid rgba(6,182,212,0.18)' }}
-              onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'rgba(6,182,212,0.18)'}
-              onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'rgba(6,182,212,0.1)'}>
-              View Full Analytics
-            </button>
-            <button onClick={() => navigate('/dashboard/leaderboard')}
-              className="w-full py-2 rounded-lg text-xs font-semibold transition-all"
-              style={{ background: 'rgba(244,114,182,0.08)', color: '#f472b6', border: '1px solid rgba(244,114,182,0.15)' }}
-              onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'rgba(244,114,182,0.15)'}
-              onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'rgba(244,114,182,0.08)'}>
-              Leaderboard
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* ── Recent Orders ─────────────────────────────────────────────────── */}
-      <div className="card overflow-hidden">
-        <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-          <span className="text-sm font-semibold text-text-primary">Recent Orders</span>
-          <button onClick={() => navigate('/dashboard/orders')} className="text-xs text-brand-400 hover:text-brand-300 transition-colors">View all →</button>
-        </div>
-        {recentOrders.length === 0 ? (
-          <div className="py-12 text-center">
-            <div className="w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center" style={{ background: 'rgba(14,165,233,0.1)' }}>
-              <svg className="w-6 h-6 text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
-            </div>
-            <p className="text-text-muted text-sm font-medium">No orders yet</p>
-            <p className="text-text-muted text-xs mt-1 mb-4">Place your first trade to get started</p>
-            <button onClick={() => navigate('/dashboard/trade')} className="btn-primary text-sm px-5 py-2">Open Trade</button>
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left">
-              <thead style={{ background: 'rgba(255,255,255,0.02)', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                <tr>
-                  {[['Side',''],['Symbol',''],['Type','hidden sm:table-cell text-right'],['Size','hidden sm:table-cell text-right'],['Price','text-right'],['Status','text-right'],['Time','text-right']].map(([h,cls]) => (
-                    <th key={h} className={`py-2.5 px-3 sm:px-4 text-xs font-semibold uppercase tracking-wider text-text-muted ${cls}`}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {recentOrders.map((o: any) => (
-                  <tr key={o.id} className="hover:bg-white/5 transition-colors" style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                    <td className="py-3 px-3 sm:px-4">
-                      <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${o.side === 'buy' ? 'bg-bull-muted text-bull' : 'bg-bear-muted text-bear'}`}>
-                        {o.side.toUpperCase()}
-                      </span>
-                    </td>
-                    <td className="py-3 px-3 sm:px-4 font-mono font-semibold text-sm text-text-primary">{o.symbol}</td>
-                    <td className="py-3 px-3 sm:px-4 text-xs text-text-muted text-right hidden sm:table-cell">{o.type}</td>
-                    <td className="py-3 px-3 sm:px-4 font-mono text-xs text-text-secondary text-right hidden sm:table-cell">{o.quantity}</td>
-                    <td className="py-3 px-3 sm:px-4 font-mono text-xs text-text-secondary text-right">{o.price ? formatPrice(o.price, o.symbol) : 'Market'}</td>
-                    <td className="py-3 px-3 sm:px-4 text-right">
-                      <span className="px-1.5 py-0.5 rounded text-[10px] font-bold uppercase" style={{
-                              background: o.status === 'filled' ? 'rgba(0,200,120,0.1)' : o.status === 'open' ? 'rgba(14,165,233,0.1)' : 'rgba(107,128,153,0.1)',
-                              color: o.status === 'filled' ? '#00c878' : o.status === 'open' ? '#38bdf8' : '#6b8099',
-                            }}>
-                        {o.status}
-                      </span>
-                    </td>
-                    <td className="py-3 px-3 sm:px-4 text-xs text-text-muted text-right">
-                      {new Date(o.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </td>
-                  </tr>
+          {/* Open Positions */}
+          {positions.length > 0 && (
+            <div style={cardStyle}>
+              <div style={sectionHead}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={sectionTitle}>Open Positions</span>
+                  <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 20, background: 'var(--t-accent-s)', color: 'var(--t-accent)' }}>{positions.length}</span>
+                </div>
+                <button onClick={() => navigate('/dashboard/portfolio')} style={linkBtn}>View all →</button>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+                {positions.map((pos: Position) => (
+                  <div key={pos.symbol} style={{ padding: '12px 16px', borderBottom: '1px solid var(--t-border)' }}>
+                    <PositionCard
+                      pos={pos}
+                      onClose={() => { if (!closingPos) handleClose(pos.symbol) }}
+                    />
+                  </div>
                 ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+              </div>
+            </div>
+          )}
 
-      {/* ── Explore More Tools ────────────────────────────────────────────────────────────────── */}
-      <div>
-        <p className="text-xs font-bold uppercase tracking-widest text-text-muted mb-3">More Tools</p>
-        <div className="grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-6 gap-2">
-          {[
-            { label: 'TradePilot', sub: 'AI Bots',        accent: '#8b5cf6', path: '/dashboard/bots',               icon: <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M9 11V7a3 3 0 016 0v4"/><circle cx="9" cy="16" r="1" fill="currentColor"/><circle cx="15" cy="16" r="1" fill="currentColor"/><path d="M12 2v2"/></svg> },
-            { label: 'Scanner',    sub: 'Market scan',    accent: '#f59e0b', path: '/dashboard/scanner',            icon: <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg> },
-            { label: 'Rankings',   sub: 'Leaderboard',    accent: '#f472b6', path: '/dashboard/leaderboard',        icon: <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path d="M8 21H5a2 2 0 01-2-2v-5m0 0V9a2 2 0 012-2h3m0 9H5m13 5h3a2 2 0 002-2v-5m0 0V9a2 2 0 00-2-2h-3m0 9h3M9 3h6a2 2 0 012 2v4H7V5a2 2 0 012-2z"/></svg> },
-            { label: 'Calendar',   sub: 'Eco events',     accent: '#06b6d4', path: '/dashboard/economic-calendar',  icon: <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> },
-            { label: 'Calculators',sub: 'Forex tools',    accent: '#34d399', path: '/dashboard/forex-calculators',  icon: <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="8.01" y2="10"/><line x1="12" y1="10" x2="12.01" y2="10"/><line x1="16" y1="10" x2="16.01" y2="10"/><line x1="8" y1="14" x2="8.01" y2="14"/><line x1="12" y1="14" x2="12.01" y2="14"/><line x1="16" y1="14" x2="16.01" y2="14"/><line x1="8" y1="18" x2="12" y2="18"/></svg> },
-            { label: 'Web TV',     sub: 'Live stream',    accent: '#fb923c', path: '/dashboard/web-tv',             icon: <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><rect x="2" y="7" width="20" height="15" rx="2"/><polyline points="17 2 12 7 7 2"/></svg> },
-          ].map(t => (
-            <button
-              key={t.label}
-              onClick={() => navigate(t.path)}
-              className="flex flex-col items-center gap-2 p-3 rounded-xl transition-all text-center"
-              style={{ background: `${t.accent}0a`, border: `1px solid ${t.accent}18` }}
-              onMouseEnter={e => {
-                ;(e.currentTarget as HTMLElement).style.borderColor = `${t.accent}40`
-                ;(e.currentTarget as HTMLElement).style.background  = `${t.accent}14`
-              }}
-              onMouseLeave={e => {
-                ;(e.currentTarget as HTMLElement).style.borderColor = `${t.accent}18`
-                ;(e.currentTarget as HTMLElement).style.background  = `${t.accent}0a`
-              }}
-            >
-              <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: `${t.accent}18`, color: t.accent }}>
-                {t.icon}
+          {/* Performance summary */}
+          <div style={cardStyle}>
+            <div style={sectionHead}>
+              <span style={sectionTitle}>Performance</span>
+              <button onClick={() => navigate('/dashboard/analytics')} style={linkBtn}>Analytics →</button>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12, padding: 16 }}>
+              <StatChip label="Win Rate"     value={totalTrades > 0 ? `${(winRate * 100).toFixed(1)}%` : '—'} color={winRate >= 0.5 ? 'var(--t-bull)' : 'var(--t-bear)'} />
+              <StatChip label="Total Trades" value={String(totalTrades)} />
+              <StatChip label="Realized P&L" value={(rpnl >= 0 ? '+' : '') + formatCurrency(rpnl)} color={rpnl >= 0 ? 'var(--t-bull)' : 'var(--t-bear)'} />
+              <StatChip label="Open Pos."    value={String(positions.length)} color="var(--t-accent)" />
+            </div>
+          </div>
+
+          {/* Recent Orders */}
+          <div style={cardStyle}>
+            <div style={sectionHead}>
+              <span style={sectionTitle}>Recent Orders</span>
+              <button onClick={() => navigate('/dashboard/orders')} style={linkBtn}>All orders →</button>
+            </div>
+            {recentOrders.length === 0 ? (
+              <div style={{ padding: '48px 24px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
+                <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'var(--t-accent-s)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <svg width={20} height={20} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} style={{ color: 'var(--t-accent)' }}>
+                    <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/>
+                    <rect x="9" y="3" width="6" height="4" rx="1"/>
+                  </svg>
+                </div>
+                <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--t-text-2)' }}>No orders yet</p>
+                <p style={{ fontSize: 12, color: 'var(--t-text-3)' }}>Place your first trade to get started</p>
+                <button
+                  onClick={() => navigate('/dashboard/trade')}
+                  style={{ marginTop: 4, padding: '9px 20px', borderRadius: 10, background: 'var(--t-accent)', color: '#fff', fontSize: 13, fontWeight: 700, border: 'none', cursor: 'pointer' }}
+                >
+                  Open Trade
+                </button>
               </div>
+            ) : (
               <div>
-                <p className="text-xs font-semibold text-text-primary leading-tight">{t.label}</p>
-                <p className="text-[10px] text-text-muted mt-0.5">{t.sub}</p>
+                {recentOrders.map((o: Order) => <OrderRow key={o.id} order={o} />)}
               </div>
-            </button>
-          ))}
+            )}
+          </div>
+        </div>
+
+        {/* RIGHT: Watchlist + Tools */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 20, minWidth: 0 }} className="dash-right">
+
+          {/* Live Markets */}
+          <div style={cardStyle}>
+            <div style={sectionHead}>
+              <span style={sectionTitle}>Markets</span>
+              <button onClick={() => navigate('/dashboard/trade')} style={linkBtn}>Full terminal →</button>
+            </div>
+            {/* Mobile: horizontal scroll; Desktop: grid */}
+            <div style={{ overflowX: 'auto', scrollbarWidth: 'none', padding: '14px 16px', display: 'flex', gap: 10 }} className="hide-scrollbar">
+              {WATCHLIST.map(w => (
+                <TickerCard key={w.symbol} symbol={w.symbol} name={w.name} onClick={() => goTrade(w.symbol)} />
+              ))}
+            </div>
+
+            {/* Also show all symbols as a compact table on wider screens */}
+            <div style={{ borderTop: '1px solid var(--t-border)' }} className="mkt-table">
+              {symbols.slice(0, 12).map(sym => {
+                const t = tickers[sym.symbol]
+                const up = (t?.changePercent ?? 0) >= 0
+                return (
+                  <button
+                    key={sym.symbol}
+                    onClick={() => goTrade(sym.symbol)}
+                    style={{
+                      width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                      padding: '10px 16px', background: 'none', border: 'none', cursor: 'pointer',
+                      borderBottom: '1px solid var(--t-border)', transition: 'background 0.12s',
+                    }}
+                    onMouseEnter={e => (e.currentTarget.style.background = 'var(--t-surface-2)')}
+                    onMouseLeave={e => (e.currentTarget.style.background = 'none')}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <div style={{
+                        width: 28, height: 28, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        background: sym.assetClass === 'crypto' ? 'rgba(245,158,11,0.12)' : sym.assetClass === 'forex' ? 'rgba(59,130,246,0.12)' : 'rgba(139,92,246,0.12)',
+                        color: sym.assetClass === 'crypto' ? '#f59e0b' : sym.assetClass === 'forex' ? '#3b82f6' : '#8b5cf6',
+                        fontSize: 11, fontWeight: 800,
+                      }}>
+                        {sym.symbol.charAt(0)}
+                      </div>
+                      <div style={{ textAlign: 'left' }}>
+                        <p style={{ fontSize: 12, fontWeight: 700, fontFamily: 'JetBrains Mono, monospace', color: 'var(--t-text-1)' }}>{sym.symbol}</p>
+                        <p style={{ fontSize: 10, color: 'var(--t-text-3)' }}>{sym.name}</p>
+                      </div>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <p style={{ fontSize: 12, fontWeight: 600, fontFamily: 'JetBrains Mono, monospace', color: 'var(--t-text-1)' }}>
+                        {t ? formatPrice(t.price, sym.symbol) : '—'}
+                      </p>
+                      <p style={{ fontSize: 10, fontWeight: 600, color: up ? 'var(--t-bull)' : 'var(--t-bear)' }}>
+                        {t ? (up ? '+' : '') + t.changePercent.toFixed(2) + '%' : '—'}
+                      </p>
+                    </div>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
+          {/* Tools */}
+          <div style={cardStyle}>
+            <div style={sectionHead}>
+              <span style={sectionTitle}>Platform Tools</span>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, padding: 16 }}>
+              {TOOLS.map(t => <ToolButton key={t.label} {...t} />)}
+            </div>
+          </div>
+
         </div>
       </div>
 

@@ -4,6 +4,7 @@ import Sidebar from './Sidebar'
 import Header from './Header'
 import { useTradingStore } from '../../store/tradingStore'
 import { useWebSocket } from '../../hooks/useWebSocket'
+import { useTheme } from '../../context/ThemeContext'
 
 // ─── Bottom Navigation (mobile only) ─────────────────────────────────────────
 const BOTTOM_NAV = [
@@ -31,8 +32,14 @@ const BOTTOM_NAV = [
 
 export default function Layout() {
   const { loadSymbols, loadOrders, loadPortfolio } = useTradingStore()
+  const { theme } = useTheme()
   const [mobileOpen, setMobileOpen] = useState(false)
   useWebSocket()
+
+  // Keep data-theme in sync on the root element
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme)
+  }, [theme])
 
   useEffect(() => {
     loadSymbols()
@@ -43,7 +50,7 @@ export default function Layout() {
   const closeMobile = useCallback(() => setMobileOpen(false), [])
 
   return (
-    <div className="flex h-[100dvh] overflow-hidden" style={{ background: '#06090f', fontFamily: "'Inter', system-ui, sans-serif" }}>
+    <div className="flex h-[100dvh] overflow-hidden" style={{ background: 'var(--t-bg)', fontFamily: "'Inter', system-ui, sans-serif", transition: 'background-color 0.25s ease' }}>
       {/* ── Overlay (mobile sidebar backdrop) ── */}
       {mobileOpen && (
         <div
@@ -59,7 +66,7 @@ export default function Layout() {
       {/* ── Main column ── */}
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
         <Header onMenuClick={() => setMobileOpen(o => !o)} />
-        <main className="flex-1 overflow-auto" style={{ background: '#06090f', paddingBottom: 'calc(env(safe-area-inset-bottom) + 64px)' }}>
+        <main className="flex-1 overflow-auto" style={{ background: 'var(--t-bg)', paddingBottom: 'calc(env(safe-area-inset-bottom) + 64px)', transition: 'background-color 0.25s ease' }}>
           <div className="p-3 sm:p-5 lg:pb-4 min-h-full">
             <Outlet />
           </div>
@@ -70,11 +77,12 @@ export default function Layout() {
       <nav
         className="lg:hidden fixed bottom-0 left-0 right-0 z-30 flex items-stretch"
         style={{
-          background: 'rgba(7,12,24,0.96)',
-          backdropFilter: 'blur(16px)',
-          WebkitBackdropFilter: 'blur(16px)',
-          borderTop: '1px solid rgba(255,255,255,0.07)',
+          background: 'var(--t-surface)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          borderTop: '1px solid var(--t-border)',
           paddingBottom: 'env(safe-area-inset-bottom)',
+          transition: 'background 0.25s ease',
         }}
       >
         {BOTTOM_NAV.map(item => (
@@ -92,15 +100,15 @@ export default function Layout() {
                 {isActive && (
                   <span
                     className="absolute top-0 left-1/2 -translate-x-1/2 rounded-full"
-                    style={{ width: 28, height: 3, background: '#38bdf8', boxShadow: '0 0 8px rgba(56,189,248,0.7)', borderRadius: '0 0 4px 4px' }}
+                    style={{ width: 28, height: 3, background: 'var(--t-accent)', boxShadow: '0 0 8px var(--t-accent-s)', borderRadius: '0 0 4px 4px' }}
                   />
                 )}
-                <span style={isActive ? { color: '#38bdf8', filter: 'drop-shadow(0 0 5px rgba(56,189,248,0.45))' } : { color: 'rgba(148,163,184,0.55)' }}>
+                <span style={isActive ? { color: 'var(--t-accent)' } : { color: 'var(--t-text-3)' }}>
                   {item.icon}
                 </span>
                 <span
                   className="text-[10px] font-semibold tracking-tight"
-                  style={{ color: isActive ? '#38bdf8' : 'rgba(148,163,184,0.45)' }}
+                  style={{ color: isActive ? 'var(--t-accent)' : 'var(--t-text-3)' }}
                 >
                   {item.label}
                 </span>

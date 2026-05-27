@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useTradingStore } from '../../store/tradingStore'
 import { useAuthStore } from '../../store/authStore'
 import { formatPrice, formatCurrency } from '../../utils/formatters'
+import { useTheme } from '../../context/ThemeContext'
 
 const MORE_LINKS = [
   {
@@ -84,6 +85,7 @@ interface HeaderProps {
 export default function Header({ onMenuClick }: HeaderProps) {
   const { selectedSymbol, tickers, setSelectedSymbol, symbols, portfolio } = useTradingStore()
   const { user, logout } = useAuthStore()
+  const { theme, toggleTheme } = useTheme()
   const navigate = useNavigate()
   const ticker = tickers[selectedSymbol]
   const [search, setSearch] = useState('')
@@ -129,9 +131,10 @@ export default function Header({ onMenuClick }: HeaderProps) {
     <header
       className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 shrink-0"
       style={{
-        background: '#080e1a',
-        borderBottom: '1px solid rgba(255,255,255,0.05)',
+        background: 'var(--t-surface)',
+        borderBottom: '1px solid var(--t-border)',
         height: '56px',
+        transition: 'background 0.25s ease',
       }}
     >
       {/* ── Hamburger (mobile/tablet only) ── */}
@@ -373,10 +376,32 @@ export default function Header({ onMenuClick }: HeaderProps) {
           )}
         </div>
 
+        {/* Theme toggle */}
+        <button
+          onClick={toggleTheme}
+          className="w-8 h-8 rounded-lg flex items-center justify-center transition-all shrink-0"
+          style={{ color: 'var(--t-text-2)', border: '1px solid var(--t-border)' }}
+          onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--t-text-1)'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--t-border-hover)' }}
+          onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--t-text-2)'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--t-border)' }}
+          title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          aria-label="Toggle theme"
+        >
+          {theme === 'dark' ? (
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+              <circle cx="12" cy="12" r="4"/>
+              <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+            </svg>
+          ) : (
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+              <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+            </svg>
+          )}
+        </button>
+
         {/* User avatar */}
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white"
-               style={{ background: 'linear-gradient(135deg, #0ea5e9, #0369a1)' }}>
+               style={{ background: 'linear-gradient(135deg, var(--t-accent), var(--t-accent-h))' }}>
             {user?.username?.[0]?.toUpperCase() ?? 'U'}
           </div>
         </div>
