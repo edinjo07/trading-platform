@@ -48,19 +48,19 @@ export default function PortfolioPage() {
             <p className="text-xs text-text-muted mt-0.5">Based on {ps.totalTrades} total trades</p>
           </div>
           <div className="p-5 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-            <PerfMetric label="Net Profit" value={formatCurrency(ps.netProfit)}
-              accent={ps.netProfit >= 0 ? '#00c878' : '#ff3047'} />
+            <PerfMetric label="Net Profit" value={formatCurrency(ps.netProfit ?? ps.totalNetPnl)}
+              accent={(ps.netProfit ?? ps.totalNetPnl) >= 0 ? '#00c878' : '#ff3047'} />
             <PerfMetric label="Win Rate" value={`${(ps.winRate * 100).toFixed(1)}%`}
               sub={`${ps.winningTrades}W / ${ps.losingTrades}L`}
               accent={ps.winRate >= 0.5 ? '#00c878' : '#f59e0b'} />
-            <PerfMetric label="Profit Factor" value={ps.profitFactor > 0 ? ps.profitFactor.toFixed(2) : '-'}
-              sub="Gross profit / loss" accent={ps.profitFactor >= 1.5 ? '#00c878' : ps.profitFactor >= 1 ? '#f59e0b' : '#ff3047'} />
-            <PerfMetric label="Max Drawdown" value={`${ps.maxDrawdownPercent.toFixed(1)}%`}
-              sub={formatCurrency(ps.maxDrawdown)} warn={ps.maxDrawdownPercent > 20} />
-            <PerfMetric label="Sharpe Ratio" value={ps.sharpeRatio > 0 ? ps.sharpeRatio.toFixed(2) : '-'}
-              accent={ps.sharpeRatio >= 1.5 ? '#00c878' : ps.sharpeRatio >= 0.5 ? '#f59e0b' : '#ff3047'} />
-            <PerfMetric label="Expectancy" value={formatCurrency(ps.expectancy)}
-              sub="Per trade avg" accent={ps.expectancy >= 0 ? '#00c878' : '#ff3047'} />
+            <PerfMetric label="Profit Factor" value={(ps.profitFactor ?? 0) > 0 ? (ps.profitFactor ?? 0).toFixed(2) : '-'}
+              sub="Gross profit / loss" accent={(ps.profitFactor ?? 0) >= 1.5 ? '#00c878' : (ps.profitFactor ?? 0) >= 1 ? '#f59e0b' : '#ff3047'} />
+            <PerfMetric label="Max Drawdown" value={`${(ps.maxDrawdownPercent ?? 0).toFixed(1)}%`}
+              sub={formatCurrency(ps.maxDrawdown ?? 0)} warn={(ps.maxDrawdownPercent ?? 0) > 20} />
+            <PerfMetric label="Sharpe Ratio" value={(ps.sharpeRatio ?? 0) > 0 ? (ps.sharpeRatio ?? 0).toFixed(2) : '-'}
+              accent={(ps.sharpeRatio ?? 0) >= 1.5 ? '#00c878' : (ps.sharpeRatio ?? 0) >= 0.5 ? '#f59e0b' : '#ff3047'} />
+            <PerfMetric label="Expectancy" value={formatCurrency(ps.expectancy ?? 0)}
+              sub="Per trade avg" accent={(ps.expectancy ?? 0) >= 0 ? '#00c878' : '#ff3047'} />
           </div>
           <div className="px-5 pb-5 grid grid-cols-2 sm:grid-cols-4 gap-3">
             <PerfMetric label="Avg Win" value={formatCurrency(ps.avgWin)} accent="#00c878" />

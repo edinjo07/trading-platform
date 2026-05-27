@@ -1,77 +1,103 @@
-﻿import { Router, Response } from 'express'
+import { Router, Response } from 'express'
 import { authenticate, AuthRequest } from '../middleware/auth'
-import { portfolios, refreshPortfolio } from '../services/tradingEngine'
-import { dbLoadOrders, dbEnsureUser, dbSavePortfolio, recalculateFromOrders } from '../services/dbSync'
-import type { AccountMode, Portfolio } from '../types'
+import { getPrice } from '../services/priceService'
+import { supabase } from '../db'
+import { AccountMode, PositionRow, PositionLive, Portfolio } from '../types'
+
+const STARTING_BALANCE = 100_000
 
 const router = Router()
-router.use(authenticate)
+
+function getMode(req: AuthRequest): AccountMode {
+  return req.headers['x-account-mode'] === 'real' ? 'real' : 'demo'
+}
 
 // GET /api/portfolio
-// ─────────────────────────────────────────────────────────────────────────────
-// Portfolio is computed ENTIRELY from the orders table on every request.
-// No stale positions JSONB or cashBalance from the portfolios table is used.
-//
-// Why: the DB portfolios row may have been written by older code that:
-//   - omitted leverage/margin on the positions JSONB blob, causing posMargin to
-//     fall back to full notional (inflating equity for leveraged trades), OR
-//   - stored a totalEquity that was already inflated.
-//
-// recalculateFromOrders() replays every filled order from a $100 k starting
-// balance to produce the ground-truth cashBalance, open positions, and
-// realised P&L — completely deterministically.
-//
-// The result is saved back to the DB so that:
-//   - orders.ts pre-flight balance checks see the real cash figure, and
-//   - subsequent requests have a warm DB row (latency optimisation only;
-//     this route never reads it back).
-// ─────────────────────────────────────────────────────────────────────────────
-router.get('/', async (req: AuthRequest, res: Response) => {
+router.get('/', authenticate, async (req: AuthRequest, res: Response) => {
   const userId = req.user!.userId
-  const accountMode: AccountMode = req.headers['x-account-mode'] === 'real' ? 'real' : 'demo'
+  const mode   = getMode(req)
 
-  try {
-    // Best-effort FK guard — non-fatal if DB is slow/unreachable.
-    try { await dbEnsureUser(userId, req.user!.email) } catch { /* ok */ }
+  // ── Load (or lazily create) the account ────────────────────────────────────
+  let cashBalance = STARTING_BALANCE
 
-    // Load orders filtered by account mode.
-    const allOrders = await dbLoadOrders(userId, accountMode)
+  const { data: acct, error: acctErr } = await supabase
+    .from('accounts')
+    .select('cash_balance')
+    .eq('user_id', userId)
+    .eq('mode', mode)
+    .single()
 
-    // Replay orders → ground-truth cash, positions, realised P&L.
-    const { cashBalance, positions, realizedPnl } = recalculateFromOrders(allOrders)
-
-    const portfolio: Portfolio = {
-      userId,
-      cashBalance,
-      totalMarketValue: 0,   // refreshPortfolio fills in
-      totalEquity:      cashBalance,
-      unrealizedPnl:    0,
-      realizedPnl,
-      positions,
-    }
-
-    // Warm the in-process cache so order pre-flight checks use the real balance.
-    portfolios.set(userId, portfolio)
-
-    // Add live prices and correct equity formula.
-    const fresh = refreshPortfolio(portfolio)
-
-    // Persist back to DB (fire-and-forget — latency optimisation only).
-    dbSavePortfolio(userId, fresh, accountMode).catch((e: unknown) =>
-      console.error('[Portfolio] save failed:', e)
-    )
-
-    return res.json(fresh)
-
-  } catch (err) {
-    console.error('[Portfolio] error — serving in-memory fallback:', err)
-    // DB unreachable: serve whatever the in-memory engine has for this user.
-    const fallback = portfolios.get(userId) ?? {
-      userId, cashBalance: 100_000, totalMarketValue: 0, totalEquity: 100_000,
-      unrealizedPnl: 0, realizedPnl: 0, positions: [],
-    }
-    return res.json(refreshPortfolio(fallback as Portfolio))
+  if (acctErr?.code === 'PGRST116') {
+    // First time — create account
+    const { data: created } = await supabase
+      .from('accounts')
+      .insert({ user_id: userId, mode, cash_balance: STARTING_BALANCE })
+      .select('cash_balance')
+      .single()
+    cashBalance = created?.cash_balance ?? STARTING_BALANCE
+  } else if (!acctErr && acct) {
+    cashBalance = acct.cash_balance
   }
+
+  // ── Load open positions ────────────────────────────────────────────────────
+  const { data: rawPositions } = await supabase
+    .from('positions')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('mode', mode)
+
+  let unrealizedPnl = 0
+  let totalMargin   = 0
+
+  const positions: PositionLive[] = (rawPositions ?? []).map((row) => {
+    const pos = row as PositionRow
+    const currentPrice = getPrice(pos.symbol) ?? pos.avg_price
+    const rawPnl = pos.side === 'long'
+      ? (currentPrice - pos.avg_price) * pos.quantity
+      : (pos.avg_price - currentPrice) * pos.quantity
+    const posPnl = parseFloat(rawPnl.toFixed(2))
+
+    unrealizedPnl += posPnl
+    totalMargin   += pos.margin
+
+    return {
+      ...pos,
+      currentPrice,
+      unrealizedPnl:    posPnl,
+      unrealizedPnlPct: pos.margin > 0 ? parseFloat(((posPnl / pos.margin) * 100).toFixed(2)) : 0,
+      notionalValue:    parseFloat((pos.quantity * currentPrice).toFixed(2)),
+      liquidationPrice: pos.side === 'long'
+        ? parseFloat((pos.avg_price * (1 - 0.9 / pos.leverage)).toFixed(8))
+        : parseFloat((pos.avg_price * (1 + 0.9 / pos.leverage)).toFixed(8)),
+    }
+  })
+
+  // Total equity = cash in hand + margin locked in positions + unrealized P&L
+  // (margin was already deducted from cashBalance when positions were opened)
+  const totalEquity = parseFloat((cashBalance + totalMargin + unrealizedPnl).toFixed(2))
+
+  // ── Sum realized P&L from closed trades ───────────────────────────────────
+  const { data: tradeRows } = await supabase
+    .from('trades')
+    .select('net_pnl')
+    .eq('user_id', userId)
+    .eq('mode', mode)
+
+  const realizedPnl = parseFloat(
+    ((tradeRows ?? []).reduce((s: number, t: { net_pnl: number }) => s + (t.net_pnl ?? 0), 0)).toFixed(2)
+  )
+
+  const portfolio: Portfolio = {
+    cashBalance:   parseFloat(cashBalance.toFixed(2)),
+    totalMargin:   parseFloat(totalMargin.toFixed(2)),
+    unrealizedPnl: parseFloat(unrealizedPnl.toFixed(2)),
+    totalEquity,
+    realizedPnl,
+    positions,
+    updatedAt: new Date().toISOString(),
+  }
+
+  return res.json(portfolio)
 })
 
 export default router

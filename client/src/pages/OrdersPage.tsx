@@ -1,14 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import { useTradingStore } from '../store/tradingStore'
 import { formatDate, formatPrice, formatCurrency } from '../utils/formatters'
-import { OrderStatus } from '../types'
-
 function exportOrdersToCSV(orders: ReturnType<typeof useTradingStore.getState>['orders']) {
-  const headers = ['ID','Symbol','Type','Side','Quantity','Price','Filled Qty','Avg Fill Price','Status','Created']
+  const headers = ['ID','Symbol','Type','Side','Quantity','Fill Price','Status','Created']
   const rows = orders.map(o => [
     o.id, o.symbol, o.type, o.side, o.quantity,
-    o.price ?? '', o.filledQuantity, o.avgFillPrice ?? '',
-    o.status, formatDate(o.createdAt),
+    o.fill_price, o.status, formatDate(o.created_at),
   ])
   const csv = [headers, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n')
   const blob = new Blob([csv], { type: 'text/csv' })
@@ -20,23 +17,21 @@ function exportOrdersToCSV(orders: ReturnType<typeof useTradingStore.getState>['
   URL.revokeObjectURL(url)
 }
 
-const STATUS_STYLES: Record<OrderStatus, { bg: string; color: string }> = {
-  pending: { bg: 'rgba(251,191,36,0.15)', color: '#fbbf24' },
-  open:    { bg: 'rgba(14,165,233,0.15)',  color: '#38bdf8' },
-  filled:  { bg: 'rgba(0,200,120,0.15)',   color: '#00c878' },
-  cancelled:{ bg: 'rgba(107,128,153,0.15)', color: '#6b8099' },
-  rejected: { bg: 'rgba(255,48,71,0.15)',  color: '#ff3047' },
+const STATUS_STYLES: Record<string, { bg: string; color: string }> = {
+  filled:   { bg: 'rgba(0,200,120,0.15)',  color: '#00c878' },
+  rejected: { bg: 'rgba(255,48,71,0.15)', color: '#ff3047' },
 }
 
-const FILTERS = ['all', 'open', 'pending', 'filled', 'cancelled'] as const
+const FILTERS = ['all', 'filled', 'rejected'] as const
+type FilterValue = typeof FILTERS[number]
 
 export default function OrdersPage() {
-  const { orders, cancelOrder, loadOrders } = useTradingStore()
-  const [filter, setFilter] = useState<OrderStatus | 'all'>('all')
+  const { orders, loadOrders } = useTradingStore()
+  const [filter, setFilter] = useState<FilterValue>('all')
 
   useEffect(() => { loadOrders() }, [loadOrders])
 
-  const filtered = filter === 'all' ? orders : orders.filter(o => o.status === filter)
+  const filtered = filter === 'all' ? orders : orders.filter(o => (o.status as string) === filter)
 
   return (
     <div className="space-y-6">
@@ -95,8 +90,8 @@ export default function OrdersPage() {
           <table className="w-full text-xs font-mono">
             <thead>
               <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', background: 'rgba(255,255,255,0.02)' }}>
-                {['Symbol', 'Type', 'Side', 'Qty', 'Price', 'Filled', 'Avg Fill', 'Status', 'Created', ''].map((h, i) => (
-                  <th key={i} className={`py-3 px-4 text-[10px] font-semibold uppercase tracking-wider text-text-muted ${i >= 3 && i <= 6 ? 'text-right' : 'text-left'}`}>
+                {['Symbol', 'Type', 'Side', 'Qty', 'Fill Price', 'Status', 'Created'].map((h, i) => (
+                  <th key={i} className={`py-3 px-4 text-[10px] font-semibold uppercase tracking-wider text-text-muted ${i >= 3 && i <= 4 ? 'text-right' : 'text-left'}`}>
                     {h}
                   </th>
                 ))}
@@ -120,30 +115,15 @@ export default function OrdersPage() {
                     </td>
                     <td className="px-4 py-3 text-right text-text-secondary tabular">{order.quantity}</td>
                     <td className="px-4 py-3 text-right text-text-secondary tabular">
-                      {order.price ? formatPrice(order.price, order.symbol) : <span className="text-text-muted">&mdash;</span>}
-                    </td>
-                    <td className="px-4 py-3 text-right text-text-secondary tabular">{order.filledQuantity}</td>
-                    <td className="px-4 py-3 text-right text-text-secondary tabular">
-                      {order.avgFillPrice ? formatPrice(order.avgFillPrice, order.symbol) : <span className="text-text-muted">&mdash;</span>}
+                      {order.fill_price ? formatPrice(order.fill_price, order.symbol) : <span className="text-text-muted">&mdash;</span>}
                     </td>
                     <td className="px-4 py-3">
                       <span className="px-2 py-0.5 rounded text-[10px] font-bold"
-                        style={{ background: ss.bg, color: ss.color }}>
+                        style={{ background: ss?.bg ?? 'rgba(107,128,153,0.15)', color: ss?.color ?? '#6b8099' }}>
                         {order.status}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-text-muted">{formatDate(order.createdAt)}</td>
-                    <td className="px-4 py-3 text-right">
-                      {(order.status === 'open' || order.status === 'pending') && (
-                        <button onClick={() => cancelOrder(order.id)}
-                          className="text-[10px] px-2.5 py-1 rounded-lg font-semibold transition-all"
-                          style={{ border: '1px solid rgba(255,48,71,0.3)', color: '#ff7080' }}
-                          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,48,71,0.1)' }}
-                          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '' }}>
-                          Cancel
-                        </button>
-                      )}
-                    </td>
+                    <td className="px-4 py-3 text-text-muted">{formatDate(order.created_at)}</td>
                   </tr>
                 )
               })}

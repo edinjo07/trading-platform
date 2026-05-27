@@ -1,201 +1,186 @@
-﻿export type AssetClass = 'stock' | 'crypto' | 'forex' | 'commodity' | 'index' | 'bond'
-export type AccountType = 'raw_spread' | 'ctrader' | 'standard'
-export type AccountMode = 'real' | 'demo'
-export type Currency   = 'USD' | 'EUR' | 'GBP'
-export type OrderSide = 'buy' | 'sell'
-export type OrderType = 'market' | 'limit' | 'stop' | 'stop_limit' | 'trailing_stop'
-export type OrderStatus = 'pending' | 'open' | 'filled' | 'cancelled' | 'rejected'
-export type TimeInForce = 'GTC' | 'IOC' | 'FOK' | 'DAY'
-export type PositionSide = 'long' | 'short'
+// ─── Account mode ─────────────────────────────────────────────────────────────
+export type AccountMode = 'demo' | 'real'
+export type Currency    = 'USD' | 'EUR' | 'GBP'
 
-export interface User {
-  id: string
-  email: string
-  username: string
-  passwordHash: string
-  createdAt: string
-  balance: number
-  accountType: AccountType
-  accountMode: AccountMode
-  currency: Currency
+// ─── Trading primitives ────────────────────────────────────────────────────────
+export type OrderSide    = 'buy' | 'sell'
+export type PositionSide = 'long' | 'short'
+export type AssetClass   = 'stock' | 'crypto' | 'forex' | 'commodity' | 'index' | 'bond'
+
+// ─── DB row shapes (snake_case mirrors Supabase) ──────────────────────────────
+
+export interface AccountRow {
+  id:           string
+  user_id:      string
+  mode:         AccountMode
+  cash_balance: number
+  created_at:   string
+  updated_at:   string
 }
 
+export interface PositionRow {
+  id:          string
+  user_id:     string
+  mode:        AccountMode
+  symbol:      string
+  side:        PositionSide
+  quantity:    number
+  avg_price:   number
+  leverage:    number
+  margin:      number           // cash locked = notional / leverage
+  take_profit: number | null
+  stop_loss:   number | null
+  opened_at:   string
+  updated_at:  string
+}
+
+export interface OrderRow {
+  id:          string
+  user_id:     string
+  mode:        AccountMode
+  symbol:      string
+  side:        OrderSide
+  type:        'market'
+  status:      'filled' | 'rejected'
+  quantity:    number
+  fill_price:  number
+  commission:  number
+  leverage:    number
+  take_profit: number | null
+  stop_loss:   number | null
+  created_at:  string
+}
+
+export interface TradeRow {
+  id:          string
+  user_id:     string
+  mode:        AccountMode
+  symbol:      string
+  side:        PositionSide
+  quantity:    number
+  entry_price: number
+  exit_price:  number
+  leverage:    number
+  pnl:         number
+  commission:  number
+  net_pnl:     number
+  opened_at:   string
+  closed_at:   string
+}
+
+// ─── API response shapes (camelCase for the client) ──────────────────────────
+
+export interface PositionLive extends PositionRow {
+  currentPrice:      number
+  unrealizedPnl:     number
+  unrealizedPnlPct:  number
+  notionalValue:     number
+  liquidationPrice:  number
+}
+
+export interface Portfolio {
+  cashBalance:   number
+  totalMargin:   number
+  unrealizedPnl: number
+  totalEquity:   number
+  realizedPnl:   number
+  positions:     PositionLive[]
+  updatedAt:     string
+}
+
+export interface PlaceOrderResult {
+  id:         string
+  symbol:     string
+  side:       OrderSide
+  quantity:   number
+  fillPrice:  number
+  leverage:   number
+  margin:     number
+  commission: number
+  totalCost:  number
+  takeProfit: number | undefined
+  stopLoss:   number | undefined
+  createdAt:  string
+}
+
+export interface ClosePositionResult {
+  tradeId:    string
+  symbol:     string
+  side:       PositionSide
+  quantity:   number
+  entryPrice: number
+  exitPrice:  number
+  pnl:        number
+  commission: number
+  netPnl:     number
+  openedAt:   string
+  closedAt:   string
+}
+
+// ─── Auth ─────────────────────────────────────────────────────────────────────
+export interface JWTPayload {
+  userId: string
+  email:  string
+}
+
+// ─── Market data (used by mockDataService / markets route) ───────────────────
+
 export interface Symbol {
-  symbol: string
-  name: string
+  symbol:     string
+  name:       string
   assetClass: AssetClass
-  baseAsset: string
+  baseAsset:  string
   quoteAsset: string
 }
 
 export interface Candle {
-  time: number // Unix timestamp (seconds)
-  open: number
-  high: number
-  low: number
-  close: number
+  time:   number   // Unix timestamp (seconds)
+  open:   number
+  high:   number
+  low:    number
+  close:  number
   volume: number
 }
 
 export interface Ticker {
-  symbol: string
-  price: number
-  change: number
+  symbol:        string
+  price:         number
+  change:        number
   changePercent: number
-  high24h: number
-  low24h: number
-  volume24h: number
-  timestamp: number
-  bid?: number
-  ask?: number
-  spread?: number
-  isOpen?: boolean
-  session?: 'pre' | 'regular' | 'post' | 'closed'
+  high24h:       number
+  low24h:        number
+  volume24h:     number
+  timestamp:     number
+  bid?:          number
+  ask?:          number
+  spread?:       number
+  isOpen?:       boolean
+  session?:      'pre' | 'regular' | 'post' | 'closed'
 }
 
 export interface OrderBookEntry {
   price: number
-  size: number
+  size:  number
   total: number
 }
 
 export interface OrderBook {
-  symbol: string
-  bids: OrderBookEntry[]
-  asks: OrderBookEntry[]
+  symbol:   string
+  bids:     OrderBookEntry[]
+  asks:     OrderBookEntry[]
   timestamp: number
-  spread: number
+  spread:   number
   midPrice: number
 }
 
+// Keep 'Trade' name for backward compat with mockDataService
 export interface Trade {
-  id: string
-  symbol: string
-  price: number
-  size: number
-  side: OrderSide
+  id:        string
+  symbol:    string
+  price:     number
+  size:      number
+  side:      OrderSide
   timestamp: number
 }
-
-export interface Order {
-  id: string
-  userId: string
-  symbol: string
-  side: OrderSide
-  type: OrderType
-  status: OrderStatus
-  quantity: number
-  price?: number            // limit price
-  stopPrice?: number        // stop trigger
-  trailingOffset?: number   // trailing stop offset (as % e.g. 0.02 = 2%)
-  trailingHighWater?: number // highest price seen since order placed (server-tracked)
-  takeProfit?: number
-  stopLoss?: number
-  leverage?: number          // 1 = no leverage (default); >1 = margin/leveraged order
-  filledQuantity: number
-  avgFillPrice?: number
-  commission?: number       // commission paid on fill
-  slippage?: number         // slippage on fill
-  timeInForce: TimeInForce
-  notes?: string
-  accountMode?: AccountMode // 'demo' | 'real' — which account this order belongs to
-  createdAt: string
-  updatedAt: string
-  filledAt?: string
-}
-
-export interface Position {
-  userId?: string
-  symbol: string
-  quantity: number
-  avgCost: number
-  currentPrice: number
-  marketValue: number
-  unrealizedPnl: number
-  unrealizedPnlPercent: number
-  side: PositionSide
-  openedAt: string
-  dailyPnl?: number
-  dailyPnlPercent?: number
-  // Leverage / margin fields
-  leverage?: number          // multiplier used to open this position
-  margin?: number            // cash locked (notional / leverage)
-  notionalValue?: number     // full position exposure (quantity * avgCost)
-  liquidationPrice?: number  // price at which 90 % of margin is lost
-}
-
-export interface TradeRecord {
-  id: string
-  userId: string
-  orderId: string
-  symbol: string
-  side: OrderSide
-  quantity: number
-  entryPrice: number
-  exitPrice?: number
-  pnl?: number
-  pnlPercent?: number
-  commission: number
-  netPnl?: number
-  openedAt: string
-  closedAt?: string
-  holdingPeriodMs?: number
-  assetClass: AssetClass
-}
-
-export interface EquityPoint {
-  time: number   // unix ms
-  equity: number
-  cashBalance: number
-  unrealizedPnl: number
-}
-
-export interface PerformanceStats {
-  userId: string
-  totalTrades: number
-  winningTrades: number
-  losingTrades: number
-  winRate: number            // 0–1 decimal
-  netProfit: number
-  totalNetPnl: number
-  totalGrossPnl: number
-  grossProfit: number
-  grossLoss: number
-  totalCommissions: number
-  avgWin: number
-  avgLoss: number
-  expectancy: number
-  profitFactor: number
-  maxDrawdown: number        // dollar value
-  maxDrawdownPercent: number // 0–100 raw percent
-  sharpeRatio: number
-  totalReturn: number        // % return on initial balance
-  equityCurve: EquityPoint[]
-  bestTrade: number
-  worstTrade: number
-  avgHoldingPeriodMs: number
-  totalVolume: number
-  startingBalance: number
-  currentEquity: number
-}
-
-export interface Portfolio {
-  userId: string
-  cashBalance: number
-  totalMarketValue: number
-  totalEquity: number
-  unrealizedPnl: number
-  realizedPnl: number
-  positions: Position[]
-  todayPnl?: number
-  todayPnlPercent?: number
-  peakEquity?: number
-  drawdown?: number
-  updatedAt?: string   // ISO timestamp - used by client to reject stale serverless responses
-}
-
-export interface JWTPayload {
-  userId: string
-  email: string
-}
-
+/** @deprecated use Trade */
+export type MarketTrade = Trade

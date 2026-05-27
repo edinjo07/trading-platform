@@ -85,7 +85,7 @@ function PositionCard({ pos, onClose }: { pos: Position; onClose: () => void }) 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
         {[
           { l: 'Quantity', v: pos.quantity.toFixed(pos.quantity < 1 ? 6 : 4) },
-          { l: 'Entry',    v: formatPrice(pos.avgCost, pos.symbol) },
+          { l: 'Entry',    v: formatPrice(pos.avg_price, pos.symbol) },
           { l: 'Mark',     v: pos.currentPrice > 0 ? formatPrice(pos.currentPrice, pos.symbol) : '—' },
         ].map(item => (
           <div key={item.l}>
@@ -100,11 +100,11 @@ function PositionCard({ pos, onClose }: { pos: Position; onClose: () => void }) 
         <div style={{ display: 'flex', gap: 16 }}>
           <div>
             <p style={{ fontSize: 10, color: 'var(--t-text-3)', marginBottom: 1 }}>Notional</p>
-            <p style={{ fontSize: 11, fontFamily: 'JetBrains Mono, monospace', color: 'var(--t-text-2)' }}>{formatCurrency(pos.notionalValue ?? pos.quantity * pos.avgCost)}</p>
+            <p style={{ fontSize: 11, fontFamily: 'JetBrains Mono, monospace', color: 'var(--t-text-2)' }}>{formatCurrency(pos.notionalValue)}</p>
           </div>
           <div>
             <p style={{ fontSize: 10, color: 'var(--t-text-3)', marginBottom: 1 }}>Margin</p>
-            <p style={{ fontSize: 11, fontFamily: 'JetBrains Mono, monospace', color: 'var(--t-text-2)' }}>{formatCurrency(pos.margin ?? pos.quantity * pos.avgCost)}</p>
+            <p style={{ fontSize: 11, fontFamily: 'JetBrains Mono, monospace', color: 'var(--t-text-2)' }}>{formatCurrency(pos.margin)}</p>
           </div>
           {liqPrice && (
             <div>
@@ -172,8 +172,8 @@ function TickerCard({ symbol, name, onClick }: { symbol: string; name: string; o
 
 function OrderRow({ order }: { order: Order }) {
   const isBuy   = order.side === 'buy'
-  const statColor = order.status === 'filled' ? 'var(--t-bull)' : order.status === 'open' ? 'var(--t-accent)' : 'var(--t-text-3)'
-  const statBg    = order.status === 'filled' ? 'var(--t-bull-s)' : order.status === 'open' ? 'var(--t-accent-s)' : 'var(--t-surface-2)'
+  const statColor = order.status === 'filled' ? 'var(--t-bull)' : 'var(--t-text-3)'
+  const statBg    = order.status === 'filled' ? 'var(--t-bull-s)' : 'var(--t-surface-2)'
 
   return (
     <div style={{
@@ -192,13 +192,13 @@ function OrderRow({ order }: { order: Order }) {
       <div style={{ minWidth: 0 }}>
         <p style={{ fontSize: 13, fontWeight: 700, fontFamily: 'JetBrains Mono, monospace', color: 'var(--t-text-1)' }}>{order.symbol}</p>
         <p style={{ fontSize: 10, color: 'var(--t-text-3)', marginTop: 1 }}>
-          {order.quantity} · {order.avgFillPrice ? formatPrice(order.avgFillPrice, order.symbol) : order.price ? formatPrice(order.price, order.symbol) : 'Market'}
+          {order.quantity} · {order.fill_price ? formatPrice(order.fill_price, order.symbol) : 'Market'}
         </p>
       </div>
       <span style={{ fontSize: 10, fontWeight: 700, padding: '3px 7px', borderRadius: 6, background: statBg, color: statColor }}>{order.status}</span>
       <p style={{ fontSize: 10, color: 'var(--t-text-3)', textAlign: 'right', whiteSpace: 'nowrap' }}>
-        {new Date(order.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}{' '}
-        {new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+        {new Date(order.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}{' '}
+        {new Date(order.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
       </p>
     </div>
   )
@@ -279,16 +279,16 @@ export default function DashboardPage() {
   const cash     = portfolio?.cashBalance  ?? user?.balance ?? 0
   const upnl     = portfolio?.unrealizedPnl ?? 0
   const rpnl     = portfolio?.realizedPnl   ?? 0
-  const todayPnl = portfolio?.todayPnl      ?? 0
+  const todayPnl = 0
   const positions = portfolio?.positions ?? []
   const totalTrades = performanceStats?.totalTrades ?? 0
   const winRate     = performanceStats?.winRate ?? 0
 
   const recentOrders = orders.slice(0, 8)
 
-  const handleClose = useCallback(async (symbol: string) => {
-    setClosingPos(symbol)
-    try { await closePosition(symbol) } finally { setClosingPos(null) }
+  const handleClose = useCallback(async (id: string) => {
+    setClosingPos(id)
+    try { await closePosition(id) } finally { setClosingPos(null) }
   }, [closePosition])
 
   const goTrade = useCallback((sym: string) => {
@@ -478,10 +478,10 @@ export default function DashboardPage() {
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
                 {positions.map((pos: Position) => (
-                  <div key={pos.symbol} style={{ padding: '12px 16px', borderBottom: '1px solid var(--t-border)' }}>
+                  <div key={pos.id} style={{ padding: '12px 16px', borderBottom: '1px solid var(--t-border)' }}>
                     <PositionCard
                       pos={pos}
-                      onClose={() => { if (!closingPos) handleClose(pos.symbol) }}
+                      onClose={() => { if (!closingPos) handleClose(pos.id) }}
                     />
                   </div>
                 ))}

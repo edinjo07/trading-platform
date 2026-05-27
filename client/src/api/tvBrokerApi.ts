@@ -7,8 +7,8 @@
  * Docs: https://www.tradingview.com/charting-library-docs/latest/trading_terminal/trading-concepts/
  */
 
-import { getOrders, placeOrder, cancelOrder as cancelOrderApi, type PlaceOrderParams } from './orders'
-import { getPositions, closePositionApi } from './positions'
+import { getOrders, placeOrder, type PlaceOrderParams, type PlaceOrderResult } from './orders'
+import { closePositionApi } from './positions'
 import { getPortfolio } from './portfolio'
 import { useAuthStore } from '../store/authStore'
 import type { Order, Position } from '../types'
@@ -20,36 +20,23 @@ import type { Order, Position } from '../types'
 // Side.Buy=1, Side.Sell=2
 // ---------------------------------------------------------------------------
 
-function toTvOrderStatus(status: Order['status']): Charting_Library.OrderStatus {
+function toTvOrderStatus(status: string): Charting_Library.OrderStatus {
   switch (status) {
-    case 'pending':   return 8 as Charting_Library.OrderStatus  // Working
-    case 'open':      return 8 as Charting_Library.OrderStatus  // Working
-    case 'filled':    return 6 as Charting_Library.OrderStatus  // Filled
-    case 'cancelled': return 4 as Charting_Library.OrderStatus  // Cancelled
-    case 'rejected':  return 5 as Charting_Library.OrderStatus  // Rejected
+    case 'pending':   return 8 as Charting_Library.OrderStatus
+    case 'open':      return 8 as Charting_Library.OrderStatus
+    case 'filled':    return 6 as Charting_Library.OrderStatus
+    case 'cancelled': return 4 as Charting_Library.OrderStatus
+    case 'rejected':  return 5 as Charting_Library.OrderStatus
     default:          return 8 as Charting_Library.OrderStatus
   }
 }
 
-function toTvOrderType(type: Order['type']): Charting_Library.OrderType {
-  switch (type) {
-    case 'market':        return 1 as Charting_Library.OrderType  // Market
-    case 'limit':         return 2 as Charting_Library.OrderType  // Limit
-    case 'stop':          return 3 as Charting_Library.OrderType  // Stop
-    case 'stop_limit':    return 4 as Charting_Library.OrderType  // StopLimit
-    case 'trailing_stop': return 5 as Charting_Library.OrderType  // TrailingStop
-    default:              return 1 as Charting_Library.OrderType
-  }
+function toTvOrderType(_type: string): Charting_Library.OrderType {
+  return 1 as Charting_Library.OrderType  // all orders are market
 }
 
-function fromTvOrderType(type: Charting_Library.OrderType): Order['type'] {
-  switch (type as number) {
-    case 2: return 'limit'
-    case 3: return 'stop'
-    case 4: return 'stop_limit'
-    case 5: return 'trailing_stop'
-    default: return 'market'
-  }
+function fromTvOrderType(_type: Charting_Library.OrderType): 'market' {
+  return 'market'
 }
 
 function toTvSide(side: Order['side']): Charting_Library.Side {
@@ -62,26 +49,37 @@ function fromTvSide(side: Charting_Library.Side): Order['side'] {
 
 function orderToTvOrder(o: Order): Charting_Library.BrokerOrder {
   return {
-    id:         o.id,
-    symbol:     o.symbol,
-    type:       toTvOrderType(o.type),
-    side:       toTvSide(o.side),
-    qty:        o.quantity,
-    status:     toTvOrderStatus(o.status),
-    limitPrice: o.price,
-    stopPrice:  o.stopPrice,
-    avgPrice:   o.avgFillPrice,
-    filledQty:  o.filledQuantity,
+    id:        o.id,
+    symbol:    o.symbol,
+    type:      toTvOrderType(o.type),
+    side:      toTvSide(o.side),
+    qty:       o.quantity,
+    status:    toTvOrderStatus(o.status),
+    avgPrice:  o.fill_price,
+    filledQty: o.quantity,
+  }
+}
+
+function resultToTvOrder(r: PlaceOrderResult): Charting_Library.BrokerOrder {
+  return {
+    id:        r.id,
+    symbol:    r.symbol,
+    type:      1 as Charting_Library.OrderType,
+    side:      toTvSide(r.side),
+    qty:       r.quantity,
+    status:    6 as Charting_Library.OrderStatus,  // Filled
+    avgPrice:  r.fillPrice,
+    filledQty: r.quantity,
   }
 }
 
 function positionToTvPosition(p: Position): Charting_Library.BrokerPosition {
   return {
-    id:           p.symbol,
+    id:           p.id,
     symbol:       p.symbol,
     qty:          p.quantity,
     side:         (p.side === 'long' ? 1 : 2) as Charting_Library.Side,
-    avgPrice:     p.avgCost,
+    avgPrice:     p.avg_price,
     unrealizedPL: p.unrealizedPnl,
   }
 }
@@ -114,33 +112,29 @@ export class TVBrokerApi implements Charting_Library.IBrokerTerminal {
 
   // ─── Data fetchers ─────────────────────────────────────────────────────
   async orders(): Promise<Charting_Library.BrokerOrder[]> {
-    const orders = await getOrders()
-    return orders
-      .filter(o => o.status === 'pending' || o.status === 'open')
-      .map(orderToTvOrder)
+    // New system: all orders are immediately filled, none stay open
+    return []
   }
 
   async positions(): Promise<Charting_Library.BrokerPosition[]> {
-    const positions = await getPositions()
-    return positions.map(positionToTvPosition)
+    const portfolio = await getPortfolio()
+    return (portfolio?.positions ?? []).map(positionToTvPosition)
   }
 
   async executions(symbol: string): Promise<Charting_Library.Execution[]> {
-    // Map filled orders for this symbol to TV Execution objects.
-    // TV uses these to draw execution marks on the chart.
     const orders = await getOrders()
     return orders
-      .filter(o => o.symbol === symbol && o.status === 'filled' && o.avgFillPrice != null)
+      .filter(o => o.symbol === symbol && o.status === 'filled')
       .map(o => ({
-        id:          o.id,
-        symbol:      o.symbol,
-        brokerTime:  o.filledAt ?? o.updatedAt,
-        side:        toTvSide(o.side),
-        qty:         o.filledQuantity,
-        price:       o.avgFillPrice!,
-        time:        new Date(o.filledAt ?? o.updatedAt).getTime(),
-        commission:  o.commission,
-      } satisfies Charting_Library.Execution));
+        id:         o.id,
+        symbol:     o.symbol,
+        brokerTime: o.created_at,
+        side:       toTvSide(o.side),
+        qty:        o.quantity,
+        price:      o.fill_price,
+        time:       new Date(o.created_at).getTime(),
+        commission: o.commission,
+      } satisfies Charting_Library.Execution))
   }
 
   async accountInfo(): Promise<Charting_Library.AccountInfo> {
@@ -148,13 +142,13 @@ export class TVBrokerApi implements Charting_Library.IBrokerTerminal {
     const currency = useAuthStore.getState().user?.currency ?? 'USD'
     const currencySignMap: Record<string, string> = { USD: '$', EUR: '€', GBP: '£' }
     return {
-      id:           portfolio.userId,
+      id:           'account',
       name:         'Trading Account',
       currency,
       currencySign: currencySignMap[currency] ?? '$',
-      balance:      portfolio.cashBalance,
-      equity:       portfolio.totalEquity,
-      unrealizedPL: portfolio.unrealizedPnl,
+      balance:      portfolio?.cashBalance ?? 0,
+      equity:       portfolio?.totalEquity ?? 0,
+      unrealizedPL: portfolio?.unrealizedPnl ?? 0,
     }
   }
 
@@ -164,20 +158,17 @@ export class TVBrokerApi implements Charting_Library.IBrokerTerminal {
     confirmCallback: (order: Charting_Library.BrokerOrder) => void,
   ): Promise<void> {
     const params: PlaceOrderParams = {
-      symbol:    preOrder.symbol,
-      side:      fromTvSide(preOrder.side),
-      type:      fromTvOrderType(preOrder.type),
-      quantity:  preOrder.qty,
-      price:     preOrder.limitPrice,
-      stopPrice: preOrder.stopPrice,
+      symbol:   preOrder.symbol,
+      side:     fromTvSide(preOrder.side),
+      quantity: preOrder.qty,
     }
     const placed = await placeOrder(params)
-    confirmCallback(orderToTvOrder(placed))
+    confirmCallback(resultToTvOrder(placed))
     this.host?.fullUpdate()
   }
 
-  async cancelOrder(orderId: string, confirmCallback: () => void): Promise<void> {
-    await cancelOrderApi(orderId)
+  async cancelOrder(_orderId: string, confirmCallback: () => void): Promise<void> {
+    // Market orders cannot be cancelled; acknowledge to keep TV happy
     confirmCallback()
     this.host?.fullUpdate()
   }

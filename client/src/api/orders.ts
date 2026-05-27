@@ -1,32 +1,41 @@
 import api from './client'
-import { Order, OrderSide, OrderType, TimeInForce } from '../types'
-
-export const getOrders = async (status?: string): Promise<Order[]> => {
-  const { data } = await api.get<Order[]>('/orders', { params: status ? { status } : {} })
-  return data
-}
+import { Order, OrderSide } from '../types'
 
 export interface PlaceOrderParams {
-  symbol: string
-  side: OrderSide
-  type: OrderType
-  quantity: number
-  price?: number
-  stopPrice?: number
-  takeProfit?: number
-  stopLoss?: number
-  timeInForce?: TimeInForce
+  symbol:          string
+  side:            OrderSide
+  quantity:        number
+  leverage?:       number
+  takeProfit?:     number
+  stopLoss?:       number
+  // Legacy / UI-only fields ignored by backend (market-only engine)
+  type?:           string
+  price?:          number
+  stopPrice?:      number
   trailingOffset?: number
-  notes?: string
-  leverage?: number          // default 1 (no leverage)
 }
 
-export const placeOrder = async (params: PlaceOrderParams): Promise<Order> => {
-  const { data } = await api.post<Order>('/orders', params)
+export interface PlaceOrderResult {
+  id:         string
+  symbol:     string
+  side:       OrderSide
+  quantity:   number
+  fillPrice:  number
+  leverage:   number
+  margin:     number
+  commission: number
+  totalCost:  number
+  takeProfit: number | undefined
+  stopLoss:   number | undefined
+  createdAt:  string
+}
+
+export const getOrders = async (): Promise<Order[]> => {
+  const { data } = await api.get<Order[]>('/orders')
   return data
 }
 
-export const cancelOrder = async (orderId: string): Promise<Order> => {
-  const { data } = await api.delete<Order>(`/orders/${orderId}`)
+export const placeOrder = async (params: PlaceOrderParams): Promise<PlaceOrderResult> => {
+  const { data } = await api.post<PlaceOrderResult>('/orders', params)
   return data
 }

@@ -267,13 +267,13 @@ function JournalRow({ trade, idx }: { trade: TradeRecord; idx: number }) {
       <td className="px-4 py-2.5 font-bold text-text-primary text-xs font-mono">{trade.symbol}</td>
       <td className="px-4 py-2.5 text-xs">
         <span className="px-1.5 py-0.5 rounded text-[10px] font-bold uppercase"
-          style={trade.side === 'buy'
+          style={trade.side === 'long'
             ? { background: 'rgba(0,200,120,0.12)', color: '#00c878' }
             : { background: 'rgba(255,48,71,0.12)', color: '#ff3047' }
           }>{trade.side}</span>
       </td>
       <td className="px-4 py-2.5 text-xs text-right font-mono text-text-secondary tabular">{trade.quantity}</td>
-      <td className="px-4 py-2.5 text-xs text-right font-mono text-text-secondary tabular">{formatCurrency(trade.entryPrice)}</td>
+      <td className="px-4 py-2.5 text-xs text-right font-mono text-text-secondary tabular">{formatCurrency(trade.entryPrice ?? trade.entry_price)}</td>
       <td className="px-4 py-2.5 text-xs text-right font-mono tabular">
         {isClosed && trade.exitPrice ? formatCurrency(trade.exitPrice) : <span className="text-text-muted">Open</span>}
       </td>
@@ -309,10 +309,10 @@ function AssetBreakdown({ trades }: { trades: TradeRecord[] }) {
 
   const byClass: Record<string, { count: number; pnl: number }> = {}
   for (const t of closed) {
-    const ac = t.assetClass
+    const ac = t.assetClass ?? 'unknown'
     if (!byClass[ac]) byClass[ac] = { count: 0, pnl: 0 }
     byClass[ac].count++
-    byClass[ac].pnl += t.netPnl ?? 0
+    byClass[ac].pnl += t.netPnl ?? t.net_pnl ?? 0
   }
   const entries = Object.entries(byClass).sort((a, b) => b[1].count - a[1].count)
   const total = closed.length
@@ -403,24 +403,24 @@ export default function AnalyticsPage() {
             {hasClosedTrades ? (<>
             {/* KPI cards */}
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-              <StatCard label="Net P&L" value={formatPnl(stats!.netProfit)} color={pnlColor(stats!.netProfit)}
+              <StatCard label="Net P&L" value={formatPnl(stats!.netProfit ?? stats!.totalNetPnl)} color={pnlColor(stats!.netProfit ?? stats!.totalNetPnl)}
                 sub={stats!.totalTrades + ' total trades'}
                 icon={<svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>}/>
               <StatCard label="Win Rate" value={fmtPct(stats!.winRate, 1)}
                 color={stats!.winRate >= 0.5 ? '#00c878' : '#ff3047'}
                 sub={stats!.winningTrades + 'W / ' + stats!.losingTrades + 'L'}
                 icon={<svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>}/>
-              <StatCard label="Profit Factor" value={stats!.grossLoss === 0 ? '∞' : stats!.profitFactor.toFixed(2)}
-                color={stats!.profitFactor >= 1 ? '#00c878' : '#ff3047'}
+              <StatCard label="Profit Factor" value={stats!.grossLoss === 0 ? '∞' : (stats!.profitFactor ?? 0).toFixed(2)}
+                color={(stats!.profitFactor ?? 0) >= 1 ? '#00c878' : '#ff3047'}
                 sub="Gross profit / loss"
                 icon={<svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/></svg>}/>
-              <StatCard label="Sharpe Ratio" value={stats!.sharpeRatio.toFixed(2)}
-                color={stats!.sharpeRatio >= 1 ? '#00c878' : stats!.sharpeRatio >= 0 ? '#f59e0b' : '#ff3047'}
+              <StatCard label="Sharpe Ratio" value={(stats!.sharpeRatio ?? 0).toFixed(2)}
+                color={(stats!.sharpeRatio ?? 0) >= 1 ? '#00c878' : (stats!.sharpeRatio ?? 0) >= 0 ? '#f59e0b' : '#ff3047'}
                 sub="Annualised (√252)"
                 icon={<svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>}/>
-              <StatCard label="Max Drawdown" value={fmtPct(stats!.maxDrawdownPercent / 100)}
+              <StatCard label="Max Drawdown" value={fmtPct((stats!.maxDrawdownPercent ?? 0) / 100)}
                 color='#ff3047'
-                sub={'Peak: ' + formatCurrency(stats!.maxDrawdown)}
+                sub={'Peak: ' + formatCurrency(stats!.maxDrawdown ?? 0)}
                 icon={<svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"/></svg>}/>
             </div>
 
@@ -428,22 +428,22 @@ export default function AnalyticsPage() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               <StatCard label="Avg Win" value={formatCurrency(stats!.avgWin)} color="#00c878" sub="Per winning trade"/>
               <StatCard label="Avg Loss" value={formatCurrency(stats!.avgLoss)} color="#ff3047" sub="Per losing trade"/>
-              <StatCard label="Expectancy" value={formatCurrency(stats!.expectancy)} color={pnlColor(stats!.expectancy)} sub="Per trade expected value"/>
-              <StatCard label="Avg Holding" value={fmtDuration(stats!.avgHoldingPeriodMs)} sub={formatCurrency(stats!.totalVolume) + ' total volume'}/>
+              <StatCard label="Expectancy" value={formatCurrency(stats!.expectancy ?? 0)} color={pnlColor(stats!.expectancy ?? 0)} sub="Per trade expected value"/>
+              <StatCard label="Avg Holding" value={fmtDuration(stats!.avgHoldingPeriodMs ?? 0)} sub={formatCurrency(stats!.totalVolume ?? 0) + ' total volume'}/>
             </div>
 
             {/* Equity curve */}
             <div className="rounded-xl p-5" style={{ background: '#0c1829', border: '1px solid rgba(255,255,255,0.07)' }}>
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-sm font-semibold text-text-primary">Equity Curve</h3>
-                {stats!.equityCurve.length > 0 && (
+                {(stats!.equityCurve ?? []).length > 0 && (
                   <span className="text-xs font-mono font-semibold"
-                    style={{ color: pnlColor(stats!.equityCurve[stats!.equityCurve.length - 1].equity - stats!.equityCurve[0].equity) }}>
-                    {formatCurrency(stats!.equityCurve[stats!.equityCurve.length - 1].equity)}
+                    style={{ color: pnlColor((stats!.equityCurve ?? [])[(stats!.equityCurve ?? []).length - 1].equity - (stats!.equityCurve ?? [])[0].equity) }}>
+                    {formatCurrency((stats!.equityCurve ?? [])[(stats!.equityCurve ?? []).length - 1].equity)}
                   </span>
                 )}
               </div>
-              <EquityCurve points={stats!.equityCurve} />
+              <EquityCurve points={stats!.equityCurve ?? []} />
             </div>
 
             {/* Asset breakdown */}

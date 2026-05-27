@@ -1,7 +1,10 @@
-﻿import { create } from 'zustand'
-import { Ticker, OrderBook, Trade, Order, Portfolio, MarketSymbol, Candle, PerformanceStats, TradeRecord } from '../types'
+import { create } from 'zustand'
+import {
+  Ticker, OrderBook, Trade, Order, Portfolio, Position,
+  MarketSymbol, Candle, PerformanceStats, TradeRecord,
+} from '../types'
 import { getSymbols, getCandles, getOrderBook, getRecentTrades } from '../api/markets'
-import { getOrders, placeOrder, cancelOrder, PlaceOrderParams } from '../api/orders'
+import { getOrders, placeOrder, PlaceOrderParams, PlaceOrderResult } from '../api/orders'
 import { getPortfolio } from '../api/portfolio'
 import { getPerformanceStats, getTradeJournal } from '../api/analytics'
 import { closePositionApi } from '../api/positions'
@@ -9,83 +12,73 @@ import { generateMockCandles, generateMockSymbols } from '../utils/mockCandles'
 
 interface TradingState {
   // Symbols
-  symbols: MarketSymbol[]
+  symbols:        MarketSymbol[]
   selectedSymbol: string
   // Market data
-  tickers: Record<string, Ticker>
-  candles: Candle[]
-  liveCandle: Candle | null   // current streaming candle
-  orderBook: OrderBook | null
+  tickers:      Record<string, Ticker>
+  candles:      Candle[]
+  liveCandle:   Candle | null
+  orderBook:    OrderBook | null
   recentTrades: Trade[]
-  // Orders & Portfolio
-  orders: Order[]
-  portfolio: Portfolio | null
+  // Trading state
+  orders:       Order[]
+  portfolio:    Portfolio | null
   // Analytics
   performanceStats: PerformanceStats | null
-  tradeJournal: TradeRecord[]
+  tradeJournal:     TradeRecord[]
   analyticsLoading: boolean
   // UI
   chartInterval: string
-  loading: boolean
-  error: string | null
+  loading:       boolean
+  error:         string | null
 
   // Actions
   setSelectedSymbol: (symbol: string) => void
-  setChartInterval: (interval: string) => void
-  loadSymbols: () => Promise<void>
-  loadCandles: () => Promise<void>
-  loadOrders: () => Promise<void>
-  loadPortfolio: () => Promise<void>
-  loadAnalytics: () => Promise<void>
-  placeOrder: (params: PlaceOrderParams) => Promise<void>
-  cancelOrder: (orderId: string) => Promise<void>
-  closePosition: (symbol: string) => Promise<void>
-  // WS updates
-  updateTickers: (tickers: Ticker[]) => void
-  updateOrderBook: (orderBook: OrderBook) => void
-  updateRecentTrades: (trades: Trade[]) => void
-  addRecentTrade: (trade: Trade) => void
+  setChartInterval:  (interval: string) => void
+  loadSymbols:       () => Promise<void>
+  loadCandles:       () => Promise<void>
+  loadOrders:        () => Promise<void>
+  loadPortfolio:     () => Promise<void>
+  loadAnalytics:     () => Promise<void>
+  placeOrder:        (params: PlaceOrderParams) => Promise<PlaceOrderResult>
+  closePosition:     (id: string) => Promise<void>
+  // WebSocket updates
+  updateTickers:       (tickers: Ticker[]) => void
+  updateOrderBook:     (ob: OrderBook) => void
+  updateRecentTrades:  (trades: Trade[]) => void
+  addRecentTrade:      (trade: Trade) => void
   setLiveCandleHistory: (candles: Candle[]) => void
-  updateLiveCandle: (candle: Candle) => void
+  updateLiveCandle:    (candle: Candle) => void
 }
 
 export const useTradingStore = create<TradingState>((set, get) => ({
-  symbols: [],
-  selectedSymbol: 'BTCUSD',
-  tickers: {},
-  candles: [],
-  liveCandle: null,
-  orderBook: null,
-  recentTrades: [],
-  orders: [],
-  portfolio: null,
+  symbols:          [],
+  selectedSymbol:   'BTCUSD',
+  tickers:          {},
+  candles:          [],
+  liveCandle:       null,
+  orderBook:        null,
+  recentTrades:     [],
+  orders:           [],
+  portfolio:        null,
   performanceStats: null,
-  tradeJournal: [],
+  tradeJournal:     [],
   analyticsLoading: false,
-  chartInterval: '1h',
-  loading: false,
-  error: null,
+  chartInterval:    '1h',
+  loading:          false,
+  error:            null,
 
   setSelectedSymbol: (symbol) => {
     set({ selectedSymbol: symbol, candles: [], liveCandle: null, orderBook: null, recentTrades: [] })
   },
 
-  setChartInterval: (interval) => {
-    set({ chartInterval: interval })
-  },
+  setChartInterval: (interval) => set({ chartInterval: interval }),
 
   loadSymbols: async () => {
     const local = generateMockSymbols()
     try {
       const result = await getSymbols()
-      // Use server list only when it is at least as large as the local catalogue.
-      // This prevents a stale/partial server deployment from hiding instruments
-      // that the client already knows about.
-      if (Array.isArray(result) && result.length >= local.length) {
-        set({ symbols: result })
-      } else {
-        set({ symbols: local })
-      }
+      set({ symbols: Array.isArray(result) && result.length >= local.length ? result : local })
     } catch {
       set({ symbols: local })
     }
@@ -96,12 +89,12 @@ export const useTradingStore = create<TradingState>((set, get) => ({
     set({ loading: true })
     try {
       const result = await getCandles(selectedSymbol, chartInterval, 300)
-      if (Array.isArray(result) && result.length > 0) {
-        set({ candles: result, loading: false })
-      } else {
-        // API unavailable - use client-side mock data so chart always renders
-        set({ candles: generateMockCandles(selectedSymbol, chartInterval, 300), loading: false })
-      }
+      set({
+        candles: Array.isArray(result) && result.length > 0
+          ? result
+          : generateMockCandles(selectedSymbol, chartInterval, 300),
+        loading: false,
+      })
     } catch {
       set({ candles: generateMockCandles(selectedSymbol, chartInterval, 300), loading: false })
     }
@@ -110,217 +103,115 @@ export const useTradingStore = create<TradingState>((set, get) => ({
   loadOrders: async () => {
     try {
       const result = await getOrders()
-      if (!Array.isArray(result)) return
-      // If the server returns an empty array but we already have orders in state,
-      // keep the existing state - a 200 [] response right after order placement
-      // would otherwise wipe the optimistically-added order from the UI.
-      // The 5-second polling loop will eventually reconcile once the DB confirms.
-      const current = get().orders
-      if (result.length === 0 && current.length > 0) return
-      set({ orders: result })
-    } catch {
-      // 503 / network error - keep existing orders list
-    }
+      if (Array.isArray(result)) set({ orders: result })
+    } catch { /* keep existing state on network error */ }
   },
 
   loadPortfolio: async () => {
     try {
       const result = await getPortfolio()
-      // Only set if result looks like a valid portfolio object
       if (result && typeof result === 'object' && !Array.isArray(result)) {
-        const incoming = result as Portfolio
-        const current  = get().portfolio
-
-        if (current) {
-          // Guard 1: incoming is a plain cold-start default ($100k, no positions,
-          // no updatedAt). Reject it if we have any real state - placed orders,
-          // open positions, actual cash balance, or a previous DB-confirmed timestamp.
-          const incomingIsDefault = !incoming.updatedAt &&
-            incoming.cashBalance >= 99_999.99 &&
-            (!incoming.positions || incoming.positions.length === 0)
-          const currentHasRealData = current.positions.length > 0 ||
-            current.cashBalance < 99_999.99 ||
-            !!current.updatedAt
-          if (incomingIsDefault && currentHasRealData) return
-
-          // Guard 2: server returned unconfirmed data (no updatedAt) but we have
-          // a DB-confirmed timestamp - discard cold-start Default.
-          if (!incoming.updatedAt && current.updatedAt) return
-
-          // Guard 3: incoming is older than what we already have.
-          // Exception: always accept if the incoming equity is lower (could be a
-          // correction of an inflated stale value) — the equity field is
-          // recalculated server-side on every request so it is always authoritative
-          // even when the DB timestamp hasn't changed yet.
-          if (incoming.updatedAt && current.updatedAt) {
-            const equityDecreased = incoming.totalEquity < current.totalEquity - 0.01
-            if (!equityDecreased && incoming.updatedAt < current.updatedAt) return
-          }
-
-          // Guard 4: incoming claims no open positions but market value says
-          // otherwise (totalEquity > cashBalance), and we already have
-          // positions in state. The JSONB positions column was probably not
-          // saved/returned; keep current positions to avoid a blank table.
-          const incomingHasMissingPositions =
-            (!incoming.positions || incoming.positions.length === 0) &&
-            incoming.totalEquity > incoming.cashBalance + 0.01
-          if (incomingHasMissingPositions && current.positions.length > 0) return
-        }
-
-        set({ portfolio: incoming })
+        set({ portfolio: result as Portfolio })
       }
-    } catch {
-      // 503 / network error → keep existing portfolio state, don't reset
-    }
+    } catch { /* keep existing state on network error */ }
   },
 
   loadAnalytics: async () => {
     set({ analyticsLoading: true })
     try {
-      const [performanceStats, tradeJournal] = await Promise.all([
-        getPerformanceStats(),
-        getTradeJournal(),
-      ])
+      const [stats, journal] = await Promise.all([getPerformanceStats(), getTradeJournal()])
       set({
-        performanceStats: (performanceStats && typeof performanceStats === 'object' && !Array.isArray(performanceStats)) ? performanceStats : null,
-        tradeJournal: Array.isArray(tradeJournal) ? tradeJournal : [],
+        performanceStats: stats && typeof stats === 'object' ? stats : null,
+        tradeJournal:     Array.isArray(journal) ? journal : [],
         analyticsLoading: false,
       })
     } catch {
-      set({ error: 'Failed to load analytics', analyticsLoading: false })
+      set({ analyticsLoading: false })
     }
   },
 
   placeOrder: async (params) => {
     try {
-      const order = await placeOrder(params)
+      const result = await placeOrder(params)
 
-      // Add order to list immediately
-      set((s) => ({ orders: [order, ...s.orders] }))
+      // Optimistic update: immediately reflect the new position + deducted cash
+      const current = get().portfolio
+      if (current) {
+        const positionSide = params.side === 'buy' ? 'long' : 'short'
+        const existingIdx  = current.positions.findIndex(
+          p => p.symbol === result.symbol && p.side === positionSide
+        )
 
-      // Optimistically update state from the fill response so the UI is
-      // correct immediately without waiting for the server sync.
-      // Do NOT stamp a client-side updatedAt - the routine loadPortfolio
-      // staleness guard compares against the DB timestamp, and a client
-      // timestamp would be newer than the DB's, causing the 1.5s sync to
-      // be rejected and positions never appearing.
-      if (order.status === 'filled' && order.avgFillPrice != null) {
-        const current = get().portfolio
-        if (current) {
-          const qty      = order.filledQuantity ?? order.quantity
-          const leverage = order.leverage ?? 1
-          // Deduct/return margin (not full notional) so cash stays correct for leveraged orders
-          const margin   = qty * order.avgFillPrice / leverage
-          const cost = order.side === 'buy'
-            ? margin + (order.commission ?? 0)
-            : -(margin - (order.commission ?? 0))
-          const newCash = parseFloat((current.cashBalance - cost).toFixed(2))
-
-          // Build updated positions array
-          let newPositions = [...current.positions]
-          if (order.side === 'buy') {
-            const existingIdx = newPositions.findIndex(p => p.symbol === order.symbol && p.side === 'long')
-            if (existingIdx >= 0) {
-              const pos = newPositions[existingIdx]
-              const newQty = pos.quantity + qty
-              const newAvgCost = (pos.avgCost * pos.quantity + order.avgFillPrice * qty) / newQty
-              newPositions[existingIdx] = { ...pos, quantity: newQty, avgCost: newAvgCost,
-                currentPrice: order.avgFillPrice, marketValue: newQty * order.avgFillPrice,
-                unrealizedPnl: 0, unrealizedPnlPercent: 0 }
-            } else {
-              const orderLev = order.leverage ?? 1
-              const orderMargin = parseFloat((qty * order.avgFillPrice / orderLev).toFixed(2))
-              newPositions.push({ symbol: order.symbol, quantity: qty, avgCost: order.avgFillPrice,
-                currentPrice: order.avgFillPrice, marketValue: qty * order.avgFillPrice,
-                unrealizedPnl: 0, unrealizedPnlPercent: 0, side: 'long', openedAt: new Date().toISOString(),
-                leverage: orderLev, margin: orderMargin, notionalValue: qty * order.avgFillPrice })
-            }
-          } else if (order.side === 'sell') {
-            const existingIdx = newPositions.findIndex(p => p.symbol === order.symbol && p.side === 'long')
-            if (existingIdx >= 0) {
-              const pos = newPositions[existingIdx]
-              const remaining = pos.quantity - qty
-              if (remaining <= 0.000001) newPositions.splice(existingIdx, 1)
-              else newPositions[existingIdx] = { ...pos, quantity: remaining,
-                marketValue: remaining * order.avgFillPrice }
-            }
+        let newPositions: Position[]
+        if (existingIdx >= 0) {
+          const existing  = current.positions[existingIdx]
+          const newQty    = existing.quantity + result.quantity
+          const newAvgPx  = (existing.avg_price * existing.quantity + result.fillPrice * result.quantity) / newQty
+          const newMargin = existing.margin + result.margin
+          newPositions = [...current.positions]
+          newPositions[existingIdx] = {
+            ...existing,
+            quantity:    newQty,
+            avg_price:   newAvgPx,
+            margin:      newMargin,
+            currentPrice: result.fillPrice,
+            unrealizedPnl: 0,
+            unrealizedPnlPct: 0,
+            notionalValue: newQty * result.fillPrice,
           }
-
-          const newMarketValue = parseFloat(newPositions.reduce((s, p) => s + p.marketValue, 0).toFixed(2))
-          // equity = cash + Σ(margin locked in each position) + unrealised P&L
-          // Using margin (not full notional) prevents inflation on leveraged positions.
-          const equityFromPositions = parseFloat(newPositions.reduce((s, p) => {
-            const m = p.margin ?? p.marketValue  // margin field is set for leveraged; fallback to marketValue for L=1
-            return s + m + (p.unrealizedPnl ?? 0)
-          }, 0).toFixed(2))
-          set({
-            portfolio: {
-              ...current,
-              cashBalance:      newCash,
-              totalMarketValue: newMarketValue,
-              totalEquity:      parseFloat((newCash + equityFromPositions).toFixed(2)),
-              positions:        newPositions,
-              // Stamp client-side updatedAt so loadPortfolio Guards 1 & 2 protect
-              // this optimistic state from being overwritten by the cold-start
-              // $100k default on subsequent 5s polls (when DB save is slow/failed).
-              updatedAt: new Date().toISOString(),
-            }
-          })
+        } else {
+          const now = new Date().toISOString()
+          const newPos: Position = {
+            id:          result.id,
+            user_id:     '',
+            mode:        'demo',
+            symbol:      result.symbol,
+            side:        positionSide,
+            quantity:    result.quantity,
+            avg_price:   result.fillPrice,
+            leverage:    result.leverage,
+            margin:      result.margin,
+            take_profit: result.takeProfit ?? null,
+            stop_loss:   result.stopLoss   ?? null,
+            opened_at:   now,
+            updated_at:  now,
+            currentPrice:     result.fillPrice,
+            unrealizedPnl:    0,
+            unrealizedPnlPct: 0,
+            notionalValue:    result.quantity * result.fillPrice,
+            liquidationPrice: positionSide === 'long'
+              ? result.fillPrice * (1 - 0.9 / result.leverage)
+              : result.fillPrice * (1 + 0.9 / result.leverage),
+          }
+          newPositions = [...current.positions, newPos]
         }
+
+        const newCash        = parseFloat((current.cashBalance - result.totalCost).toFixed(2))
+        const newTotalMargin = parseFloat((current.totalMargin + result.margin).toFixed(2))
+        const newEquity      = parseFloat((newCash + newTotalMargin + current.unrealizedPnl).toFixed(2))
+
+        set({
+          portfolio: {
+            ...current,
+            cashBalance:   newCash,
+            totalMargin:   newTotalMargin,
+            totalEquity:   newEquity,
+            positions:     newPositions,
+          },
+        })
       }
 
-      // Delayed sync: pull authoritative state from server after DB write completes.
-      // Accept any response with a DB-confirmed updatedAt (bypass the staleness
-      // guard used for routine polling - we know an order just executed).
-      // Exception: if the DB returns empty positions but the current store has
-      // positions (our optimistic update is more accurate than the DB in this window),
-      // keep the current positions and only update financials.
+      // Sync authoritative state after DB write settles
       setTimeout(async () => {
         try {
-          const [portfolio, fetchedOrders] = await Promise.all([getPortfolio(), getOrders()])
-          if (portfolio && typeof portfolio === 'object' && !Array.isArray(portfolio)) {
-            const incoming = portfolio as Portfolio
-            // Always accept DB-confirmed data after a known order placement
-            if (incoming.updatedAt) {
-              const currentPortfolio = get().portfolio
-              // If the server doesn't have positions yet (DB write still in-flight or
-              // JSONB blob lost) but we have optimistic positions, merge: use DB
-              // financials for cash/equity but keep our known positions.
-              const serverMissingPositions =
-                (!incoming.positions || incoming.positions.length === 0) &&
-                (currentPortfolio?.positions ?? []).length > 0
-              if (serverMissingPositions && currentPortfolio) {
-                // equity = cash + Σ(margin + unrealisedPnl) to avoid notional inflation
-                const eqFromKnownPos = currentPortfolio.positions.reduce((s, p) => {
-                  const m = p.margin ?? p.marketValue
-                  return s + m + (p.unrealizedPnl ?? 0)
-                }, 0)
-                set({
-                  portfolio: {
-                    ...incoming,
-                    positions:        currentPortfolio.positions,
-                    totalMarketValue: currentPortfolio.totalMarketValue,
-                    totalEquity: parseFloat((incoming.cashBalance + eqFromKnownPos).toFixed(2)),
-                    unrealizedPnl: currentPortfolio.unrealizedPnl,
-                  }
-                })
-              } else {
-                set({ portfolio: incoming })
-              }
-            }
-          }
-          // Only replace orders list if the server has a non-empty result or we
-          // have no orders yet - never wipe a known order with an empty array.
-          if (Array.isArray(fetchedOrders)) {
-            const current = get().orders
-            if (fetchedOrders.length > 0 || current.length === 0) {
-              set({ orders: fetchedOrders })
-            }
-          }
-        } catch { /* ignore errors */ }
-      }, 1500)
+          const [portfolio, orders] = await Promise.all([getPortfolio(), getOrders()])
+          if (portfolio) set({ portfolio: portfolio as Portfolio })
+          if (Array.isArray(orders)) set({ orders })
+        } catch { /* ignore */ }
+      }, 1_500)
+
+      return result
     } catch (err: unknown) {
-      // Handle both Axios error shapes and plain Error objects
       const axiosData = (err as { response?: { data?: unknown } })?.response?.data
       let msg = 'Order failed'
       if (axiosData && typeof axiosData === 'object') {
@@ -336,108 +227,98 @@ export const useTradingStore = create<TradingState>((set, get) => ({
     }
   },
 
-  cancelOrder: async (orderId) => {
-    try {
-      await cancelOrder(orderId)
-      try {
-        const orders = await getOrders()
-        if (Array.isArray(orders)) set({ orders })
-      } catch { /* ignore refresh error */ }
-    } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error ?? 'Cancel failed'
-      set({ error: msg })
+  closePosition: async (id) => {
+    // Optimistic: remove position immediately
+    const current = get().portfolio
+    if (current) {
+      const closing     = current.positions.find(p => p.id === id)
+      const newPositions = current.positions.filter(p => p.id !== id)
+      const releasedMargin = closing?.margin ?? 0
+      const releasedPnl    = closing?.unrealizedPnl ?? 0
+      const newCash        = parseFloat((current.cashBalance + releasedMargin + releasedPnl).toFixed(2))
+      const newTotalMargin = parseFloat((current.totalMargin - releasedMargin).toFixed(2))
+      const newUnrealizedPnl = parseFloat(newPositions.reduce((s, p) => s + p.unrealizedPnl, 0).toFixed(2))
+
+      set({
+        portfolio: {
+          ...current,
+          cashBalance:   newCash,
+          totalMargin:   newTotalMargin,
+          totalEquity:   parseFloat((newCash + newTotalMargin + newUnrealizedPnl).toFixed(2)),
+          unrealizedPnl: newUnrealizedPnl,
+          positions:     newPositions,
+        },
+      })
     }
-  },
 
-  closePosition: async (symbol) => {
     try {
-      // Optimistically remove the position from the UI immediately
-      const current = get().portfolio
-      if (current) {
-        const closedPos = current.positions.find(p => p.symbol === symbol)
-        const newPositions = current.positions.filter(p => p.symbol !== symbol)
-        const newMarketValue = parseFloat(newPositions.reduce((s, p) => s + p.marketValue, 0).toFixed(2))
-        const returnedCash = closedPos ? parseFloat((current.cashBalance + closedPos.marketValue).toFixed(2)) : current.cashBalance
-        set({
-          portfolio: {
-            ...current,
-            positions: newPositions,
-            totalMarketValue: newMarketValue,
-            cashBalance: returnedCash,
-            totalEquity: parseFloat((returnedCash + newMarketValue).toFixed(2)),
-            unrealizedPnl: parseFloat(newPositions.reduce((s, p) => s + p.unrealizedPnl, 0).toFixed(2)),
-          }
-        })
-      }
-
-      await closePositionApi(symbol)
-
-      // Sync authoritative state from server after DB write completes
-      setTimeout(async () => {
-        try {
-          const [portfolio, orders] = await Promise.all([getPortfolio(), getOrders()])
-          if (portfolio && typeof portfolio === 'object' && !Array.isArray(portfolio)) set({ portfolio })
-          if (Array.isArray(orders)) set({ orders })
-        } catch { /* ignore refresh errors */ }
-      }, 800)
+      await closePositionApi(id)
     } catch (err: unknown) {
-      // Revert optimistic update on failure
-      const current = get().portfolio
-      if (current) {
-        try { const p = await getPortfolio(); if (p) set({ portfolio: p as typeof current }) } catch { /* ignore */ }
-      }
-      const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error ?? 'Close position failed'
+      // Revert on failure
+      if (current) set({ portfolio: current })
+      const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error ?? 'Close failed'
       set({ error: msg })
       throw new Error(msg)
     }
+
+    // Sync authoritative state
+    setTimeout(async () => {
+      try {
+        const [portfolio, orders] = await Promise.all([getPortfolio(), getOrders()])
+        if (portfolio) set({ portfolio: portfolio as Portfolio })
+        if (Array.isArray(orders)) set({ orders })
+      } catch { /* ignore */ }
+    }, 800)
   },
+
+  // ── WebSocket handlers ────────────────────────────────────────────────────────
 
   updateTickers: (tickers) => {
     if (!Array.isArray(tickers)) return
     const tickerMap: Record<string, Ticker> = {}
     for (const t of tickers) tickerMap[t.symbol] = t
 
-    // Recompute open position mark-to-market values using the latest prices
     const portfolio = get().portfolio
     if (portfolio && portfolio.positions.length > 0) {
+      let totalUnrealizedPnl = 0
+      let totalMargin        = 0
+
       const updatedPositions = portfolio.positions.map((pos) => {
         const ticker = tickerMap[pos.symbol]
-        if (!ticker) return pos
-        const markPrice = ticker.price
-        // Notional = quantity × price (no leverage multiplier — leverage determines margin, not exposure size)
-        const notionalValue = pos.quantity * markPrice
-        // P&L = absolute dollar gain/loss on the position (server uses same formula in refreshPortfolio)
-        const unrealizedPnl = pos.side === 'long'
-          ? (markPrice - pos.avgCost) * pos.quantity
-          : (pos.avgCost - markPrice) * pos.quantity
-        // P&L % relative to margin posted (matches server unrealizedPnlPercent)
-        const margin = pos.margin ?? (pos.avgCost * pos.quantity / (pos.leverage ?? 1))
-        const unrealizedPnlPercent = margin > 0 ? (unrealizedPnl / margin) * 100 : 0
+        const markPrice = ticker?.price ?? pos.currentPrice
+
+        const rawPnl = pos.side === 'long'
+          ? (markPrice - pos.avg_price) * pos.quantity
+          : (pos.avg_price - markPrice) * pos.quantity
+        const unrealizedPnl    = parseFloat(rawPnl.toFixed(2))
+        const unrealizedPnlPct = pos.margin > 0
+          ? parseFloat(((unrealizedPnl / pos.margin) * 100).toFixed(2))
+          : 0
+
+        totalUnrealizedPnl += unrealizedPnl
+        totalMargin        += pos.margin
+
         return {
           ...pos,
-          currentPrice: markPrice,
-          marketValue: notionalValue,
-          notionalValue,
-          unrealizedPnl: parseFloat(unrealizedPnl.toFixed(2)),
-          unrealizedPnlPercent: parseFloat(unrealizedPnlPercent.toFixed(2)),
+          currentPrice:     markPrice,
+          unrealizedPnl,
+          unrealizedPnlPct,
+          notionalValue: parseFloat((pos.quantity * markPrice).toFixed(2)),
         }
       })
-      const totalMarketValue = parseFloat(updatedPositions.reduce((s, p) => s + p.marketValue, 0).toFixed(2))
-      const totalUnrealizedPnl = parseFloat(updatedPositions.reduce((s, p) => s + p.unrealizedPnl, 0).toFixed(2))
-      // Equity = cash + Σ(margin locked in each position + unrealised P&L)
-      // Using margin (not notional) prevents phantom inflation on leveraged positions.
-      const equityFromPositions = parseFloat(updatedPositions.reduce((s, p) => {
-        const m = p.margin ?? (p.avgCost * p.quantity / (p.leverage ?? 1))
-        return s + m + (p.unrealizedPnl ?? 0)
-      }, 0).toFixed(2))
+
+      const totalEquity = parseFloat(
+        (portfolio.cashBalance + totalMargin + totalUnrealizedPnl).toFixed(2)
+      )
+
       set({
         tickers: tickerMap,
         portfolio: {
           ...portfolio,
-          positions: updatedPositions,
-          totalMarketValue,
-          totalEquity: parseFloat((portfolio.cashBalance + equityFromPositions).toFixed(2)),
-          unrealizedPnl: totalUnrealizedPnl,
+          positions:     updatedPositions,
+          unrealizedPnl: parseFloat(totalUnrealizedPnl.toFixed(2)),
+          totalMargin:   parseFloat(totalMargin.toFixed(2)),
+          totalEquity,
         },
       })
       return
@@ -446,16 +327,12 @@ export const useTradingStore = create<TradingState>((set, get) => ({
     set({ tickers: tickerMap })
   },
 
-  updateOrderBook: (orderBook) => {
-    // Validate shape before storing - malformed API responses must not reach render
-    if (orderBook && Array.isArray(orderBook.asks) && Array.isArray(orderBook.bids)) {
-      set({ orderBook })
-    }
+  updateOrderBook: (ob) => {
+    if (ob && Array.isArray(ob.asks) && Array.isArray(ob.bids)) set({ orderBook: ob })
   },
 
   updateRecentTrades: (trades) => {
-    if (!Array.isArray(trades)) return
-    set({ recentTrades: trades.slice(0, 80) })
+    if (Array.isArray(trades)) set({ recentTrades: trades.slice(0, 80) })
   },
 
   addRecentTrade: (trade) => {
@@ -463,8 +340,9 @@ export const useTradingStore = create<TradingState>((set, get) => ({
   },
 
   setLiveCandleHistory: (candles) => {
-    if (!Array.isArray(candles) || candles.length === 0) return
-    set({ candles, liveCandle: candles[candles.length - 1] ?? null })
+    if (Array.isArray(candles) && candles.length > 0) {
+      set({ candles, liveCandle: candles[candles.length - 1] ?? null })
+    }
   },
 
   updateLiveCandle: (candle) => {
@@ -473,16 +351,14 @@ export const useTradingStore = create<TradingState>((set, get) => ({
       if (existing.length === 0) return { liveCandle: candle }
       const last = existing[existing.length - 1]
       if (last.time === candle.time) {
-        // Update the last candle in-place
         const updated = [...existing]
         updated[updated.length - 1] = candle
         return { candles: updated, liveCandle: candle }
-      } else if (candle.time > last.time) {
-        // New candle - append
+      }
+      if (candle.time > last.time) {
         return { candles: [...existing, candle], liveCandle: candle }
       }
       return { liveCandle: candle }
     })
   },
 }))
-

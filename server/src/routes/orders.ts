@@ -1,230 +1,70 @@
-﻿import { Router, Response } from 'express'
+import { Router, Response } from 'express'
 import { authenticate, AuthRequest } from '../middleware/auth'
-import {
-  createOrder,
-  cancelOrder,
-  getOrdersByUser,
-  executeOrder,
-  orders,
-  portfolios,
-  tradeJournal,
-} from '../services/tradingEngine'
-import { dbLoadOrders, dbLoadPortfolio, dbSaveOrder, dbSavePortfolio, dbSaveTradeRecord, dbEnsureUser, recalculateFromOrders } from '../services/dbSync'
-import { AccountMode, OrderSide, OrderType, TimeInForce } from '../types'
+import { placeMarketOrder } from '../services/orderEngine'
+import { supabase } from '../db'
+import { AccountMode } from '../types'
 
 const router = Router()
-router.use(authenticate)
 
-/** Read and validate the X-Account-Mode header from the request. Defaults to 'demo'. */
-function getAccountMode(req: AuthRequest): AccountMode {
-  const header = req.headers['x-account-mode']
-  return header === 'real' ? 'real' : 'demo'
+function getMode(req: AuthRequest): AccountMode {
+  return req.headers['x-account-mode'] === 'real' ? 'real' : 'demo'
 }
 
-// GET /api/orders
-// ─── Design rule ────────────────────────────────────────────────────────────
-// Always read from DB (Supabase is the single source of truth).
-// The in-memory map is updated after load so other in-process calls
-// (e.g. executeOrder) can see the latest state within the same request.
-// ─────────────────────────────────────────────────────────────────────────────
-router.get('/', async (req: AuthRequest, res: Response) => {
-  const { status } = req.query
+// POST /api/orders — place a market order
+router.post('/', authenticate, async (req: AuthRequest, res: Response) => {
   const userId = req.user!.userId
-  const accountMode = getAccountMode(req)
+  const mode   = getMode(req)
+
+  const { symbol, side, quantity, leverage, takeProfit, stopLoss } = req.body
+
+  if (!symbol || !side || quantity === undefined) {
+    return res.status(400).json({ error: 'symbol, side, and quantity are required' })
+  }
+
+  const qty = parseFloat(String(quantity))
+  const lev = leverage !== undefined ? parseInt(String(leverage), 10) : 1
+
+  if (isNaN(qty) || qty <= 0) {
+    return res.status(400).json({ error: 'quantity must be a positive number' })
+  }
+
   try {
-    let dbOrders = await dbLoadOrders(userId, accountMode)
-
-    // DB returned nothing but in-memory has orders for this user.
-    // This happens when the schema was created AFTER orders were already placed
-    // (orders lived only in-memory). Backfill them to DB now so they survive
-    // future restarts, then serve from memory.
-    if (dbOrders.length === 0) {
-      const memOrders = getOrdersByUser(userId).filter(o => (o.accountMode ?? 'demo') === accountMode)
-      if (memOrders.length > 0) {
-        console.log(`[Orders] Backfilling ${memOrders.length} in-memory order(s) to DB for ${userId}/${accountMode}`)
-        for (const o of memOrders) {
-          dbSaveOrder(o).catch((e: unknown) => console.error('[Orders] backfill save failed:', e))
-        }
-        dbOrders = memOrders
-      }
-    }
-
-    // Sync into in-memory map so the watcher system stays consistent
-    for (const o of dbOrders) orders.set(o.id, o)
-    const result = status
-      ? dbOrders.filter(o => o.status === (status as string))
-      : dbOrders
-    return res.json(result)
-  } catch (err) {
-    console.error('[Orders] DB read failed - serving in-memory fallback:', err)
-    const memOrders = getOrdersByUser(userId).filter(o => (o.accountMode ?? 'demo') === accountMode)
-    const result2 = status ? memOrders.filter(o => o.status === (status as string)) : memOrders
-    return res.json(result2)
+    const order = await placeMarketOrder(userId, mode, {
+      symbol:     String(symbol).toUpperCase().trim(),
+      side,
+      quantity:   qty,
+      leverage:   isNaN(lev) ? 1 : lev,
+      takeProfit: takeProfit != null ? parseFloat(String(takeProfit)) : undefined,
+      stopLoss:   stopLoss   != null ? parseFloat(String(stopLoss))   : undefined,
+    })
+    return res.status(201).json(order)
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Order failed'
+    const is4xx =
+      msg.includes('Insufficient') ||
+      msg.includes('Unknown symbol') ||
+      msg.includes('must be') ||
+      msg.includes('Side must')
+    return res.status(is4xx ? 400 : 500).json({ error: msg })
   }
 })
 
-// POST /api/orders
-router.post('/', async (req: AuthRequest, res: Response) => {
-  try {
-    const userId = req.user!.userId
-    const accountMode = getAccountMode(req)
+// GET /api/orders — paginated order log
+router.get('/', authenticate, async (req: AuthRequest, res: Response) => {
+  const userId = req.user!.userId
+  const mode   = getMode(req)
+  const limit  = Math.min(parseInt(String(req.query.limit ?? '50'), 10), 200)
 
-    // Step 1: ensure user row exists in public.users (FK guard).
-    // Best-effort - if DB is unavailable (e.g. missing env var) we still allow
-    // the order to execute in-memory rather than permanently blocking the user.
-    try {
-      await dbEnsureUser(userId, req.user!.email)
-    } catch (e) {
-      console.warn('[Orders] dbEnsureUser failed - continuing in-memory only:', e)
-    }
+  const { data, error } = await supabase
+    .from('orders')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('mode', mode)
+    .order('created_at', { ascending: false })
+    .limit(limit)
 
-    // Step 2: recompute portfolio from order history so balance check is
-    // always accurate, even after a cold start with stale DB portfolio data.
-    try {
-      const allOrders = await dbLoadOrders(userId, accountMode)
-      const { cashBalance, positions, realizedPnl } = recalculateFromOrders(allOrders)
-      portfolios.set(userId, {
-        userId, cashBalance, totalMarketValue: 0, totalEquity: cashBalance,
-        unrealizedPnl: 0, realizedPnl, positions,
-      })
-    } catch (e) {
-      // Fall back to stale DB portfolio rather than blocking the order
-      try {
-        const dbPort = await dbLoadPortfolio(userId)
-        if (dbPort) portfolios.set(userId, dbPort)
-      } catch { /* use in-memory */ }
-      console.warn('[Orders] recalculate failed - using cached balance:', e)
-    }
-
-    const {
-      symbol, side, type, quantity, price, stopPrice,
-      timeInForce, takeProfit, stopLoss, trailingOffset, notes, leverage,
-    } = req.body
-
-    if (!symbol || !side || !type || !quantity) {
-      return res.status(400).json({ error: 'symbol, side, type, and quantity are required' })
-    }
-    if (!['buy', 'sell'].includes(side)) {
-      return res.status(400).json({ error: 'side must be buy or sell' })
-    }
-    if (!['market', 'limit', 'stop', 'stop_limit', 'trailing_stop'].includes(type)) {
-      return res.status(400).json({ error: 'type must be market, limit, stop, stop_limit, or trailing_stop' })
-    }
-    if (type === 'limit' && !price) {
-      return res.status(400).json({ error: 'price is required for limit orders' })
-    }
-    if (type === 'stop' && !stopPrice) {
-      return res.status(400).json({ error: 'stopPrice is required for stop orders' })
-    }
-    if (type === 'stop_limit' && (!price || !stopPrice)) {
-      return res.status(400).json({ error: 'price and stopPrice are required for stop_limit orders' })
-    }
-    if (type === 'trailing_stop' && !trailingOffset) {
-      return res.status(400).json({ error: 'trailingOffset is required for trailing_stop orders' })
-    }
-
-    const parsedLeverage = leverage ? parseFloat(leverage) : 1
-
-    const order = createOrder(
-      userId,
-      symbol,
-      side as OrderSide,
-      type as OrderType,
-      parseFloat(quantity),
-      price ? parseFloat(price) : undefined,
-      stopPrice ? parseFloat(stopPrice) : undefined,
-      (timeInForce as TimeInForce) || 'GTC',
-      takeProfit ? parseFloat(takeProfit) : undefined,
-      stopLoss ? parseFloat(stopLoss) : undefined,
-      trailingOffset ? parseFloat(trailingOffset) : undefined,
-      notes as string | undefined,
-      parsedLeverage,
-    )
-    // Tag the order with the account mode so it's stored in the right partition
-    order.accountMode = accountMode
-
-    // Step 3: execute market orders and persist to DB synchronously.
-    // This must happen BEFORE res.json() because:
-    //   - On Vercel, the container is frozen immediately after the response,
-    //     so any fire-and-forget promises would never run.
-    //   - On Railway/local, synchronous persistence ensures the next
-    //     GET /orders request (triggered 1.5s later by the client) always
-    //     finds the order in DB even if that request lands on a fresh process.
-    if (order.type === 'market') {
-      executeOrder(order.id)
-    }
-
-    const filled    = orders.get(order.id)
-    const portfolio = portfolios.get(userId)
-
-    const dbSaves: Promise<void>[] = [
-      dbSaveOrder(filled ?? order).catch((e: unknown) => {
-        console.warn('[DB] Failed to save order:', e)
-      }),
-    ]
-    if (portfolio) {
-      dbSaves.push(
-        dbSavePortfolio(userId, portfolio, accountMode).catch((e: unknown) => {
-          console.warn('[DB] Failed to save portfolio:', e)
-        }),
-      )
-    }
-
-    // Persist the relevant trade journal entry created/updated by executeOrder.
-    // - Buy opening a long  → new entry pushed with orderId === filledOrderId
-    // - Sell closing a long → existing buy entry updated with exitPrice/closedAt
-    //   (no new entry; lookup by orderId misses it — find the most recently closed
-    //   entry for this symbol instead)
-    // - Buy closing a short → same pattern as sell-closes-long but side='sell'
-    const filledOrderId = (filled ?? order).id
-    const jEntries = tradeJournal.get(userId) ?? []
-    let journalEntry = jEntries.find(t => t.orderId === filledOrderId)
-    if (!journalEntry) {
-      journalEntry = [...jEntries].reverse().find(
-        t => t.symbol === order.symbol && t.closedAt
-      )
-    }
-    if (journalEntry) {
-      dbSaves.push(
-        dbSaveTradeRecord(journalEntry).catch((e: unknown) => {
-          console.warn('[DB] Failed to save trade record:', e)
-        }),
-      )
-    }
-
-    try {
-      await Promise.all(dbSaves)
-    } catch (err) {
-      // DB persistence failed (e.g. missing SUPABASE_SERVICE_ROLE_KEY).
-      // Log the failure but still return 201 - the order is live in-memory on
-      // this container. Once the env var is added it will persist correctly.
-      console.warn('[Orders] DB persistence failed - order executed in-memory only:', err)
-    }
-
-    return res.status(201).json(filled ?? order)
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : 'Failed to create order'
-    return res.status(400).json({ error: message })
-  }
-})
-
-// DELETE /api/orders/:id
-router.delete('/:id', async (req: AuthRequest, res: Response) => {
-  try {
-    const order = cancelOrder(req.params.id, req.user!.userId)
-    // Await the DB write - fire-and-forget would leave the order as 'open' in DB
-    // if the container is frozen before the promise resolves (Vercel behaviour).
-    try {
-      await dbSaveOrder(order)
-    } catch (e) {
-      console.error('[DB] Failed to save cancelled order:', e)
-      // Non-fatal: in-memory state is already cancelled; DB will sync on next poll
-    }
-    return res.json(order)
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : 'Failed to cancel order'
-    return res.status(400).json({ error: message })
-  }
+  if (error) return res.status(500).json({ error: error.message })
+  return res.json(data ?? [])
 })
 
 export default router

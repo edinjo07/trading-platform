@@ -1,87 +1,88 @@
-﻿import { Router, Response } from 'express'
+import { Router, Response } from 'express'
 import { authenticate, AuthRequest } from '../middleware/auth'
-import { getPortfolio, closePosition, executeOrder, portfolios, orders, tradeJournal, refreshPortfolio } from '../services/tradingEngine'
-import { dbLoadOrders, dbLoadTradeJournal, dbSaveOrder, dbSavePortfolio, dbSaveTradeRecord, dbEnsureUser, recalculateFromOrders } from '../services/dbSync'
-import type { AccountMode, Portfolio } from '../types'
+import { closePosition, updatePositionSLTP } from '../services/orderEngine'
+import { getPrice } from '../services/priceService'
+import { supabase } from '../db'
+import { AccountMode, PositionRow, PositionLive } from '../types'
 
 const router = Router()
-router.use(authenticate)
 
-// GET /api/positions  - list all open positions for the authenticated user
-// Mirrors portfolio.ts: always recompute from the orders table so positions
-// are consistent even after a server restart or if bots traded offline.
-router.get('/', async (req: AuthRequest, res: Response) => {
+function getMode(req: AuthRequest): AccountMode {
+  return req.headers['x-account-mode'] === 'real' ? 'real' : 'demo'
+}
+
+function enrichPosition(pos: PositionRow): PositionLive {
+  const currentPrice = getPrice(pos.symbol) ?? pos.avg_price
+  const rawPnl = pos.side === 'long'
+    ? (currentPrice - pos.avg_price) * pos.quantity
+    : (pos.avg_price - currentPrice) * pos.quantity
+
+  const unrealizedPnl    = parseFloat(rawPnl.toFixed(2))
+  const unrealizedPnlPct = pos.margin > 0
+    ? parseFloat(((unrealizedPnl / pos.margin) * 100).toFixed(2))
+    : 0
+  const notionalValue    = parseFloat((pos.quantity * currentPrice).toFixed(2))
+  const liquidationPrice = pos.side === 'long'
+    ? parseFloat((pos.avg_price * (1 - 0.9 / pos.leverage)).toFixed(8))
+    : parseFloat((pos.avg_price * (1 + 0.9 / pos.leverage)).toFixed(8))
+
+  return { ...pos, currentPrice, unrealizedPnl, unrealizedPnlPct, notionalValue, liquidationPrice }
+}
+
+// GET /api/positions — all open positions with live prices
+router.get('/', authenticate, async (req: AuthRequest, res: Response) => {
   const userId = req.user!.userId
-  const accountMode: AccountMode = req.headers['x-account-mode'] === 'real' ? 'real' : 'demo'
-  try {
-    try { await dbEnsureUser(userId, req.user!.email) } catch { /* non-fatal */ }
-    const allOrders = await dbLoadOrders(userId, accountMode)
-    const { cashBalance, positions, realizedPnl } = recalculateFromOrders(allOrders)
-    const portfolio: Portfolio = {
-      userId, cashBalance, totalMarketValue: 0, totalEquity: cashBalance,
-      unrealizedPnl: 0, realizedPnl, positions,
-    }
-    portfolios.set(userId, portfolio)
-    return res.json({ success: true, data: refreshPortfolio(portfolio).positions })
-  } catch { /* fall through to in-memory */ }
-  const portfolio = getPortfolio(userId)
-  res.json({ success: true, data: portfolio.positions })
+  const mode   = getMode(req)
+
+  const { data, error } = await supabase
+    .from('positions')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('mode', mode)
+    .order('opened_at', { ascending: false })
+
+  if (error) return res.status(500).json({ error: error.message })
+  return res.json((data ?? []).map(p => enrichPosition(p as PositionRow)))
 })
 
-// DELETE /api/positions/:symbol  - close an open position at market
-router.delete('/:symbol', async (req: AuthRequest, res: Response) => {
+// DELETE /api/positions/:id — close a position at market price
+router.delete('/:id', authenticate, async (req: AuthRequest, res: Response) => {
   const userId = req.user!.userId
-  const accountMode: AccountMode = req.headers['x-account-mode'] === 'real' ? 'real' : 'demo'
-  const { symbol } = req.params
+  const mode   = getMode(req)
+  const { id } = req.params
+
   try {
-    // Rebuild portfolio from order history so positions/leverage are always
-    // correct, even after a restart or when bots have been trading.
-    try {
-      await dbEnsureUser(userId, req.user!.email)
-      const allOrders = await dbLoadOrders(userId, accountMode)
-      const { cashBalance, positions, realizedPnl } = recalculateFromOrders(allOrders)
-      portfolios.set(userId, {
-        userId, cashBalance, totalMarketValue: 0, totalEquity: cashBalance,
-        unrealizedPnl: 0, realizedPnl, positions,
-      } as Portfolio)
-      // Restore trade journal so executeOrder can close the correct open entry.
-      if ((tradeJournal.get(userId) ?? []).length === 0) {
-        const dbJournal = await dbLoadTradeJournal(userId)
-        if (dbJournal.length > 0) tradeJournal.set(userId, [...dbJournal].reverse())
-      }
-    } catch { /* non-fatal - proceed with whatever is in memory */ }
-
-    const order = closePosition(userId, symbol)
-
-    // Execute the sell immediately (closePosition only creates the order;
-    // without this the position stays open until the tick loop fires it)
-    executeOrder(order.id)
-
-    // Now the sell has filled - grab the fresh order, portfolio, and journal states
-    const filledOrder = orders.get(order.id) ?? order
-    const portfolio   = portfolios.get(userId)
-    const journal     = tradeJournal.get(userId) ?? []
-
-    // Find the trade record that was just closed by executeOrder.
-    // The journal entry for a long has orderId = opening buy order id; after close,
-    // executeOrder sets closedAt on it.  Grab the most recently-closed entry.
-    const justClosed = [...journal].reverse().find(t => t.symbol === symbol && t.closedAt)
-
-    const saves: Promise<void>[] = [
-      dbSaveOrder(filledOrder).catch((e: unknown) => console.error('[Positions] save order failed:', e)),
-      ...(justClosed
-        ? [dbSaveTradeRecord(justClosed).catch((e: unknown) => console.error('[Positions] save trade record failed:', e))]
-        : []),
-    ]
-    if (portfolio) {
-      saves.push(dbSavePortfolio(userId, portfolio, accountMode).catch((e: unknown) => console.error('[Positions] save portfolio failed:', e)))
-    }
-    await Promise.all(saves)
-
-    res.json({ success: true, message: `Position in ${symbol} is being closed at market.` })
+    const result = await closePosition(id, userId, mode)
+    return res.json(result)
   } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : String(err)
-    res.status(400).json({ success: false, error: msg })
+    const msg = err instanceof Error ? err.message : 'Close failed'
+    return res.status(msg.includes('not found') ? 404 : 500).json({ error: msg })
+  }
+})
+
+// PATCH /api/positions/:id — update stop-loss / take-profit
+router.patch('/:id', authenticate, async (req: AuthRequest, res: Response) => {
+  const userId = req.user!.userId
+  const mode   = getMode(req)
+  const { id } = req.params
+
+  const tp = req.body.takeProfit !== undefined
+    ? (req.body.takeProfit === null ? null : parseFloat(String(req.body.takeProfit)))
+    : undefined
+  const sl = req.body.stopLoss !== undefined
+    ? (req.body.stopLoss === null ? null : parseFloat(String(req.body.stopLoss)))
+    : undefined
+
+  if (tp === undefined && sl === undefined) {
+    return res.status(400).json({ error: 'Provide takeProfit and/or stopLoss' })
+  }
+
+  try {
+    const updated = await updatePositionSLTP(id, userId, mode, tp ?? null, sl ?? null)
+    return res.json(enrichPosition(updated))
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Update failed'
+    return res.status(msg.includes('not found') ? 404 : 500).json({ error: msg })
   }
 })
 
