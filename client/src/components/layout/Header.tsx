@@ -84,7 +84,7 @@ interface HeaderProps {
 
 export default function Header({ onMenuClick }: HeaderProps) {
   const { selectedSymbol, tickers, setSelectedSymbol, symbols, portfolio } = useTradingStore()
-  const { user, logout } = useAuthStore()
+  const { user } = useAuthStore()
   const { theme, toggleTheme } = useTheme()
   const navigate = useNavigate()
   const ticker = tickers[selectedSymbol]
@@ -396,24 +396,6 @@ export default function Header({ onMenuClick }: HeaderProps) {
               <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
             </svg>
           )}
-        </button>
-
-        {/* User avatar */}
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white"
-               style={{ background: 'linear-gradient(135deg, var(--t-accent), var(--t-accent-h))' }}>
-            {user?.username?.[0]?.toUpperCase() ?? 'U'}
-          </div>
-        </div>
-
-        {/* Logout */}
-        <button onClick={logout}
-          className="text-text-muted hover:text-bear transition-colors p-1.5 rounded hover:bg-bear-dim">
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-            <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
-            <polyline points="16 17 21 12 16 7" />
-            <line x1="21" y1="12" x2="9" y2="12" />
-          </svg>
         </button>
       </div>
     </header>

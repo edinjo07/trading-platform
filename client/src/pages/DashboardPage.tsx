@@ -281,48 +281,36 @@ export default function DashboardPage() {
     })
   }, [tickers, moversTab])
 
-  // ─── BG gradient (Capital.com gold/amber at top) ──────────────────────────
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100%', background: '#000' }}>
 
-      {/* ── Sticky top bar ── */}
-      <div style={{
-        position: 'sticky', top: 0, zIndex: 20,
-        background: 'rgba(0,0,0,0.92)', backdropFilter: 'blur(12px)',
-        borderBottom: '1px solid rgba(255,255,255,0.06)',
-        padding: '12px 16px',
-        display: 'flex', alignItems: 'center', gap: 10,
-      }}>
-        <button style={{ width: 34, height: 34, borderRadius: 10, background: 'rgba(255,255,255,0.06)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-          <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="rgba(255,255,255,0.5)" strokeWidth={2}><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-        </button>
-        <div style={{ flex: 1, textAlign: 'center' }}>
-          <span style={{ fontSize: 16, fontWeight: 800, color: '#fff', fontFamily: 'monospace' }}>
-            {formatCurrency(equity)}
-          </span>
-        </div>
-        <button
-          onClick={() => navigate('/dashboard/portfolio')}
-          style={{ width: 34, height: 34, borderRadius: 10, background: 'rgba(255,255,255,0.06)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
-        >
-          <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="rgba(255,255,255,0.5)" strokeWidth={1.8}><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>
-        </button>
-        <button
-          onClick={() => navigate('/dashboard/profile')}
-          style={{ width: 34, height: 34, borderRadius: '50%', background: 'rgba(255,255,255,0.08)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
-        >
-          <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="rgba(255,255,255,0.5)" strokeWidth={1.8}><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        </button>
-      </div>
-
       {/* ── Scrollable content ── */}
-      <div style={{ flex: 1, overflowY: 'auto', paddingBottom: 100 }}>
+      <div style={{ flex: 1, paddingBottom: 100 }}>
 
-        {/* ── Gold gradient banner ── */}
+        {/* ── Account card (Capital.com style) ── */}
         <div style={{
-          background: 'linear-gradient(180deg, rgba(180,120,0,0.18) 0%, transparent 100%)',
+          background: 'linear-gradient(180deg, rgba(160,110,0,0.22) 0%, transparent 90%)',
           padding: '20px 16px 0',
         }}>
+          <div style={{ marginBottom: 20 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+              <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', fontWeight: 500 }}>Account (CFD)</span>
+              <button
+                onClick={() => navigate('/dashboard/profile')}
+                style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '5px 12px', borderRadius: 20, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.7)', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
+              >
+                <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>
+                Switch
+              </button>
+            </div>
+            <div style={{ fontSize: 36, fontWeight: 800, color: '#fff', fontFamily: 'monospace', letterSpacing: '-1px', marginBottom: 16 }}>
+              {formatCurrency(equity)}
+            </div>
+            <div style={{ background: 'rgba(255,255,255,0.06)', borderRadius: 12, padding: '12px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>Available to trade</span>
+              <span style={{ fontSize: 14, fontWeight: 700, color: '#fff', fontFamily: 'monospace' }}>{formatCurrency(cash)}</span>
+            </div>
+          </div>
           {/* Portfolio section */}
           <div style={{ marginBottom: 24 }}>
             <SectionHeader title="Portfolio" onMore={() => navigate('/dashboard/portfolio')} />

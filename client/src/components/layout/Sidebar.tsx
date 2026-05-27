@@ -126,11 +126,11 @@ export default function Sidebar({ mobileOpen, onClose }: SidebarProps) {
                   fixed inset-y-0 left-0 z-50 w-[270px]
                   ${mobileOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'}
                   ${collapsed ? 'lg:w-[60px]' : 'lg:w-[220px]'}`}
-      style={{ background: '#080e1a', borderRight: '1px solid rgba(255,255,255,0.05)' }}
+      style={{ background: '#0a0a0a', borderRight: '1px solid rgba(255,255,255,0.07)' }}
     >
       {/* ── Logo / header ── */}
       <div className="flex items-center gap-2.5 px-4 shrink-0"
-           style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', height: '56px' }}>
+           style={{ borderBottom: '1px solid rgba(255,255,255,0.07)', height: '56px' }}>
         <div className="w-7 h-7 rounded-lg shrink-0 flex items-center justify-center"
              style={{ background: 'linear-gradient(135deg,#0ea5e9,#0369a1)' }}>
           <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -197,7 +197,7 @@ export default function Sidebar({ mobileOpen, onClose }: SidebarProps) {
         {NAV_GROUPS.map((group, gi) => (
           <div key={gi}>
             {gi > 0 && (
-              <div className="h-px my-1.5 mx-1" style={{ background: 'rgba(255,255,255,0.05)' }} />
+              <div className="h-px my-1.5 mx-1" style={{ background: 'rgba(255,255,255,0.07)' }} />
             )}
             {group.label && !collapsed && (
               <p className="text-[10px] font-bold uppercase tracking-widest mb-1 mt-0.5 px-2.5"
@@ -230,7 +230,7 @@ export default function Sidebar({ mobileOpen, onClose }: SidebarProps) {
 
         {/* ── Discover (collapsible) ── */}
         <div>
-          <div className="h-px my-1.5 mx-1" style={{ background: 'rgba(255,255,255,0.05)' }} />
+          <div className="h-px my-1.5 mx-1" style={{ background: 'rgba(255,255,255,0.07)' }} />
           <button
             onClick={() => setDiscoverOpen(o => !o)}
             title={collapsed ? 'Discover' : undefined}
@@ -309,7 +309,7 @@ export default function Sidebar({ mobileOpen, onClose }: SidebarProps) {
                         </div>
                       </div>
                     ) : (
-                      <div className="w-12 h-4 rounded animate-pulse" style={{ background: 'rgba(255,255,255,0.05)' }} />
+                      <div className="w-12 h-4 rounded animate-pulse" style={{ background: 'rgba(255,255,255,0.07)' }} />
                     )}
                   </button>
                 )
@@ -320,13 +320,13 @@ export default function Sidebar({ mobileOpen, onClose }: SidebarProps) {
       </nav>
 
       {/* ── User footer / profile dropdown ── */}
-      <div ref={profileRef} className="shrink-0 px-2 py-3 relative" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+      <div ref={profileRef} className="shrink-0 px-2 py-3 relative" style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
 
         {/* Dropdown menu — opens upward */}
         {profileOpen && (
           <div
             className="absolute left-2 right-2 bottom-full mb-2 z-50 rounded-xl overflow-hidden shadow-2xl"
-            style={{ background: '#0f1729', border: '1px solid rgba(255,255,255,0.1)' }}
+            style={{ background: '#141414', border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 -8px 32px rgba(0,0,0,0.7)' }}
           >
             {/* Header row */}
             <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>

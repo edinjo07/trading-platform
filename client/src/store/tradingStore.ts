@@ -240,7 +240,7 @@ export const useTradingStore = create<TradingState>((set, get) => ({
     try {
       const result = await getPendingLimitOrdersApi()
       if (Array.isArray(result)) set({ pendingLimitOrders: result })
-    } catch { /* keep existing state */ }
+    } catch { /* server may not yet have deployed — ignore 404 */ }
   },
 
   placeLimitOrder: async (params) => {
