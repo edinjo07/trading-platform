@@ -301,48 +301,57 @@ export default function OrderForm() {
 
       {/* ── Sell / Buy pill ──────────────────────────────────────────────────── */}
       <div style={{ padding: '12px 12px 10px', flexShrink: 0 }}>
-        <div style={{ display: 'flex', borderRadius: 16, overflow: 'hidden', gap: 2 }}>
+        <div style={{ display: 'flex', borderRadius: 18, overflow: 'hidden' }}>
 
           {/* Sell side */}
           <button
             onClick={() => handleSideChange('sell')}
             style={{
-              flex: 1, padding: '13px 10px', border: 'none', cursor: canSell ? 'pointer' : 'default',
-              background: !isBuy ? 'rgba(155,12,12,0.88)' : 'rgba(55,8,8,0.65)',
-              textAlign: 'left', transition: 'background 0.15s',
+              flex: 1, padding: '14px 14px', border: 'none', cursor: canSell ? 'pointer' : 'default',
+              background: !isBuy ? '#dc3826' : 'rgba(100,20,12,0.82)',
+              textAlign: 'left', transition: 'background 0.18s',
             }}
           >
-            <div style={{ fontSize: 11, fontWeight: 700, marginBottom: 3, color: !isBuy ? '#ff9090' : '#5a2020' }}>Sell</div>
-            <div style={{ fontSize: 17, fontWeight: 800, fontFamily: 'monospace', lineHeight: 1.2, color: !isBuy ? '#ff3030' : '#661818' }}>
+            <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 5, color: !isBuy ? '#fff' : 'rgba(255,160,140,0.45)' }}>Sell</div>
+            <div style={{ fontSize: 18, fontWeight: 800, fontFamily: 'monospace', lineHeight: 1.1, color: !isBuy ? '#fff' : 'rgba(255,160,140,0.45)' }}>
               {bid > 0 ? formatPrice(bid, selectedSymbol) : '––'}
             </div>
           </button>
 
           {/* Center: spread + leverage */}
-          <div style={{ background: '#0c1220', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '8px 6px', gap: 5, flexShrink: 0 }}>
-            <div style={{ width: 34, height: 34, borderRadius: '50%', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700, color: '#ccc' }}>
+          <div style={{ background: '#07090f', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '10px 10px', gap: 5, flexShrink: 0, minWidth: 58 }}>
+            <span style={{ fontSize: 12, fontWeight: 700, color: '#bbb', lineHeight: 1 }}>
               {fmtSpread(rawSpread)}
+            </span>
+            <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <select
+                value={leverage}
+                onChange={e => setLeverage(Number(e.target.value))}
+                style={{
+                  // @ts-ignore vendor prefix
+                  WebkitAppearance: 'none', MozAppearance: 'none', appearance: 'none',
+                  background: 'transparent', border: 'none',
+                  color: '#fff', fontSize: 13, fontWeight: 700,
+                  padding: '0 16px 0 2px', cursor: 'pointer', outline: 'none', lineHeight: 1,
+                }}
+              >
+                {levOptions.map(l => <option key={l} value={l} style={{ background: '#0d1420', color: '#fff' }}>L{l}</option>)}
+              </select>
+              <span style={{ position: 'absolute', right: 1, top: '50%', transform: 'translateY(-50%)', fontSize: 8, color: '#aaa', pointerEvents: 'none' }}>▼</span>
             </div>
-            <select
-              value={leverage}
-              onChange={e => setLeverage(Number(e.target.value))}
-              style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 6, color: '#aaa', fontSize: 10, fontWeight: 700, padding: '3px 4px', cursor: 'pointer', width: 46, textAlign: 'center' }}
-            >
-              {levOptions.map(l => <option key={l} value={l}>L{l}</option>)}
-            </select>
           </div>
 
           {/* Buy side */}
           <button
             onClick={() => handleSideChange('buy')}
             style={{
-              flex: 1, padding: '13px 10px', border: 'none', cursor: 'pointer',
-              background: isBuy ? 'rgba(10,52,200,0.85)' : 'rgba(4,14,50,0.65)',
-              textAlign: 'right', transition: 'background 0.15s',
+              flex: 1, padding: '14px 14px', border: 'none', cursor: 'pointer',
+              background: isBuy ? '#1a7af5' : 'rgba(10,38,110,0.82)',
+              textAlign: 'right', transition: 'background 0.18s',
             }}
           >
-            <div style={{ fontSize: 11, fontWeight: 700, marginBottom: 3, color: isBuy ? '#80c8ff' : '#1a3060' }}>Buy</div>
-            <div style={{ fontSize: 17, fontWeight: 800, fontFamily: 'monospace', lineHeight: 1.2, color: isBuy ? '#38bdf8' : '#1a3060' }}>
+            <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 5, color: isBuy ? '#fff' : 'rgba(130,180,255,0.45)' }}>Buy</div>
+            <div style={{ fontSize: 18, fontWeight: 800, fontFamily: 'monospace', lineHeight: 1.1, color: isBuy ? '#fff' : 'rgba(130,180,255,0.45)' }}>
               {ask > 0 ? formatPrice(ask, selectedSymbol) : '––'}
             </div>
           </button>
@@ -350,35 +359,22 @@ export default function OrderForm() {
       </div>
 
       {/* ── Quantity ─────────────────────────────────────────────────────────── */}
-      <div style={{ padding: '0 12px 10px', flexShrink: 0 }}>
-        <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, padding: '12px 14px' }}>
-          <div style={{ fontSize: 11, color: '#666', marginBottom: 8 }}>Quantity ({qtyLabel})</div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <button
-              onClick={() => adjustQty(-qtyStep)}
-              style={{ width: 34, height: 34, borderRadius: 8, flexShrink: 0, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: '#888', fontSize: 20, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1 }}
-            >−</button>
+      <div style={{ padding: '0 12px 8px', flexShrink: 0 }}>
+        <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 12, color: '#666', marginBottom: 6, fontWeight: 500 }}>{qtyLabel}</div>
             <input
               type="number" value={qty} min="0" step={qtyStep}
               onChange={e => setQty(e.target.value)}
-              style={{ flex: 1, background: 'none', border: 'none', color: '#fff', fontSize: 20, fontWeight: 700, textAlign: 'center', outline: 'none' }}
+              style={{ background: 'none', border: 'none', color: '#fff', fontSize: 24, fontWeight: 700, outline: 'none', width: '100%', padding: 0, margin: 0 }}
             />
-            <button
-              onClick={() => adjustQty(qtyStep)}
-              style={{ width: 34, height: 34, borderRadius: 8, flexShrink: 0, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: '#888', fontSize: 20, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1 }}
-            >+</button>
           </div>
-          <div style={{ marginTop: 10, display: 'flex', justifyContent: 'space-between', fontSize: 11 }}>
-            <span style={{ color: '#555' }}>
-              Margin: <span style={{ color: totalCost > cash ? '#ff4444' : '#888', fontWeight: 600 }}>
-                ${margin.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </span>
-            </span>
-            <span style={{ color: '#555' }}>
-              Available: <span style={{ color: totalCost > cash ? '#ff4444' : '#00c878', fontWeight: 600 }}>
-                ${cash.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </span>
-            </span>
+          {/* Stepper column */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flexShrink: 0 }}>
+            <button onClick={() => adjustQty(qtyStep)}
+              style={{ width: 32, height: 32, borderRadius: 8, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#888', fontSize: 18, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1 }}>+</button>
+            <button onClick={() => adjustQty(-qtyStep)}
+              style={{ width: 32, height: 32, borderRadius: 8, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#888', fontSize: 18, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1 }}>−</button>
           </div>
         </div>
       </div>
@@ -386,14 +382,34 @@ export default function OrderForm() {
       {/* ── % quick buttons ───────────────────────────────────────────────────── */}
       <div style={{ padding: '0 12px 10px', display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 5, flexShrink: 0 }}>
         {[0.25, 0.5, 0.75, 1].map(pct => (
-          <button
-            key={pct}
-            onClick={() => setPct(pct)}
-            style={{ padding: '7px 0', borderRadius: 8, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', color: '#666', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}
-          >
+          <button key={pct} onClick={() => setPct(pct)}
+            style={{ padding: '7px 0', borderRadius: 8, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', color: '#666', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
             {pct * 100}%
           </button>
         ))}
+      </div>
+
+      {/* ── Margin required ──────────────────────────────────────────────────── */}
+      <div style={{ padding: '0 12px 10px', flexShrink: 0 }}>
+        <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: 12, padding: '12px 14px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 7 }}>
+            <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} style={{ color: '#666', flexShrink: 0 }}>
+              <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+            </svg>
+            <span style={{ fontSize: 12, color: '#666', fontWeight: 500 }}>Margin required</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, flexWrap: 'wrap' }}>
+            <span style={{ fontSize: 16, fontWeight: 700, color: totalCost > cash ? '#ff4444' : '#e8e8e8', fontFamily: 'monospace' }}>
+              ${totalCost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </span>
+            <span style={{ fontSize: 12, color: '#444' }}>·</span>
+            <span style={{ fontSize: 12, color: '#555' }}>
+              Available: <span style={{ color: totalCost > cash ? '#ff4444' : '#00c878', fontWeight: 600 }}>
+                ${cash.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+              </span>
+            </span>
+          </div>
+        </div>
       </div>
 
       {/* ── Toggles ───────────────────────────────────────────────────────────── */}
@@ -443,11 +459,12 @@ export default function OrderForm() {
           disabled={submitting || !ticker}
           style={{
             width: '100%', padding: 17, borderRadius: 16,
-            background: isBuy ? '#1a6fff' : '#c41a2a',
+            background: isBuy ? '#1a7af5' : '#dc3826',
             color: '#fff', fontSize: 16, fontWeight: 800, border: 'none',
             cursor: submitting ? 'not-allowed' : 'pointer',
             opacity: submitting || !ticker ? 0.65 : 1,
             transition: 'opacity 0.15s',
+            letterSpacing: '0.02em',
           }}
         >
           {submitting ? 'Placing…' : isBuy ? `Buy ${selectedSymbol}` : `Sell ${selectedSymbol}`}

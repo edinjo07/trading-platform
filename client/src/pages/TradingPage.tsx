@@ -27,26 +27,26 @@ export default function TradingPage() {
   useEffect(() => { loadCandles() }, [selectedSymbol, chartInterval, loadCandles])
 
   return (
-    <div className="flex gap-0 h-full overflow-hidden -m-4">
+    <div className="flex flex-col lg:flex-row gap-0 h-full overflow-hidden -m-4">
       {/* ── Chart + order book column ─────────────────────────── */}
-      <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
+      <div className="h-[58vh] shrink-0 lg:h-auto lg:flex-1 lg:min-w-0 flex flex-col overflow-hidden">
         {/* Sub-header: symbol + price strip */}
-        <div className="flex items-center gap-4 px-4 py-2.5 shrink-0"
+        <div className="flex items-center gap-2 px-3 py-2 shrink-0"
              style={{ background: '#080e1a', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-          <div className="flex items-center gap-3">
-            <span className="font-mono font-bold text-text-primary text-sm">{selectedSymbol}</span>
+          <div className="flex items-center gap-2 min-w-0 overflow-x-auto">
+            <span className="font-mono font-bold text-text-primary text-sm shrink-0">{selectedSymbol}</span>
             {ticker && (
               <>
-                <span className={`font-mono font-bold text-base tabular ${isUp ? 'text-bull' : 'text-bear'}`}>
+                <span className={`font-mono font-bold text-sm tabular shrink-0 ${isUp ? 'text-bull' : 'text-bear'}`}>
                   {ticker.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 6 })}
                 </span>
-                <span className={`text-xs font-semibold tabular ${isUp ? 'text-bull' : 'text-bear'}`}>
+                <span className={`text-xs font-semibold tabular shrink-0 ${isUp ? 'text-bull' : 'text-bear'}`}>
                   {isUp ? '▲' : '▼'} {Math.abs(ticker.changePercent).toFixed(2)}%
                 </span>
-                <div className="w-px h-4 bg-white/10" />
-                <span className="text-2xs text-text-muted">H <span className="text-text-secondary font-mono">{ticker.high24h.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 4 })}</span></span>
-                <span className="text-2xs text-text-muted">L <span className="text-text-secondary font-mono">{ticker.low24h.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 4 })}</span></span>
-                <span className="text-2xs text-text-muted hidden lg:inline">
+                <div className="w-px h-4 bg-white/10 shrink-0" />
+                <span className="text-2xs text-text-muted shrink-0">H <span className="text-text-secondary font-mono">{ticker.high24h.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 4 })}</span></span>
+                <span className="text-2xs text-text-muted shrink-0">L <span className="text-text-secondary font-mono">{ticker.low24h.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 4 })}</span></span>
+                <span className="text-2xs text-text-muted hidden lg:inline shrink-0">
                   Vol <span className="text-text-secondary font-mono">
                     {ticker.volume24h >= 1e9 ? `${(ticker.volume24h/1e9).toFixed(2)}B`
                       : ticker.volume24h >= 1e6 ? `${(ticker.volume24h/1e6).toFixed(2)}M`
@@ -57,36 +57,19 @@ export default function TradingPage() {
             )}
           </div>
 
-          {/* Chart view + interval controls */}
-          <div className="ml-auto flex items-center gap-2">
-            {/* Chart / Depth toggle */}
-            <div className="flex gap-px p-0.5 rounded-lg" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
-              {(['candles', 'depth'] as ChartView[]).map(v => (
-                <button key={v} onClick={() => setChartView(v)}
-                  className="px-3 py-1 rounded text-xs font-semibold transition-all capitalize"
-                  style={chartView === v
-                    ? { background: 'rgba(14,165,233,0.2)', color: '#38bdf8' }
-                    : { color: '#6b8099' }
-                  }>
-                  {v === 'candles' ? '📈 Chart' : '📉 Depth'}
-                </button>
-              ))}
-            </div>
-
-            {false && chartView === 'candles' && (
-              <div className="flex gap-px">
-                {['1m','5m','15m','1h','4h','1d'].map(iv => (
-                  <button key={iv} onClick={() => setChartInterval(iv)}
-                    className="px-2 py-1 rounded text-xs font-mono font-semibold transition-all"
-                    style={chartInterval === iv
-                      ? { background: 'rgba(14,165,233,0.18)', color: '#38bdf8' }
-                      : { color: '#4b6070' }
-                    }>
-                    {iv}
-                  </button>
-                ))}
-              </div>
-            )}
+          {/* Chart view toggle */}
+          <div className="ml-auto shrink-0 flex gap-px p-0.5 rounded-lg" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
+            {(['candles', 'depth'] as ChartView[]).map(v => (
+              <button key={v} onClick={() => setChartView(v)}
+                className="px-2.5 py-1 rounded text-xs font-semibold transition-all"
+                style={chartView === v
+                  ? { background: 'rgba(14,165,233,0.2)', color: '#38bdf8' }
+                  : { color: '#6b8099' }
+                }>
+                {v === 'candles' ? '📈' : '📉'}
+                <span className="hidden sm:inline ml-1">{v === 'candles' ? 'Chart' : 'Depth'}</span>
+              </button>
+            ))}
           </div>
         </div>
 
@@ -96,20 +79,16 @@ export default function TradingPage() {
           <div className="flex-1 min-w-0 overflow-hidden" style={{ background: CHART_BG, height: '100%' }}>
             <ErrorBoundary>
               {chartView === 'candles' ? (
-                <TVPublicChart
-                  symbol={selectedSymbol}
-                  interval={chartInterval}
-                />
+                <TVPublicChart symbol={selectedSymbol} interval={chartInterval} />
               ) : (
                 <DepthChart orderBook={orderBook} symbol={selectedSymbol} />
               )}
             </ErrorBoundary>
           </div>
 
-          {/* Right panel: Book + Trades */}
-          <div className="w-[220px] shrink-0 flex flex-col overflow-hidden"
+          {/* Right panel: Book + Trades — hidden on mobile */}
+          <div className="hidden lg:flex w-[220px] shrink-0 flex-col overflow-hidden"
                style={{ borderLeft: '1px solid rgba(255,255,255,0.05)', background: '#080e1a' }}>
-            {/* Tab header */}
             <div className="flex shrink-0" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
               {(['book', 'trades'] as RightTab[]).map(t => (
                 <button key={t} onClick={() => setRightTab(t)}
@@ -122,7 +101,6 @@ export default function TradingPage() {
                 </button>
               ))}
             </div>
-
             <div className="flex-1 overflow-hidden">
               <ErrorBoundary>
                 {rightTab === 'book' ? <OrderBook /> : <TradeHistory />}
@@ -132,12 +110,11 @@ export default function TradingPage() {
         </div>
       </div>
 
-      {/* ── Order form (right) ──────────────────────────────── */}
-      <div className="w-[300px] shrink-0 flex flex-col overflow-hidden"
-           style={{ borderLeft: '1px solid rgba(255,255,255,0.05)', background: '#060a10' }}>
+      {/* ── Order form — full width below chart on mobile, fixed right on desktop ── */}
+      <div className="flex-1 overflow-y-auto lg:flex-none lg:w-[300px] lg:overflow-hidden shrink-0 flex flex-col border-t lg:border-t-0 lg:border-l"
+           style={{ borderColor: 'rgba(255,255,255,0.05)', background: '#060a10' }}>
         <OrderForm />
       </div>
     </div>
   )
 }
-
