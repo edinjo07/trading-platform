@@ -28,13 +28,24 @@ router.get('/', authenticate, async (req: AuthRequest, res: Response) => {
     .single()
 
   if (acctErr?.code === 'PGRST116') {
-    // First time — create account
-    const { data: created } = await supabase
+    // First visit — try to create account
+    const { data: created, error: createErr } = await supabase
       .from('accounts')
       .insert({ user_id: userId, mode, cash_balance: STARTING_BALANCE })
       .select('cash_balance')
       .single()
-    cashBalance = created?.cash_balance ?? STARTING_BALANCE
+    if (createErr) {
+      // Race: another request already created it — refetch the real balance
+      const { data: refetched } = await supabase
+        .from('accounts')
+        .select('cash_balance')
+        .eq('user_id', userId)
+        .eq('mode', mode)
+        .single()
+      cashBalance = refetched?.cash_balance ?? STARTING_BALANCE
+    } else {
+      cashBalance = created?.cash_balance ?? STARTING_BALANCE
+    }
   } else if (!acctErr && acct) {
     cashBalance = acct.cash_balance
   }

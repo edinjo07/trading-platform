@@ -38,12 +38,12 @@ export function isKnownSymbol(symbol: string): boolean {
   return symbol in ASSET_CLASS_MAP
 }
 
-/** Per-asset-class maximum leverage allowed. */
+/** Per-asset-class maximum leverage allowed. Must match client getLeverageOptions(). */
 export const MAX_LEVERAGE: Record<AssetClass, number> = {
   crypto:    10,
-  forex:     100,
+  forex:     1000,
   stock:     20,
-  commodity: 20,
-  index:     50,
-  bond:      10,
+  commodity: 500,
+  index:     200,
+  bond:      100,
 }

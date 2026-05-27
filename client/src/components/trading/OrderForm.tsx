@@ -1,9 +1,8 @@
 import React, { useState } from 'react'
 import { useTradingStore } from '../../store/tradingStore'
-import { useAuthStore } from '../../store/authStore'
 import { useToastStore } from '../../store/toastStore'
 import { formatPrice, formatCurrency } from '../../utils/formatters'
-import { OrderSide, OrderType, AccountType } from '../../types'
+import { OrderSide, OrderType } from '../../types'
 
 // ─── Risk Calculator helper ───────────────────────────────────────────────────
 function RiskCalculator({ entryPrice, stopLossPrice, accountEquity, onApplyQty }: {
@@ -141,20 +140,9 @@ function getLeverageOptions(symbol: string): number[] {
   /* crypto */            return [1, 2, 3, 5, 10]
 }
 
-// Estimate commission client-side to show in the order ticket
-function estimateCommission(symbol: string, quantity: number, price: number, accountType: AccountType): number {
-  const ac = detectAsset(symbol)
-  const lotClasses = ['forex', 'commodity', 'bond']
-  let flat = 0
-  if (accountType === 'raw_spread' && lotClasses.includes(ac)) {
-    const lots = quantity / 100_000
-    flat = lots * 3.50
-  } else if (accountType === 'ctrader' && lotClasses.includes(ac)) {
-    flat = (quantity * price / 100_000) * 3.00
-  }
-  // Standard = $0 commission
-  const pct = ac === 'crypto' ? quantity * price * 0.001 : 0
-  return parseFloat((flat + pct).toFixed(2))
+// 0.05% of notional — matches server COMMISSION_RATE exactly
+function estimateCommission(_symbol: string, quantity: number, price: number): number {
+  return parseFloat((quantity * price * 0.0005).toFixed(2))
 }
 
 function leverageColor(lev: number): string {
@@ -168,9 +156,7 @@ function leverageColor(lev: number): string {
 
 export default function OrderForm() {
   const { selectedSymbol, tickers, portfolio, placeOrder } = useTradingStore()
-  const { user } = useAuthStore()
   const { addToast } = useToastStore()
-  const accountType = user?.accountType ?? 'raw_spread'
   const ticker = tickers[selectedSymbol]
   const cash = portfolio?.cashBalance ?? 0
   const position = portfolio?.positions.find(p => p.symbol === selectedSymbol)
@@ -377,10 +363,8 @@ export default function OrderForm() {
                style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }}>
             <span className="text-text-muted text-xs">Est. Commission</span>
             <span className="text-xs font-mono font-semibold text-text-secondary">
-              {formatCurrency(estimateCommission(selectedSymbol, quantity, unitPrice, accountType))}
-              <span className="text-text-muted ml-1">
-                ({accountType === 'standard' ? 'spread-only' : accountType === 'ctrader' ? '$3/100k' : '$3.50/lot'})
-              </span>
+              {formatCurrency(estimateCommission(selectedSymbol, quantity, unitPrice))}
+              <span className="text-text-muted ml-1">(0.05% of notional)</span>
             </span>
           </div>
         )}
