@@ -31,14 +31,24 @@ async function getOrCreateAccount(userId: string, mode: AccountMode) {
     .single()
 
   if (error?.code === 'PGRST116') {
-    // No account yet — create with starting balance
+    // No account yet — try to create; handle race where another request creates it first
     const { data: created, error: ce } = await supabase
       .from('accounts')
       .insert({ user_id: userId, mode, cash_balance: STARTING_BALANCE })
       .select('id, cash_balance')
       .single()
-    if (ce) throw new Error(`Account create failed: ${ce.message}`)
-    return created as { id: string; cash_balance: number }
+
+    if (!ce) return created as { id: string; cash_balance: number }
+
+    // Unique-constraint violation = another concurrent request already created it; re-fetch
+    const { data: refetched, error: re2 } = await supabase
+      .from('accounts')
+      .select('id, cash_balance')
+      .eq('user_id', userId)
+      .eq('mode', mode)
+      .single()
+    if (re2) throw new Error(`Account load failed after race: ${re2.message}`)
+    return refetched as { id: string; cash_balance: number }
   }
   if (error) throw new Error(`Account load failed: ${error.message}`)
   return data as { id: string; cash_balance: number }
@@ -143,13 +153,17 @@ export async function placeMarketOrder(
 
   // ── Deduct cost from cash (guarded by gte to prevent race-condition overdraft) ──
   const newBalance = parseFloat((account.cash_balance - totalCost).toFixed(2))
-  const { error: balErr } = await supabase
+  const { data: updatedAcct, error: balErr } = await supabase
     .from('accounts')
     .update({ cash_balance: newBalance, updated_at: now })
     .eq('user_id', userId)
     .eq('mode', mode)
-    .gte('cash_balance', totalCost)   // atomic guard
+    .gte('cash_balance', totalCost)   // atomic guard: only updates if balance hasn't dropped
+    .select('cash_balance')
   if (balErr) throw new Error(`Balance update failed: ${balErr.message}`)
+  if (!updatedAcct || (updatedAcct as unknown[]).length === 0) {
+    throw new Error('Insufficient funds — balance changed during order processing')
+  }
 
   // ── Log the order ───────────────────────────────────────────────────────────
   const orderId = uuidv4()

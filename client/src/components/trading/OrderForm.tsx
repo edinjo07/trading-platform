@@ -295,7 +295,7 @@ export default function OrderForm() {
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: '#060a10', overflowY: 'auto' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', background: '#060a10' }}>
 
       {/* ── Sell / Buy pill ──────────────────────────────────────────────────── */}
       <div style={{ padding: '12px 12px 10px', flexShrink: 0 }}>
@@ -459,10 +459,10 @@ export default function OrderForm() {
         </div>
       )}
 
-      <div style={{ flex: 1, minHeight: 8 }} />
+      <div style={{ minHeight: 8 }} />
 
       {/* ── Order details + Submit ─────────────────────────────────────────────── */}
-      <div style={{ padding: '10px 12px 20px', borderTop: '1px solid rgba(255,255,255,0.05)', flexShrink: 0 }}>
+      <div style={{ padding: '10px 12px', paddingBottom: 'calc(env(safe-area-inset-bottom) + 80px)', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
         <button
           onClick={() => setShowDepth(true)}
           style={{ background: 'none', border: 'none', color: '#555', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5, marginBottom: 12, padding: 0 }}

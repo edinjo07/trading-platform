@@ -16,7 +16,7 @@ const CHART_BG = '#060a10'
 export default function TradingPage() {
   const {
     candles, selectedSymbol, chartInterval, setChartInterval,
-    loadCandles, loading, orderBook, tickers,
+    loadCandles, loading, orderBook, tickers, loadPortfolio,
   } = useTradingStore()
   const [chartView, setChartView] = useState<ChartView>('candles')
   const [rightTab, setRightTab] = useState<RightTab>('book')
@@ -25,6 +25,7 @@ export default function TradingPage() {
   const isUp = (ticker?.changePercent ?? 0) >= 0
 
   useEffect(() => { loadCandles() }, [selectedSymbol, chartInterval, loadCandles])
+  useEffect(() => { loadPortfolio() }, [loadPortfolio])
 
   return (
     <div className="flex flex-col lg:flex-row gap-0 h-full overflow-hidden -m-4">
