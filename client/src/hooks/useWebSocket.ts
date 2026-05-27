@@ -213,7 +213,12 @@ export function useWebSocket() {
     // Don't abort a connection that's still being established
     if (wsRef.current?.readyState === WebSocket.CONNECTING) return
 
-    if (wsRef.current) { wsRef.current.onclose = null; wsRef.current.onerror = null; wsRef.current.close(); wsRef.current = null }
+    if (wsRef.current) {
+      wsRef.current.onopen = null; wsRef.current.onmessage = null
+      wsRef.current.onclose = null; wsRef.current.onerror = null
+      if (wsRef.current.readyState !== WebSocket.CONNECTING) wsRef.current.close()
+      wsRef.current = null
+    }
 
     const wsUrl = buildWsUrl(tokenRef.current)
     const ws = new WebSocket(wsUrl)
@@ -328,7 +333,12 @@ export function useWebSocket() {
     return () => {
       mountedRef.current = false
       if (reconnectRef.current) clearTimeout(reconnectRef.current)
-      if (wsRef.current) { wsRef.current.onclose = null; wsRef.current.close(); wsRef.current = null }
+      if (wsRef.current) {
+        wsRef.current.onopen = null; wsRef.current.onmessage = null
+        wsRef.current.onclose = null; wsRef.current.onerror = null
+        if (wsRef.current.readyState !== WebSocket.CONNECTING) wsRef.current.close()
+        wsRef.current = null
+      }
       if (stopPollRef.current) { stopPollRef.current(); stopPollRef.current = null }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
