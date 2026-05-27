@@ -4,7 +4,11 @@ import {
   MarketSymbol, Candle, PerformanceStats, TradeRecord,
 } from '../types'
 import { getSymbols, getCandles, getOrderBook, getRecentTrades } from '../api/markets'
-import { getOrders, placeOrder, PlaceOrderParams, PlaceOrderResult } from '../api/orders'
+import {
+  getOrders, placeOrder, PlaceOrderParams, PlaceOrderResult,
+  placeLimitOrderApi, cancelLimitOrderApi, getPendingLimitOrdersApi,
+  LimitOrderParams, PendingLimitOrder,
+} from '../api/orders'
 import { getPortfolio } from '../api/portfolio'
 import { getPerformanceStats, getTradeJournal } from '../api/analytics'
 import { closePositionApi } from '../api/positions'
@@ -21,8 +25,9 @@ interface TradingState {
   orderBook:    OrderBook | null
   recentTrades: Trade[]
   // Trading state
-  orders:       Order[]
-  portfolio:    Portfolio | null
+  orders:              Order[]
+  portfolio:           Portfolio | null
+  pendingLimitOrders:  PendingLimitOrder[]
   // Analytics
   performanceStats: PerformanceStats | null
   tradeJournal:     TradeRecord[]
@@ -37,11 +42,14 @@ interface TradingState {
   setChartInterval:  (interval: string) => void
   loadSymbols:       () => Promise<void>
   loadCandles:       () => Promise<void>
-  loadOrders:        () => Promise<void>
-  loadPortfolio:     () => Promise<void>
-  loadAnalytics:     () => Promise<void>
-  placeOrder:        (params: PlaceOrderParams) => Promise<PlaceOrderResult>
-  closePosition:     (id: string) => Promise<void>
+  loadOrders:              () => Promise<void>
+  loadPortfolio:           () => Promise<void>
+  loadAnalytics:           () => Promise<void>
+  loadPendingLimitOrders:  () => Promise<void>
+  placeOrder:              (params: PlaceOrderParams) => Promise<PlaceOrderResult>
+  placeLimitOrder:         (params: LimitOrderParams) => Promise<PendingLimitOrder>
+  removeLimitOrder:        (id: string) => Promise<void>
+  closePosition:           (id: string) => Promise<void>
   // WebSocket updates
   updateTickers:       (tickers: Ticker[]) => void
   updateOrderBook:     (ob: OrderBook) => void
@@ -59,8 +67,9 @@ export const useTradingStore = create<TradingState>((set, get) => ({
   liveCandle:       null,
   orderBook:        null,
   recentTrades:     [],
-  orders:           [],
-  portfolio:        null,
+  orders:              [],
+  portfolio:           null,
+  pendingLimitOrders:  [],
   performanceStats: null,
   tradeJournal:     [],
   analyticsLoading: false,
@@ -225,6 +234,58 @@ export const useTradingStore = create<TradingState>((set, get) => ({
       set({ error: msg })
       throw new Error(msg)
     }
+  },
+
+  loadPendingLimitOrders: async () => {
+    try {
+      const result = await getPendingLimitOrdersApi()
+      if (Array.isArray(result)) set({ pendingLimitOrders: result })
+    } catch { /* keep existing state */ }
+  },
+
+  placeLimitOrder: async (params) => {
+    try {
+      const result = await placeLimitOrderApi(params)
+      // Add to local pending list immediately
+      set((s) => ({
+        pendingLimitOrders: [
+          ...s.pendingLimitOrders,
+          {
+            id:          result.id,
+            userId:      '',
+            mode:        'demo',
+            symbol:      params.symbol,
+            side:        params.side,
+            quantity:    params.quantity,
+            limitPrice:  result.limitPrice,
+            condition:   result.condition,
+            leverage:    params.leverage ?? 1,
+            takeProfit:  params.takeProfit,
+            stopLoss:    params.stopLoss,
+            createdAt:   new Date().toISOString(),
+          } as PendingLimitOrder,
+        ],
+      }))
+      return result as unknown as PendingLimitOrder
+    } catch (err: unknown) {
+      const axiosData = (err as { response?: { data?: unknown } })?.response?.data
+      let msg = 'Limit order failed'
+      if (axiosData && typeof axiosData === 'object') {
+        const d = axiosData as Record<string, unknown>
+        msg = (typeof d.error === 'string' ? d.error : undefined) ?? msg
+      } else if (err instanceof Error) {
+        msg = err.message
+      }
+      throw new Error(msg)
+    }
+  },
+
+  removeLimitOrder: async (id) => {
+    // Optimistic: remove immediately
+    set((s) => ({ pendingLimitOrders: s.pendingLimitOrders.filter(o => o.id !== id) }))
+    try {
+      await cancelLimitOrderApi(id)
+    } catch { /* already removed from local list; server may have already executed it */ }
   },
 
   closePosition: async (id) => {

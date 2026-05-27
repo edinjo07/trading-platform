@@ -192,7 +192,10 @@ function PriceDepthModal({ onClose }: { onClose: () => void }) {
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export default function OrderForm() {
-  const { selectedSymbol, tickers, portfolio, placeOrder } = useTradingStore()
+  const {
+    selectedSymbol, tickers, portfolio, placeOrder,
+    pendingLimitOrders, placeLimitOrder, removeLimitOrder,
+  } = useTradingStore()
   const { addToast } = useToastStore()
 
   const ticker   = tickers[selectedSymbol]
@@ -202,8 +205,11 @@ export default function OrderForm() {
   const [side,       setSide]       = useState<OrderSide>('buy')
   const [qty,        setQty]        = useState(() => getDefaultQty(selectedSymbol))
   const [leverage,   setLeverage]   = useState(1)
-  const [showLimit,  setShowLimit]  = useState(false)
-  const [limitPrice, setLimitPrice] = useState('')
+  const [showBuyLimit,   setShowBuyLimit]   = useState(false)
+  const [buyLimitPrice,  setBuyLimitPrice]  = useState('')
+  const [showSellLimit,  setShowSellLimit]  = useState(false)
+  const [sellLimitPrice, setSellLimitPrice] = useState('')
+  const [limitSubmitting, setLimitSubmitting] = useState<'buy' | 'sell' | null>(null)
   const [showSL,     setShowSL]     = useState(false)
   const [sl,         setSl]         = useState('')
   const [showTP,     setShowTP]     = useState(false)
@@ -218,8 +224,8 @@ export default function OrderForm() {
     setLeverage(1)
     setSide('buy')
     setError('')
-    setShowLimit(false); setShowSL(false); setShowTP(false)
-    setLimitPrice(''); setSl(''); setTp('')
+    setShowBuyLimit(false); setShowSellLimit(false); setShowSL(false); setShowTP(false)
+    setBuyLimitPrice(''); setSellLimitPrice(''); setSl(''); setTp('')
   }, [selectedSymbol])
 
   const levOptions  = getLeverageOptions(selectedSymbol)
@@ -250,6 +256,38 @@ export default function OrderForm() {
     } else if (position) {
       const q = position.quantity * pct
       setQty(q < 1 ? q.toFixed(4) : q.toFixed(2))
+    }
+  }
+
+  const handlePlaceLimitOrder = async (limitSide: OrderSide, rawPrice: string) => {
+    const lp = parseFloat(rawPrice)
+    if (!lp || lp <= 0) { setError('Enter a valid limit price'); return }
+    if (!quantity || quantity <= 0) { setError('Enter a valid quantity'); return }
+    setLimitSubmitting(limitSide)
+    setError('')
+    try {
+      await placeLimitOrder({
+        symbol:     selectedSymbol,
+        side:       limitSide,
+        quantity,
+        limitPrice: lp,
+        leverage:   leverage > 1 ? leverage : undefined,
+        takeProfit: tp ? parseFloat(tp) : undefined,
+        stopLoss:   sl ? parseFloat(sl) : undefined,
+      })
+      addToast({
+        title:   'Limit Order Set',
+        message: `${limitSide === 'buy' ? 'Buy' : 'Sell'} ${quantity} ${qtyLabel} when price ${lp < (limitSide === 'buy' ? ask : bid) ? '≤' : '≥'} ${formatPrice(lp, selectedSymbol)}`,
+        variant: 'info',
+      })
+      if (limitSide === 'buy') { setBuyLimitPrice(''); setShowBuyLimit(false) }
+      else                     { setSellLimitPrice(''); setShowSellLimit(false) }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Limit order failed'
+      setError(msg)
+      addToast({ title: 'Limit Order Failed', message: msg, variant: 'error' })
+    } finally {
+      setLimitSubmitting(null)
     }
   }
 
@@ -437,10 +475,76 @@ export default function OrderForm() {
 
       {/* ── Toggles ───────────────────────────────────────────────────────────── */}
       <div style={{ padding: '0 12px', flexShrink: 0 }}>
-        <ToggleRow label={`${isBuy ? 'Buy' : 'Sell'} when price is`} checked={showLimit} onChange={setShowLimit} />
-        {showLimit && (
-          <input type="number" value={limitPrice} onChange={e => setLimitPrice(e.target.value)}
-            placeholder={`Limit price (current: ${formatPrice(fillPrice, selectedSymbol)})`} style={inputSty} />
+        {/* Buy when price is */}
+        <ToggleRow label="Buy when price is" checked={showBuyLimit} onChange={setShowBuyLimit} />
+        {showBuyLimit && (
+          <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
+            <input
+              type="number" value={buyLimitPrice} onChange={e => setBuyLimitPrice(e.target.value)}
+              placeholder={ask > 0 ? formatPrice(ask, selectedSymbol) : 'Buy limit price'}
+              style={{ ...inputSty, marginBottom: 0, flex: 1 }}
+            />
+            <button
+              onClick={() => handlePlaceLimitOrder('buy', buyLimitPrice)}
+              disabled={!buyLimitPrice || limitSubmitting === 'buy' || !ticker}
+              style={{
+                padding: '0 16px', borderRadius: 10, background: '#1a7af5', color: '#fff',
+                border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 700,
+                whiteSpace: 'nowrap', flexShrink: 0,
+                opacity: limitSubmitting === 'buy' || !buyLimitPrice ? 0.55 : 1,
+              }}
+            >{limitSubmitting === 'buy' ? '…' : 'Set'}</button>
+          </div>
+        )}
+
+        {/* Sell when price is */}
+        <ToggleRow label="Sell when price is" checked={showSellLimit} onChange={setShowSellLimit} />
+        {showSellLimit && (
+          <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
+            <input
+              type="number" value={sellLimitPrice} onChange={e => setSellLimitPrice(e.target.value)}
+              placeholder={bid > 0 ? formatPrice(bid, selectedSymbol) : 'Sell limit price'}
+              style={{ ...inputSty, marginBottom: 0, flex: 1 }}
+            />
+            <button
+              onClick={() => handlePlaceLimitOrder('sell', sellLimitPrice)}
+              disabled={!sellLimitPrice || limitSubmitting === 'sell' || !ticker}
+              style={{
+                padding: '0 16px', borderRadius: 10, background: '#dc3826', color: '#fff',
+                border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 700,
+                whiteSpace: 'nowrap', flexShrink: 0,
+                opacity: limitSubmitting === 'sell' || !sellLimitPrice ? 0.55 : 1,
+              }}
+            >{limitSubmitting === 'sell' ? '…' : 'Set'}</button>
+          </div>
+        )}
+
+        {/* Pending limit orders for this symbol */}
+        {pendingLimitOrders.filter(o => o.symbol === selectedSymbol).length > 0 && (
+          <div style={{ marginBottom: 10, borderRadius: 12, border: '1px solid rgba(255,200,0,0.12)', background: 'rgba(255,180,0,0.04)', overflow: 'hidden' }}>
+            <div style={{ padding: '8px 12px 4px', fontSize: 11, color: '#888', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+              Pending limit orders
+            </div>
+            {pendingLimitOrders.filter(o => o.symbol === selectedSymbol).map(o => (
+              <div key={o.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '7px 12px', borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+                <div style={{ fontSize: 12, lineHeight: 1.4 }}>
+                  <span style={{ fontWeight: 700, color: o.side === 'buy' ? '#38bdf8' : '#f87171' }}>
+                    {o.side.toUpperCase()}
+                  </span>
+                  <span style={{ color: '#888', marginLeft: 6 }}>
+                    {o.quantity} {getQtyLabel(o.symbol)} @ {formatPrice(o.limitPrice, o.symbol)}
+                  </span>
+                  <div style={{ fontSize: 11, color: '#555', marginTop: 1 }}>
+                    triggers when price {o.condition === 'lte' ? '≤' : '≥'} {formatPrice(o.limitPrice, o.symbol)}
+                  </div>
+                </div>
+                <button
+                  onClick={() => removeLimitOrder(o.id)}
+                  style={{ background: 'none', border: 'none', color: '#555', fontSize: 18, cursor: 'pointer', padding: '0 4px', lineHeight: 1, flexShrink: 0 }}
+                >✕</button>
+              </div>
+            ))}
+          </div>
         )}
 
         <ToggleRow label="Stop loss" checked={showSL} onChange={setShowSL} />
