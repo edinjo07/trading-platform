@@ -26,6 +26,7 @@ import TradingScamsPage from './pages/TradingScamsPage'
 import EconomicCalendarPage from './pages/EconomicCalendarPage'
 import ForexCalculatorsPage from './pages/ForexCalculatorsPage'
 import WebTVPage from './pages/WebTVPage'
+import WatchlistsPage from './pages/WatchlistsPage'
 
 // Admin
 import AdminLayout from './components/admin/AdminLayout'
@@ -113,6 +114,7 @@ export default function App() {
           }
         >
           <Route index element={<DashboardPage />} />
+          <Route path="watchlists" element={<WatchlistsPage />} />
           <Route path="trade" element={<TradingPage />} />
           <Route path="portfolio" element={<PortfolioPage />} />
           <Route path="orders" element={<OrdersPage />} />

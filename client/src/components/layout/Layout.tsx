@@ -6,27 +6,33 @@ import { useTradingStore } from '../../store/tradingStore'
 import { useWebSocket } from '../../hooks/useWebSocket'
 import { useTheme } from '../../context/ThemeContext'
 
-// ─── Bottom Navigation (mobile only) ─────────────────────────────────────────
+// ─── Bottom Navigation (mobile only) — Capital.com style ─────────────────────
 const BOTTOM_NAV = [
   {
     path: '/dashboard', end: true, label: 'Home',
-    icon: <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+    icon: (active: boolean) => <svg className="w-[22px] h-[22px]" viewBox="0 0 24 24" fill={active ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={active ? 0 : 1.8}>
+      <path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H5a1 1 0 01-1-1V9.5z"/>
+      {!active && <path d="M9 21V12h6v9"/>}
+    </svg>
   },
   {
-    path: '/dashboard/trade', end: false, label: 'Trade',
-    icon: <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+    path: '/dashboard/watchlists', end: false, label: 'Watchlists',
+    icon: (active: boolean) => <svg className="w-[22px] h-[22px]" viewBox="0 0 24 24" fill={active ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={active ? 0 : 1.8}>
+      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+    </svg>
   },
   {
     path: '/dashboard/portfolio', end: false, label: 'Portfolio',
-    icon: <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+    icon: (active: boolean) => <svg className="w-[22px] h-[22px]" viewBox="0 0 24 24" fill={active ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={active ? 0 : 1.8}>
+      <rect x="2" y="7" width="20" height="14" rx="2"/>
+      <path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2" fill="none" stroke="currentColor" strokeWidth="1.8"/>
+    </svg>
   },
   {
-    path: '/dashboard/orders', end: false, label: 'Orders',
-    icon: <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg>
-  },
-  {
-    path: '/dashboard/alerts', end: false, label: 'Alerts',
-    icon: <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path d="M12 22c1.1 0 2-.9 2-2H10a2 2 0 002 2zm6-6V10c0-3.07-1.64-5.64-4.5-6.32V3a1.5 1.5 0 00-3 0v.68C7.63 4.36 6 6.92 6 10v6l-2 2v1h16v-1l-2-2z"/></svg>
+    path: '/dashboard/blog', end: false, label: 'News',
+    icon: (active: boolean) => <svg className="w-[22px] h-[22px]" viewBox="0 0 24 24" fill={active ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={active ? 0 : 1.8}>
+      <path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2zM22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/>
+    </svg>
   },
 ]
 
@@ -73,43 +79,33 @@ export default function Layout() {
         </main>
       </div>
 
-      {/* ── Bottom nav (mobile / tablet only) ── */}
+      {/* ── Bottom nav (mobile / tablet only) — Capital.com style ── */}
       <nav
-        className="lg:hidden fixed bottom-0 left-0 right-0 z-30 flex items-stretch"
+        className="lg:hidden fixed bottom-0 left-0 right-0 z-30 flex items-end"
         style={{
-          background: 'var(--t-surface)',
+          background: 'rgba(0,0,0,0.96)',
           backdropFilter: 'blur(20px)',
           WebkitBackdropFilter: 'blur(20px)',
-          borderTop: '1px solid var(--t-border)',
+          borderTop: '1px solid rgba(255,255,255,0.08)',
           paddingBottom: 'env(safe-area-inset-bottom)',
-          transition: 'background 0.25s ease',
         }}
       >
-        {BOTTOM_NAV.map(item => (
+        {/* First two nav items */}
+        {BOTTOM_NAV.slice(0, 2).map(item => (
           <NavLink
             key={item.path}
             to={item.path}
             end={item.end}
             onClick={closeMobile}
-            className="flex-1 flex flex-col items-center justify-center gap-0.5 pt-2 pb-1.5 min-h-[56px] relative"
+            className="flex-1 flex flex-col items-center justify-center gap-0.5 pt-2 pb-2 min-h-[56px] relative"
             style={{ WebkitTapHighlightColor: 'transparent' }}
           >
             {({ isActive }) => (
               <>
-                {/* active pill indicator */}
-                {isActive && (
-                  <span
-                    className="absolute top-0 left-1/2 -translate-x-1/2 rounded-full"
-                    style={{ width: 28, height: 3, background: 'var(--t-accent)', boxShadow: '0 0 8px var(--t-accent-s)', borderRadius: '0 0 4px 4px' }}
-                  />
-                )}
-                <span style={isActive ? { color: 'var(--t-accent)' } : { color: 'var(--t-text-3)' }}>
-                  {item.icon}
+                <span style={{ color: isActive ? '#fff' : 'rgba(255,255,255,0.38)' }}>
+                  {item.icon(isActive)}
                 </span>
-                <span
-                  className="text-[10px] font-semibold tracking-tight"
-                  style={{ color: isActive ? 'var(--t-accent)' : 'var(--t-text-3)' }}
-                >
+                <span className="text-[10px] font-medium" style={{ color: isActive ? '#fff' : 'rgba(255,255,255,0.38)' }}>
                   {item.label}
                 </span>
               </>
@@ -117,17 +113,50 @@ export default function Layout() {
           </NavLink>
         ))}
 
-        {/* "More" button opens the sidebar drawer */}
-        <button
-          onClick={() => setMobileOpen(o => !o)}
-          className="flex-1 flex flex-col items-center justify-center gap-0.5 pt-2 pb-1.5 min-h-[56px]"
-          style={{ color: 'rgba(148,163,184,0.55)', WebkitTapHighlightColor: 'transparent' }}
-        >
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-            <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="15" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
-          </svg>
-          <span className="text-[10px] font-semibold tracking-tight">More</span>
-        </button>
+        {/* FAB (+) in the center */}
+        <div className="flex-1 flex flex-col items-center justify-center pb-1" style={{ position: 'relative' }}>
+          <NavLink
+            to="/dashboard/trade"
+            onClick={closeMobile}
+            style={{ WebkitTapHighlightColor: 'transparent' }}
+          >
+            <div style={{
+              width: 52, height: 52, borderRadius: '50%',
+              background: '#fff',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              boxShadow: '0 4px 16px rgba(255,255,255,0.15)',
+              marginBottom: 2,
+              marginTop: -8,
+            }}>
+              <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#000" strokeWidth={2.5}>
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+            </div>
+          </NavLink>
+        </div>
+
+        {/* Last two nav items */}
+        {BOTTOM_NAV.slice(2).map(item => (
+          <NavLink
+            key={item.path}
+            to={item.path}
+            end={item.end}
+            onClick={closeMobile}
+            className="flex-1 flex flex-col items-center justify-center gap-0.5 pt-2 pb-2 min-h-[56px] relative"
+            style={{ WebkitTapHighlightColor: 'transparent' }}
+          >
+            {({ isActive }) => (
+              <>
+                <span style={{ color: isActive ? '#fff' : 'rgba(255,255,255,0.38)' }}>
+                  {item.icon(isActive)}
+                </span>
+                <span className="text-[10px] font-medium" style={{ color: isActive ? '#fff' : 'rgba(255,255,255,0.38)' }}>
+                  {item.label}
+                </span>
+              </>
+            )}
+          </NavLink>
+        ))}
       </nav>
     </div>
   )
