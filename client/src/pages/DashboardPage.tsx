@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useTradingStore } from '../store/tradingStore'
 import { useAuthStore } from '../store/authStore'
 import { formatCurrency, formatPrice } from '../utils/formatters'
-import type { Position } from '../types'
+import type { Position, AccountMode, Currency } from '../types'
 
 // ─── Seeded sparkline ─────────────────────────────────────────────────────────
 function seedSparkline(symbol: string, up: boolean, pts = 16): string {
@@ -223,6 +223,16 @@ const DISCOVER = [
   { label: 'Cryptos',     icon: '₿',  path: '/dashboard/watchlists' },
 ]
 
+// ─── Account switcher options ─────────────────────────────────────────────────
+const ACCOUNTS: { id: string; label: string; sub: string; mode: AccountMode; currency: Currency }[] = [
+  { id: 'demo-usd', label: 'Demo Account', sub: 'USD · Practice money',  mode: 'demo', currency: 'USD' },
+  { id: 'real-usd', label: 'Real Account', sub: 'USD · Live trading',    mode: 'real', currency: 'USD' },
+  { id: 'demo-eur', label: 'Demo Account', sub: 'EUR · Practice money',  mode: 'demo', currency: 'EUR' },
+  { id: 'real-eur', label: 'Real Account', sub: 'EUR · Live trading',    mode: 'real', currency: 'EUR' },
+  { id: 'demo-gbp', label: 'Demo Account', sub: 'GBP · Practice money',  mode: 'demo', currency: 'GBP' },
+  { id: 'real-gbp', label: 'Real Account', sub: 'GBP · Live trading',    mode: 'real', currency: 'GBP' },
+]
+
 // ─── Symbols lists ────────────────────────────────────────────────────────────
 const MOST_TRADED = [
   { symbol: 'XAUUSD', name: 'Gold',        assetClass: 'commodity' },
@@ -246,11 +256,18 @@ const MOVERS = [
 // ─── Main page ────────────────────────────────────────────────────────────────
 export default function DashboardPage() {
   const navigate = useNavigate()
-  const { user } = useAuthStore()
+  const { user, setAccountMode, setCurrency } = useAuthStore()
   const { tickers, portfolio, orders, loadPortfolio, loadOrders, closePosition, setSelectedSymbol } = useTradingStore()
 
-  const [closingId, setClosingId] = useState<string | null>(null)
-  const [moversTab, setMoversTab] = useState<'risers' | 'fallers'>('risers')
+  const [closingId,    setClosingId]    = useState<string | null>(null)
+  const [moversTab,    setMoversTab]    = useState<'risers' | 'fallers'>('risers')
+  const [showSwitcher, setShowSwitcher] = useState(false)
+
+  const handleSelectAccount = async (acct: typeof ACCOUNTS[0]) => {
+    setShowSwitcher(false)
+    await Promise.all([setAccountMode(acct.mode), setCurrency(acct.currency)])
+    loadPortfolio()
+  }
 
   useEffect(() => {
     loadPortfolio(); loadOrders()
@@ -295,13 +312,36 @@ export default function DashboardPage() {
           <div style={{ marginBottom: 20 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
               <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', fontWeight: 500 }}>Account (CFD)</span>
-              <button
-                onClick={() => navigate('/dashboard/profile')}
-                style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '5px 12px', borderRadius: 20, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.7)', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
-              >
-                <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>
-                Switch
-              </button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                {/* Profile icon */}
+                <button
+                  onClick={() => navigate('/dashboard/profile')}
+                  style={{ width: 34, height: 34, borderRadius: '50%', background: 'rgba(255,255,255,0.09)', border: '1px solid rgba(255,255,255,0.12)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                  title="Profile"
+                >
+                  <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="rgba(255,255,255,0.75)" strokeWidth={1.8}>
+                    <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+                  </svg>
+                </button>
+                {/* Switch account */}
+                <button
+                  onClick={() => setShowSwitcher(true)}
+                  style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderRadius: 20, background: 'rgba(255,255,255,0.09)', border: '1px solid rgba(255,255,255,0.14)', color: 'rgba(255,255,255,0.8)', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
+                >
+                  <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
+                    <path d="M8 3H5a2 2 0 00-2 2v3M21 8V5a2 2 0 00-2-2h-3M3 16v3a2 2 0 002 2h3M16 21h3a2 2 0 002-2v-3"/>
+                  </svg>
+                  Switch
+                </button>
+              </div>
+            </div>
+
+            {/* ── Account mode badge ── */}
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '3px 10px', borderRadius: 12, marginBottom: 6, background: user?.accountMode === 'real' ? 'rgba(16,185,129,0.12)' : 'rgba(245,158,11,0.12)', border: `1px solid ${user?.accountMode === 'real' ? 'rgba(16,185,129,0.3)' : 'rgba(245,158,11,0.3)'}` }}>
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: user?.accountMode === 'real' ? '#10b981' : '#f59e0b', flexShrink: 0 }} />
+              <span style={{ fontSize: 11, fontWeight: 700, color: user?.accountMode === 'real' ? '#10b981' : '#f59e0b' }}>
+                {user?.accountMode === 'real' ? 'Live' : 'Demo'} · {user?.currency ?? 'USD'}
+              </span>
             </div>
             <div style={{ fontSize: 36, fontWeight: 800, color: '#fff', fontFamily: 'monospace', letterSpacing: '-1px', marginBottom: 16 }}>
               {formatCurrency(equity)}
@@ -311,6 +351,80 @@ export default function DashboardPage() {
               <span style={{ fontSize: 14, fontWeight: 700, color: '#fff', fontFamily: 'monospace' }}>{formatCurrency(cash)}</span>
             </div>
           </div>
+
+          {/* ── Account switcher bottom sheet ── */}
+          {showSwitcher && (
+            <div
+              onClick={() => setShowSwitcher(false)}
+              style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.72)', zIndex: 1000, display: 'flex', alignItems: 'flex-end' }}
+            >
+              <div
+                onClick={e => e.stopPropagation()}
+                style={{ width: '100%', background: '#141414', borderRadius: '22px 22px 0 0', padding: '16px 16px 40px', maxHeight: '80vh', overflowY: 'auto' }}
+              >
+                {/* Handle */}
+                <div style={{ width: 36, height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.18)', margin: '0 auto 20px' }} />
+                <h3 style={{ fontSize: 17, fontWeight: 700, color: '#fff', marginBottom: 6, textAlign: 'center' }}>Switch Account</h3>
+                <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', textAlign: 'center', marginBottom: 20 }}>Select the account you want to trade with</p>
+
+                {ACCOUNTS.map(acct => {
+                  const isActive = user?.accountMode === acct.mode && (user?.currency ?? 'USD') === acct.currency
+                  const isLive = acct.mode === 'real'
+                  return (
+                    <button
+                      key={acct.id}
+                      onClick={() => handleSelectAccount(acct)}
+                      style={{
+                        width: '100%', display: 'flex', alignItems: 'center', gap: 14,
+                        padding: '14px 16px', borderRadius: 14, marginBottom: 8,
+                        background: isActive ? 'rgba(14,165,233,0.08)' : 'rgba(255,255,255,0.04)',
+                        border: `1px solid ${isActive ? 'rgba(14,165,233,0.3)' : 'rgba(255,255,255,0.08)'}`,
+                        cursor: 'pointer', textAlign: 'left',
+                      }}
+                    >
+                      {/* Account icon */}
+                      <div style={{
+                        width: 42, height: 42, borderRadius: 12, flexShrink: 0,
+                        background: isLive ? 'rgba(16,185,129,0.12)' : 'rgba(245,158,11,0.12)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      }}>
+                        {isLive ? (
+                          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke={isLive ? '#10b981' : '#f59e0b'} strokeWidth={1.8}>
+                            <rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/>
+                          </svg>
+                        ) : (
+                          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#f59e0b" strokeWidth={1.8}>
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                          </svg>
+                        )}
+                      </div>
+                      {/* Labels */}
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 14, fontWeight: 700, color: '#fff', marginBottom: 3 }}>{acct.label}</div>
+                        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)' }}>{acct.sub}</div>
+                      </div>
+                      {/* Active checkmark */}
+                      {isActive && (
+                        <div style={{ width: 22, height: 22, borderRadius: '50%', background: '#0ea5e9', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                          <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="#fff" strokeWidth={3}>
+                            <polyline points="20 6 9 17 4 12"/>
+                          </svg>
+                        </div>
+                      )}
+                    </button>
+                  )
+                })}
+
+                <button
+                  onClick={() => setShowSwitcher(false)}
+                  style={{ width: '100%', padding: '14px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.7)', fontSize: 14, fontWeight: 600, cursor: 'pointer', marginTop: 4 }}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Portfolio section */}
           <div style={{ marginBottom: 24 }}>
             <SectionHeader title="Portfolio" onMore={() => navigate('/dashboard/portfolio')} />
