@@ -133,8 +133,8 @@ export default function TradingPage() {
       </div>
 
       {/* ── Order form (right) ──────────────────────────────── */}
-      <div className="w-[280px] shrink-0 overflow-y-auto flex flex-col"
-           style={{ borderLeft: '1px solid rgba(255,255,255,0.05)', background: '#08101a' }}>
+      <div className="w-[300px] shrink-0 flex flex-col overflow-hidden"
+           style={{ borderLeft: '1px solid rgba(255,255,255,0.05)', background: '#060a10' }}>
         <OrderForm />
       </div>
     </div>
