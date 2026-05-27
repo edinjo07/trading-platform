@@ -20,6 +20,7 @@ export interface PendingLimitOrder {
   id:          string
   userId:      string
   mode:        AccountMode
+  currency:    string
   symbol:      string
   side:        OrderSide
   quantity:    number
@@ -93,6 +94,7 @@ async function runCheck(): Promise<void> {
         leverage:   order.leverage,
         takeProfit: order.takeProfit,
         stopLoss:   order.stopLoss,
+        currency:   order.currency,
       })
     } catch (err) {
       console.error(`[Limit] Execution failed for ${id}:`, err)

@@ -12,10 +12,12 @@ api.interceptors.request.use((config) => {
   return config
 })
 
-// Attach account mode header so the server filters orders by demo/real partition
+// Attach account mode + currency headers so the server partitions by account
 api.interceptors.request.use((config) => {
-  const mode = localStorage.getItem('account_mode') ?? 'demo'
-  config.headers['X-Account-Mode'] = mode
+  const mode     = localStorage.getItem('account_mode')     ?? 'demo'
+  const currency = localStorage.getItem('account_currency') ?? 'USD'
+  config.headers['X-Account-Mode']     = mode
+  config.headers['X-Account-Currency'] = currency
   return config
 })
 

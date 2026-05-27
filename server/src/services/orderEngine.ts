@@ -22,19 +22,20 @@ const STARTING_BALANCE = 100_000
 
 // ─── Account helpers ──────────────────────────────────────────────────────────
 
-async function getOrCreateAccount(userId: string, mode: AccountMode) {
+async function getOrCreateAccount(userId: string, mode: AccountMode, currency = 'USD') {
   const { data, error } = await supabase
     .from('accounts')
     .select('id, cash_balance')
     .eq('user_id', userId)
     .eq('mode', mode)
+    .eq('currency', currency)
     .single()
 
   if (error?.code === 'PGRST116') {
     // No account yet — try to create; handle race where another request creates it first
     const { data: created, error: ce } = await supabase
       .from('accounts')
-      .insert({ user_id: userId, mode, cash_balance: STARTING_BALANCE })
+      .insert({ user_id: userId, mode, currency, cash_balance: STARTING_BALANCE })
       .select('id, cash_balance')
       .single()
 
@@ -46,6 +47,7 @@ async function getOrCreateAccount(userId: string, mode: AccountMode) {
       .select('id, cash_balance')
       .eq('user_id', userId)
       .eq('mode', mode)
+      .eq('currency', currency)
       .single()
     if (re2) throw new Error(`Account load failed after race: ${re2.message}`)
     return refetched as { id: string; cash_balance: number }
@@ -66,9 +68,10 @@ export async function placeMarketOrder(
     leverage?: number
     takeProfit?: number
     stopLoss?: number
+    currency?: string
   }
 ): Promise<PlaceOrderResult> {
-  const { symbol, side, quantity, takeProfit, stopLoss } = params
+  const { symbol, side, quantity, takeProfit, stopLoss, currency = 'USD' } = params
 
   // ── Validate inputs ─────────────────────────────────────────────────────────
   if (!isKnownSymbol(symbol)) throw new Error(`Unknown symbol: ${symbol}`)
@@ -90,7 +93,7 @@ export async function placeMarketOrder(
   const totalCost  = parseFloat((margin + commission).toFixed(2))
 
   // ── Load account and check funds ────────────────────────────────────────────
-  const account = await getOrCreateAccount(userId, mode)
+  const account = await getOrCreateAccount(userId, mode, currency)
   if (account.cash_balance < totalCost) {
     throw new Error(
       `Insufficient funds — need $${totalCost.toFixed(2)}, have $${account.cash_balance.toFixed(2)}`
@@ -158,6 +161,7 @@ export async function placeMarketOrder(
     .update({ cash_balance: newBalance, updated_at: now })
     .eq('user_id', userId)
     .eq('mode', mode)
+    .eq('currency', currency)
     .gte('cash_balance', totalCost)   // atomic guard: only updates if balance hasn't dropped
     .select('cash_balance')
   if (balErr) throw new Error(`Balance update failed: ${balErr.message}`)
@@ -196,7 +200,8 @@ export async function placeMarketOrder(
 export async function closePosition(
   positionId: string,
   userId: string,
-  mode: AccountMode
+  mode: AccountMode,
+  currency = 'USD'
 ): Promise<ClosePositionResult> {
   // ── Load the position (must belong to this user) ───────────────────────────
   const { data: pos, error: posErr } = await supabase
@@ -238,6 +243,7 @@ export async function closePosition(
     .select('cash_balance')
     .eq('user_id', userId)
     .eq('mode', mode)
+    .eq('currency', currency)
     .single()
 
   if (acct) {
@@ -250,6 +256,7 @@ export async function closePosition(
       })
       .eq('user_id', userId)
       .eq('mode', mode)
+      .eq('currency', currency)
   }
 
   // ── Record the closed trade ────────────────────────────────────────────────

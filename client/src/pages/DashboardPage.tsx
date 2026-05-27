@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useTradingStore } from '../store/tradingStore'
 import { useAuthStore } from '../store/authStore'
 import { formatCurrency, formatPrice } from '../utils/formatters'
+import { getAccountsList, type AccountRow } from '../api/accounts'
 import type { Position, AccountMode, Currency } from '../types'
 
 // ─── Seeded sparkline ─────────────────────────────────────────────────────────
@@ -259,15 +260,31 @@ export default function DashboardPage() {
   const { user, setAccountMode, setCurrency } = useAuthStore()
   const { tickers, portfolio, orders, loadPortfolio, loadOrders, closePosition, setSelectedSymbol } = useTradingStore()
 
-  const [closingId,    setClosingId]    = useState<string | null>(null)
-  const [moversTab,    setMoversTab]    = useState<'risers' | 'fallers'>('risers')
-  const [showSwitcher, setShowSwitcher] = useState(false)
+  const [closingId,      setClosingId]      = useState<string | null>(null)
+  const [moversTab,      setMoversTab]      = useState<'risers' | 'fallers'>('risers')
+  const [showSwitcher,   setShowSwitcher]   = useState(false)
+  const [existingAccounts, setExistingAccounts] = useState<AccountRow[]>([])
+
+  useEffect(() => {
+    getAccountsList()
+      .then(rows => setExistingAccounts(rows))
+      .catch(() => {})
+  }, [])
 
   const handleSelectAccount = async (acct: typeof ACCOUNTS[0]) => {
     setShowSwitcher(false)
     await Promise.all([setAccountMode(acct.mode), setCurrency(acct.currency)])
     loadPortfolio()
+    // Refresh accounts list after switching (new account may have been created)
+    getAccountsList().then(rows => setExistingAccounts(rows)).catch(() => {})
   }
+
+  const visibleAccounts = useMemo(() => {
+    if (existingAccounts.length === 0) return ACCOUNTS  // fallback while loading
+    return ACCOUNTS.filter(a =>
+      existingAccounts.some(r => r.mode === a.mode && r.currency === a.currency)
+    )
+  }, [existingAccounts])
 
   useEffect(() => {
     loadPortfolio(); loadOrders()
@@ -367,7 +384,7 @@ export default function DashboardPage() {
                 <h3 style={{ fontSize: 17, fontWeight: 700, color: '#fff', marginBottom: 6, textAlign: 'center' }}>Switch Account</h3>
                 <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', textAlign: 'center', marginBottom: 20 }}>Select the account you want to trade with</p>
 
-                {ACCOUNTS.map(acct => {
+                {visibleAccounts.map(acct => {
                   const isActive = user?.accountMode === acct.mode && (user?.currency ?? 'USD') === acct.currency
                   const isLive = acct.mode === 'real'
                   return (

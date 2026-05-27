@@ -42,6 +42,7 @@ export const useAuthStore = create<AuthState>((set, get) => {
         localStorage.setItem('token', session.access_token)
         const mappedUser = mapSupabaseUser(session.user)
         localStorage.setItem('account_mode', mappedUser.accountMode)
+        localStorage.setItem('account_currency', mappedUser.currency ?? 'USD')
         set({ user: mappedUser, token: session.access_token })
       } else {
         localStorage.removeItem('token')
@@ -60,10 +61,12 @@ export const useAuthStore = create<AuthState>((set, get) => {
       localStorage.setItem('token', session.access_token)
       const mappedUser = mapSupabaseUser(session.user)
       localStorage.setItem('account_mode', mappedUser.accountMode)
+      localStorage.setItem('account_currency', mappedUser.currency ?? 'USD')
       set({ user: mappedUser, token: session.access_token })
     } else if (_event === 'SIGNED_OUT') {
       localStorage.removeItem('token')
       localStorage.removeItem('account_mode')
+      localStorage.removeItem('account_currency')
       set({ user: null, token: null })
     }
   })
@@ -116,6 +119,7 @@ export const useAuthStore = create<AuthState>((set, get) => {
     },
 
     setCurrency: async (currency: Currency) => {
+      localStorage.setItem('account_currency', currency)
       const { error } = await supabase.auth.updateUser({ data: { currency } })
       if (!error) set(s => s.user ? { user: { ...s.user, currency } } : {})
     },
@@ -129,6 +133,7 @@ export const useAuthStore = create<AuthState>((set, get) => {
           localStorage.setItem('token', session.access_token)
           const mappedUser = mapSupabaseUser(session.user)
           localStorage.setItem('account_mode', mappedUser.accountMode)
+          localStorage.setItem('account_currency', mappedUser.currency ?? 'USD')
           set({ user: mappedUser, token: session.access_token, loading: false })
         } else {
           localStorage.removeItem('token')

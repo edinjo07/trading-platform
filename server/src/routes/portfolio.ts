@@ -12,10 +12,16 @@ function getMode(req: AuthRequest): AccountMode {
   return req.headers['x-account-mode'] === 'real' ? 'real' : 'demo'
 }
 
+function getCurrency(req: AuthRequest): string {
+  const c = req.headers['x-account-currency']
+  return typeof c === 'string' && ['USD', 'EUR', 'GBP'].includes(c) ? c : 'USD'
+}
+
 // GET /api/portfolio
 router.get('/', authenticate, async (req: AuthRequest, res: Response) => {
-  const userId = req.user!.userId
-  const mode   = getMode(req)
+  const userId   = req.user!.userId
+  const mode     = getMode(req)
+  const currency = getCurrency(req)
 
   // ── Load (or lazily create) the account ────────────────────────────────────
   let cashBalance = STARTING_BALANCE
@@ -25,13 +31,14 @@ router.get('/', authenticate, async (req: AuthRequest, res: Response) => {
     .select('cash_balance')
     .eq('user_id', userId)
     .eq('mode', mode)
+    .eq('currency', currency)
     .single()
 
   if (acctErr?.code === 'PGRST116') {
     // First visit — try to create account
     const { data: created, error: createErr } = await supabase
       .from('accounts')
-      .insert({ user_id: userId, mode, cash_balance: STARTING_BALANCE })
+      .insert({ user_id: userId, mode, currency, cash_balance: STARTING_BALANCE })
       .select('cash_balance')
       .single()
     if (createErr) {
@@ -41,6 +48,7 @@ router.get('/', authenticate, async (req: AuthRequest, res: Response) => {
         .select('cash_balance')
         .eq('user_id', userId)
         .eq('mode', mode)
+        .eq('currency', currency)
         .single()
       cashBalance = refetched?.cash_balance ?? STARTING_BALANCE
     } else {

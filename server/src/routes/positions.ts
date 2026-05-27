@@ -11,6 +11,11 @@ function getMode(req: AuthRequest): AccountMode {
   return req.headers['x-account-mode'] === 'real' ? 'real' : 'demo'
 }
 
+function getCurrency(req: AuthRequest): string {
+  const c = req.headers['x-account-currency']
+  return typeof c === 'string' && ['USD', 'EUR', 'GBP'].includes(c) ? c : 'USD'
+}
+
 function enrichPosition(pos: PositionRow): PositionLive {
   const currentPrice = getPrice(pos.symbol) ?? pos.avg_price
   const rawPnl = pos.side === 'long'
@@ -47,12 +52,13 @@ router.get('/', authenticate, async (req: AuthRequest, res: Response) => {
 
 // DELETE /api/positions/:id — close a position at market price
 router.delete('/:id', authenticate, async (req: AuthRequest, res: Response) => {
-  const userId = req.user!.userId
-  const mode   = getMode(req)
-  const { id } = req.params
+  const userId   = req.user!.userId
+  const mode     = getMode(req)
+  const currency = getCurrency(req)
+  const { id }   = req.params
 
   try {
-    const result = await closePosition(id, userId, mode)
+    const result = await closePosition(id, userId, mode, currency)
     return res.json(result)
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : 'Close failed'

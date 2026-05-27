@@ -12,10 +12,16 @@ function getMode(req: AuthRequest): AccountMode {
   return req.headers['x-account-mode'] === 'real' ? 'real' : 'demo'
 }
 
+function getCurrency(req: AuthRequest): string {
+  const c = req.headers['x-account-currency']
+  return typeof c === 'string' && ['USD', 'EUR', 'GBP'].includes(c) ? c : 'USD'
+}
+
 // POST /api/orders — place market or limit order
 router.post('/', authenticate, async (req: AuthRequest, res: Response) => {
-  const userId = req.user!.userId
-  const mode   = getMode(req)
+  const userId   = req.user!.userId
+  const mode     = getMode(req)
+  const currency = getCurrency(req)
 
   const { symbol, side, quantity, leverage, takeProfit, stopLoss, type, limitPrice } = req.body
 
@@ -48,6 +54,7 @@ router.post('/', authenticate, async (req: AuthRequest, res: Response) => {
     const id = addLimitOrder({
       userId,
       mode,
+      currency,
       symbol:     sym,
       side:       side as OrderSide,
       quantity:   qty,
@@ -73,6 +80,7 @@ router.post('/', authenticate, async (req: AuthRequest, res: Response) => {
       leverage:   isNaN(lev) ? 1 : lev,
       takeProfit: takeProfit != null ? parseFloat(String(takeProfit)) : undefined,
       stopLoss:   stopLoss   != null ? parseFloat(String(stopLoss))   : undefined,
+      currency,
     })
     return res.status(201).json(order)
   } catch (err: unknown) {
