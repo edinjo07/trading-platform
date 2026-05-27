@@ -235,8 +235,7 @@ export default function OrderForm() {
   const margin      = leverage > 0 ? notional / leverage : notional
   const commission  = parseFloat((notional * 0.0005).toFixed(2))
   const totalCost   = parseFloat((margin + commission).toFixed(2))
-  const isBuy       = side === 'buy'
-  const canSell     = !!position || leverage > 1
+  const isBuy = side === 'buy'
 
   const adjustQty = (delta: number) => {
     const next = Math.max(0, (parseFloat(qty) || 0) + delta)
@@ -245,7 +244,7 @@ export default function OrderForm() {
 
   const setPct = (pct: number) => {
     if (!fillPrice) return
-    if (isBuy) {
+    if (side === 'buy') {
       const maxQty = (cash * pct * leverage) / fillPrice
       setQty(maxQty < 1 ? maxQty.toFixed(4) : maxQty.toFixed(2))
     } else if (position) {
@@ -254,31 +253,30 @@ export default function OrderForm() {
     }
   }
 
-  const handleSideChange = (s: OrderSide) => {
-    if (s === 'sell' && !canSell) return
-    setSide(s); setError('')
-  }
+  const handleSideChange = (s: OrderSide) => { setSide(s); setError('') }
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (submitSide: OrderSide = side) => {
+    const execBuy = submitSide === 'buy'
+    const execPrice = execBuy ? ask : bid
     setError('')
+    setSide(submitSide)
     if (!quantity || quantity <= 0) { setError('Enter a valid quantity'); return }
-    if (isBuy && portfolio !== null && totalCost > cash) {
+    if (execBuy && portfolio !== null && totalCost > cash) {
       setError(`Insufficient funds — need $${totalCost.toFixed(2)}, have $${cash.toFixed(2)}`); return
     }
-    if (!isBuy && !canSell) { setError('No position to sell'); return }
 
     setSubmitting(true)
     try {
       await placeOrder({
-        symbol: selectedSymbol, side, quantity,
+        symbol: selectedSymbol, side: submitSide, quantity,
         leverage:   leverage > 1 ? leverage : undefined,
         takeProfit: tp ? parseFloat(tp) : undefined,
         stopLoss:   sl ? parseFloat(sl) : undefined,
       })
       addToast({
         title:   'Order Filled',
-        message: `${isBuy ? 'Bought' : 'Sold'} ${quantity} ${qtyLabel} @ ${formatPrice(fillPrice, selectedSymbol)}`,
-        variant: isBuy ? 'success' : 'info',
+        message: `${execBuy ? 'Bought' : 'Sold'} ${quantity} ${qtyLabel} @ ${formatPrice(execPrice, selectedSymbol)}`,
+        variant: execBuy ? 'success' : 'info',
       })
       setError('')
     } catch (err) {
@@ -307,7 +305,7 @@ export default function OrderForm() {
           <button
             onClick={() => handleSideChange('sell')}
             style={{
-              flex: 1, padding: '14px 14px', border: 'none', cursor: canSell ? 'pointer' : 'default',
+              flex: 1, padding: '14px 14px', border: 'none', cursor: 'pointer',
               background: !isBuy ? '#dc3826' : 'rgba(100,20,12,0.82)',
               textAlign: 'left', transition: 'background 0.18s',
             }}
@@ -355,6 +353,27 @@ export default function OrderForm() {
               {ask > 0 ? formatPrice(ask, selectedSymbol) : '––'}
             </div>
           </button>
+        </div>
+      </div>
+
+      {/* ── Leverage row ─────────────────────────────────────────────────────── */}
+      <div style={{ padding: '0 12px 8px', flexShrink: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 12, padding: '10px 14px' }}>
+          <span style={{ fontSize: 13, color: '#888', fontWeight: 500 }}>Leverage</span>
+          <div style={{ display: 'flex', gap: 5 }}>
+            {levOptions.map(l => (
+              <button
+                key={l}
+                onClick={() => setLeverage(l)}
+                style={{
+                  padding: '5px 10px', borderRadius: 8, border: 'none', cursor: 'pointer',
+                  background: leverage === l ? 'rgba(14,165,233,0.25)' : 'rgba(255,255,255,0.05)',
+                  color: leverage === l ? '#38bdf8' : '#555',
+                  fontSize: 12, fontWeight: 700, transition: 'all 0.15s',
+                }}
+              >L{l}</button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -454,21 +473,34 @@ export default function OrderForm() {
           Order details · Commission ${commission.toFixed(2)}
         </button>
 
-        <button
-          onClick={handleSubmit}
-          disabled={submitting || !ticker}
-          style={{
-            width: '100%', padding: 17, borderRadius: 16,
-            background: isBuy ? '#1a7af5' : '#dc3826',
-            color: '#fff', fontSize: 16, fontWeight: 800, border: 'none',
-            cursor: submitting ? 'not-allowed' : 'pointer',
-            opacity: submitting || !ticker ? 0.65 : 1,
-            transition: 'opacity 0.15s',
-            letterSpacing: '0.02em',
-          }}
-        >
-          {submitting ? 'Placing…' : isBuy ? `Buy ${selectedSymbol}` : `Sell ${selectedSymbol}`}
-        </button>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button
+            onClick={() => handleSubmit('sell')}
+            disabled={submitting || !ticker}
+            style={{
+              flex: 1, padding: '16px 0', borderRadius: 14,
+              background: '#dc3826', color: '#fff', fontSize: 15, fontWeight: 800,
+              border: 'none', cursor: submitting ? 'not-allowed' : 'pointer',
+              opacity: submitting || !ticker ? 0.65 : 1, transition: 'opacity 0.15s',
+              letterSpacing: '0.02em',
+            }}
+          >
+            {submitting && side === 'sell' ? '…' : 'Sell'}
+          </button>
+          <button
+            onClick={() => handleSubmit('buy')}
+            disabled={submitting || !ticker}
+            style={{
+              flex: 1, padding: '16px 0', borderRadius: 14,
+              background: '#1a7af5', color: '#fff', fontSize: 15, fontWeight: 800,
+              border: 'none', cursor: submitting ? 'not-allowed' : 'pointer',
+              opacity: submitting || !ticker ? 0.65 : 1, transition: 'opacity 0.15s',
+              letterSpacing: '0.02em',
+            }}
+          >
+            {submitting && side === 'buy' ? '…' : 'Buy'}
+          </button>
+        </div>
       </div>
 
       {/* Price depth bottom sheet */}
