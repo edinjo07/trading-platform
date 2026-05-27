@@ -24,11 +24,13 @@ router.get('/', authenticate, async (req: AuthRequest, res: Response) => {
   const currency = getCurrency(req)
 
   // ── Load (or lazily create) the account ────────────────────────────────────
-  let cashBalance = STARTING_BALANCE
+  let cashBalance  = STARTING_BALANCE
+  let accountNumber = 0
+  let accountType   = 'raw_spread'
 
   const { data: acct, error: acctErr } = await supabase
     .from('accounts')
-    .select('cash_balance')
+    .select('cash_balance, account_number, account_type')
     .eq('user_id', userId)
     .eq('mode', mode)
     .eq('currency', currency)
@@ -39,23 +41,29 @@ router.get('/', authenticate, async (req: AuthRequest, res: Response) => {
     const { data: created, error: createErr } = await supabase
       .from('accounts')
       .insert({ user_id: userId, mode, currency, cash_balance: STARTING_BALANCE })
-      .select('cash_balance')
+      .select('cash_balance, account_number, account_type')
       .single()
     if (createErr) {
       // Race: another request already created it — refetch the real balance
       const { data: refetched } = await supabase
         .from('accounts')
-        .select('cash_balance')
+        .select('cash_balance, account_number, account_type')
         .eq('user_id', userId)
         .eq('mode', mode)
         .eq('currency', currency)
         .single()
-      cashBalance = refetched?.cash_balance ?? STARTING_BALANCE
+      cashBalance   = refetched?.cash_balance   ?? STARTING_BALANCE
+      accountNumber = refetched?.account_number ?? 0
+      accountType   = refetched?.account_type   ?? 'raw_spread'
     } else {
-      cashBalance = created?.cash_balance ?? STARTING_BALANCE
+      cashBalance   = created?.cash_balance   ?? STARTING_BALANCE
+      accountNumber = created?.account_number ?? 0
+      accountType   = created?.account_type   ?? 'raw_spread'
     }
   } else if (!acctErr && acct) {
-    cashBalance = acct.cash_balance
+    cashBalance   = acct.cash_balance
+    accountNumber = acct.account_number ?? 0
+    accountType   = acct.account_type   ?? 'raw_spread'
   }
 
   // ── Load open positions ────────────────────────────────────────────────────
@@ -107,6 +115,8 @@ router.get('/', authenticate, async (req: AuthRequest, res: Response) => {
   )
 
   const portfolio: Portfolio = {
+    accountNumber,
+    accountType:   accountType as Portfolio['accountType'],
     cashBalance:   parseFloat(cashBalance.toFixed(2)),
     totalMargin:   parseFloat(totalMargin.toFixed(2)),
     unrealizedPnl: parseFloat(unrealizedPnl.toFixed(2)),

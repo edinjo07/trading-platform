@@ -115,6 +115,8 @@ export interface Position {
 
 // ─── Portfolio ────────────────────────────────────────────────────────────────
 export interface Portfolio {
+  accountNumber: number
+  accountType:   AccountType
   cashBalance:   number
   totalMargin:   number
   totalEquity:   number

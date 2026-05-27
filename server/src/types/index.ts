@@ -1,6 +1,7 @@
 // ─── Account mode ─────────────────────────────────────────────────────────────
 export type AccountMode = 'demo' | 'real'
 export type Currency    = 'USD' | 'EUR' | 'GBP'
+export type AccountType = 'raw_spread' | 'ctrader' | 'standard'
 
 // ─── Trading primitives ────────────────────────────────────────────────────────
 export type OrderSide    = 'buy' | 'sell'
@@ -10,12 +11,15 @@ export type AssetClass   = 'stock' | 'crypto' | 'forex' | 'commodity' | 'index' 
 // ─── DB row shapes (snake_case mirrors Supabase) ──────────────────────────────
 
 export interface AccountRow {
-  id:           string
-  user_id:      string
-  mode:         AccountMode
-  cash_balance: number
-  created_at:   string
-  updated_at:   string
+  id:             string
+  user_id:        string
+  mode:           AccountMode
+  currency:       Currency
+  account_type:   AccountType
+  account_number: number
+  cash_balance:   number
+  created_at:     string
+  updated_at:     string
 }
 
 export interface PositionRow {
@@ -79,6 +83,8 @@ export interface PositionLive extends PositionRow {
 }
 
 export interface Portfolio {
+  accountNumber: number
+  accountType:   AccountType
   cashBalance:   number
   totalMargin:   number
   unrealizedPnl: number

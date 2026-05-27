@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { useTradingStore } from '../store/tradingStore'
 import { useAuthStore } from '../store/authStore'
 import { formatCurrency, formatPrice } from '../utils/formatters'
-import { getAccountsList, type AccountRow } from '../api/accounts'
-import type { Position, AccountMode, Currency } from '../types'
+import { getAccountsList, createAccountApi, type AccountRow } from '../api/accounts'
+import type { Position, AccountMode, Currency, AccountType } from '../types'
 
 // ─── Seeded sparkline ─────────────────────────────────────────────────────────
 function seedSparkline(symbol: string, up: boolean, pts = 16): string {
@@ -260,23 +260,50 @@ export default function DashboardPage() {
   const { user, setAccountMode, setCurrency } = useAuthStore()
   const { tickers, portfolio, orders, loadPortfolio, loadOrders, closePosition, setSelectedSymbol } = useTradingStore()
 
-  const [closingId,      setClosingId]      = useState<string | null>(null)
-  const [moversTab,      setMoversTab]      = useState<'risers' | 'fallers'>('risers')
-  const [showSwitcher,   setShowSwitcher]   = useState(false)
+  const [closingId,        setClosingId]        = useState<string | null>(null)
+  const [moversTab,        setMoversTab]        = useState<'risers' | 'fallers'>('risers')
+  const [showSwitcher,     setShowSwitcher]     = useState(false)
+  const [switcherPage,     setSwitcherPage]     = useState<'list' | 'create'>('list')
   const [existingAccounts, setExistingAccounts] = useState<AccountRow[]>([])
+  // Create-account form state
+  const [createMode,        setCreateMode]        = useState<AccountMode>('demo')
+  const [createCurrency,    setCreateCurrency]    = useState<Currency>('USD')
+  const [createAccountType, setCreateAccountType] = useState<AccountType>('raw_spread')
+  const [creating,          setCreating]          = useState(false)
+  const [createError,       setCreateError]       = useState('')
+  const [createdNumber,     setCreatedNumber]     = useState<number | null>(null)
 
-  useEffect(() => {
-    getAccountsList()
-      .then(rows => setExistingAccounts(rows))
-      .catch(() => {})
-  }, [])
+  const refreshAccounts = () => getAccountsList().then(rows => setExistingAccounts(rows)).catch(() => {})
+
+  useEffect(() => { refreshAccounts() }, [])
+
+  const openSwitcher = () => { setSwitcherPage('list'); setCreateError(''); setCreatedNumber(null); setShowSwitcher(true) }
+  const closeSwitcher = () => { setShowSwitcher(false); setSwitcherPage('list') }
 
   const handleSelectAccount = async (acct: typeof ACCOUNTS[0]) => {
-    setShowSwitcher(false)
+    closeSwitcher()
     await Promise.all([setAccountMode(acct.mode), setCurrency(acct.currency)])
     loadPortfolio()
-    // Refresh accounts list after switching (new account may have been created)
-    getAccountsList().then(rows => setExistingAccounts(rows)).catch(() => {})
+    refreshAccounts()
+  }
+
+  const handleCreateAccount = async () => {
+    setCreating(true)
+    setCreateError('')
+    try {
+      const result = await createAccountApi({ mode: createMode, currency: createCurrency, accountType: createAccountType })
+      setCreatedNumber(result.account_number)
+      await refreshAccounts()
+      // Auto-switch to the new account
+      await Promise.all([setAccountMode(createMode), setCurrency(createCurrency)])
+      loadPortfolio()
+      setTimeout(closeSwitcher, 1800)
+    } catch (err: unknown) {
+      const d = (err as { response?: { data?: { error?: string } } })?.response?.data
+      setCreateError(d?.error ?? 'Failed to create account')
+    } finally {
+      setCreating(false)
+    }
   }
 
   const visibleAccounts = useMemo(() => {
@@ -342,7 +369,7 @@ export default function DashboardPage() {
                 </button>
                 {/* Switch account */}
                 <button
-                  onClick={() => setShowSwitcher(true)}
+                  onClick={openSwitcher}
                   style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderRadius: 20, background: 'rgba(255,255,255,0.09)', border: '1px solid rgba(255,255,255,0.14)', color: 'rgba(255,255,255,0.8)', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
                 >
                   <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
@@ -353,12 +380,19 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {/* ── Account mode badge ── */}
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '3px 10px', borderRadius: 12, marginBottom: 6, background: user?.accountMode === 'real' ? 'rgba(16,185,129,0.12)' : 'rgba(245,158,11,0.12)', border: `1px solid ${user?.accountMode === 'real' ? 'rgba(16,185,129,0.3)' : 'rgba(245,158,11,0.3)'}` }}>
-              <span style={{ width: 6, height: 6, borderRadius: '50%', background: user?.accountMode === 'real' ? '#10b981' : '#f59e0b', flexShrink: 0 }} />
-              <span style={{ fontSize: 11, fontWeight: 700, color: user?.accountMode === 'real' ? '#10b981' : '#f59e0b' }}>
-                {user?.accountMode === 'real' ? 'Live' : 'Demo'} · {user?.currency ?? 'USD'}
-              </span>
+            {/* ── Account mode badge + account number ── */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '3px 10px', borderRadius: 12, background: user?.accountMode === 'real' ? 'rgba(16,185,129,0.12)' : 'rgba(245,158,11,0.12)', border: `1px solid ${user?.accountMode === 'real' ? 'rgba(16,185,129,0.3)' : 'rgba(245,158,11,0.3)'}` }}>
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: user?.accountMode === 'real' ? '#10b981' : '#f59e0b', flexShrink: 0 }} />
+                <span style={{ fontSize: 11, fontWeight: 700, color: user?.accountMode === 'real' ? '#10b981' : '#f59e0b' }}>
+                  {user?.accountMode === 'real' ? 'Live' : 'Demo'} · {user?.currency ?? 'USD'}
+                </span>
+              </div>
+              {portfolio?.accountNumber ? (
+                <span style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.35)', fontFamily: 'monospace', letterSpacing: '0.5px' }}>
+                  #{portfolio.accountNumber}
+                </span>
+              ) : null}
             </div>
             <div style={{ fontSize: 36, fontWeight: 800, color: '#fff', fontFamily: 'monospace', letterSpacing: '-1px', marginBottom: 16 }}>
               {formatCurrency(equity)}
@@ -369,75 +403,214 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* ── Account switcher bottom sheet ── */}
+          {/* ── Account switcher / creator bottom sheet ── */}
           {showSwitcher && (
             <div
-              onClick={() => setShowSwitcher(false)}
+              onClick={closeSwitcher}
               style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.72)', zIndex: 1000, display: 'flex', alignItems: 'flex-end' }}
             >
               <div
                 onClick={e => e.stopPropagation()}
-                style={{ width: '100%', background: '#141414', borderRadius: '22px 22px 0 0', padding: '16px 16px 40px', maxHeight: '80vh', overflowY: 'auto' }}
+                style={{ width: '100%', background: '#141414', borderRadius: '22px 22px 0 0', padding: '16px 16px 40px', maxHeight: '85vh', overflowY: 'auto' }}
               >
                 {/* Handle */}
                 <div style={{ width: 36, height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.18)', margin: '0 auto 20px' }} />
-                <h3 style={{ fontSize: 17, fontWeight: 700, color: '#fff', marginBottom: 6, textAlign: 'center' }}>Switch Account</h3>
-                <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', textAlign: 'center', marginBottom: 20 }}>Select the account you want to trade with</p>
 
-                {visibleAccounts.map(acct => {
-                  const isActive = user?.accountMode === acct.mode && (user?.currency ?? 'USD') === acct.currency
-                  const isLive = acct.mode === 'real'
-                  return (
-                    <button
-                      key={acct.id}
-                      onClick={() => handleSelectAccount(acct)}
-                      style={{
-                        width: '100%', display: 'flex', alignItems: 'center', gap: 14,
-                        padding: '14px 16px', borderRadius: 14, marginBottom: 8,
-                        background: isActive ? 'rgba(14,165,233,0.08)' : 'rgba(255,255,255,0.04)',
-                        border: `1px solid ${isActive ? 'rgba(14,165,233,0.3)' : 'rgba(255,255,255,0.08)'}`,
-                        cursor: 'pointer', textAlign: 'left',
-                      }}
-                    >
-                      {/* Account icon */}
-                      <div style={{
-                        width: 42, height: 42, borderRadius: 12, flexShrink: 0,
-                        background: isLive ? 'rgba(16,185,129,0.12)' : 'rgba(245,158,11,0.12)',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      }}>
-                        {isLive ? (
-                          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke={isLive ? '#10b981' : '#f59e0b'} strokeWidth={1.8}>
-                            <rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/>
-                          </svg>
-                        ) : (
-                          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#f59e0b" strokeWidth={1.8}>
-                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                          </svg>
-                        )}
-                      </div>
-                      {/* Labels */}
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: 14, fontWeight: 700, color: '#fff', marginBottom: 3 }}>{acct.label}</div>
-                        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)' }}>{acct.sub}</div>
-                      </div>
-                      {/* Active checkmark */}
-                      {isActive && (
-                        <div style={{ width: 22, height: 22, borderRadius: '50%', background: '#0ea5e9', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                          <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="#fff" strokeWidth={3}>
-                            <polyline points="20 6 9 17 4 12"/>
-                          </svg>
+                {/* ── List page ── */}
+                {switcherPage === 'list' && (<>
+                  <h3 style={{ fontSize: 17, fontWeight: 700, color: '#fff', marginBottom: 4, textAlign: 'center' }}>Switch Account</h3>
+                  <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', textAlign: 'center', marginBottom: 20 }}>Select the account you want to trade with</p>
+
+                  {visibleAccounts.map(acct => {
+                    const isActive = user?.accountMode === acct.mode && (user?.currency ?? 'USD') === acct.currency
+                    const isLive   = acct.mode === 'real'
+                    const row      = existingAccounts.find(r => r.mode === acct.mode && r.currency === acct.currency)
+                    return (
+                      <button
+                        key={acct.id}
+                        onClick={() => handleSelectAccount(acct)}
+                        style={{
+                          width: '100%', display: 'flex', alignItems: 'center', gap: 14,
+                          padding: '14px 16px', borderRadius: 14, marginBottom: 8,
+                          background: isActive ? 'rgba(14,165,233,0.08)' : 'rgba(255,255,255,0.04)',
+                          border: `1px solid ${isActive ? 'rgba(14,165,233,0.3)' : 'rgba(255,255,255,0.08)'}`,
+                          cursor: 'pointer', textAlign: 'left',
+                        }}
+                      >
+                        {/* Icon */}
+                        <div style={{ width: 44, height: 44, borderRadius: 12, flexShrink: 0, background: isLive ? 'rgba(16,185,129,0.12)' : 'rgba(245,158,11,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          {isLive
+                            ? <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#10b981" strokeWidth={1.8}><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>
+                            : <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#f59e0b" strokeWidth={1.8}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                          }
                         </div>
+                        {/* Labels */}
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontSize: 14, fontWeight: 700, color: '#fff', marginBottom: 2 }}>{acct.label}</div>
+                          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)' }}>{acct.sub}</div>
+                          {row?.account_number ? (
+                            <div style={{ fontSize: 10, fontFamily: 'monospace', color: 'rgba(255,255,255,0.28)', marginTop: 2 }}>
+                              #{row.account_number}
+                            </div>
+                          ) : null}
+                        </div>
+                        {/* Active checkmark */}
+                        {isActive && (
+                          <div style={{ width: 22, height: 22, borderRadius: '50%', background: '#0ea5e9', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                            <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="#fff" strokeWidth={3}><polyline points="20 6 9 17 4 12"/></svg>
+                          </div>
+                        )}
+                      </button>
+                    )
+                  })}
+
+                  {/* Create Account button */}
+                  <button
+                    onClick={() => { setSwitcherPage('create'); setCreateError(''); setCreatedNumber(null) }}
+                    style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '13px', borderRadius: 14, background: 'rgba(14,165,233,0.07)', border: '1px dashed rgba(14,165,233,0.3)', color: '#38bdf8', fontSize: 13, fontWeight: 700, cursor: 'pointer', marginTop: 4, marginBottom: 8 }}
+                  >
+                    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    Create Account
+                  </button>
+
+                  <button
+                    onClick={closeSwitcher}
+                    style={{ width: '100%', padding: '13px', borderRadius: 14, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.09)', color: 'rgba(255,255,255,0.6)', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}
+                  >
+                    Cancel
+                  </button>
+                </>)}
+
+                {/* ── Create page ── */}
+                {switcherPage === 'create' && (<>
+                  {/* Header with back */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
+                    <button
+                      onClick={() => setSwitcherPage('list')}
+                      style={{ width: 34, height: 34, borderRadius: '50%', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}
+                    >
+                      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="rgba(255,255,255,0.7)" strokeWidth={2.2}><polyline points="15 18 9 12 15 6"/></svg>
+                    </button>
+                    <div>
+                      <div style={{ fontSize: 17, fontWeight: 700, color: '#fff' }}>Create Account</div>
+                      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Each account has a unique account number</div>
+                    </div>
+                  </div>
+
+                  {/* Success state */}
+                  {createdNumber ? (
+                    <div style={{ textAlign: 'center', padding: '24px 0' }}>
+                      <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'rgba(0,200,120,0.12)', border: '1px solid rgba(0,200,120,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+                        <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="#00c878" strokeWidth={2.5}><polyline points="20 6 9 17 4 12"/></svg>
+                      </div>
+                      <div style={{ fontSize: 16, fontWeight: 700, color: '#fff', marginBottom: 6 }}>Account Created</div>
+                      <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 12 }}>Your account number is</div>
+                      <div style={{ fontSize: 26, fontWeight: 800, color: '#fff', fontFamily: 'monospace', letterSpacing: 1 }}>#{createdNumber}</div>
+                      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 8 }}>Keep this number for support enquiries</div>
+                    </div>
+                  ) : (<>
+                    {/* Demo / Real toggle */}
+                    <div style={{ marginBottom: 20 }}>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.5)', marginBottom: 8 }}>Account Type</div>
+                      <div style={{ display: 'flex', gap: 8, background: 'rgba(255,255,255,0.04)', borderRadius: 12, padding: 4 }}>
+                        {(['demo', 'real'] as AccountMode[]).map(m => (
+                          <button
+                            key={m}
+                            onClick={() => setCreateMode(m)}
+                            style={{ flex: 1, padding: '9px', borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: 'pointer', transition: 'all 0.15s',
+                              background: createMode === m ? (m === 'real' ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.15)') : 'transparent',
+                              color: createMode === m ? (m === 'real' ? '#10b981' : '#f59e0b') : 'rgba(255,255,255,0.4)',
+                              border: createMode === m ? `1px solid ${m === 'real' ? 'rgba(16,185,129,0.35)' : 'rgba(245,158,11,0.35)'}` : '1px solid transparent',
+                            }}
+                          >
+                            {m === 'real' ? 'Live' : 'Demo'}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Currency */}
+                    <div style={{ marginBottom: 20 }}>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.5)', marginBottom: 8 }}>Currency</div>
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        {([
+                          { key: 'USD', symbol: '$', name: 'US Dollar' },
+                          { key: 'EUR', symbol: '€', name: 'Euro' },
+                          { key: 'GBP', symbol: '£', name: 'Pound' },
+                        ] as { key: Currency; symbol: string; name: string }[]).map(c => (
+                          <button
+                            key={c.key}
+                            onClick={() => setCreateCurrency(c.key)}
+                            style={{ flex: 1, padding: '12px 8px', borderRadius: 12, cursor: 'pointer', textAlign: 'center',
+                              background: createCurrency === c.key ? 'rgba(14,165,233,0.1)' : 'rgba(255,255,255,0.04)',
+                              border: `1px solid ${createCurrency === c.key ? 'rgba(14,165,233,0.35)' : 'rgba(255,255,255,0.08)'}`,
+                            }}
+                          >
+                            <div style={{ fontSize: 18, fontWeight: 800, color: createCurrency === c.key ? '#38bdf8' : 'rgba(255,255,255,0.4)', marginBottom: 2 }}>{c.symbol}</div>
+                            <div style={{ fontSize: 11, fontWeight: 700, color: createCurrency === c.key ? '#fff' : 'rgba(255,255,255,0.5)' }}>{c.key}</div>
+                            <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', marginTop: 1 }}>{c.name}</div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Account type */}
+                    <div style={{ marginBottom: 24 }}>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.5)', marginBottom: 8 }}>Account Plan</div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                        {([
+                          { key: 'raw_spread', label: 'Raw Spread', sub: '$3.50 / lot · 0.0 pip spread', popular: true },
+                          { key: 'ctrader',    label: 'cTrader',    sub: '$3 / 100k · 0.0 pip spread',  popular: false },
+                          { key: 'standard',   label: 'Standard',   sub: '$0 commission · 0.8 pip spread', popular: false },
+                        ] as { key: AccountType; label: string; sub: string; popular: boolean }[]).map(t => (
+                          <button
+                            key={t.key}
+                            onClick={() => setCreateAccountType(t.key)}
+                            style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 12, cursor: 'pointer', textAlign: 'left',
+                              background: createAccountType === t.key ? 'rgba(14,165,233,0.08)' : 'rgba(255,255,255,0.04)',
+                              border: `1px solid ${createAccountType === t.key ? 'rgba(14,165,233,0.3)' : 'rgba(255,255,255,0.08)'}`,
+                            }}
+                          >
+                            <div style={{ width: 10, height: 10, borderRadius: '50%', flexShrink: 0, background: createAccountType === t.key ? '#0ea5e9' : 'rgba(255,255,255,0.15)', border: createAccountType === t.key ? '2px solid rgba(14,165,233,0.5)' : '2px solid rgba(255,255,255,0.15)' }} />
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                <span style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{t.label}</span>
+                                {t.popular && <span style={{ fontSize: 9, fontWeight: 800, padding: '1px 5px', borderRadius: 4, background: 'rgba(14,165,233,0.18)', color: '#38bdf8' }}>POPULAR</span>}
+                              </div>
+                              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{t.sub}</div>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Starting balance note */}
+                    <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: 10, padding: '10px 14px', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="rgba(255,255,255,0.4)" strokeWidth={1.8}><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>
+                        {createMode === 'demo' ? 'Demo accounts start with $100,000 practice balance' : 'Real accounts require a deposit after creation'}
+                      </span>
+                    </div>
+
+                    {createError && (
+                      <div style={{ background: 'rgba(220,56,38,0.1)', border: '1px solid rgba(220,56,38,0.25)', borderRadius: 10, padding: '10px 14px', marginBottom: 12, fontSize: 12, color: '#ff6b6b' }}>
+                        {createError}
+                      </div>
+                    )}
+
+                    <button
+                      onClick={handleCreateAccount}
+                      disabled={creating}
+                      style={{ width: '100%', padding: '14px', borderRadius: 14, background: creating ? 'rgba(14,165,233,0.15)' : 'rgba(14,165,233,0.9)', color: '#fff', fontSize: 14, fontWeight: 700, cursor: creating ? 'not-allowed' : 'pointer', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
+                    >
+                      {creating ? (
+                        <><svg className="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.3)" strokeWidth="3"/><path fill="white" d="M4 12a8 8 0 018-8V0C5.4 0 0 5.4 0 12h4z"/></svg>Creating…</>
+                      ) : (
+                        'Create Account'
                       )}
                     </button>
-                  )
-                })}
-
-                <button
-                  onClick={() => setShowSwitcher(false)}
-                  style={{ width: '100%', padding: '14px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.7)', fontSize: 14, fontWeight: 600, cursor: 'pointer', marginTop: 4 }}
-                >
-                  Cancel
-                </button>
+                  </>)}
+                </>)}
               </div>
             </div>
           )}
