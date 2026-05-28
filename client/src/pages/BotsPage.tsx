@@ -478,13 +478,19 @@ function CreateBotModal({ onClose, onCreate }: { onClose: () => void; onCreate: 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
          style={{ background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(8px)' }}>
-      <div className="w-full sm:max-w-md max-h-[95vh] sm:max-h-[88vh] overflow-y-auto rounded-t-2xl sm:rounded-2xl"
-           style={{ background: '#111', border: '1px solid rgba(255,255,255,0.08)', overscrollBehavior: 'contain', WebkitOverflowScrolling: 'touch' } as React.CSSProperties}
-           onTouchMove={e => e.stopPropagation()}>
 
-        {/* Header */}
-        <div className="sticky top-0 flex items-center justify-between px-5 py-4 border-b z-10"
-             style={{ background: '#111', borderColor: 'rgba(255,255,255,0.07)' }}>
+      {/* Modal shell — flex-col, does NOT scroll itself */}
+      <div className="w-full sm:max-w-md flex flex-col rounded-t-2xl sm:rounded-2xl"
+           style={{ background: '#111', border: '1px solid rgba(255,255,255,0.08)', maxHeight: '92dvh' }}>
+
+        {/* Drag handle — mobile only */}
+        <div className="flex justify-center pt-2.5 pb-0.5 sm:hidden shrink-0">
+          <div className="w-10 h-1 rounded-full" style={{ background: 'rgba(255,255,255,0.15)' }}/>
+        </div>
+
+        {/* ── Fixed header ── */}
+        <div className="flex items-center justify-between px-5 py-4 border-b shrink-0"
+             style={{ borderColor: 'rgba(255,255,255,0.07)' }}>
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-xl flex items-center justify-center"
                  style={{ background: 'rgba(14,165,233,0.12)', border: '1px solid rgba(14,165,233,0.2)' }}>
@@ -498,16 +504,17 @@ function CreateBotModal({ onClose, onCreate }: { onClose: () => void; onCreate: 
               <p className="text-xs" style={{ color: '#475569' }}>Configure strategy &amp; risk</p>
             </div>
           </div>
-          <button onClick={onClose} className="w-8 h-8 rounded-xl flex items-center justify-center transition-colors"
+          <button type="button" onClick={onClose}
+                  className="w-8 h-8 rounded-xl flex items-center justify-center"
                   style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="#64748b" strokeWidth={2.5}><path d="M18 6L6 18M6 6l12 12"/></svg>
           </button>
         </div>
 
-        {/* Tabs */}
-        <div className="flex border-b" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
+        {/* ── Fixed tabs ── */}
+        <div className="flex border-b shrink-0" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
           {(['strategy', 'risk'] as TabKey[]).map(t => (
-            <button key={t} onClick={() => setTab(t)}
+            <button key={t} type="button" onClick={() => setTab(t)}
                     className="flex-1 py-3 text-xs font-bold uppercase tracking-wider transition-colors"
                     style={{
                       color: tab === t ? '#0ea5e9' : '#334155',
@@ -518,205 +525,210 @@ function CreateBotModal({ onClose, onCreate }: { onClose: () => void; onCreate: 
           ))}
         </div>
 
-        <form onSubmit={submit} className="p-5 space-y-5">
-          {tab === 'strategy' && (
-            <>
-              {/* Name + Symbol */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className={labelCls} style={labelStyle}>Bot Name</label>
-                  <input className={inputCls} style={inputStyle} placeholder="Alpha Bot"
-                         value={name} onChange={e => setName(e.target.value)}
-                         onFocus={inputFocus} onBlur={inputBlur}/>
-                </div>
-                <div>
-                  <label className={labelCls} style={labelStyle}>Market</label>
-                  <select className={inputCls} style={{ ...inputStyle, appearance: 'none' }}
-                          value={symbol} onChange={e => setSymbol(e.target.value)}
-                          onFocus={inputFocus} onBlur={inputBlur}>
-                    {SYMBOL_LIST.map(s => <option key={s} value={s}>{s}</option>)}
-                  </select>
-                </div>
-              </div>
+        {/* ── Form wraps scrollable body + pinned footer ── */}
+        <form onSubmit={submit} className="flex flex-col min-h-0 flex-1">
 
-              {/* Strategy picker */}
-              <div>
-                <label className={labelCls} style={labelStyle}>Algorithm</label>
-                <div className="grid grid-cols-2 gap-2">
-                  {(Object.entries(STRATEGY_META) as [BotStrategy, typeof STRATEGY_META[BotStrategy]][]).map(([key, m]) => (
-                    <button key={key} type="button" onClick={() => setStrategy(key)}
-                            className="rounded-xl p-3 text-left transition-all relative overflow-hidden"
-                            style={{
-                              border: `1px solid ${strategy === key ? m.color + '40' : 'rgba(255,255,255,0.07)'}`,
-                              background: strategy === key ? m.color + '12' : 'rgba(255,255,255,0.025)',
-                            }}>
-                      <div className="flex items-center gap-2 mb-1" style={{ color: strategy === key ? m.color : '#475569' }}>
-                        {STRATEGY_ICON[key]}
-                        <span className="text-xs font-bold">{m.label}</span>
-                      </div>
-                      <p className="text-xs leading-snug" style={{ color: '#334155' }}>{m.desc}</p>
-                    </button>
-                  ))}
-                </div>
-              </div>
+          {/* SCROLLABLE body — the only thing that moves */}
+          <div className="flex-1 overflow-y-scroll p-5 space-y-5"
+               style={{ WebkitOverflowScrolling: 'touch', overscrollBehavior: 'contain' } as React.CSSProperties}>
 
-              {/* Strategy params */}
-              {strategy === 'ma_crossover' && (
+            {tab === 'strategy' && (
+              <>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className={labelCls} style={labelStyle}>Fast Period</label>
-                    <input className={inputCls} style={inputStyle} type="number" min={2} max={50}
-                           value={fastP} onChange={e => setFastP(+e.target.value)} onFocus={inputFocus} onBlur={inputBlur}/>
+                    <label className={labelCls} style={labelStyle}>Bot Name</label>
+                    <input className={inputCls} style={inputStyle} placeholder="Alpha Bot"
+                           value={name} onChange={e => setName(e.target.value)}
+                           onFocus={inputFocus} onBlur={inputBlur}/>
                   </div>
                   <div>
-                    <label className={labelCls} style={labelStyle}>Slow Period</label>
-                    <input className={inputCls} style={inputStyle} type="number" min={5} max={200}
-                           value={slowP} onChange={e => setSlowP(+e.target.value)} onFocus={inputFocus} onBlur={inputBlur}/>
+                    <label className={labelCls} style={labelStyle}>Market</label>
+                    <select className={inputCls} style={{ ...inputStyle, appearance: 'none' }}
+                            value={symbol} onChange={e => setSymbol(e.target.value)}
+                            onFocus={inputFocus} onBlur={inputBlur}>
+                      {SYMBOL_LIST.map(s => <option key={s} value={s}>{s}</option>)}
+                    </select>
                   </div>
                 </div>
-              )}
-              {strategy === 'rsi' && (
-                <div className="grid grid-cols-3 gap-3">
-                  {[
-                    { label: 'Period',     val: rsiP,  set: setRsiP,  min: 2,  max: 50 },
-                    { label: 'Overbought', val: rsiOb, set: setRsiOb, min: 55, max: 90 },
-                    { label: 'Oversold',   val: rsiOs, set: setRsiOs, min: 10, max: 45 },
-                  ].map(f => (
-                    <div key={f.label}>
-                      <label className={labelCls} style={labelStyle}>{f.label}</label>
-                      <input className={inputCls} style={inputStyle} type="number" min={f.min} max={f.max}
-                             value={f.val} onChange={e => f.set(+e.target.value)} onFocus={inputFocus} onBlur={inputBlur}/>
+
+                <div>
+                  <label className={labelCls} style={labelStyle}>Algorithm</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {(Object.entries(STRATEGY_META) as [BotStrategy, typeof STRATEGY_META[BotStrategy]][]).map(([key, m]) => (
+                      <button key={key} type="button" onClick={() => setStrategy(key)}
+                              className="rounded-xl p-3 text-left transition-all"
+                              style={{
+                                border: `1px solid ${strategy === key ? m.color + '40' : 'rgba(255,255,255,0.07)'}`,
+                                background: strategy === key ? m.color + '12' : 'rgba(255,255,255,0.025)',
+                              }}>
+                        <div className="flex items-center gap-2 mb-1" style={{ color: strategy === key ? m.color : '#475569' }}>
+                          {STRATEGY_ICON[key]}
+                          <span className="text-xs font-bold">{m.label}</span>
+                        </div>
+                        <p className="text-xs leading-snug" style={{ color: '#334155' }}>{m.desc}</p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {strategy === 'ma_crossover' && (
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className={labelCls} style={labelStyle}>Fast Period</label>
+                      <input className={inputCls} style={inputStyle} type="number" min={2} max={50}
+                             value={fastP} onChange={e => setFastP(+e.target.value)} onFocus={inputFocus} onBlur={inputBlur}/>
                     </div>
-                  ))}
-                </div>
-              )}
-              {strategy === 'macd' && (
-                <div className="grid grid-cols-3 gap-3">
-                  {[
-                    { label: 'Fast EMA', val: macdFast, set: setMacdFast, min: 2,  max: 50  },
-                    { label: 'Slow EMA', val: macdSlow, set: setMacdSlow, min: 5,  max: 200 },
-                    { label: 'Signal',   val: macdSig,  set: setMacdSig,  min: 2,  max: 50  },
-                  ].map(f => (
-                    <div key={f.label}>
-                      <label className={labelCls} style={labelStyle}>{f.label}</label>
-                      <input className={inputCls} style={inputStyle} type="number" min={f.min} max={f.max}
-                             value={f.val} onChange={e => f.set(+e.target.value)} onFocus={inputFocus} onBlur={inputBlur}/>
+                    <div>
+                      <label className={labelCls} style={labelStyle}>Slow Period</label>
+                      <input className={inputCls} style={inputStyle} type="number" min={5} max={200}
+                             value={slowP} onChange={e => setSlowP(+e.target.value)} onFocus={inputFocus} onBlur={inputBlur}/>
                     </div>
-                  ))}
-                </div>
-              )}
-              {strategy === 'momentum' && (
-                <div>
-                  <label className={labelCls} style={labelStyle}>Lookback Bars</label>
-                  <input className={inputCls} style={inputStyle} type="number" min={5} max={100}
-                         value={lookback} onChange={e => setLookback(+e.target.value)} onFocus={inputFocus} onBlur={inputBlur}/>
-                </div>
-              )}
+                  </div>
+                )}
+                {strategy === 'rsi' && (
+                  <div className="grid grid-cols-3 gap-3">
+                    {[
+                      { label: 'Period',     val: rsiP,  set: setRsiP,  min: 2,  max: 50 },
+                      { label: 'Overbought', val: rsiOb, set: setRsiOb, min: 55, max: 90 },
+                      { label: 'Oversold',   val: rsiOs, set: setRsiOs, min: 10, max: 45 },
+                    ].map(f => (
+                      <div key={f.label}>
+                        <label className={labelCls} style={labelStyle}>{f.label}</label>
+                        <input className={inputCls} style={inputStyle} type="number" min={f.min} max={f.max}
+                               value={f.val} onChange={e => f.set(+e.target.value)} onFocus={inputFocus} onBlur={inputBlur}/>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {strategy === 'macd' && (
+                  <div className="grid grid-cols-3 gap-3">
+                    {[
+                      { label: 'Fast EMA', val: macdFast, set: setMacdFast, min: 2,  max: 50  },
+                      { label: 'Slow EMA', val: macdSlow, set: setMacdSlow, min: 5,  max: 200 },
+                      { label: 'Signal',   val: macdSig,  set: setMacdSig,  min: 2,  max: 50  },
+                    ].map(f => (
+                      <div key={f.label}>
+                        <label className={labelCls} style={labelStyle}>{f.label}</label>
+                        <input className={inputCls} style={inputStyle} type="number" min={f.min} max={f.max}
+                               value={f.val} onChange={e => f.set(+e.target.value)} onFocus={inputFocus} onBlur={inputBlur}/>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {strategy === 'momentum' && (
+                  <div>
+                    <label className={labelCls} style={labelStyle}>Lookback Bars</label>
+                    <input className={inputCls} style={inputStyle} type="number" min={5} max={100}
+                           value={lookback} onChange={e => setLookback(+e.target.value)} onFocus={inputFocus} onBlur={inputBlur}/>
+                  </div>
+                )}
 
-              <div>
-                <label className={labelCls} style={labelStyle}>Trade Size <span className="normal-case font-normal" style={{ color: '#334155' }}>(units per order)</span></label>
-                <input className={inputCls} style={inputStyle} type="number" min={0.001} step={0.001}
-                       value={tradeSize} onChange={e => setTradeSize(+e.target.value)} onFocus={inputFocus} onBlur={inputBlur}/>
-              </div>
-            </>
-          )}
-
-          {tab === 'risk' && (
-            <div className="space-y-4">
-              <p className="text-xs rounded-xl px-3 py-2.5" style={{ color: '#475569', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                Leave blank to disable a limit. All limits checked on each price tick.
-              </p>
-              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className={labelCls} style={labelStyle}>Stop Loss %</label>
-                  <div className="relative">
-                    <input className={inputCls} style={{ ...inputStyle, paddingRight: 28 }} type="number" min={0.1} step={0.1} placeholder="2.0"
-                           value={slPct} onChange={e => setSlPct(e.target.value)} onFocus={inputFocus} onBlur={inputBlur}/>
-                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs" style={{ color: '#475569' }}>%</span>
+                  <label className={labelCls} style={labelStyle}>Trade Size <span className="normal-case font-normal" style={{ color: '#334155' }}>(units per order)</span></label>
+                  <input className={inputCls} style={inputStyle} type="number" min={0.001} step={0.001}
+                         value={tradeSize} onChange={e => setTradeSize(+e.target.value)} onFocus={inputFocus} onBlur={inputBlur}/>
+                </div>
+              </>
+            )}
+
+            {tab === 'risk' && (
+              <div className="space-y-4">
+                <p className="text-xs rounded-xl px-3 py-2.5" style={{ color: '#475569', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                  Leave blank to disable a limit. All limits checked on each price tick.
+                </p>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className={labelCls} style={labelStyle}>Stop Loss %</label>
+                    <div className="relative">
+                      <input className={inputCls} style={{ ...inputStyle, paddingRight: 28 }} type="number" min={0.1} step={0.1} placeholder="2.0"
+                             value={slPct} onChange={e => setSlPct(e.target.value)} onFocus={inputFocus} onBlur={inputBlur}/>
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs" style={{ color: '#475569' }}>%</span>
+                    </div>
+                  </div>
+                  <div>
+                    <label className={labelCls} style={labelStyle}>Take Profit %</label>
+                    <div className="relative">
+                      <input className={inputCls} style={{ ...inputStyle, paddingRight: 28 }} type="number" min={0.1} step={0.1} placeholder="4.0"
+                             value={tpPct} onChange={e => setTpPct(e.target.value)} onFocus={inputFocus} onBlur={inputBlur}/>
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs" style={{ color: '#475569' }}>%</span>
+                    </div>
+                  </div>
+                  <div>
+                    <label className={labelCls} style={labelStyle}>Max Daily Loss</label>
+                    <div className="relative">
+                      <input className={inputCls} style={{ ...inputStyle, paddingLeft: 24 }} type="number" min={0} step={1} placeholder="500"
+                             value={maxDL} onChange={e => setMaxDL(e.target.value)} onFocus={inputFocus} onBlur={inputBlur}/>
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs" style={{ color: '#475569' }}>$</span>
+                    </div>
+                  </div>
+                  <div>
+                    <label className={labelCls} style={labelStyle}>Max Daily Trades</label>
+                    <input className={inputCls} style={inputStyle} type="number" min={1} step={1} placeholder="10"
+                           value={maxDT} onChange={e => setMaxDT(e.target.value)} onFocus={inputFocus} onBlur={inputBlur}/>
                   </div>
                 </div>
                 <div>
-                  <label className={labelCls} style={labelStyle}>Take Profit %</label>
-                  <div className="relative">
-                    <input className={inputCls} style={{ ...inputStyle, paddingRight: 28 }} type="number" min={0.1} step={0.1} placeholder="4.0"
-                           value={tpPct} onChange={e => setTpPct(e.target.value)} onFocus={inputFocus} onBlur={inputBlur}/>
-                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs" style={{ color: '#475569' }}>%</span>
+                  <label className={labelCls} style={labelStyle}>Confirm Bars <span className="normal-case font-normal" style={{ color: '#334155' }}>(consecutive signals before entry)</span></label>
+                  <input className={inputCls} style={inputStyle} type="number" min={1} max={10}
+                         value={confirmB} onChange={e => setConfirmB(+e.target.value)} onFocus={inputFocus} onBlur={inputBlur}/>
+                </div>
+                <label className="flex items-start gap-3 cursor-pointer rounded-xl p-3.5 transition-all"
+                       style={{ background: useNews ? 'rgba(56,189,248,0.06)' : 'rgba(255,255,255,0.025)',
+                                border: `1px solid ${useNews ? 'rgba(56,189,248,0.25)' : 'rgba(255,255,255,0.06)'}` }}>
+                  <input type="checkbox" className="mt-0.5 w-4 h-4 shrink-0 cursor-pointer"
+                         checked={useNews} onChange={e => setUseNews(e.target.checked)}/>
+                  <div>
+                    <p className="text-sm font-semibold mb-0.5" style={{ color: useNews ? '#38bdf8' : '#64748b' }}>News Sentiment Filter</p>
+                    <p className="text-xs leading-relaxed" style={{ color: '#334155' }}>
+                      Block buy signals when news sentiment for {symbol} is bearish. Cached 15 min.
+                    </p>
                   </div>
-                </div>
-                <div>
-                  <label className={labelCls} style={labelStyle}>Max Daily Loss</label>
-                  <div className="relative">
-                    <input className={inputCls} style={{ ...inputStyle, paddingLeft: 24 }} type="number" min={0} step={1} placeholder="500"
-                           value={maxDL} onChange={e => setMaxDL(e.target.value)} onFocus={inputFocus} onBlur={inputBlur}/>
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs" style={{ color: '#475569' }}>$</span>
+                </label>
+                {(slPct || tpPct || maxDL || maxDT || confirmB > 1 || useNews) && (
+                  <div className="rounded-xl p-3.5 space-y-1.5"
+                       style={{ background: 'rgba(14,165,233,0.05)', border: '1px solid rgba(14,165,233,0.12)' }}>
+                    <p className="text-xs font-bold mb-2" style={{ color: '#38bdf8' }}>Active guards</p>
+                    {slPct && <p className="text-xs" style={{ color: '#94a3b8' }}>🔴 SL at <b className="text-white">{slPct}%</b> below entry</p>}
+                    {tpPct && <p className="text-xs" style={{ color: '#94a3b8' }}>🟡 TP at <b className="text-white">{tpPct}%</b> above entry</p>}
+                    {maxDL && <p className="text-xs" style={{ color: '#94a3b8' }}>🛡 Halt after <b className="text-white">${maxDL}</b> daily loss</p>}
+                    {maxDT && <p className="text-xs" style={{ color: '#94a3b8' }}>⏱ Cap at <b className="text-white">{maxDT}</b> trades/day</p>}
+                    {confirmB > 1 && <p className="text-xs" style={{ color: '#94a3b8' }}>⚡ Require <b className="text-white">{confirmB}</b> consecutive signals</p>}
+                    {useNews && <p className="text-xs" style={{ color: '#38bdf8' }}>📰 News sentiment filter ON</p>}
                   </div>
-                </div>
-                <div>
-                  <label className={labelCls} style={labelStyle}>Max Daily Trades</label>
-                  <input className={inputCls} style={inputStyle} type="number" min={1} step={1} placeholder="10"
-                         value={maxDT} onChange={e => setMaxDT(e.target.value)} onFocus={inputFocus} onBlur={inputBlur}/>
-                </div>
+                )}
               </div>
-              <div>
-                <label className={labelCls} style={labelStyle}>Confirm Bars <span className="normal-case font-normal" style={{ color: '#334155' }}>(consecutive signals before entry)</span></label>
-                <input className={inputCls} style={inputStyle} type="number" min={1} max={10}
-                       value={confirmB} onChange={e => setConfirmB(+e.target.value)} onFocus={inputFocus} onBlur={inputBlur}/>
+            )}
+          </div>
+
+          {/* ── Pinned footer — always visible, never scrolls away ── */}
+          <div className="shrink-0 px-5 pt-3 pb-5 border-t space-y-3"
+               style={{ borderColor: 'rgba(255,255,255,0.07)', background: '#111' }}>
+            {err && (
+              <div className="flex items-center gap-2 rounded-xl px-3 py-2.5"
+                   style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)' }}>
+                <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="#ef4444" strokeWidth={2}>
+                  <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                <p className="text-xs" style={{ color: '#fca5a5' }}>{err}</p>
               </div>
-
-              <label className="flex items-start gap-3 cursor-pointer rounded-xl p-3.5 transition-all"
-                     style={{ background: useNews ? 'rgba(56,189,248,0.06)' : 'rgba(255,255,255,0.025)',
-                              border: `1px solid ${useNews ? 'rgba(56,189,248,0.25)' : 'rgba(255,255,255,0.06)'}` }}>
-                <input type="checkbox" className="mt-0.5 w-4 h-4 shrink-0 cursor-pointer"
-                       checked={useNews} onChange={e => setUseNews(e.target.checked)}/>
-                <div>
-                  <p className="text-sm font-semibold mb-0.5" style={{ color: useNews ? '#38bdf8' : '#64748b' }}>News Sentiment Filter</p>
-                  <p className="text-xs leading-relaxed" style={{ color: '#334155' }}>
-                    Block buy signals when news sentiment for {symbol} is bearish. Cached 15 min.
-                  </p>
-                </div>
-              </label>
-
-              {(slPct || tpPct || maxDL || maxDT || confirmB > 1 || useNews) && (
-                <div className="rounded-xl p-3.5 space-y-1.5"
-                     style={{ background: 'rgba(14,165,233,0.05)', border: '1px solid rgba(14,165,233,0.12)' }}>
-                  <p className="text-xs font-bold mb-2" style={{ color: '#38bdf8' }}>Active guards</p>
-                  {slPct && <p className="text-xs" style={{ color: '#94a3b8' }}>🔴 SL at <b className="text-white">{slPct}%</b> below entry</p>}
-                  {tpPct && <p className="text-xs" style={{ color: '#94a3b8' }}>🟡 TP at <b className="text-white">{tpPct}%</b> above entry</p>}
-                  {maxDL && <p className="text-xs" style={{ color: '#94a3b8' }}>🛡 Halt after <b className="text-white">${maxDL}</b> daily loss</p>}
-                  {maxDT && <p className="text-xs" style={{ color: '#94a3b8' }}>⏱ Cap at <b className="text-white">{maxDT}</b> trades/day</p>}
-                  {confirmB > 1 && <p className="text-xs" style={{ color: '#94a3b8' }}>⚡ Require <b className="text-white">{confirmB}</b> consecutive signals</p>}
-                  {useNews && <p className="text-xs" style={{ color: '#38bdf8' }}>📰 News sentiment filter ON</p>}
-                </div>
-              )}
+            )}
+            <div className="flex gap-3">
+              <button type="button" onClick={onClose}
+                      className="flex-1 py-3 rounded-xl text-sm font-semibold"
+                      style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#64748b' }}>
+                Cancel
+              </button>
+              <button type="submit" disabled={loading}
+                      className="flex-1 py-3 rounded-xl text-sm font-bold transition-all"
+                      style={{
+                        background: loading ? 'rgba(14,165,233,0.1)' : 'rgba(14,165,233,0.15)',
+                        border: '1px solid rgba(14,165,233,0.3)',
+                        color: '#38bdf8',
+                        cursor: loading ? 'not-allowed' : 'pointer',
+                      }}>
+                {loading ? 'Deploying…' : 'Deploy Bot →'}
+              </button>
             </div>
-          )}
-
-          {err && (
-            <div className="flex items-center gap-2 rounded-xl px-3 py-2.5"
-                 style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)' }}>
-              <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="#ef4444" strokeWidth={2}>
-                <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-              </svg>
-              <p className="text-xs" style={{ color: '#fca5a5' }}>{err}</p>
-            </div>
-          )}
-
-          <div className="flex gap-3 pt-1">
-            <button type="button" onClick={onClose}
-                    className="flex-1 py-3 rounded-xl text-sm font-semibold"
-                    style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#64748b' }}>
-              Cancel
-            </button>
-            <button type="submit" disabled={loading}
-                    className="flex-1 py-3 rounded-xl text-sm font-bold transition-all"
-                    style={{
-                      background: loading ? 'rgba(14,165,233,0.1)' : 'rgba(14,165,233,0.15)',
-                      border: '1px solid rgba(14,165,233,0.3)',
-                      color: '#38bdf8',
-                      cursor: loading ? 'not-allowed' : 'pointer',
-                    }}>
-              {loading ? 'Deploying…' : 'Deploy Bot →'}
-            </button>
           </div>
         </form>
       </div>
