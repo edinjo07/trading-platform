@@ -6,7 +6,7 @@ import {
   Globe, Calendar, Calculator, Tv2, BookOpen, ShieldAlert,
   User, CreditCard, Shield, Settings2, BadgeCheck, LogOut,
   ChevronLeft, ChevronRight, ChevronDown, X, ShieldCheck,
-} from 'lucide-react'
+} from '../ui/Icons'
 import { useAuthStore } from '../../store/authStore'
 import { getKYCStatus } from '../../pages/KYCPage'
 
