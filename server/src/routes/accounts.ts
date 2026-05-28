@@ -16,12 +16,20 @@ router.get('/', authenticate, async (req: AuthRequest, res: Response) => {
 
   const { data, error } = await supabase
     .from('accounts')
-    .select('account_number, mode, currency, account_type, cash_balance')
+    .select('*')
     .eq('user_id', userId)
-    .order('account_number')
+    .order('created_at', { ascending: true })
 
   if (error) return res.status(500).json({ error: error.message })
-  return res.json(data ?? [])
+  // Normalise rows — account_number / account_type may not exist before migration 2
+  const rows = (data ?? []).map((r: Record<string, unknown>) => ({
+    account_number: r.account_number ?? 0,
+    mode:           r.mode,
+    currency:       r.currency ?? 'USD',
+    account_type:   r.account_type ?? 'raw_spread',
+    cash_balance:   r.cash_balance,
+  }))
+  return res.json(rows)
 })
 
 // POST /api/accounts — create a new account
@@ -42,14 +50,14 @@ router.post('/', authenticate, async (req: AuthRequest, res: Response) => {
   // Check if this (mode, currency) combo already exists for the user
   const { data: existing } = await supabase
     .from('accounts')
-    .select('account_number')
+    .select('*')
     .eq('user_id', userId)
     .eq('mode', mode)
     .eq('currency', currency)
     .maybeSingle()
 
   if (existing) {
-    return res.status(409).json({ error: 'An account with this mode and currency already exists', account_number: existing.account_number })
+    return res.status(409).json({ error: 'An account with this mode and currency already exists', account_number: existing.account_number ?? 0 })
   }
 
   const now = new Date().toISOString()
@@ -64,11 +72,18 @@ router.post('/', authenticate, async (req: AuthRequest, res: Response) => {
       created_at:   now,
       updated_at:   now,
     })
-    .select('account_number, mode, currency, account_type, cash_balance')
+    .select('*')
     .single()
 
   if (error) return res.status(500).json({ error: error.message })
-  return res.status(201).json(data)
+  const r = data as Record<string, unknown>
+  return res.status(201).json({
+    account_number: r.account_number ?? 0,
+    mode:           r.mode,
+    currency:       r.currency,
+    account_type:   r.account_type ?? accountType,
+    cash_balance:   r.cash_balance,
+  })
 })
 
 export default router

@@ -28,9 +28,10 @@ router.get('/', authenticate, async (req: AuthRequest, res: Response) => {
   let accountNumber = 0
   let accountType   = 'raw_spread'
 
+  // Select * so we don't error if account_number / account_type columns haven't been migrated yet
   const { data: acct, error: acctErr } = await supabase
     .from('accounts')
-    .select('cash_balance, account_number, account_type')
+    .select('*')
     .eq('user_id', userId)
     .eq('mode', mode)
     .eq('currency', currency)
@@ -41,17 +42,18 @@ router.get('/', authenticate, async (req: AuthRequest, res: Response) => {
     const { data: created, error: createErr } = await supabase
       .from('accounts')
       .insert({ user_id: userId, mode, currency, cash_balance: STARTING_BALANCE })
-      .select('cash_balance, account_number, account_type')
+      .select('*')
       .single()
     if (createErr) {
       // Race: another request already created it — refetch the real balance
-      const { data: refetched } = await supabase
+      const { data: refetched, error: refetchErr } = await supabase
         .from('accounts')
-        .select('cash_balance, account_number, account_type')
+        .select('*')
         .eq('user_id', userId)
         .eq('mode', mode)
         .eq('currency', currency)
         .single()
+      if (refetchErr) return res.status(500).json({ error: `Account load failed: ${refetchErr.message}` })
       cashBalance   = refetched?.cash_balance   ?? STARTING_BALANCE
       accountNumber = refetched?.account_number ?? 0
       accountType   = refetched?.account_type   ?? 'raw_spread'
@@ -60,7 +62,9 @@ router.get('/', authenticate, async (req: AuthRequest, res: Response) => {
       accountNumber = created?.account_number ?? 0
       accountType   = created?.account_type   ?? 'raw_spread'
     }
-  } else if (!acctErr && acct) {
+  } else if (acctErr) {
+    return res.status(500).json({ error: `Account load failed: ${acctErr.message}` })
+  } else if (acct) {
     cashBalance   = acct.cash_balance
     accountNumber = acct.account_number ?? 0
     accountType   = acct.account_type   ?? 'raw_spread'
