@@ -10,6 +10,7 @@ import positionsRoutes from './routes/positions'
 import analyticsRoutes from './routes/analytics'
 import newsRoutes      from './routes/news'
 import accountsRoutes  from './routes/accounts'
+import botsRoutes      from './routes/bots'
 
 const app = express()
 
@@ -32,6 +33,7 @@ app.use('/api/positions', positionsRoutes)
 app.use('/api/analytics', analyticsRoutes)
 app.use('/api/news',      newsRoutes)
 app.use('/api/accounts',  accountsRoutes)
+app.use('/api/bots',      botsRoutes)
 
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString(), env: config.nodeEnv })
