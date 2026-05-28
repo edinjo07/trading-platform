@@ -254,6 +254,18 @@ const MOVERS = [
   { symbol: 'EURUSD', name: 'EUR/USD',      assetClass: 'forex'     },
 ]
 
+const WATCHLIST_SYMBOLS = [
+  { symbol: 'BTCUSD', name: 'Bitcoin',     assetClass: 'crypto'    },
+  { symbol: 'ETHUSD', name: 'Ethereum',    assetClass: 'crypto'    },
+  { symbol: 'SOLUSD', name: 'Solana',      assetClass: 'crypto'    },
+  { symbol: 'XAUUSD', name: 'Gold',        assetClass: 'commodity' },
+  { symbol: 'EURUSD', name: 'EUR/USD',     assetClass: 'forex'     },
+  { symbol: 'AAPL',   name: 'Apple',       assetClass: 'stock'     },
+  { symbol: 'NVDA',   name: 'Nvidia',      assetClass: 'stock'     },
+  { symbol: 'TSLA',   name: 'Tesla',       assetClass: 'stock'     },
+  { symbol: 'MSFT',   name: 'Microsoft',   assetClass: 'stock'     },
+]
+
 // ─── Main page ────────────────────────────────────────────────────────────────
 export default function DashboardPage() {
   const navigate = useNavigate()
@@ -668,9 +680,19 @@ export default function DashboardPage() {
 
         <div style={{ padding: '0 16px' }}>
 
-          {/* ── Curated watchlists ── */}
+          {/* ── Watchlist ── */}
           <div style={{ marginBottom: 28 }}>
-            <SectionHeader title="Curated watchlists" onMore={() => navigate('/dashboard/watchlists')} />
+            <SectionHeader title="Watchlist" />
+            <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: 16, border: '1px solid rgba(255,255,255,0.06)', overflow: 'hidden', padding: '4px 14px' }}>
+              {WATCHLIST_SYMBOLS.map(({ symbol, name, assetClass }) => (
+                <MoverRow key={symbol} symbol={symbol} name={name} assetClass={assetClass} onClick={() => goTrade(symbol)} />
+              ))}
+            </div>
+          </div>
+
+          {/* ── Market categories ── */}
+          <div style={{ marginBottom: 28 }}>
+            <SectionHeader title="Market categories" />
             <div style={{ display: 'flex', gap: 10, overflowX: 'auto', scrollbarWidth: 'none', paddingBottom: 4 }}>
               {CATEGORIES.map(cat => (
                 <button

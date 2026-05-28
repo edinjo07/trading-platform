@@ -1,9 +1,7 @@
 import React, { useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
-import { useTradingStore } from '../../store/tradingStore'
 import { useAuthStore } from '../../store/authStore'
-import { formatPrice, formatCurrency } from '../../utils/formatters'
-import { Ticker } from '../../types'
+import { formatCurrency } from '../../utils/formatters'
 import { getKYCStatus } from '../../pages/KYCPage'
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
@@ -81,16 +79,12 @@ const DISCOVER_ITEMS = [
   { path: '/dashboard/trading-scams',     label: 'Scam Awareness',    icon: Icon.warning    },
 ]
 
-const WATCHLIST = ['BTCUSD', 'ETHUSD', 'SOLUSD', 'AAPL', 'NVDA', 'EURUSD', 'TSLA', 'MSFT']
-const ASSET_COLOR: Record<string, string> = { crypto: '#fbbf24', forex: '#7dd3fc', stock: '#38bdf8' }
-
 interface SidebarProps {
   mobileOpen: boolean
   onClose: () => void
 }
 
 export default function Sidebar({ mobileOpen, onClose }: SidebarProps) {
-  const { tickers, symbols, selectedSymbol, setSelectedSymbol } = useTradingStore()
   const { user, logout, setAccountMode } = useAuthStore()
   const navigate = useNavigate()
   const [collapsed, setCollapsed] = useState(false)
@@ -110,12 +104,6 @@ export default function Sidebar({ mobileOpen, onClose }: SidebarProps) {
     document.addEventListener('mousedown', handler)
     return () => document.removeEventListener('mousedown', handler)
   }, [profileOpen])
-
-  const handleSymbolClick = (sym: string) => {
-    setSelectedSymbol(sym)
-    navigate('/dashboard/trade')
-    onClose()
-  }
 
   // Mobile: fixed drawer (slides left/right via translate classes)
   // Desktop: in-flow element (overridden by .sidebar-aside CSS in index.css)
@@ -268,55 +256,6 @@ export default function Sidebar({ mobileOpen, onClose }: SidebarProps) {
           ))}
         </div>
 
-        {/* ── Watchlist ── */}
-        {!collapsed && (
-          <div className="mt-3 px-0 pb-2">
-            <div className="flex items-center justify-between mb-1.5 px-1">
-              <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.3)' }}>Watchlist</span>
-              <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.3)' }}>{WATCHLIST.length}</span>
-            </div>
-            <div className="flex flex-col gap-px">
-              {WATCHLIST.map(sym => {
-                const ticker: Ticker | undefined = tickers[sym]
-                const symInfo = symbols.find(s => s.symbol === sym)
-                const isSelected = selectedSymbol === sym
-                const isUp = (ticker?.changePercent ?? 0) >= 0
-                return (
-                  <button
-                    key={sym}
-                    onClick={() => handleSymbolClick(sym)}
-                    className={`flex items-center justify-between px-2.5 py-2 rounded-lg text-left w-full transition-all
-                      ${isSelected ? 'text-white' : 'text-text-secondary hover:text-text-primary'}`}
-                    style={isSelected
-                      ? { background: 'rgba(14,165,233,0.08)', border: '1px solid rgba(14,165,233,0.15)' }
-                      : { border: '1px solid transparent' }
-                    }
-                  >
-                    <div className="min-w-0">
-                      <div className="font-mono font-semibold text-[11px] text-text-primary truncate">{sym}</div>
-                      {symInfo && (
-                        <div className="text-[9px] font-semibold mt-0.5"
-                             style={{ color: ASSET_COLOR[symInfo.assetClass] ?? '#6b8099' }}>
-                          {symInfo.assetClass.toUpperCase()}
-                        </div>
-                      )}
-                    </div>
-                    {ticker ? (
-                      <div className="text-right shrink-0 ml-2">
-                        <div className="font-mono text-[11px] text-text-primary">{formatPrice(ticker.price, sym)}</div>
-                        <div className={`text-[10px] font-semibold ${isUp ? 'text-bull' : 'text-bear'}`}>
-                          {isUp ? '+' : ''}{ticker.changePercent.toFixed(2)}%
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="w-12 h-4 rounded animate-pulse" style={{ background: 'rgba(255,255,255,0.07)' }} />
-                    )}
-                  </button>
-                )
-              })}
-            </div>
-          </div>
-        )}
       </nav>
 
       {/* ── User footer / profile dropdown ── */}

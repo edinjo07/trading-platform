@@ -16,9 +16,11 @@ const BOTTOM_NAV = [
     </svg>
   },
   {
-    path: '/dashboard/watchlists', end: false, label: 'Watchlists',
+    path: '/dashboard/orders', end: false, label: 'Orders',
     icon: (active: boolean) => <svg className="w-[22px] h-[22px]" viewBox="0 0 24 24" fill={active ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={active ? 0 : 1.8}>
-      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+      <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/>
+      <rect x="9" y="3" width="6" height="4" rx="1" fill={active ? 'currentColor' : 'none'}/>
+      {!active && <><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></>}
     </svg>
   },
   {
