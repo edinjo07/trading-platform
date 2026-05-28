@@ -66,43 +66,21 @@ const MORE_LINKS = [
 
 const TICKER_SYMBOLS = ['BTCUSD', 'ETHUSD', 'US500', 'XAUUSD', 'WTI', 'LMT', 'RTX', 'NOC', 'BRENT', 'EURUSD', 'USDILS', 'USTEC']
 
-type TabId = 'all' | 'crypto' | 'stock' | 'forex' | 'commodity' | 'index' | 'bond'
-
-const TABS: { id: TabId; label: string }[] = [
-  { id: 'all',       label: 'All'         },
-  { id: 'crypto',    label: 'Crypto'      },
-  { id: 'stock',     label: 'Stocks'      },
-  { id: 'forex',     label: 'Forex'       },
-  { id: 'commodity', label: 'Commodities' },
-  { id: 'index',     label: 'Indices'     },
-  { id: 'bond',      label: 'Bonds'       },
-]
-
 interface HeaderProps {
   onMenuClick: () => void
 }
 
 export default function Header({ onMenuClick }: HeaderProps) {
-  const { selectedSymbol, tickers, setSelectedSymbol, symbols, portfolio } = useTradingStore()
+  const { selectedSymbol, tickers, setSelectedSymbol, portfolio } = useTradingStore()
   const { user } = useAuthStore()
   const { theme, toggleTheme } = useTheme()
   const navigate = useNavigate()
   const ticker = tickers[selectedSymbol]
-  const [search, setSearch] = useState('')
-  const [showSearch, setShowSearch] = useState(false)
-  const [activeTab, setActiveTab] = useState<TabId>('all')
   const [showMore, setShowMore] = useState(false)
-  const searchRef = useRef<HTMLDivElement>(null)
   const moreRef = useRef<HTMLDivElement>(null)
 
-  // Close search dropdown on outside click
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
-        setShowSearch(false)
-        setSearch('')
-        setActiveTab('all')
-      }
       if (moreRef.current && !moreRef.current.contains(e.target as Node)) {
         setShowMore(false)
       }
@@ -111,19 +89,8 @@ export default function Header({ onMenuClick }: HeaderProps) {
     return () => document.removeEventListener('mousedown', handler)
   }, [])
 
-  const filteredSymbols = symbols.filter(s => {
-    const matchSearch = !search ||
-      s.symbol.toLowerCase().includes(search.toLowerCase()) ||
-      s.name.toLowerCase().includes(search.toLowerCase())
-    const matchTab = activeTab === 'all' || s.assetClass === activeTab
-    return matchSearch && matchTab
-  })
-
   const handleSelect = (sym: string) => {
     setSelectedSymbol(sym)
-    setShowSearch(false)
-    setSearch('')
-    setActiveTab('all')
     navigate('/dashboard/trade')
   }
 
@@ -148,124 +115,6 @@ export default function Header({ onMenuClick }: HeaderProps) {
           <line x1="3" y1="18" x2="21" y2="18" />
         </svg>
       </button>
-
-      {/* ── Symbol search ── */}
-      <div ref={searchRef} className="relative">
-        <div
-          className="flex items-center gap-2 px-3 py-1.5 rounded-lg cursor-pointer transition-all"
-          style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}
-          onClick={() => setShowSearch(s => !s)}
-        >
-          <svg className="w-3.5 h-3.5 text-text-secondary shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <circle cx="11" cy="11" r="8" /><path d="M21 21l-4.35-4.35M8 11h6" />
-          </svg>
-          <span className="text-text-primary font-mono font-semibold text-sm">{selectedSymbol}</span>
-          <svg className="w-3 h-3 text-text-muted ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <polyline points="6 9 12 15 18 9" />
-          </svg>
-        </div>
-
-        {showSearch && (
-          <div
-            className="fixed sm:absolute top-[56px] sm:top-full left-0 sm:left-0 right-0 sm:right-auto mt-0 sm:mt-1.5 sm:w-80 rounded-none sm:rounded-xl overflow-hidden z-50 flex flex-col"
-            style={{ background: '#141414', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 16px 48px rgba(0,0,0,0.6)', maxHeight: 'calc(100dvh - 56px)', minHeight: '0' }}>
-            {/* Search input */}
-            <div className="p-2.5 border-b border-white/[0.05] shrink-0">
-              <div className="flex items-center gap-2 px-2 py-1.5 rounded-lg" style={{ background: 'rgba(255,255,255,0.05)' }}>
-                <svg className="w-3.5 h-3.5 text-text-muted shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <circle cx="11" cy="11" r="8" /><path d="M21 21l-4.35-4.35" />
-                </svg>
-                <input
-                  type="text"
-                  autoFocus
-                  value={search}
-                  onChange={e => setSearch(e.target.value)}
-                  placeholder="Search symbols or names..."
-                  className="flex-1 bg-transparent text-sm text-text-primary placeholder-text-muted focus:outline-none"
-                />
-                {search && (
-                  <button onClick={() => setSearch('')} className="text-text-muted hover:text-text-primary transition-colors">
-                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
-                    </svg>
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {/* Category tabs */}
-            <div className="flex gap-1 px-2 py-2 border-b border-white/[0.05] shrink-0 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
-              {TABS.map(tab => {
-                const count = tab.id === 'all' ? symbols.length : symbols.filter(s => s.assetClass === tab.id).length
-                return (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    className="px-2.5 py-1 rounded-md text-xs font-semibold whitespace-nowrap transition-all shrink-0"
-                    style={activeTab === tab.id
-                      ? { background: 'rgba(14,165,233,0.15)', color: '#0ea5e9', border: '1px solid rgba(14,165,233,0.25)' }
-                      : { background: 'transparent', color: 'rgba(255,255,255,0.45)', border: '1px solid transparent' }
-                    }
-                  >
-                    {tab.label}
-                    <span className="ml-1 text-2xs opacity-60">{count}</span>
-                  </button>
-                )
-              })}
-            </div>
-
-            {/* Symbol list */}
-            <div className="overflow-y-auto flex-1">
-              {filteredSymbols.length === 0 ? (
-                <div className="px-4 py-8 text-center text-text-muted text-sm">No symbols found</div>
-              ) : (
-                filteredSymbols.map(s => {
-                  const t = tickers[s.symbol]
-                  const isUp = (t?.changePercent ?? 0) >= 0
-                  const isSelected = s.symbol === selectedSymbol
-                  const assetIcon: Record<string, string> = {
-                    crypto: '₿', stock: '📈', forex: '💱', commodity: '🪙', index: '📊', bond: '🏛'
-                  }
-                  return (
-                    <button key={s.symbol} onClick={() => handleSelect(s.symbol)}
-                      className="w-full flex items-center justify-between px-3 py-2.5 transition-colors text-left"
-                      style={isSelected
-                        ? { background: 'rgba(14,165,233,0.08)' }
-                        : undefined
-                      }
-                      onMouseEnter={e => { if (!isSelected) (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.04)' }}
-                      onMouseLeave={e => { if (!isSelected) (e.currentTarget as HTMLButtonElement).style.background = 'transparent' }}
-                    >
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <span className="text-base leading-none shrink-0">{assetIcon[s.assetClass] ?? '·'}</span>
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-1.5">
-                            <span className="text-text-primary font-mono font-semibold text-sm">{s.symbol}</span>
-                            {isSelected && (
-                              <span className="text-2xs px-1 rounded" style={{ background: 'rgba(14,165,233,0.2)', color: '#0ea5e9' }}>active</span>
-                            )}
-                          </div>
-                          <span className="text-text-muted text-xs truncate block">{s.name}</span>
-                        </div>
-                      </div>
-                      {t ? (
-                        <div className="text-right shrink-0 ml-2">
-                          <div className="text-text-primary font-mono text-xs">{formatPrice(t.price, s.symbol)}</div>
-                          <div className={`text-xs font-mono font-semibold ${isUp ? 'text-bull' : 'text-bear'}`}>
-                            {isUp ? '+' : ''}{t.changePercent.toFixed(2)}%
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="w-12 h-4 rounded animate-pulse shrink-0" style={{ background: 'rgba(255,255,255,0.06)' }} />
-                      )}
-                    </button>
-                  )
-                })
-              )}
-            </div>
-          </div>
-        )}
-      </div>
 
       {/* ── Ticker info strip ── */}
       {ticker ? (

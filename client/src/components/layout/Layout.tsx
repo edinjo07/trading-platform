@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import Header from './Header'
+import MarketsPanel from '../trading/MarketsPanel'
 import { useTradingStore } from '../../store/tradingStore'
 import { useWebSocket } from '../../hooks/useWebSocket'
 import { useTheme } from '../../context/ThemeContext'
@@ -42,6 +43,7 @@ export default function Layout() {
   const { loadSymbols, loadOrders, loadPortfolio } = useTradingStore()
   const { theme } = useTheme()
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [marketsOpen, setMarketsOpen] = useState(false)
   useWebSocket()
 
   // Keep data-theme in sync on the root element
@@ -115,12 +117,11 @@ export default function Layout() {
           </NavLink>
         ))}
 
-        {/* FAB (+) in the center */}
+        {/* FAB (+) in the center — opens Markets panel */}
         <div className="flex-1 flex flex-col items-center justify-center pb-1" style={{ position: 'relative' }}>
-          <NavLink
-            to="/dashboard/trade"
-            onClick={closeMobile}
-            style={{ WebkitTapHighlightColor: 'transparent' }}
+          <button
+            onClick={() => { closeMobile(); setMarketsOpen(true) }}
+            style={{ WebkitTapHighlightColor: 'transparent', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
           >
             <div style={{
               width: 52, height: 52, borderRadius: '50%',
@@ -134,7 +135,7 @@ export default function Layout() {
                 <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
               </svg>
             </div>
-          </NavLink>
+          </button>
         </div>
 
         {/* Last two nav items */}
@@ -160,6 +161,8 @@ export default function Layout() {
           </NavLink>
         ))}
       </nav>
+
+      <MarketsPanel open={marketsOpen} onClose={() => setMarketsOpen(false)} />
     </div>
   )
 }
