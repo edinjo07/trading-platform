@@ -18,7 +18,7 @@ export function initWebSocket(server: Server): void {
   wss.on('connection', (ws: WebSocket) => {
     // Immediately send current prices on connect so the UI doesn't wait 1 s
     try {
-      ws.send(JSON.stringify({ type: 'tickers', data: getAllTickers() }))
+      ws.send(JSON.stringify({ type: 'tickers', payload: getAllTickers() }))
     } catch { /* ignore */ }
 
     ws.on('error', () => { /* prevent uncaught error crashes */ })
@@ -32,10 +32,10 @@ export function initWebSocket(server: Server): void {
       try { tickSymbol(sym.symbol) } catch { /* unknown symbol — skip */ }
     }
 
-    const payload = JSON.stringify({ type: 'tickers', data: getAllTickers() })
+    const message = JSON.stringify({ type: 'tickers', payload: getAllTickers() })
     for (const client of wss.clients) {
       if (client.readyState === WebSocket.OPEN) {
-        client.send(payload)
+        client.send(message)
       }
     }
   }, 1_000)
@@ -46,10 +46,10 @@ export function initWebSocket(server: Server): void {
 /** Push an arbitrary event to all connected clients (e.g. SL/TP triggered). */
 export function broadcast(event: string, data: unknown): void {
   if (!wss) return
-  const payload = JSON.stringify({ type: event, data })
+  const message = JSON.stringify({ type: event, payload: data })
   for (const client of wss.clients) {
     if (client.readyState === WebSocket.OPEN) {
-      try { client.send(payload) } catch { /* ignore */ }
+      try { client.send(message) } catch { /* ignore */ }
     }
   }
 }
