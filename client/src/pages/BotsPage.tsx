@@ -406,11 +406,6 @@ function RiskDisclosureModal({ onAccept, onClose }: { onAccept: () => void; onCl
 type TabKey = 'strategy' | 'risk'
 
 function CreateBotModal({ onClose, onCreate }: { onClose: () => void; onCreate: (b: Bot) => void }) {
-  useEffect(() => {
-    const prev = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-    return () => { document.body.style.overflow = prev }
-  }, [])
   const [tab,       setTab]       = useState<TabKey>('strategy')
   const [name,      setName]      = useState('')
   const [symbol,    setSymbol]    = useState('BTCUSD')
@@ -481,7 +476,7 @@ function CreateBotModal({ onClose, onCreate }: { onClose: () => void; onCreate: 
 
       {/* Modal shell — flex-col, does NOT scroll itself */}
       <div className="w-full sm:max-w-md flex flex-col rounded-t-2xl sm:rounded-2xl"
-           style={{ background: '#111', border: '1px solid rgba(255,255,255,0.08)', maxHeight: '92dvh' }}>
+           style={{ background: '#111', border: '1px solid rgba(255,255,255,0.08)', height: '92dvh', maxHeight: '92dvh' }}>
 
         {/* Drag handle — mobile only */}
         <div className="flex justify-center pt-2.5 pb-0.5 sm:hidden shrink-0">
@@ -530,7 +525,7 @@ function CreateBotModal({ onClose, onCreate }: { onClose: () => void; onCreate: 
 
           {/* SCROLLABLE body — the only thing that moves */}
           <div className="flex-1 overflow-y-scroll p-5 space-y-5"
-               style={{ WebkitOverflowScrolling: 'touch', overscrollBehavior: 'contain' } as React.CSSProperties}>
+               style={{ WebkitOverflowScrolling: 'touch', overscrollBehavior: 'contain', height: 0 } as React.CSSProperties}>
 
             {tab === 'strategy' && (
               <>
