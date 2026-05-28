@@ -330,11 +330,17 @@ function NewsSentimentPanel({ symbol }: { symbol: string }) {
 
 function RiskDisclosureModal({ onAccept, onClose }: { onAccept: () => void; onClose: () => void }) {
   const [checked, setChecked] = useState(false)
+  useEffect(() => {
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => { document.body.style.overflow = prev }
+  }, [])
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
          style={{ background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)' }}>
       <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl"
-           style={{ background: '#111', border: '1px solid rgba(239,68,68,0.2)' }}>
+           style={{ background: '#111', border: '1px solid rgba(239,68,68,0.2)', overscrollBehavior: 'contain', WebkitOverflowScrolling: 'touch' } as React.CSSProperties}
+           onTouchMove={e => e.stopPropagation()}>
         <div className="flex items-center gap-3 px-5 py-4 border-b" style={{ borderColor: 'rgba(239,68,68,0.12)' }}>
           <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0"
                style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)' }}>
@@ -400,6 +406,11 @@ function RiskDisclosureModal({ onAccept, onClose }: { onAccept: () => void; onCl
 type TabKey = 'strategy' | 'risk'
 
 function CreateBotModal({ onClose, onCreate }: { onClose: () => void; onCreate: (b: Bot) => void }) {
+  useEffect(() => {
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => { document.body.style.overflow = prev }
+  }, [])
   const [tab,       setTab]       = useState<TabKey>('strategy')
   const [name,      setName]      = useState('')
   const [symbol,    setSymbol]    = useState('BTCUSD')
@@ -468,7 +479,8 @@ function CreateBotModal({ onClose, onCreate }: { onClose: () => void; onCreate: 
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
          style={{ background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(8px)' }}>
       <div className="w-full sm:max-w-md max-h-[95vh] sm:max-h-[88vh] overflow-y-auto rounded-t-2xl sm:rounded-2xl"
-           style={{ background: '#111', border: '1px solid rgba(255,255,255,0.08)' }}>
+           style={{ background: '#111', border: '1px solid rgba(255,255,255,0.08)', overscrollBehavior: 'contain', WebkitOverflowScrolling: 'touch' } as React.CSSProperties}
+           onTouchMove={e => e.stopPropagation()}>
 
         {/* Header */}
         <div className="sticky top-0 flex items-center justify-between px-5 py-4 border-b z-10"
