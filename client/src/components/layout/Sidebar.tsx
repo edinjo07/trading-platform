@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { NavLink, useNavigate } from 'react-router-dom'
+import { NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { useAuthStore } from '../../store/authStore'
 import { formatCurrency } from '../../utils/formatters'
 import { getKYCStatus } from '../../pages/KYCPage'
@@ -82,11 +82,13 @@ const DISCOVER_ITEMS = [
 interface SidebarProps {
   mobileOpen: boolean
   onClose: () => void
+  onOpenMarkets: () => void
 }
 
-export default function Sidebar({ mobileOpen, onClose }: SidebarProps) {
+export default function Sidebar({ mobileOpen, onClose, onOpenMarkets }: SidebarProps) {
   const { user, logout, setAccountMode } = useAuthStore()
   const navigate = useNavigate()
+  const location = useLocation()
   const [collapsed, setCollapsed] = useState(false)
   const [discoverOpen, setDiscoverOpen] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
@@ -193,26 +195,48 @@ export default function Sidebar({ mobileOpen, onClose }: SidebarProps) {
                 {group.label}
               </p>
             )}
-            {group.items.map(item => (
-              <NavLink
-                key={item.path}
-                to={item.path}
-                end={item.end}
-                onClick={onClose}
-                title={collapsed ? item.label : undefined}
-                className={({ isActive }) =>
-                  `flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-medium transition-all
-                   ${isActive ? 'text-brand-300' : 'text-text-secondary hover:text-text-primary'}`
-                }
-                style={({ isActive }) => isActive
-                  ? { background: 'rgba(14,165,233,0.10)', border: '1px solid rgba(14,165,233,0.18)' }
-                  : { border: '1px solid transparent' }
-                }
-              >
-                <span className="shrink-0">{item.icon}</span>
-                {!collapsed && <span>{item.label}</span>}
-              </NavLink>
-            ))}
+            {group.items.map(item => {
+              // WebTrader opens the pair picker instead of navigating directly
+              if (item.path === '/dashboard/trade') {
+                const isActive = location.pathname === '/dashboard/trade'
+                return (
+                  <button
+                    key={item.path}
+                    onClick={() => { onOpenMarkets(); onClose() }}
+                    title={collapsed ? item.label : undefined}
+                    className={`flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-medium transition-all w-full
+                               ${isActive ? 'text-brand-300' : 'text-text-secondary hover:text-text-primary'}`}
+                    style={isActive
+                      ? { background: 'rgba(14,165,233,0.10)', border: '1px solid rgba(14,165,233,0.18)' }
+                      : { border: '1px solid transparent' }
+                    }
+                  >
+                    <span className="shrink-0">{item.icon}</span>
+                    {!collapsed && <span>{item.label}</span>}
+                  </button>
+                )
+              }
+              return (
+                <NavLink
+                  key={item.path}
+                  to={item.path}
+                  end={item.end}
+                  onClick={onClose}
+                  title={collapsed ? item.label : undefined}
+                  className={({ isActive }) =>
+                    `flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-medium transition-all
+                     ${isActive ? 'text-brand-300' : 'text-text-secondary hover:text-text-primary'}`
+                  }
+                  style={({ isActive }) => isActive
+                    ? { background: 'rgba(14,165,233,0.10)', border: '1px solid rgba(14,165,233,0.18)' }
+                    : { border: '1px solid transparent' }
+                  }
+                >
+                  <span className="shrink-0">{item.icon}</span>
+                  {!collapsed && <span>{item.label}</span>}
+                </NavLink>
+              )
+            })}
           </div>
         ))}
 

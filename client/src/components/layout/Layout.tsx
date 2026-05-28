@@ -71,7 +71,7 @@ export default function Layout() {
       )}
 
       {/* ── Sidebar ── */}
-      <Sidebar mobileOpen={mobileOpen} onClose={closeMobile} />
+      <Sidebar mobileOpen={mobileOpen} onClose={closeMobile} onOpenMarkets={() => setMarketsOpen(true)} />
 
       {/* ── Main column ── */}
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
