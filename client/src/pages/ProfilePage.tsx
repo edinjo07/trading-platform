@@ -35,7 +35,7 @@ function Card({ title, description, children, action }: {
   title: string; description?: string; children: React.ReactNode; action?: React.ReactNode
 }) {
   return (
-    <div className="rounded-xl p-5 sm:p-6" style={{ background: '#0f1729', border: '1px solid rgba(255,255,255,0.06)' }}>
+    <div className="rounded-xl p-5 sm:p-6" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
       <div className="flex items-start justify-between mb-5">
         <div>
           <h3 className="text-sm font-semibold text-text-primary">{title}</h3>
@@ -293,8 +293,8 @@ export default function ProfilePage() {
       <div
         className="rounded-2xl p-6 mb-5 relative overflow-hidden"
         style={{
-          background: 'linear-gradient(135deg, #0f1e38 0%, #0b1437 60%, #130d35 100%)',
-          border: '1px solid rgba(14,165,233,0.15)',
+          background: 'rgba(255,255,255,0.04)',
+          border: '1px solid rgba(14,165,233,0.18)',
         }}
       >
         {/* Background glow */}
@@ -312,13 +312,13 @@ export default function ProfilePage() {
               {initials}
             </div>
             <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center"
-              style={{ background: '#0f1729', border: '1px solid rgba(255,255,255,0.1)' }}>
+              style={{ background: '#141414', border: '1px solid rgba(255,255,255,0.1)' }}>
               <svg className="w-2.5 h-2.5 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
             </div>
             {/* Avatar colour picker */}
             {showAvatarPicker && (
               <div className="absolute top-24 left-0 z-20 p-3 rounded-xl flex gap-2 shadow-xl"
-                style={{ background: '#0f1729', border: '1px solid rgba(255,255,255,0.1)' }}>
+                style={{ background: '#141414', border: '1px solid rgba(255,255,255,0.1)' }}>
                 {AVATAR_GRADIENTS.map((g, i) => (
                   <button key={i} onClick={() => { setAvatarIdx(i); setShowAvatarPicker(false) }}
                     className="w-7 h-7 rounded-lg shrink-0 ring-offset-1 transition-all"

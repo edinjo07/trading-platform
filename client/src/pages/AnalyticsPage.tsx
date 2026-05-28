@@ -28,7 +28,7 @@ function pnlColor(v: number) {
 function StatCard({ label, value, sub, color, icon }: { label: string; value: string; sub?: string; color?: string; icon?: React.ReactNode }) {
   return (
     <div className="rounded-xl p-4 flex flex-col gap-1.5"
-         style={{ background: '#0c1829', border: '1px solid rgba(255,255,255,0.07)' }}>
+         style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
       <div className="flex items-center justify-between">
         <span className="text-xs font-medium text-text-muted uppercase tracking-wider">{label}</span>
         {icon && <span className="text-text-muted">{icon}</span>}
@@ -159,7 +159,7 @@ function PnlCalendar({ trades }: { trades: TradeRecord[] }) {
     .reduce((acc, [, v]) => acc + v.pnl, 0)
 
   return (
-    <div className="rounded-xl p-5" style={{ background: '#0c1829', border: '1px solid rgba(255,255,255,0.07)' }}>
+    <div className="rounded-xl p-5" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div>
@@ -320,7 +320,7 @@ function AssetBreakdown({ trades }: { trades: TradeRecord[] }) {
   const classColors: Record<string, string> = { stock: '#0ea5e9', crypto: '#e879f9', forex: '#f59e0b' }
 
   return (
-    <div className="rounded-xl p-5" style={{ background: '#0c1829', border: '1px solid rgba(255,255,255,0.07)' }}>
+    <div className="rounded-xl p-5" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
       <h3 className="text-sm font-semibold text-text-primary mb-4">Asset Class Breakdown</h3>
       <div className="flex h-3 rounded-full overflow-hidden mb-4">
         {entries.map(([ac, d]) => (
@@ -370,7 +370,7 @@ export default function AnalyticsPage() {
   const empty = !hasClosedTrades && !hasAnyTrades
 
   return (
-    <div className="flex flex-col h-full overflow-y-auto" style={{ background: '#06090f' }}>
+    <div className="flex flex-col h-full overflow-y-auto">
       {/* Header */}
       <div className="px-6 pt-6 pb-4 shrink-0 flex items-center justify-between">
         <div>
@@ -390,7 +390,7 @@ export default function AnalyticsPage() {
       <div className="px-6 pb-6 flex flex-col gap-5">
         {empty ? (
           <div className="flex flex-col items-center justify-center py-20 gap-4 rounded-xl"
-               style={{ background: '#0c1829', border: '1px solid rgba(255,255,255,0.07)' }}>
+               style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
             <svg className="w-12 h-12 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
               <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
             </svg>
@@ -433,7 +433,7 @@ export default function AnalyticsPage() {
             </div>
 
             {/* Equity curve */}
-            <div className="rounded-xl p-5" style={{ background: '#0c1829', border: '1px solid rgba(255,255,255,0.07)' }}>
+            <div className="rounded-xl p-5" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-sm font-semibold text-text-primary">Equity Curve</h3>
                 {(stats!.equityCurve ?? []).length > 0 && (
@@ -454,7 +454,7 @@ export default function AnalyticsPage() {
             </>) : (
               /* No closed trades yet but open positions exist - show banner above journal */
               <div className="rounded-xl p-6 flex items-center gap-4"
-                   style={{ background: '#0c1829', border: '1px solid rgba(255,255,255,0.07)' }}>
+                   style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
                 <svg className="w-8 h-8 shrink-0 text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                   <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
                 </svg>
@@ -466,7 +466,7 @@ export default function AnalyticsPage() {
             )}
 
             {/* Trade journal - always shown when there are any entries */}
-            <div className="rounded-xl overflow-hidden" style={{ background: '#0c1829', border: '1px solid rgba(255,255,255,0.07)' }}>
+            <div className="rounded-xl overflow-hidden" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
               <div className="px-5 py-4 flex items-center justify-between" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
                 <h3 className="text-sm font-semibold text-text-primary">Trade Journal</h3>
                 <span className="text-xs text-text-muted">{trades.length} entries</span>

@@ -13,7 +13,7 @@ function RiskDisclosureModal({ onAccept, onClose }: { onAccept: () => void; onCl
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
          style={{ background: 'rgba(0,0,0,0.82)', backdropFilter: 'blur(6px)' }}>
       <div className="rounded-2xl w-full max-w-lg max-h-[92vh] overflow-y-auto"
-           style={{ background: '#0a1623', border: '1px solid rgba(239,68,68,0.25)' }}>
+           style={{ background: '#141414', border: '1px solid rgba(239,68,68,0.25)' }}>
 
         {/* Header */}
         <div className="flex items-center gap-3 px-6 py-4 border-b" style={{ borderColor: 'rgba(239,68,68,0.15)' }}>
@@ -443,7 +443,7 @@ function CreateBotModal({ onClose, onCreate }: { onClose: () => void; onCreate: 
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
          style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)' }}>
       <div className="rounded-2xl w-full max-w-lg max-h-[92vh] overflow-y-auto"
-           style={{ background: '#0a1623', border: '1px solid rgba(255,255,255,0.08)' }}>
+           style={{ background: '#141414', border: '1px solid rgba(255,255,255,0.08)' }}>
 
         <div className="flex items-center justify-between px-6 py-4 border-b" style={{ borderColor: 'rgba(255,255,255,0.07)' }}>
           <div className="flex items-center gap-2.5">
@@ -740,7 +740,7 @@ export default function BotsPage() {
   const winRate     = totalTrades > 0 ? (allWins / totalTrades * 100).toFixed(1) : '--'
 
   return (
-    <div className="h-full flex flex-col" style={{ background: '#080f17' }}>
+    <div className="h-full flex flex-col">
 
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-4 border-b" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>

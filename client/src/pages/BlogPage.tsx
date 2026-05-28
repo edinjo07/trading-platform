@@ -157,7 +157,7 @@ export default function BlogPage() {
               target="_blank"
               rel="noopener noreferrer"
               className="rounded-xl p-5 flex flex-col gap-3 cursor-pointer transition-all group"
-              style={{ background: '#0c1829', border: '1px solid rgba(255,255,255,0.07)' }}
+              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}
               onMouseEnter={e => (e.currentTarget.style.borderColor = 'rgba(14,165,233,0.3)')}
               onMouseLeave={e => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)')}
             >
@@ -183,7 +183,7 @@ export default function BlogPage() {
 
       {/* Bloomberg Live News */}
       <div className="rounded-2xl overflow-hidden"
-           style={{ border: '1px solid rgba(255,165,0,0.18)', background: '#0c1829' }}>
+           style={{ border: '1px solid rgba(255,165,0,0.18)', background: 'rgba(255,255,255,0.04)' }}>
         {/* Bloomberg header bar */}
         <div className="flex items-center gap-3 px-4 py-3"
              style={{ background: 'rgba(255,140,0,0.06)', borderBottom: '1px solid rgba(255,165,0,0.12)' }}>

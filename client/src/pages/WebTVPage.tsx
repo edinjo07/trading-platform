@@ -114,7 +114,7 @@ function VideoCard({ video, onClick, featured }: VideoCardProps) {
   return (
     <div
       className="rounded-xl overflow-hidden cursor-pointer group transition-all"
-      style={{ background: '#0c1829', border: '1px solid rgba(255,255,255,0.07)' }}
+      style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}
       onClick={onClick}
       onMouseEnter={e => (e.currentTarget.style.borderColor = 'rgba(14,165,233,0.3)')}
       onMouseLeave={e => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)')}
@@ -169,7 +169,7 @@ function VideoModal({ video, onClose }: { video: typeof VIDEOS[0]; onClose: () =
     >
       <div
         className="w-full max-w-3xl rounded-2xl overflow-hidden"
-        style={{ background: '#0c1829', border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 32px 80px rgba(0,0,0,0.8)' }}
+        style={{ background: '#141414', border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 32px 80px rgba(0,0,0,0.8)' }}
         onClick={e => e.stopPropagation()}
       >
         {/* Video embed */}
@@ -222,7 +222,7 @@ export default function WebTVPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="rounded-2xl p-6"
-           style={{ background: 'linear-gradient(135deg, rgba(14,165,233,0.08) 0%, rgba(12,24,41,1) 60%)', border: '1px solid rgba(14,165,233,0.12)' }}>
+           style={{ background: 'linear-gradient(135deg, rgba(14,165,233,0.08) 0%, rgba(0,0,0,1) 60%)', border: '1px solid rgba(14,165,233,0.12)' }}>
         <div className="flex items-start gap-4">
           <div className="p-3 rounded-xl shrink-0" style={{ background: 'rgba(14,165,233,0.1)' }}>
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="#38bdf8" strokeWidth={1.8}>
@@ -244,7 +244,7 @@ export default function WebTVPage() {
 
       {/* Bloomberg TV Live */}
       <div className="rounded-2xl overflow-hidden"
-           style={{ border: '1px solid rgba(239,68,68,0.2)', background: '#0c1829' }}>
+           style={{ border: '1px solid rgba(239,68,68,0.2)', background: 'rgba(255,255,255,0.04)' }}>
         {/* Live bar */}
         <div
           className="flex items-center gap-2.5 px-4 py-3 cursor-pointer select-none"
@@ -296,7 +296,7 @@ export default function WebTVPage() {
       </div>
 
       {filtered.length === 0 ? (
-        <div className="rounded-xl p-12 text-center" style={{ background: '#0c1829', border: '1px solid rgba(255,255,255,0.07)' }}>
+        <div className="rounded-xl p-12 text-center" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
           <p className="text-text-muted">No videos in this category yet.</p>
         </div>
       ) : (
@@ -325,7 +325,7 @@ export default function WebTVPage() {
 
       {/* Trading Central attribution */}
       <div className="flex items-center justify-between rounded-xl px-4 py-3.5"
-           style={{ background: '#0c1829', border: '1px solid rgba(255,255,255,0.07)' }}>
+           style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
         <div>
           <p className="text-text-primary text-sm font-semibold">Powered by Trading Central</p>
           <p className="text-text-muted text-xs mt-0.5">Daily market analysis recorded live at the New York Stock Exchange</p>

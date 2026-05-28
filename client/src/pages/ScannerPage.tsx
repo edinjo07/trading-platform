@@ -144,9 +144,9 @@ export default function ScannerPage() {
       </div>
 
       {/* ── Table ── */}
-      <div className="flex-1 overflow-auto rounded-xl" style={{ background: '#0c1220', border: '1px solid rgba(255,255,255,0.06)' }}>
+      <div className="flex-1 overflow-auto rounded-xl" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
         <table className="w-full">
-          <thead className="sticky top-0 z-10" style={{ background: '#0c1220', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+          <thead className="sticky top-0 z-10" style={{ background: '#111', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
             <tr>
               <SortTh k="symbol" label="Symbol" />
               <th className="px-4 py-3 text-left text-2xs font-semibold uppercase tracking-wider text-text-secondary">Type</th>

@@ -147,7 +147,7 @@ export default function EconomicCalendarPage() {
       <div className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.07)' }}>
         {/* Table header */}
         <div className="grid grid-cols-12 gap-2 px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-text-muted"
-             style={{ background: '#0a1523', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+             style={{ background: 'rgba(255,255,255,0.03)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
           <span className="col-span-1">Time</span>
           <span className="col-span-1">Cur.</span>
           <span className="col-span-1">Impact</span>
@@ -158,7 +158,7 @@ export default function EconomicCalendarPage() {
         </div>
 
         {filtered.length === 0 ? (
-          <div className="px-4 py-12 text-center text-text-muted text-sm" style={{ background: '#0c1829' }}>
+          <div className="px-4 py-12 text-center text-text-muted text-sm">
             No events match the current filters.
           </div>
         ) : (
@@ -169,11 +169,11 @@ export default function EconomicCalendarPage() {
                 key={event.id}
                 className="grid grid-cols-12 gap-2 px-4 py-3 items-center transition-colors"
                 style={{
-                  background: i % 2 === 0 ? '#0c1829' : '#0a1523',
+                  background: i % 2 === 0 ? 'rgba(255,255,255,0.025)' : 'transparent',
                   borderBottom: '1px solid rgba(255,255,255,0.04)',
                 }}
                 onMouseEnter={e => (e.currentTarget.style.background = 'rgba(14,165,233,0.05)')}
-                onMouseLeave={e => (e.currentTarget.style.background = i % 2 === 0 ? '#0c1829' : '#0a1523')}
+                onMouseLeave={e => (e.currentTarget.style.background = i % 2 === 0 ? 'rgba(255,255,255,0.025)' : 'transparent')}
               >
                 {/* Time */}
                 <span className="col-span-1 text-xs font-mono text-text-secondary">{event.time}</span>
@@ -217,7 +217,7 @@ export default function EconomicCalendarPage() {
 
       {/* Live widget link */}
       <div className="flex items-center justify-between rounded-xl px-4 py-3.5"
-           style={{ background: '#0c1829', border: '1px solid rgba(255,255,255,0.07)' }}>
+           style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
         <div>
           <p className="text-text-primary text-sm font-semibold">Live Economic Calendar</p>
           <p className="text-text-muted text-xs mt-0.5">View the full real-time calendar powered by Myfxbook</p>

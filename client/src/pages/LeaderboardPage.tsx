@@ -86,7 +86,7 @@ export default function LeaderboardPage() {
               return (
                 <div key={entry.userId}
                   className={`card flex flex-col items-center justify-end pb-4 ${isCenter ? 'ring-2 ring-yellow-400/40' : ''}`}
-                  style={isCenter ? { background: 'linear-gradient(160deg,#0f1e35,#0c1829)' } : {}}>
+                  style={isCenter ? { background: 'rgba(255,255,255,0.06)' } : {}}>
                   {/* Medal */}
                   <div className="text-2xl mb-1">{MEDAL[ri]}</div>
                   {/* Avatar */}

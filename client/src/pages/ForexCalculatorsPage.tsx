@@ -94,7 +94,7 @@ function Select({ label, value, onChange, options }: {
         value={value}
         onChange={e => onChange(e.target.value)}
         className="px-3 py-2.5 rounded-xl text-sm font-mono text-text-primary focus:outline-none transition-all appearance-none cursor-pointer"
-        style={{ background: '#0c1829', border: '1px solid rgba(255,255,255,0.1)' }}
+        style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
       >
         {options.map(o => <option key={o} value={o}>{o}</option>)}
       </select>
@@ -185,7 +185,7 @@ function AllInOneCalc() {
       </div>
 
       {/* Results */}
-      <div className="rounded-xl p-5" style={{ background: '#0c1829', border: '1px solid rgba(255,255,255,0.07)' }}>
+      <div className="rounded-xl p-5" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
         <div className="flex items-center gap-2 mb-4">
           <div className="w-2 h-2 rounded-full bg-bull animate-pulse" />
           <span className="text-text-primary font-semibold text-sm">Calculation Results</span>
@@ -249,7 +249,7 @@ function PipCalc() {
         <CalcInput label="Position Size (Lots)" value={lots} onChange={setLots} min={0.01} step={0.01} />
         <CalcInput label="Number of Pips" value={pips} onChange={setPips} min={1} step={1} />
       </div>
-      <div className="rounded-xl p-5" style={{ background: '#0c1829', border: '1px solid rgba(255,255,255,0.07)' }}>
+      <div className="rounded-xl p-5" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
         <div className="flex items-center gap-2 mb-4">
           <div className="w-2 h-2 rounded-full bg-bull animate-pulse" />
           <span className="text-text-primary font-semibold text-sm">Pip Value Results</span>
@@ -289,7 +289,7 @@ function MarginCalc() {
         <Select label="Leverage" value={leverage} onChange={setLeverage} options={LEVERAGES} />
         <CalcInput label="Position Size (Lots)" value={lots} onChange={setLots} min={0.01} step={0.01} />
       </div>
-      <div className="rounded-xl p-5" style={{ background: '#0c1829', border: '1px solid rgba(255,255,255,0.07)' }}>
+      <div className="rounded-xl p-5" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
         <div className="flex items-center gap-2 mb-4">
           <div className="w-2 h-2 rounded-full bg-bull animate-pulse" />
           <span className="text-text-primary font-semibold text-sm">Margin Results</span>
@@ -346,7 +346,7 @@ function PositionCalc() {
         <CalcInput label="Risk % per Trade" value={riskPct} onChange={setRiskPct} min={0.1} step={0.1} />
         <CalcInput label="Stop Loss (Pips)" value={stopPips} onChange={setStopPips} min={1} step={1} />
       </div>
-      <div className="rounded-xl p-5" style={{ background: '#0c1829', border: '1px solid rgba(255,255,255,0.07)' }}>
+      <div className="rounded-xl p-5" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
         <div className="flex items-center gap-2 mb-4">
           <div className="w-2 h-2 rounded-full bg-bull animate-pulse" />
           <span className="text-text-primary font-semibold text-sm">Position Size Results</span>
@@ -395,7 +395,7 @@ export default function ForexCalculatorsPage() {
             className="rounded-xl p-4 text-left transition-all"
             style={tab === ct.id
               ? { background: 'rgba(14,165,233,0.1)', border: '1px solid rgba(14,165,233,0.3)' }
-              : { background: '#0c1829', border: '1px solid rgba(255,255,255,0.07)' }
+              : { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }
             }
           >
             <div className="text-sm font-semibold mb-0.5"
@@ -408,7 +408,7 @@ export default function ForexCalculatorsPage() {
       </div>
 
       {/* Active calculator */}
-      <div className="rounded-2xl p-5 sm:p-6" style={{ background: '#0a1220', border: '1px solid rgba(255,255,255,0.07)' }}>
+      <div className="rounded-2xl p-5 sm:p-6" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
         <h2 className="text-text-primary font-semibold mb-5">{CALC_TABS.find(t => t.id === tab)!.label} Calculator</h2>
         {tab === 'allinone'  && <AllInOneCalc />}
         {tab === 'pip'       && <PipCalc />}

@@ -108,10 +108,10 @@ export default function AccountTypesPage() {
   const navigate = useNavigate()
 
   return (
-    <div style={{ background: '#06090f', minHeight: '100vh', color: '#c8d6e5', fontFamily: "-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif" }}>
+    <div style={{ background: '#000', minHeight: '100vh', color: '#c8d6e5', fontFamily: "-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif" }}>
 
       {/* ── Navbar ── */}
-      <nav style={{ position: 'sticky', top: 0, zIndex: 50, background: 'rgba(6,9,15,0.92)', backdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+      <nav style={{ position: 'sticky', top: 0, zIndex: 50, background: 'rgba(0,0,0,0.92)', backdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 24px', height: 60, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }} onClick={() => navigate('/')}>
             <div style={{ width: 30, height: 30, borderRadius: 8, background: 'linear-gradient(135deg,#0ea5e9,#0369a1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -134,7 +134,7 @@ export default function AccountTypesPage() {
       </nav>
 
       {/* ── Hero ── */}
-      <div style={{ background: 'linear-gradient(180deg,#0b1728 0%,#06090f 100%)', borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '72px 24px 56px', textAlign: 'center' }}>
+      <div style={{ background: 'linear-gradient(180deg,rgba(14,165,233,0.06) 0%,#000 60%)', borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '72px 24px 56px', textAlign: 'center' }}>
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '4px 14px', borderRadius: 99, background: 'rgba(14,165,233,0.1)', border: '1px solid rgba(14,165,233,0.22)', color: '#38bdf8', fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 20 }}>
           <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#38bdf8', display: 'inline-block' }} />
           FCA &amp; CySEC Regulated
@@ -167,7 +167,7 @@ export default function AccountTypesPage() {
       <div style={{ maxWidth: 1100, margin: '0 auto', padding: '64px 24px 0' }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: 24 }}>
           {ACCOUNTS.map(acc => (
-            <div key={acc.name} style={{ position: 'relative', borderRadius: 20, background: '#0a1422', border: `1px solid ${acc.borderColor}`, boxShadow: acc.popular ? `0 0 40px ${acc.glowColor}` : 'none', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+            <div key={acc.name} style={{ position: 'relative', borderRadius: 20, background: '#111', border: `1px solid ${acc.borderColor}`, boxShadow: acc.popular ? `0 0 40px ${acc.glowColor}` : 'none', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
               {acc.popular && (
                 <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: `linear-gradient(90deg, transparent, ${acc.color}, transparent)` }} />
               )}
@@ -253,7 +253,7 @@ export default function AccountTypesPage() {
         <div style={{ borderRadius: 16, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.07)' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
             <thead>
-              <tr style={{ background: '#0c1928' }}>
+              <tr style={{ background: 'rgba(255,255,255,0.04)' }}>
                 <th style={{ padding: '14px 24px', textAlign: 'left', color: '#3a5060', fontWeight: 700, fontSize: 11, letterSpacing: '0.06em', textTransform: 'uppercase', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>Feature</th>
                 {['Standard', 'Raw Spread', 'cTrader Raw'].map((h, i) => (
                   <th key={h} style={{ padding: '14px 24px', textAlign: 'center', color: [ACCOUNTS[0].color, ACCOUNTS[1].color, ACCOUNTS[2].color][i], fontWeight: 700, fontSize: 13, borderBottom: '1px solid rgba(255,255,255,0.07)', borderLeft: '1px solid rgba(255,255,255,0.05)' }}>{h}</th>
@@ -262,7 +262,7 @@ export default function AccountTypesPage() {
             </thead>
             <tbody>
               {COMPARISON.map((row, idx) => (
-                <tr key={row.label} style={{ background: idx % 2 === 0 ? '#080f1c' : '#06090f' }}>
+                <tr key={row.label} style={{ background: idx % 2 === 0 ? 'rgba(255,255,255,0.025)' : 'transparent' }}>
                   <td style={{ padding: '12px 24px', color: '#94a3b8', fontWeight: 600, borderBottom: '1px solid rgba(255,255,255,0.04)' }}>{row.label}</td>
                   {[row.std, row.raw, row.ctrader].map((v, vi) => (
                     <td key={vi} style={{ padding: '12px 24px', textAlign: 'center', color: v === '✓' ? '#00c878' : '#c8d6e5', fontWeight: 600, borderBottom: '1px solid rgba(255,255,255,0.04)', borderLeft: '1px solid rgba(255,255,255,0.04)' }}>{v}</td>
@@ -288,7 +288,7 @@ export default function AccountTypesPage() {
 
       {/* ── CTA Strip ── */}
       <div style={{ maxWidth: 1100, margin: '48px auto 0', padding: '0 24px 80px' }}>
-        <div style={{ borderRadius: 20, background: 'linear-gradient(135deg,#0b1e3d,#0d1a30)', border: '1px solid rgba(14,165,233,0.15)', padding: '48px 40px', textAlign: 'center' }}>
+        <div style={{ borderRadius: 20, background: 'rgba(14,165,233,0.06)', border: '1px solid rgba(14,165,233,0.15)', padding: '48px 40px', textAlign: 'center' }}>
           <h2 style={{ fontSize: 30, fontWeight: 800, color: '#fff', marginBottom: 10 }}>Ready to Open Your Account?</h2>
           <p style={{ color: '#6b8099', fontSize: 15, marginBottom: 28, maxWidth: 480, margin: '0 auto 28px' }}>
             Complete KYC in minutes. Deposit from $200. Start trading real markets same day.
@@ -308,7 +308,7 @@ export default function AccountTypesPage() {
       </div>
 
       {/* ── Footer ── */}
-      <footer style={{ borderTop: '1px solid rgba(255,255,255,0.06)', background: '#040710', padding: '24px', textAlign: 'center' }}>
+      <footer style={{ borderTop: '1px solid rgba(255,255,255,0.06)', background: '#000', padding: '24px', textAlign: 'center' }}>
         <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '6px 20px', marginBottom: 10 }}>
           {[['Terms of Service', '/terms-of-service.html'], ['Privacy Policy', '/privacy-policy.html'], ['Risk Disclosure', '/risk-disclosure.html'], ['Cookie Policy', '/cookie-policy.html']].map(([l, h]) => (
             <a key={l} href={h} target="_blank" rel="noreferrer" style={{ color: '#3a5060', fontSize: 12, textDecoration: 'none' }}>{l}</a>

@@ -184,7 +184,7 @@ export default function TradingScamsPage() {
             onClick={() => setActiveTab(tab.id)}
             className="flex-1 px-3 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all"
             style={activeTab === tab.id
-              ? { background: '#0c1829', color: '#e2eaf0', boxShadow: '0 2px 8px rgba(0,0,0,0.3)' }
+              ? { background: 'rgba(255,255,255,0.08)', color: '#e2eaf0', boxShadow: '0 2px 8px rgba(0,0,0,0.3)' }
               : { color: 'rgba(255,255,255,0.4)' }
             }
           >
@@ -201,7 +201,7 @@ export default function TradingScamsPage() {
             {CYBER_THREATS.map(threat => (
               <div key={threat.title}
                    className="rounded-xl p-5 flex flex-col gap-3"
-                   style={{ background: '#0c1829', border: '1px solid rgba(255,255,255,0.07)' }}>
+                   style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
                 <div className="p-2.5 rounded-lg w-fit" style={{ background: 'rgba(239,68,68,0.08)', color: '#f87171' }}>
                   {threat.icon}
                 </div>
@@ -220,7 +220,7 @@ export default function TradingScamsPage() {
           {TRADING_SCAMS.map((scam, i) => (
             <div key={scam.title}
                  className="flex gap-4 px-4 py-3.5 rounded-xl"
-                 style={{ background: '#0c1829', border: '1px solid rgba(255,255,255,0.07)' }}>
+                 style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
               <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 text-xs font-bold"
                    style={{ background: 'rgba(239,68,68,0.1)', color: '#f87171' }}>
                 {i + 1}
@@ -242,7 +242,7 @@ export default function TradingScamsPage() {
             {PROTECT_STEPS.map((step, i) => (
               <div key={step.title}
                    className="flex gap-3 px-4 py-3.5 rounded-xl"
-                   style={{ background: '#0c1829', border: '1px solid rgba(255,255,255,0.07)' }}>
+                   style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
                 <div className="p-2 rounded-lg shrink-0 h-fit" style={{ background: 'rgba(14,165,233,0.08)', color: '#38bdf8' }}>
                   {step.icon}
                 </div>
@@ -258,7 +258,7 @@ export default function TradingScamsPage() {
 
       {/* Help banner */}
       <div className="rounded-xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
-           style={{ background: '#0c1829', border: '1px solid rgba(255,255,255,0.07)' }}>
+           style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
         <div>
           <h3 className="text-text-primary font-semibold">We are here to help</h3>
           <p className="text-text-muted text-sm mt-0.5">
