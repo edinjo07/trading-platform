@@ -5,6 +5,7 @@ import { useAuthStore } from '../store/authStore'
 import { formatCurrency, formatPrice } from '../utils/formatters'
 import { getAccountsList, createAccountApi, type AccountRow } from '../api/accounts'
 import type { Position, AccountMode, Currency, AccountType } from '../types'
+import AssetIcon from '../components/ui/AssetIcon'
 
 // ─── Seeded sparkline ─────────────────────────────────────────────────────────
 function seedSparkline(symbol: string, up: boolean, pts = 16): string {
@@ -22,28 +23,6 @@ function seedSparkline(symbol: string, up: boolean, pts = 16): string {
   return points.join(' ')
 }
 
-// ─── Asset class icon ─────────────────────────────────────────────────────────
-const ICON_STYLES: Record<string, { bg: string; fg: string }> = {
-  crypto:    { bg: '#f59e0b20', fg: '#f59e0b' },
-  forex:     { bg: '#3b82f620', fg: '#60a5fa' },
-  stock:     { bg: '#8b5cf620', fg: '#a78bfa' },
-  commodity: { bg: '#f9731620', fg: '#fb923c' },
-  index:     { bg: '#0ea5e920', fg: '#38bdf8' },
-  bond:      { bg: '#10b98120', fg: '#34d399' },
-}
-function AssetDot({ symbol, assetClass }: { symbol: string; assetClass?: string }) {
-  const s = ICON_STYLES[assetClass ?? 'crypto'] ?? ICON_STYLES.crypto
-  return (
-    <div style={{
-      width: 40, height: 40, borderRadius: '50%', flexShrink: 0,
-      background: s.bg, color: s.fg, border: `1.5px solid ${s.fg}33`,
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      fontSize: 11, fontWeight: 800,
-    }}>
-      {symbol.slice(0, 2)}
-    </div>
-  )
-}
 
 // ─── Position card (Capital.com portfolio style) ───────────────────────────────
 function PositionCard({ pos, onClose }: { pos: Position; onClose: () => void }) {
@@ -131,7 +110,7 @@ function MoverRow({ symbol, name, assetClass, onClick }: { symbol: string; name:
         borderBottom: '1px solid rgba(255,255,255,0.05)',
       }}
     >
-      <AssetDot symbol={symbol} assetClass={assetClass} />
+      <AssetIcon symbol={symbol} assetClass={assetClass ?? 'stock'} size={40} />
       <div style={{ flex: 1, textAlign: 'left', minWidth: 0 }}>
         <p style={{ fontSize: 13, fontWeight: 700, color: '#fff', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{name}</p>
         <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', margin: 0 }}>{symbol}</p>
@@ -156,7 +135,6 @@ function TradedTile({ symbol, name, assetClass, onClick }: { symbol: string; nam
   const { tickers } = useTradingStore()
   const t = tickers[symbol]
   const up = (t?.changePercent ?? 0) >= 0
-  const s = ICON_STYLES[assetClass ?? 'crypto'] ?? ICON_STYLES.crypto
   return (
     <button
       onClick={onClick}
@@ -166,13 +144,7 @@ function TradedTile({ symbol, name, assetClass, onClick }: { symbol: string; nam
         border: '1px solid rgba(255,255,255,0.06)', cursor: 'pointer',
       }}
     >
-      <div style={{
-        width: 44, height: 44, borderRadius: '50%', background: s.bg,
-        color: s.fg, display: 'flex', alignItems: 'center', justifyContent: 'center',
-        fontSize: 12, fontWeight: 800,
-      }}>
-        {symbol.slice(0, 2)}
-      </div>
+      <AssetIcon symbol={symbol} assetClass={assetClass ?? 'stock'} size={44} />
       <p style={{ fontSize: 11, fontWeight: 700, color: '#fff', margin: 0, textAlign: 'center', lineHeight: 1.2 }}>
         {name.split('/')[0]}
       </p>

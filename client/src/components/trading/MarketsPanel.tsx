@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTradingStore } from '../../store/tradingStore'
 import { formatPrice } from '../../utils/formatters'
+import AssetIcon from '../ui/AssetIcon'
 
 type TabId = 'all' | 'crypto' | 'stock' | 'forex' | 'commodity' | 'index' | 'bond'
 
@@ -15,9 +16,6 @@ const TABS: { id: TabId; label: string }[] = [
   { id: 'bond',      label: 'Bonds'       },
 ]
 
-const ASSET_ICON: Record<string, string> = {
-  crypto: '₿', stock: '📈', forex: '💱', commodity: '🪙', index: '📊', bond: '🏛',
-}
 
 interface MarketsPanelProps {
   open: boolean
@@ -171,11 +169,8 @@ export default function MarketsPanel({ open, onClose }: MarketsPanelProps) {
                   onMouseLeave={e => { if (!isSelected) (e.currentTarget as HTMLButtonElement).style.background = 'transparent' }}
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    <div
-                      className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-base"
-                      style={{ background: 'rgba(255,255,255,0.05)' }}
-                    >
-                      {ASSET_ICON[s.assetClass] ?? '·'}
+                    <div className="shrink-0 flex items-center justify-center">
+                      <AssetIcon symbol={s.symbol} assetClass={s.assetClass} baseAsset={s.baseAsset} quoteAsset={s.quoteAsset} size={36} />
                     </div>
                     <div className="min-w-0">
                       <div className="flex items-center gap-1.5">

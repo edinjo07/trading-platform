@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useTradingStore } from '../store/tradingStore'
 import { useAuthStore } from '../store/authStore'
 import { formatCurrency } from '../utils/formatters'
+import AssetIconComponent from '../components/ui/AssetIcon'
 
 // ─── Seeded sparkline (stable across renders) ─────────────────────────────────
 function seedSparkline(symbol: string, up: boolean, pts = 18): string {
@@ -21,31 +22,8 @@ function seedSparkline(symbol: string, up: boolean, pts = 18): string {
   return points.join(' ')
 }
 
-// ─── Asset icon ───────────────────────────────────────────────────────────────
-const ASSET_COLORS: Record<string, { bg: string; fg: string; label: string }> = {
-  crypto:    { bg: '#f59e0b22', fg: '#f59e0b', label: '₿' },
-  forex:     { bg: '#3b82f622', fg: '#60a5fa', label: 'FX' },
-  stock:     { bg: '#8b5cf622', fg: '#a78bfa', label: 'S'  },
-  commodity: { bg: '#f97316 22', fg: '#fb923c', label: 'C' },
-  index:     { bg: '#0ea5e922', fg: '#38bdf8', label: 'I'  },
-  bond:      { bg: '#10b98122', fg: '#34d399', label: 'B'  },
-}
-
 function AssetIcon({ symbol, assetClass }: { symbol: string; assetClass?: string }) {
-  const cls = assetClass ?? 'crypto'
-  const style = ASSET_COLORS[cls] ?? ASSET_COLORS.crypto
-  const letter = symbol.slice(0, 2).toUpperCase()
-  return (
-    <div style={{
-      width: 36, height: 36, borderRadius: '50%',
-      background: style.bg, color: style.fg,
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      fontSize: 11, fontWeight: 800, flexShrink: 0,
-      border: `1px solid ${style.fg}33`,
-    }}>
-      {letter}
-    </div>
-  )
+  return <AssetIconComponent symbol={symbol} assetClass={assetClass ?? 'stock'} size={36} />
 }
 
 // ─── Asset card (Capital.com style: Sell | chart | Buy) ────────────────────────
