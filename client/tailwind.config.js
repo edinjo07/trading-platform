@@ -16,14 +16,14 @@ export default {
           700: '#075985',
           800: '#0c4a6e',
         },
-        // Deep-navy dark surfaces
+        // Pure-black dark surfaces
         surface: {
-          DEFAULT: '#06090f',
-          50:  '#0c1220',
-          100: '#10192b',
-          150: '#141f32',
-          200: '#1a2840',
-          300: '#213356',
+          DEFAULT: '#000000',
+          50:  '#0a0a0a',
+          100: '#111111',
+          150: '#161616',
+          200: '#1c1c1c',
+          300: '#242424',
         },
         // Buy green (crisp)
         bull: {
@@ -43,9 +43,9 @@ export default {
         info:    '#38bdf8',
         // Text shades
         text: {
-          primary:   '#d4dde8',
-          secondary: '#6b8099',
-          muted:     '#3b5070',
+          primary:   '#f0f0f0',
+          secondary: '#7a7a7a',
+          muted:     '#4a4a4a',
         },
       },
       fontFamily: {
