@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import {
   getBots, getBotById, createBot, startBot, stopBot, deleteBot,
   Bot, BotStrategy, BotLog, BotEquityPoint, SymbolSentiment, getNewsSentiment,
@@ -330,13 +331,8 @@ function NewsSentimentPanel({ symbol }: { symbol: string }) {
 
 function RiskDisclosureModal({ onAccept, onClose }: { onAccept: () => void; onClose: () => void }) {
   const [checked, setChecked] = useState(false)
-  useEffect(() => {
-    const prev = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-    return () => { document.body.style.overflow = prev }
-  }, [])
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
          style={{ background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)' }}>
       <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl"
            style={{ background: '#111', border: '1px solid rgba(239,68,68,0.2)', overscrollBehavior: 'contain', WebkitOverflowScrolling: 'touch' } as React.CSSProperties}
@@ -397,7 +393,8 @@ function RiskDisclosureModal({ onAccept, onClose }: { onAccept: () => void; onCl
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }
 
@@ -470,8 +467,8 @@ function CreateBotModal({ onClose, onCreate }: { onClose: () => void; onCreate: 
   const labelCls = "block text-xs font-semibold uppercase tracking-wider mb-1.5"
   const labelStyle = { color: '#475569' }
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center"
          style={{ background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(8px)' }}>
 
       {/* Modal shell — flex-col, does NOT scroll itself */}
@@ -727,7 +724,8 @@ function CreateBotModal({ onClose, onCreate }: { onClose: () => void; onCreate: 
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }
 
