@@ -103,56 +103,25 @@ export async function placeMarketOrder(
   const positionSide = side === 'buy' ? 'long' : 'short'
   const now = new Date().toISOString()
 
-  // ── Check for existing position on the same symbol/side ────────────────────
-  const { data: existing } = await supabase
+  // Each order creates its own independent position ticket (IC Markets style).
+  // Positions are closed individually by positionId — no averaging/merging.
+  const { error: insErr } = await supabase
     .from('positions')
-    .select('id, quantity, avg_price, margin, take_profit, stop_loss')
-    .eq('user_id', userId)
-    .eq('mode', mode)
-    .eq('symbol', symbol)
-    .eq('side', positionSide)
-    .maybeSingle()
-
-  if (existing) {
-    // Average into the existing position
-    const newQty      = existing.quantity + quantity
-    const newAvgPrice = parseFloat(
-      ((existing.avg_price * existing.quantity + fillPrice * quantity) / newQty).toFixed(8)
-    )
-    const newMargin   = parseFloat((existing.margin + margin).toFixed(2))
-
-    const { error: upErr } = await supabase
-      .from('positions')
-      .update({
-        quantity:    newQty,
-        avg_price:   newAvgPrice,
-        margin:      newMargin,
-        take_profit: takeProfit ?? existing.take_profit,
-        stop_loss:   stopLoss   ?? existing.stop_loss,
-        updated_at:  now,
-      })
-      .eq('id', existing.id)
-    if (upErr) throw new Error(`Position update failed: ${upErr.message}`)
-  } else {
-    // Open a brand-new position
-    const { error: insErr } = await supabase
-      .from('positions')
-      .insert({
-        user_id:     userId,
-        mode,
-        symbol,
-        side:        positionSide,
-        quantity,
-        avg_price:   fillPrice,
-        leverage,
-        margin,
-        take_profit: takeProfit ?? null,
-        stop_loss:   stopLoss   ?? null,
-        opened_at:   now,
-        updated_at:  now,
-      })
-    if (insErr) throw new Error(`Position insert failed: ${insErr.message}`)
-  }
+    .insert({
+      user_id:     userId,
+      mode,
+      symbol,
+      side:        positionSide,
+      quantity,
+      avg_price:   fillPrice,
+      leverage,
+      margin,
+      take_profit: takeProfit ?? null,
+      stop_loss:   stopLoss   ?? null,
+      opened_at:   now,
+      updated_at:  now,
+    })
+  if (insErr) throw new Error(`Position insert failed: ${insErr.message}`)
 
   // ── Deduct cost from cash (guarded by gte to prevent race-condition overdraft) ──
   const newBalance = parseFloat((account.cash_balance - totalCost).toFixed(2))
