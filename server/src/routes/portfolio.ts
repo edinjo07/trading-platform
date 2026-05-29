@@ -7,6 +7,12 @@ import { AccountMode, PositionRow, PositionLive, Portfolio } from '../types'
 const DEMO_START_BALANCE = 100_000
 const REAL_START_BALANCE = 0
 
+function getFxRate(currency: string): number {
+  if (currency === 'EUR') return getPrice('EURUSD') ?? 1
+  if (currency === 'GBP') return getPrice('GBPUSD') ?? 1
+  return 1
+}
+
 const router = Router()
 
 function getMode(req: AuthRequest): AccountMode {
@@ -79,35 +85,39 @@ router.get('/', authenticate, async (req: AuthRequest, res: Response) => {
     .eq('user_id', userId)
     .eq('mode', mode)
 
-  let unrealizedPnl = 0
-  let totalMargin   = 0
+  // FX rate: how many USD equals 1 unit of account currency (e.g. EURUSD ≈ 1.16)
+  const fxRate = getFxRate(currency)
+
+  let unrealizedPnlLocal = 0
+  let totalMarginLocal   = 0
 
   const positions: PositionLive[] = (rawPositions ?? []).map((row) => {
     const pos = row as PositionRow
     const currentPrice = getPrice(pos.symbol) ?? pos.avg_price
-    const rawPnl = pos.side === 'long'
+    // Raw P&L in USD
+    const rawPnlUsd = pos.side === 'long'
       ? (currentPrice - pos.avg_price) * pos.quantity
       : (pos.avg_price - currentPrice) * pos.quantity
-    const posPnl = parseFloat(rawPnl.toFixed(2))
+    // Convert P&L to account currency
+    const posPnl = parseFloat((rawPnlUsd / fxRate).toFixed(2))
 
-    unrealizedPnl += posPnl
-    totalMargin   += pos.margin
+    unrealizedPnlLocal += posPnl
+    totalMarginLocal   += pos.margin  // already stored in local currency
 
     return {
       ...pos,
       currentPrice,
       unrealizedPnl:    posPnl,
       unrealizedPnlPct: pos.margin > 0 ? parseFloat(((posPnl / pos.margin) * 100).toFixed(2)) : 0,
-      notionalValue:    parseFloat((pos.quantity * currentPrice).toFixed(2)),
+      notionalValue:    parseFloat((pos.quantity * currentPrice / fxRate).toFixed(2)),
       liquidationPrice: pos.side === 'long'
         ? parseFloat((pos.avg_price * (1 - 0.9 / pos.leverage)).toFixed(8))
         : parseFloat((pos.avg_price * (1 + 0.9 / pos.leverage)).toFixed(8)),
     }
   })
 
-  // Total equity = cash in hand + margin locked in positions + unrealized P&L
-  // (margin was already deducted from cashBalance when positions were opened)
-  const totalEquity = parseFloat((cashBalance + totalMargin + unrealizedPnl).toFixed(2))
+  // Total equity = cash + margin locked + unrealised P&L — all in account currency
+  const totalEquity = parseFloat((cashBalance + totalMarginLocal + unrealizedPnlLocal).toFixed(2))
 
   // ── Sum realized P&L from closed trades ───────────────────────────────────
   const { data: tradeRows } = await supabase
@@ -124,8 +134,8 @@ router.get('/', authenticate, async (req: AuthRequest, res: Response) => {
     accountNumber,
     accountType:   accountType as Portfolio['accountType'],
     cashBalance:   parseFloat(cashBalance.toFixed(2)),
-    totalMargin:   parseFloat(totalMargin.toFixed(2)),
-    unrealizedPnl: parseFloat(unrealizedPnl.toFixed(2)),
+    totalMargin:   parseFloat(totalMarginLocal.toFixed(2)),
+    unrealizedPnl: parseFloat(unrealizedPnlLocal.toFixed(2)),
     totalEquity,
     realizedPnl,
     positions,

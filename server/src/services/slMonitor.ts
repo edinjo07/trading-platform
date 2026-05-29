@@ -74,7 +74,14 @@ async function runCheck(): Promise<void> {
       )
 
       try {
-        await closePosition(row.id, row.user_id, row.mode as AccountMode)
+        // Resolve account currency — unambiguous when user has one account for this mode
+        const { data: accts } = await supabase
+          .from('accounts')
+          .select('currency')
+          .eq('user_id', row.user_id)
+          .eq('mode', row.mode)
+        const currency = accts?.length === 1 ? (accts[0].currency ?? 'USD') : 'USD'
+        await closePosition(row.id, row.user_id, row.mode as AccountMode, currency)
       } catch (err) {
         console.error(`[SL Monitor] Auto-close failed for position ${row.id}:`, err)
       }

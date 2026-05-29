@@ -21,6 +21,18 @@ const COMMISSION_RATE  = 0.0005   // 0.05 % of notional per trade leg
 const DEMO_START_BALANCE = 100_000
 const REAL_START_BALANCE = 0
 
+// ─── FX helpers ───────────────────────────────────────────────────────────────
+
+/**
+ * Returns the USD value of 1 unit of the account currency.
+ * e.g. EUR account: returns EURUSD ≈ 1.16 → divide USD amount by this to get EUR.
+ */
+function getFxRate(currency: string): number {
+  if (currency === 'EUR') return getPrice('EURUSD') ?? 1
+  if (currency === 'GBP') return getPrice('GBPUSD') ?? 1
+  return 1  // USD
+}
+
 // ─── Account helpers ──────────────────────────────────────────────────────────
 
 async function getOrCreateAccount(userId: string, mode: AccountMode, currency = 'USD') {
@@ -88,17 +100,23 @@ export async function placeMarketOrder(
   const fillPrice = getPrice(symbol)
   if (!fillPrice) throw new Error(`No price available for ${symbol}`)
 
-  // ── Cost calculation ────────────────────────────────────────────────────────
+  // ── Cost calculation (all in USD) ──────────────────────────────────────────
   const notional   = quantity * fillPrice
   const margin     = parseFloat((notional / leverage).toFixed(2))
   const commission = parseFloat((notional * COMMISSION_RATE).toFixed(8))
-  const totalCost  = parseFloat((margin + commission).toFixed(2))
+
+  // Convert to account currency (USD amounts divided by FX rate, e.g. /1.16 for EUR)
+  const fxRate         = getFxRate(currency)
+  const marginLocal    = parseFloat((margin / fxRate).toFixed(2))
+  const commissionLocal = parseFloat((commission / fxRate).toFixed(8))
+  const totalCost      = parseFloat((marginLocal + commissionLocal).toFixed(2))
 
   // ── Load account and check funds ────────────────────────────────────────────
   const account = await getOrCreateAccount(userId, mode, currency)
   if (account.cash_balance < totalCost) {
+    const sym = currency === 'EUR' ? '€' : currency === 'GBP' ? '£' : '$'
     throw new Error(
-      `Insufficient funds — need $${totalCost.toFixed(2)}, have $${account.cash_balance.toFixed(2)}`
+      `Insufficient funds — need ${sym}${totalCost.toFixed(2)}, have ${sym}${account.cash_balance.toFixed(2)}`
     )
   }
 
@@ -117,7 +135,7 @@ export async function placeMarketOrder(
       quantity,
       avg_price:   fillPrice,
       leverage,
-      margin,
+      margin:      marginLocal,   // stored in account currency
       take_profit: takeProfit ?? null,
       stop_loss:   stopLoss   ?? null,
       opened_at:   now,
@@ -161,7 +179,10 @@ export async function placeMarketOrder(
 
   return {
     id: orderId, symbol, side, quantity,
-    fillPrice, leverage, margin, commission, totalCost,
+    fillPrice, leverage,
+    margin:     marginLocal,
+    commission: commissionLocal,
+    totalCost,
     takeProfit, stopLoss, createdAt: now,
   }
 }
@@ -189,15 +210,21 @@ export async function closePosition(
   const exitPrice = getPrice(position.symbol)
   if (!exitPrice) throw new Error(`No price available for ${position.symbol}`)
 
-  // ── P&L calculation ────────────────────────────────────────────────────────
+  // ── P&L calculation (USD) ─────────────────────────────────────────────────
   const closingNotional = position.quantity * exitPrice
-  const commission      = parseFloat((closingNotional * COMMISSION_RATE).toFixed(8))
+  const commissionUsd   = parseFloat((closingNotional * COMMISSION_RATE).toFixed(8))
 
-  const rawPnl = position.side === 'long'
+  const rawPnl   = position.side === 'long'
     ? (exitPrice - position.avg_price) * position.quantity
     : (position.avg_price - exitPrice) * position.quantity
-  const pnl    = parseFloat(rawPnl.toFixed(2))
-  const netPnl = parseFloat((pnl - commission).toFixed(2))
+  const pnlUsd    = parseFloat(rawPnl.toFixed(2))
+  const netPnlUsd = parseFloat((pnlUsd - commissionUsd).toFixed(2))
+
+  // Convert USD P&L and commission to account currency
+  const fxRate         = getFxRate(currency)
+  const pnl            = parseFloat((pnlUsd / fxRate).toFixed(2))
+  const commission     = parseFloat((commissionUsd / fxRate).toFixed(8))
+  const netPnl         = parseFloat((netPnlUsd / fxRate).toFixed(2))
 
   const now = new Date().toISOString()
 
@@ -208,7 +235,7 @@ export async function closePosition(
     .eq('id', positionId)
   if (delErr) throw new Error(`Position delete failed: ${delErr.message}`)
 
-  // ── Return margin + net P&L to cash ───────────────────────────────────────
+  // ── Return margin (stored in local currency) + net P&L (local) to cash ────
   const { data: acct } = await supabase
     .from('accounts')
     .select('cash_balance')
@@ -218,6 +245,7 @@ export async function closePosition(
     .single()
 
   if (acct) {
+    // position.margin is already stored in local currency (converted at open)
     const released = parseFloat((position.margin + netPnl).toFixed(2))
     await supabase
       .from('accounts')
