@@ -2,6 +2,8 @@ import React, { useEffect, useState, useMemo, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTradingStore } from '../store/tradingStore'
 import { useAuthStore } from '../store/authStore'
+import { useAlertsStore } from '../store/alertsStore'
+import { useTheme } from '../context/ThemeContext'
 import { formatCurrency, formatPrice } from '../utils/formatters'
 import { getAccountsList, createAccountApi, depositDemo, type AccountRow } from '../api/accounts'
 import type { Position, AccountMode, Currency, AccountType } from '../types'
@@ -352,6 +354,9 @@ export default function DashboardPage() {
   const navigate = useNavigate()
   const { user, setAccountMode, setCurrency } = useAuthStore()
   const { tickers, portfolio, orders, loadPortfolio, loadOrders, closePosition, setSelectedSymbol } = useTradingStore()
+  const { alerts } = useAlertsStore()
+  const { theme, toggleTheme } = useTheme()
+  const isDark = theme === 'dark'
 
   const [closingId,        setClosingId]        = useState<string | null>(null)
   const [moversTab,        setMoversTab]        = useState<'risers' | 'fallers'>('risers')
@@ -460,7 +465,7 @@ export default function DashboardPage() {
   }, [tickers, moversTab])
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100%', background: '#000' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100%', background: isDark ? '#000' : '#f0f4f9' }}>
 
       {/* ── Scrollable content ── */}
       <div style={{ flex: 1, paddingBottom: 100 }}>
@@ -474,6 +479,23 @@ export default function DashboardPage() {
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
               <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', fontWeight: 500 }}>Account (CFD)</span>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                {/* Theme toggle */}
+                <button
+                  onClick={toggleTheme}
+                  style={{ width: 34, height: 34, borderRadius: '50%', background: 'rgba(255,255,255,0.09)', border: '1px solid rgba(255,255,255,0.12)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.75)' }}
+                  title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+                >
+                  {isDark ? (
+                    <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                      <circle cx="12" cy="12" r="4"/>
+                      <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+                    </svg>
+                  ) : (
+                    <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                      <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+                    </svg>
+                  )}
+                </button>
                 {/* Profile icon */}
                 <button
                   onClick={() => navigate('/dashboard/profile')}
@@ -1072,31 +1094,77 @@ export default function DashboardPage() {
           {/* ── Price alerts ── */}
           <div style={{ marginBottom: 28 }}>
             <SectionHeader title="Price alerts" onMore={() => navigate('/dashboard/alerts')} />
-            <div style={{
-              background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)',
-              borderRadius: 16, padding: '32px 16px',
-              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10,
-            }}>
-              <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="rgba(255,255,255,0.4)" strokeWidth={1.8}>
-                  <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/>
-                </svg>
+            {alerts.length === 0 ? (
+              <div style={{
+                background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)',
+                borderRadius: 16, padding: '32px 16px',
+                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10,
+              }}>
+                <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'rgba(14,165,233,0.08)', border: '1px solid rgba(14,165,233,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="rgba(14,165,233,0.6)" strokeWidth={1.8}>
+                    <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/>
+                  </svg>
+                </div>
+                <p style={{ fontSize: 14, fontWeight: 700, color: '#fff', margin: 0 }}>No price alerts yet</p>
+                <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', margin: 0, textAlign: 'center' }}>
+                  Get notified the moment a price level is reached
+                </p>
+                <button
+                  onClick={() => navigate('/dashboard/alerts')}
+                  style={{
+                    marginTop: 4, padding: '9px 22px', borderRadius: 22,
+                    background: 'rgba(14,165,233,0.12)', border: '1px solid rgba(14,165,233,0.25)',
+                    color: '#38bdf8', fontSize: 12, fontWeight: 700, cursor: 'pointer',
+                  }}
+                >
+                  Set an alert
+                </button>
               </div>
-              <p style={{ fontSize: 14, fontWeight: 700, color: '#fff', margin: 0 }}>No price alerts yet</p>
-              <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', margin: 0, textAlign: 'center' }}>
-                Get instant notifications when a price level is reached
-              </p>
-              <button
-                onClick={() => navigate('/dashboard/alerts')}
-                style={{
-                  marginTop: 4, padding: '9px 22px', borderRadius: 22,
-                  background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)',
-                  color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer',
-                }}
-              >
-                Set an alert
-              </button>
-            </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {alerts.slice(0, 3).map(a => {
+                  const isAbove = a.condition === 'above'
+                  const statusColor = a.status === 'triggered' ? '#00c878' : a.status === 'dismissed' ? '#6b7280' : '#0ea5e9'
+                  const statusLabel = a.status === 'triggered' ? 'Triggered' : a.status === 'dismissed' ? 'Done' : 'Active'
+                  return (
+                    <button
+                      key={a.id}
+                      onClick={() => navigate('/dashboard/alerts')}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: 12,
+                        padding: '12px 14px', borderRadius: 14, width: '100%',
+                        background: a.status === 'triggered' ? 'rgba(0,200,120,0.04)' : 'rgba(255,255,255,0.03)',
+                        border: `1px solid ${a.status === 'triggered' ? 'rgba(0,200,120,0.15)' : 'rgba(255,255,255,0.07)'}`,
+                        cursor: 'pointer', textAlign: 'left',
+                      }}
+                    >
+                      <div style={{ width: 34, height: 34, borderRadius: 10, flexShrink: 0, background: isAbove ? 'rgba(0,200,120,0.12)' : 'rgba(255,48,71,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke={isAbove ? '#00c878' : '#ff3047'} strokeWidth={2.5}>
+                          {isAbove ? <polyline points="18 15 12 9 6 15"/> : <polyline points="6 9 12 15 18 9"/>}
+                        </svg>
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{a.symbol}</div>
+                        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>
+                          {isAbove ? '↑ Above' : '↓ Below'} {formatPrice(a.targetPrice, a.symbol)}
+                        </div>
+                      </div>
+                      <span style={{ fontSize: 10, fontWeight: 700, padding: '3px 8px', borderRadius: 20, background: `${statusColor}18`, color: statusColor }}>
+                        {statusLabel}
+                      </span>
+                    </button>
+                  )
+                })}
+                {alerts.length > 3 && (
+                  <button
+                    onClick={() => navigate('/dashboard/alerts')}
+                    style={{ width: '100%', padding: '10px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.5)', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
+                  >
+                    View all {alerts.length} alerts →
+                  </button>
+                )}
+              </div>
+            )}
           </div>
 
         </div>

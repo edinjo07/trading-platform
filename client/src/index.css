@@ -109,10 +109,14 @@ html {
 @layer components {
   /* ── Cards ── */
   .card {
-    @apply bg-surface-100 rounded-xl border border-white/[0.06] shadow-card;
+    background: var(--t-surface);
+    border: 1px solid var(--t-border);
+    @apply rounded-xl shadow-card;
   }
   .card-sm {
-    @apply bg-surface-50 rounded-lg border border-white/[0.05];
+    background: var(--t-surface-2);
+    border: 1px solid var(--t-border);
+    @apply rounded-lg;
   }
   .card-glass {
     background: rgba(0, 0, 0, 0.85);
@@ -158,19 +162,18 @@ html {
 
   /* ── Input ── */
   .input {
-    @apply w-full rounded-lg px-3 py-2.5
-           text-text-primary text-sm
-           placeholder-text-muted
-           focus:outline-none transition-all;
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.08);
+    @apply w-full rounded-lg px-3 py-2.5 text-sm focus:outline-none transition-all;
+    background: var(--t-surface-2);
+    border: 1px solid var(--t-border);
+    color: var(--t-text-1);
   }
+  .input::placeholder { color: var(--t-text-3); }
   .input:focus {
     border-color: rgba(14,165,233,0.5);
     box-shadow: 0 0 0 3px rgba(14,165,233,0.1);
   }
   .input:hover:not(:focus) {
-    border-color: rgba(255,255,255,0.14);
+    border-color: var(--t-border-hover);
   }
 
   /* ── Buttons ── */
@@ -183,10 +186,14 @@ html {
   }
   .btn-secondary {
     @apply flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg
-           text-sm font-semibold text-text-primary transition-all duration-150
-           hover:text-white hover:border-white/20 active:scale-[0.98];
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.08);
+           text-sm font-semibold transition-all duration-150
+           active:scale-[0.98];
+    background: var(--t-surface-2);
+    border: 1px solid var(--t-border);
+    color: var(--t-text-1);
+  }
+  .btn-secondary:hover {
+    border-color: var(--t-border-hover);
   }
   .btn-ghost {
     @apply flex items-center justify-center gap-2 px-4 py-2 rounded-lg
@@ -279,15 +286,20 @@ html {
 }
 
 @layer utilities {
+  /* Theme-aware text */
+  .text-text-primary   { color: var(--t-text-1); }
+  .text-text-secondary { color: var(--t-text-2); }
+  .text-text-muted     { color: var(--t-text-3); }
+
   /* Semantic colors */
-  .text-bull    { color: #00c878; }
-  .text-bear    { color: #ff3047; }
-  .text-success { color: #00c878; }
-  .text-danger  { color: #ff3047; }
-  .bg-bull      { background-color: #00c878; }
-  .bg-bear      { background-color: #ff3047; }
-  .bg-bull-muted { background-color: rgba(0,200,120,0.12); }
-  .bg-bear-muted { background-color: rgba(255,48,71,0.12); }
+  .text-bull    { color: var(--t-bull); }
+  .text-bear    { color: var(--t-bear); }
+  .text-success { color: var(--t-bull); }
+  .text-danger  { color: var(--t-bear); }
+  .bg-bull      { background-color: var(--t-bull); }
+  .bg-bear      { background-color: var(--t-bear); }
+  .bg-bull-muted { background-color: var(--t-bull-s); }
+  .bg-bear-muted { background-color: var(--t-bear-s); }
 
   /* Mono number rendering */
   .tabular { font-variant-numeric: tabular-nums; }

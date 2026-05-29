@@ -3,6 +3,7 @@ import {
   Ticker, OrderBook, Trade, Order, Portfolio, Position,
   MarketSymbol, Candle, PerformanceStats, TradeRecord,
 } from '../types'
+import { useAlertsStore } from './alertsStore'
 import { getSymbols, getCandles, getOrderBook, getRecentTrades } from '../api/markets'
 import {
   getOrders, placeOrder, PlaceOrderParams, PlaceOrderResult,
@@ -382,10 +383,12 @@ export const useTradingStore = create<TradingState>((set, get) => ({
           totalEquity,
         },
       })
+      useAlertsStore.getState().checkAlerts(tickerMap)
       return
     }
 
     set({ tickers: tickerMap })
+    useAlertsStore.getState().checkAlerts(tickerMap)
   },
 
   updateOrderBook: (ob) => {
