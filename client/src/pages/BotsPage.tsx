@@ -213,6 +213,11 @@ function BotCard({ bot, selected, onClick }: { bot: Bot; selected: boolean; onCl
               <span className="text-xs font-medium" style={{ color: '#64748b' }}>{bot.symbol}</span>
               <span className="w-1 h-1 rounded-full" style={{ background: '#1e2d3d' }}/>
               <span className="text-xs font-semibold" style={{ color: meta.color }}>{meta.label}</span>
+              <span className="w-1 h-1 rounded-full" style={{ background: '#1e2d3d' }}/>
+              <span className="text-xs font-bold px-1.5 py-0.5 rounded"
+                    style={{ background: bot.mode === 'real' ? 'rgba(239,68,68,0.12)' : 'rgba(56,189,248,0.08)', color: bot.mode === 'real' ? '#ef4444' : '#38bdf8' }}>
+                {bot.mode === 'real' ? 'REAL' : 'DEMO'}
+              </span>
             </div>
           </div>
           <div className="flex flex-col items-end gap-1.5 shrink-0">
@@ -457,7 +462,8 @@ function CreateBotModal({ onClose, onCreate }: { onClose: () => void; onCreate: 
       if (maxDT)       params.maxDailyTrades    = parseInt(maxDT)
       if (confirmB > 1) params.confirmBars      = confirmB
       if (useNews)     params.useNewsFilter      = true
-      const bot = await createBot({ name: name.trim(), symbol, strategy, params })
+      const accountMode = (localStorage.getItem('account_mode') ?? 'demo') as 'demo' | 'real'
+      const bot = await createBot({ name: name.trim(), symbol, strategy, params, mode: accountMode })
       onCreate(bot); onClose()
     } catch (e: unknown) {
       setErr((e as { response?: { data?: { error?: string } }; message?: string }).response?.data?.error ?? (e as { message?: string }).message ?? 'Failed')
@@ -897,6 +903,10 @@ export default function BotsPage() {
             <span className="inline-flex items-center gap-1.5 text-xs font-semibold"
                   style={{ color: STRATEGY_META[selected.strategy].color }}>
               {STRATEGY_META[selected.strategy].label}
+            </span>
+            <span className="text-xs font-bold px-2 py-0.5 rounded-lg"
+                  style={{ background: selected.mode === 'real' ? 'rgba(239,68,68,0.12)' : 'rgba(56,189,248,0.08)', color: selected.mode === 'real' ? '#ef4444' : '#38bdf8', border: `1px solid ${selected.mode === 'real' ? 'rgba(239,68,68,0.2)' : 'rgba(56,189,248,0.15)'}` }}>
+              {selected.mode === 'real' ? '🔴 REAL' : '🔵 DEMO'}
             </span>
             {selected.startedAt && (
               <>

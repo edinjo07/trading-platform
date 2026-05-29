@@ -51,6 +51,7 @@ export interface Bot {
   symbol:      string
   strategy:    BotStrategy
   params:      BotParams
+  mode:        'demo' | 'real'
   status:      BotStatus
   position:    BotPosition
   createdAt:   string
@@ -109,6 +110,7 @@ export interface CreateBotPayload {
   symbol:   string
   strategy: BotStrategy
   params:   BotParams
+  mode:     'demo' | 'real'
 }
 
 export const getBots    = ()                     => api.get<Bot[]>('/bots').then(r => r.data)

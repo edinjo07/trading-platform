@@ -19,6 +19,7 @@ function toApiBot(row: Record<string, any>) {
     symbol:              row.symbol,
     strategy:            row.strategy,
     params:              row.params,
+    mode:                row.mode         ?? 'demo',
     status:              row.status,
     position:            row.position,
     createdAt:           row.created_at,
@@ -76,7 +77,8 @@ router.get('/:id', async (req: AuthRequest, res: Response): Promise<void> => {
 
 router.post('/', async (req: AuthRequest, res: Response): Promise<void> => {
   const userId = req.user!.userId
-  const { name, symbol, strategy, params, riskAccepted } = req.body
+  const { name, symbol, strategy, params, riskAccepted, mode } = req.body
+  const accountMode = mode === 'real' ? 'real' : 'demo'
 
   if (!name || !symbol || !strategy || !params) {
     res.status(400).json({ error: 'name, symbol, strategy, and params are required' }); return
@@ -105,6 +107,7 @@ router.post('/', async (req: AuthRequest, res: Response): Promise<void> => {
     symbol,
     strategy,
     params,
+    mode:                accountMode,
     status:              'idle',
     position:            'none',
     trades:              0,

@@ -12,7 +12,6 @@ import { placeMarketOrder, closePosition } from './orderEngine'
 
 const TICK_MS  = 5_000  // one price bar every 5 seconds
 const MAX_LOGS = 150    // ring-buffer cap for bot logs
-const BOT_MODE = 'demo' as const
 
 // ─── In-memory types ──────────────────────────────────────────────────────────
 
@@ -44,6 +43,7 @@ interface BotLog {
 interface BotMemState {
   intervalId:          NodeJS.Timeout
   userId:              string
+  mode:                'demo' | 'real'
   symbol:              string
   strategy:            string
   params:              BotParams
@@ -265,7 +265,7 @@ async function tick(botId: string) {
 
     if (closeReason) {
       try {
-        const result = await closePosition(state.positionId, state.userId, BOT_MODE)
+        const result = await closePosition(state.positionId, state.userId, state.mode)
         recordClose(state, result.netPnl)
         addLog(state, 'trade', `${closeReason} | net PnL: ${fmt(result.netPnl)}`)
       } catch (err) {
@@ -309,7 +309,7 @@ async function tick(botId: string) {
       const sl = parseFloat((price * (1 - slPct)).toFixed(8))
       const tp = parseFloat((price * (1 + tpPct)).toFixed(8))
 
-      const result = await placeMarketOrder(state.userId, BOT_MODE, {
+      const result = await placeMarketOrder(state.userId, state.mode, {
         symbol:     state.symbol,
         side:       'buy',
         quantity:   state.params.tradeSize,
@@ -323,7 +323,7 @@ async function tick(botId: string) {
         .from('positions')
         .select('id')
         .eq('user_id', state.userId)
-        .eq('mode', BOT_MODE)
+        .eq('mode', state.mode)
         .eq('symbol', state.symbol)
         .eq('side', 'long')
         .maybeSingle()
@@ -344,7 +344,7 @@ async function tick(botId: string) {
   // ── Close long ────────────────────────────────────────────────────────────
   if (signal === 'sell' && state.positionId && confirmed) {
     try {
-      const result = await closePosition(state.positionId, state.userId, BOT_MODE)
+      const result = await closePosition(state.positionId, state.userId, state.mode)
       recordClose(state, result.netPnl)
       addLog(state, 'trade', `Closed LONG ${state.symbol} @ ${result.exitPrice.toFixed(4)} | net PnL: ${fmt(result.netPnl)}`)
     } catch (err) {
@@ -393,10 +393,12 @@ export async function startBotEngine(botId: string, userId: string): Promise<voi
 
   const params             = bot.params as BotParams
   const warmupBarsNeeded   = calcWarmupBarsNeeded(bot.strategy, params)
+  const botMode            = (bot.mode ?? 'demo') as 'demo' | 'real'
 
   const state: BotMemState = {
     intervalId:          null as unknown as NodeJS.Timeout,
     userId,
+    mode:                botMode,
     symbol:              bot.symbol,
     strategy:            bot.strategy,
     params,
@@ -427,7 +429,7 @@ export async function startBotEngine(botId: string, userId: string): Promise<voi
     .from('positions')
     .select('id, avg_price, stop_loss, take_profit')
     .eq('user_id', userId)
-    .eq('mode', BOT_MODE)
+    .eq('mode', botMode)
     .eq('symbol', bot.symbol)
     .eq('side', 'long')
     .maybeSingle()
