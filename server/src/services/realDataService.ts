@@ -1,18 +1,20 @@
 ﻿/**
  * realDataService.ts
  *
- * Connects to two live market-data sources and calls onPrice() for every tick:
+ * Connects to live market-data sources and calls onPrice() for every tick:
  *   1. Binance Combined Stream WebSocket  → crypto (free, no key required)
- *   2. Twelve Data WebSocket              → stocks + forex (free plan, API key required)
+ *   2. Twelve Data WebSocket              → forex majors + XAU (API key required)
+ *   3. Yahoo Finance REST polling         → stocks, indices, energy, commodities (free, no key)
  *
  * If a connection drops it auto-reconnects with exponential back-off.
- * If TWELVE_DATA_API_KEY is not set the service logs a warning and stocks/forex
+ * If TWELVE_DATA_API_KEY is not set the service logs a warning and forex/XAU
  * continue to run on the GBM simulation.
  */
 
 import WebSocket from 'ws'
 import { config } from '../config'
 import { seedFromCMC, startCMCPolling } from './cmcService'
+import { startYahooFinanceFeed } from './yahooFinanceService'
 
 export type PriceCallback   = (symbol: string, price: number) => void
 export type StatsCallback   = (symbol: string, open: number, high: number, low: number, volume: number) => void
@@ -570,4 +572,6 @@ export function startRealDataFeeds(onPrice: PriceCallback, onStats?: StatsCallba
   // data the REST prices simply reinforce the anchor; if WS is down the REST
   // poll keeps prices accurate.
   startRestPolling(onPrice, onStats)
+  // Yahoo Finance: stocks, indices, energy and agricultural commodities (no key needed)
+  startYahooFinanceFeed(onPrice, onStats)
 }
