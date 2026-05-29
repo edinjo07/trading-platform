@@ -6,7 +6,10 @@ import { AccountMode, Currency, AccountType } from '../types/index'
 const VALID_MODES:        AccountMode[] = ['demo', 'real']
 const VALID_CURRENCIES:   Currency[]    = ['USD', 'EUR', 'GBP']
 const VALID_TYPES:        AccountType[] = ['raw_spread', 'ctrader', 'standard']
-const STARTING_BALANCE = 100_000
+const DEMO_START  = 100_000
+const REAL_START  = 0
+const DEMO_MAX    = 100_000
+const DEPOSIT_UNLOCK_BELOW = 10_000
 
 const router = Router()
 
@@ -61,6 +64,8 @@ router.post('/', authenticate, async (req: AuthRequest, res: Response) => {
   }
 
   const now = new Date().toISOString()
+  const startingBalance = mode === 'demo' ? DEMO_START : REAL_START
+
   const { data, error } = await supabase
     .from('accounts')
     .insert({
@@ -68,7 +73,7 @@ router.post('/', authenticate, async (req: AuthRequest, res: Response) => {
       mode,
       currency,
       account_type: accountType,
-      cash_balance: STARTING_BALANCE,
+      cash_balance: startingBalance,
       created_at:   now,
       updated_at:   now,
     })
@@ -84,6 +89,50 @@ router.post('/', authenticate, async (req: AuthRequest, res: Response) => {
     account_type:   r.account_type ?? accountType,
     cash_balance:   r.cash_balance,
   })
+})
+
+// POST /api/accounts/deposit — top up a demo account (no payment required)
+router.post('/deposit', authenticate, async (req: AuthRequest, res: Response) => {
+  const userId = req.user!.userId
+  const { currency, amount } = req.body
+
+  if (!VALID_CURRENCIES.includes(currency)) {
+    return res.status(400).json({ error: 'currency must be USD, EUR, or GBP' })
+  }
+  const depositAmount = parseFloat(amount)
+  if (!isFinite(depositAmount) || depositAmount <= 0) {
+    return res.status(400).json({ error: 'amount must be a positive number' })
+  }
+
+  // Only demo accounts can be topped up here
+  const { data: acct, error: fetchErr } = await supabase
+    .from('accounts')
+    .select('id, cash_balance')
+    .eq('user_id', userId)
+    .eq('mode', 'demo')
+    .eq('currency', currency)
+    .single()
+
+  if (fetchErr || !acct) {
+    return res.status(404).json({ error: 'Demo account not found' })
+  }
+
+  if (acct.cash_balance >= DEPOSIT_UNLOCK_BELOW) {
+    return res.status(400).json({ error: `Deposit only available when balance is below ${DEPOSIT_UNLOCK_BELOW}` })
+  }
+
+  const newBalance = Math.min(parseFloat((acct.cash_balance + depositAmount).toFixed(2)), DEMO_MAX)
+  const { data: updated, error: updateErr } = await supabase
+    .from('accounts')
+    .update({ cash_balance: newBalance, updated_at: new Date().toISOString() })
+    .eq('user_id', userId)
+    .eq('mode', 'demo')
+    .eq('currency', currency)
+    .select('cash_balance')
+    .single()
+
+  if (updateErr) return res.status(500).json({ error: updateErr.message })
+  return res.json({ cash_balance: (updated as Record<string, unknown>).cash_balance })
 })
 
 export default router

@@ -4,7 +4,8 @@ import { getPrice } from '../services/priceService'
 import { supabase } from '../db'
 import { AccountMode, PositionRow, PositionLive, Portfolio } from '../types'
 
-const STARTING_BALANCE = 100_000
+const DEMO_START_BALANCE = 100_000
+const REAL_START_BALANCE = 0
 
 const router = Router()
 
@@ -24,7 +25,8 @@ router.get('/', authenticate, async (req: AuthRequest, res: Response) => {
   const currency = getCurrency(req)
 
   // ── Load (or lazily create) the account ────────────────────────────────────
-  let cashBalance  = STARTING_BALANCE
+  const startBalance = mode === 'demo' ? DEMO_START_BALANCE : REAL_START_BALANCE
+  let cashBalance  = startBalance
   let accountNumber = 0
   let accountType   = 'raw_spread'
 
@@ -41,7 +43,7 @@ router.get('/', authenticate, async (req: AuthRequest, res: Response) => {
     // First visit — try to create account
     const { data: created, error: createErr } = await supabase
       .from('accounts')
-      .insert({ user_id: userId, mode, currency, cash_balance: STARTING_BALANCE })
+      .insert({ user_id: userId, mode, currency, cash_balance: startBalance })
       .select('*')
       .single()
     if (createErr) {
@@ -54,11 +56,11 @@ router.get('/', authenticate, async (req: AuthRequest, res: Response) => {
         .eq('currency', currency)
         .single()
       if (refetchErr) return res.status(500).json({ error: `Account load failed: ${refetchErr.message}` })
-      cashBalance   = refetched?.cash_balance   ?? STARTING_BALANCE
+      cashBalance   = refetched?.cash_balance   ?? startBalance
       accountNumber = refetched?.account_number ?? 0
       accountType   = refetched?.account_type   ?? 'raw_spread'
     } else {
-      cashBalance   = created?.cash_balance   ?? STARTING_BALANCE
+      cashBalance   = created?.cash_balance   ?? startBalance
       accountNumber = created?.account_number ?? 0
       accountType   = created?.account_type   ?? 'raw_spread'
     }

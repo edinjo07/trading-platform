@@ -17,8 +17,9 @@ import {
   PlaceOrderResult, ClosePositionResult,
 } from '../types'
 
-const COMMISSION_RATE = 0.0005   // 0.05 % of notional per trade leg
-const STARTING_BALANCE = 100_000
+const COMMISSION_RATE  = 0.0005   // 0.05 % of notional per trade leg
+const DEMO_START_BALANCE = 100_000
+const REAL_START_BALANCE = 0
 
 // ─── Account helpers ──────────────────────────────────────────────────────────
 
@@ -33,9 +34,10 @@ async function getOrCreateAccount(userId: string, mode: AccountMode, currency = 
 
   if (error?.code === 'PGRST116') {
     // No account yet — try to create; handle race where another request creates it first
+    const startBalance = mode === 'demo' ? DEMO_START_BALANCE : REAL_START_BALANCE
     const { data: created, error: ce } = await supabase
       .from('accounts')
-      .insert({ user_id: userId, mode, currency, cash_balance: STARTING_BALANCE })
+      .insert({ user_id: userId, mode, currency, cash_balance: startBalance })
       .select('id, cash_balance')
       .single()
 

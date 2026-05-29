@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useTradingStore } from '../store/tradingStore'
 import { useAuthStore } from '../store/authStore'
 import { formatCurrency, formatPrice } from '../utils/formatters'
-import { getAccountsList, createAccountApi, type AccountRow } from '../api/accounts'
+import { getAccountsList, createAccountApi, depositDemo, type AccountRow } from '../api/accounts'
 import type { Position, AccountMode, Currency, AccountType } from '../types'
 import AssetIcon from '../components/ui/AssetIcon'
 
@@ -366,6 +366,14 @@ export default function DashboardPage() {
   const [createError,       setCreateError]       = useState('')
   const [createdNumber,     setCreatedNumber]     = useState<number | null>(null)
 
+  // Deposit sheet state
+  const [showDeposit,     setShowDeposit]     = useState(false)
+  const [depositCurrency, setDepositCurrency] = useState<Currency>('USD')
+  const [depositing,      setDepositing]      = useState(false)
+  const [depositError,    setDepositError]    = useState('')
+
+  const currencySymbol = (c: string) => c === 'EUR' ? '€' : c === 'GBP' ? '£' : '$'
+
   const refreshAccounts = () => getAccountsList().then(rows => setExistingAccounts(rows)).catch(() => {})
 
   useEffect(() => { refreshAccounts() }, [])
@@ -405,6 +413,22 @@ export default function DashboardPage() {
       existingAccounts.some(r => r.mode === a.mode && r.currency === a.currency)
     )
   }, [existingAccounts])
+
+  const handleDeposit = useCallback(async (amount: number) => {
+    setDepositing(true)
+    setDepositError('')
+    try {
+      await depositDemo(depositCurrency, amount)
+      await refreshAccounts()
+      if (user?.accountMode === 'demo' && (user?.currency ?? 'USD') === depositCurrency) loadPortfolio()
+      setShowDeposit(false)
+    } catch (err: unknown) {
+      const d = (err as { response?: { data?: { error?: string } } })?.response?.data
+      setDepositError(d?.error ?? 'Deposit failed')
+    } finally {
+      setDepositing(false)
+    }
+  }, [depositCurrency, user, loadPortfolio])
 
   useEffect(() => {
     loadPortfolio(); loadOrders()
@@ -488,11 +512,11 @@ export default function DashboardPage() {
               ) : null}
             </div>
             <div style={{ fontSize: 36, fontWeight: 800, color: '#fff', fontFamily: 'monospace', letterSpacing: '-1px', marginBottom: 16 }}>
-              {formatCurrency(equity)}
+              {formatCurrency(equity, 2, user?.currency ?? 'USD')}
             </div>
             <div style={{ background: 'rgba(255,255,255,0.06)', borderRadius: 12, padding: '12px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>Available to trade</span>
-              <span style={{ fontSize: 14, fontWeight: 700, color: '#fff', fontFamily: 'monospace' }}>{formatCurrency(cash)}</span>
+              <span style={{ fontSize: 14, fontWeight: 700, color: '#fff', fontFamily: 'monospace' }}>{formatCurrency(cash, 2, user?.currency ?? 'USD')}</span>
             </div>
           </div>
 
@@ -708,6 +732,58 @@ export default function DashboardPage() {
             </div>
           )}
 
+          {/* ── Deposit bottom sheet ── */}
+          {showDeposit && (
+            <div
+              onClick={() => setShowDeposit(false)}
+              style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.72)', zIndex: 1000, display: 'flex', alignItems: 'flex-end' }}
+            >
+              <div
+                onClick={e => e.stopPropagation()}
+                style={{ width: '100%', background: '#141414', borderRadius: '22px 22px 0 0', padding: '16px 16px 48px', maxHeight: '75vh', overflowY: 'auto' }}
+              >
+                <div style={{ width: 36, height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.18)', margin: '0 auto 20px' }} />
+                <h3 style={{ fontSize: 17, fontWeight: 700, color: '#fff', marginBottom: 4, textAlign: 'center' }}>Deposit Funds</h3>
+                <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', textAlign: 'center', marginBottom: 24 }}>
+                  Demo account · {depositCurrency}
+                </p>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 10, marginBottom: 12 }}>
+                  {[5000, 10000, 25000, 50000].map(amt => (
+                    <button
+                      key={amt}
+                      onClick={() => handleDeposit(amt)}
+                      disabled={depositing}
+                      style={{ padding: '16px 12px', borderRadius: 14, background: 'rgba(0,200,120,0.08)', border: '1px solid rgba(0,200,120,0.2)', cursor: depositing ? 'not-allowed' : 'pointer', textAlign: 'center' }}
+                    >
+                      <div style={{ fontSize: 17, fontWeight: 800, color: '#00c878', fontFamily: 'monospace' }}>
+                        {currencySymbol(depositCurrency)}{amt.toLocaleString()}
+                      </div>
+                      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 3 }}>+{amt.toLocaleString()} {depositCurrency}</div>
+                    </button>
+                  ))}
+                </div>
+                <button
+                  onClick={() => handleDeposit(100000)}
+                  disabled={depositing}
+                  style={{ width: '100%', padding: '14px', borderRadius: 14, background: 'rgba(0,200,120,0.12)', border: '1px solid rgba(0,200,120,0.3)', color: '#00c878', fontSize: 14, fontWeight: 700, cursor: depositing ? 'not-allowed' : 'pointer', marginBottom: 12 }}
+                >
+                  {currencySymbol(depositCurrency)}100,000 — Top up to max
+                </button>
+                {depositError && (
+                  <div style={{ background: 'rgba(220,56,38,0.1)', border: '1px solid rgba(220,56,38,0.25)', borderRadius: 10, padding: '10px 14px', marginBottom: 12, fontSize: 12, color: '#ff6b6b' }}>
+                    {depositError}
+                  </div>
+                )}
+                <button
+                  onClick={() => setShowDeposit(false)}
+                  style={{ width: '100%', padding: '13px', borderRadius: 14, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.09)', color: 'rgba(255,255,255,0.6)', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Portfolio section */}
           <div style={{ marginBottom: 24 }}>
             <SectionHeader title="Portfolio" onMore={() => navigate('/dashboard/portfolio')} />
@@ -760,6 +836,73 @@ export default function DashboardPage() {
         </div>
 
         <div style={{ padding: '0 16px' }}>
+
+          {/* ── My Accounts ── */}
+          <div style={{ marginBottom: 28 }}>
+            <SectionHeader title="My Accounts" />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {ACCOUNTS.map(acct => {
+                const row       = existingAccounts.find(r => r.mode === acct.mode && r.currency === acct.currency)
+                const isActive  = user?.accountMode === acct.mode && (user?.currency ?? 'USD') === acct.currency
+                const isLive    = acct.mode === 'real'
+                const balance   = row?.cash_balance ?? (isLive ? 0 : 100_000)
+                const canDeposit = !isLive && !!row && row.cash_balance < 10_000
+                return (
+                  <div
+                    key={acct.id}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 14,
+                      padding: '14px 16px', borderRadius: 16,
+                      background: isActive ? 'rgba(14,165,233,0.06)' : 'rgba(255,255,255,0.03)',
+                      border: `1px solid ${isActive ? 'rgba(14,165,233,0.25)' : 'rgba(255,255,255,0.07)'}`,
+                    }}
+                  >
+                    {/* Currency icon */}
+                    <div style={{
+                      width: 44, height: 44, borderRadius: 12, flexShrink: 0,
+                      background: isLive ? 'rgba(16,185,129,0.1)' : 'rgba(245,158,11,0.1)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: 20, fontWeight: 800,
+                      color: isLive ? '#10b981' : '#f59e0b',
+                    }}>
+                      {currencySymbol(acct.currency)}
+                    </div>
+                    {/* Info */}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3 }}>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>
+                          {isLive ? 'Live' : 'Demo'} · {acct.currency}
+                        </span>
+                        {isActive && (
+                          <span style={{ fontSize: 9, fontWeight: 800, padding: '1px 6px', borderRadius: 10, background: 'rgba(14,165,233,0.18)', color: '#38bdf8' }}>
+                            ACTIVE
+                          </span>
+                        )}
+                      </div>
+                      <div style={{ fontSize: 16, fontWeight: 800, color: '#fff', fontFamily: 'monospace' }}>
+                        {formatCurrency(balance, 2, acct.currency)}
+                      </div>
+                    </div>
+                    {/* Action button */}
+                    {canDeposit ? (
+                      <button
+                        onClick={() => { setDepositCurrency(acct.currency); setDepositError(''); setShowDeposit(true) }}
+                        style={{ padding: '8px 16px', borderRadius: 20, fontSize: 12, fontWeight: 700, background: 'rgba(0,200,120,0.12)', color: '#00c878', border: '1px solid rgba(0,200,120,0.25)', cursor: 'pointer', flexShrink: 0 }}
+                      >
+                        Deposit
+                      </button>
+                    ) : isLive ? (
+                      <button
+                        style={{ padding: '8px 14px', borderRadius: 20, fontSize: 12, fontWeight: 700, background: 'rgba(16,185,129,0.1)', color: '#10b981', border: '1px solid rgba(16,185,129,0.2)', cursor: 'default', flexShrink: 0, opacity: 0.7 }}
+                      >
+                        Fund
+                      </button>
+                    ) : null}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
 
           {/* ── Watchlist ── */}
           <div style={{ marginBottom: 28 }}>
