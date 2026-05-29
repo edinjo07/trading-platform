@@ -157,14 +157,53 @@ function TradedTile({ symbol, name, assetClass, onClick }: { symbol: string; nam
 
 // ─── Curated watchlist card ───────────────────────────────────────────────────
 const CATEGORIES = [
-  { label: 'Energy',      gradient: 'linear-gradient(135deg, #1a2a1a 0%, #0d1f0d 100%)', accent: '#22c55e',
-    icon: <svg width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="#22c55e" strokeWidth={1.2}><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg> },
-  { label: 'Gas & Oil',   gradient: 'linear-gradient(135deg, #1a1a2a 0%, #0d0d1f 100%)', accent: '#60a5fa',
-    icon: <svg width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="#60a5fa" strokeWidth={1.2}><path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-1.5 7h13L17 13"/></svg> },
-  { label: 'Big Tech',    gradient: 'linear-gradient(135deg, #2a1a2a 0%, #1f0d1f 100%)', accent: '#a78bfa',
-    icon: <svg width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="#a78bfa" strokeWidth={1.2}><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg> },
-  { label: 'Crypto',      gradient: 'linear-gradient(135deg, #2a1a0a 0%, #1f100d 100%)', accent: '#f59e0b',
-    icon: <svg width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="#f59e0b" strokeWidth={1.2}><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg> },
+  {
+    label: 'Energy',
+    gradient: 'linear-gradient(145deg, #0f2318 0%, #071a0e 100%)',
+    accent: '#22c55e',
+    img: (
+      <svg width="52" height="52" fill="none" viewBox="0 0 24 24">
+        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="#22c55e" fillOpacity=".15" stroke="#22c55e" strokeWidth={1.5} strokeLinejoin="round"/>
+      </svg>
+    ),
+  },
+  {
+    label: 'Gas & Oil',
+    gradient: 'linear-gradient(145deg, #0e1829 0%, #070f1d 100%)',
+    accent: '#38bdf8',
+    img: (
+      <svg width="52" height="52" fill="none" viewBox="0 0 24 24">
+        <ellipse cx="12" cy="16" rx="6" ry="4" fill="#38bdf8" fillOpacity=".12" stroke="#38bdf8" strokeWidth={1.4}/>
+        <path d="M6 16V9a6 6 0 0112 0v7" stroke="#38bdf8" strokeWidth={1.4} strokeLinecap="round"/>
+        <path d="M16 6.5c1 .5 2 1.5 2 3" stroke="#38bdf8" strokeWidth={1.2} strokeLinecap="round" opacity=".5"/>
+      </svg>
+    ),
+  },
+  {
+    label: 'Big Tech',
+    gradient: 'linear-gradient(145deg, #1a0f2e 0%, #110820 100%)',
+    accent: '#a78bfa',
+    img: (
+      <svg width="52" height="52" fill="none" viewBox="0 0 24 24">
+        <rect x="2" y="3" width="20" height="13" rx="2" fill="#a78bfa" fillOpacity=".1" stroke="#a78bfa" strokeWidth={1.4}/>
+        <path d="M8 21h8M12 16v5" stroke="#a78bfa" strokeWidth={1.4} strokeLinecap="round"/>
+        <path d="M7 8h2M11 8h6M7 11h4" stroke="#a78bfa" strokeWidth={1.2} strokeLinecap="round" opacity=".6"/>
+      </svg>
+    ),
+  },
+  {
+    label: 'Crypto',
+    gradient: 'linear-gradient(145deg, #1f1208 0%, #150c04 100%)',
+    accent: '#f59e0b',
+    img: (
+      <svg width="52" height="52" fill="none" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="9" fill="#f59e0b" fillOpacity=".1" stroke="#f59e0b" strokeWidth={1.4}/>
+        <path d="M9 8h4.5a2 2 0 010 4H9m0-4v4m0 0h5a2 2 0 010 4H9m0-4v4" stroke="#f59e0b" strokeWidth={1.3} strokeLinecap="round"/>
+        <line x1="11" y1="7" x2="11" y2="8" stroke="#f59e0b" strokeWidth={1.3} strokeLinecap="round"/>
+        <line x1="11" y1="16" x2="11" y2="17" stroke="#f59e0b" strokeWidth={1.3} strokeLinecap="round"/>
+      </svg>
+    ),
+  },
 ]
 
 // ─── Section header ───────────────────────────────────────────────────────────
@@ -188,12 +227,82 @@ function SectionHeader({ title, onMore }: { title: string; onMore?: () => void }
 
 // ─── Discover markets grid ────────────────────────────────────────────────────
 const DISCOVER = [
-  { label: 'Shares',      icon: '📈', path: '/dashboard/watchlists' },
-  { label: 'Indices',     icon: '🌐', path: '/dashboard/watchlists' },
-  { label: 'Commodities', icon: '🛢️',  path: '/dashboard/watchlists' },
-  { label: 'Forex',       icon: '💱', path: '/dashboard/watchlists' },
-  { label: 'ETF',         icon: '📊', path: '/dashboard/watchlists' },
-  { label: 'Cryptos',     icon: '₿',  path: '/dashboard/watchlists' },
+  {
+    label: 'Shares', path: '/dashboard/watchlists',
+    color: '#60a5fa', bg: 'rgba(96,165,250,0.1)',
+    icon: (
+      <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#60a5fa" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
+        <rect x="2" y="2" width="4" height="8" rx="1" fill="#60a5fa" fillOpacity=".2"/>
+        <rect x="10" y="6" width="4" height="12" rx="1" fill="#60a5fa" fillOpacity=".2"/>
+        <rect x="18" y="4" width="4" height="14" rx="1" fill="#60a5fa" fillOpacity=".2"/>
+        <polyline points="2 18 8 10 14 14 22 6" stroke="#60a5fa" strokeWidth={1.8}/>
+      </svg>
+    ),
+  },
+  {
+    label: 'Indices', path: '/dashboard/watchlists',
+    color: '#a78bfa', bg: 'rgba(167,139,250,0.1)',
+    icon: (
+      <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#a78bfa" strokeWidth={1.6} strokeLinecap="round">
+        <circle cx="12" cy="12" r="9" stroke="#a78bfa" strokeWidth={1.5}/>
+        <ellipse cx="12" cy="12" rx="4" ry="9" stroke="#a78bfa" strokeWidth={1.2} opacity=".5"/>
+        <line x1="3" y1="12" x2="21" y2="12" stroke="#a78bfa" strokeWidth={1.2} opacity=".5"/>
+        <line x1="12" y1="3" x2="12" y2="21" stroke="#a78bfa" strokeWidth={1.2} opacity=".5"/>
+      </svg>
+    ),
+  },
+  {
+    label: 'Commodities', path: '/dashboard/watchlists',
+    color: '#f59e0b', bg: 'rgba(245,158,11,0.1)',
+    icon: (
+      <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#f59e0b" strokeWidth={1.6} strokeLinecap="round">
+        <ellipse cx="12" cy="17" rx="7" ry="3.5" fill="#f59e0b" fillOpacity=".12"/>
+        <path d="M5 17V9a7 7 0 0114 0v8" stroke="#f59e0b" strokeWidth={1.5}/>
+        <path d="M17 8c.8.7 1.5 1.8 1.5 3" stroke="#f59e0b" strokeWidth={1.2} opacity=".6"/>
+      </svg>
+    ),
+  },
+  {
+    label: 'Forex', path: '/dashboard/watchlists',
+    color: '#34d399', bg: 'rgba(52,211,153,0.1)',
+    icon: (
+      <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#34d399" strokeWidth={1.6} strokeLinecap="round">
+        <circle cx="8" cy="12" r="5.5" stroke="#34d399" strokeWidth={1.5}/>
+        <circle cx="16" cy="12" r="5.5" stroke="#34d399" strokeWidth={1.5} opacity=".5"/>
+        <path d="M6.5 9.5h3m-3 3h3" stroke="#34d399" strokeWidth={1.3}/>
+        <path d="M15 9.5c.5-.3 1-.5 1.5-.5a2 2 0 010 4 2 2 0 000 4" stroke="#34d399" strokeWidth={1.3}/>
+      </svg>
+    ),
+  },
+  {
+    label: 'ETF', path: '/dashboard/watchlists',
+    color: '#fb923c', bg: 'rgba(251,146,60,0.1)',
+    icon: (
+      <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#fb923c" strokeWidth={1.6} strokeLinecap="round">
+        <path d="M12 3L12 21M3 12l9-9 9 9" stroke="#fb923c" strokeWidth={0} />
+        <path d="M12 2a10 10 0 010 20" stroke="#fb923c" strokeWidth={1.5} strokeDasharray="4 2"/>
+        <circle cx="12" cy="12" r="3.5" fill="#fb923c" fillOpacity=".15" stroke="#fb923c" strokeWidth={1.5}/>
+        <path d="M12 2a10 10 0 000 20" stroke="#fb923c" strokeWidth={1.5} opacity=".4"/>
+        <line x1="12" y1="8.5" x2="12" y2="2" stroke="#fb923c" strokeWidth={1.4}/>
+        <line x1="15.5" y1="15.5" x2="20" y2="20" stroke="#fb923c" strokeWidth={1.4}/>
+        <line x1="8.5" y1="15.5" x2="4" y2="20" stroke="#fb923c" strokeWidth={1.4}/>
+      </svg>
+    ),
+  },
+  {
+    label: 'Cryptos', path: '/dashboard/watchlists',
+    color: '#f59e0b', bg: 'rgba(245,158,11,0.1)',
+    icon: (
+      <svg width="22" height="22" fill="none" viewBox="0 0 24 24" strokeLinecap="round">
+        <circle cx="12" cy="12" r="9" fill="#f59e0b" fillOpacity=".1" stroke="#f59e0b" strokeWidth={1.5}/>
+        <path d="M9.5 8.5H13a2 2 0 010 4H9.5v-4zm0 4H14a2 2 0 010 4H9.5v-4z" stroke="#f59e0b" strokeWidth={1.3} strokeLinejoin="round"/>
+        <line x1="11" y1="7" x2="11" y2="8.5" stroke="#f59e0b" strokeWidth={1.3}/>
+        <line x1="11" y1="16.5" x2="11" y2="18" stroke="#f59e0b" strokeWidth={1.3}/>
+        <line x1="13" y1="7" x2="13" y2="8.5" stroke="#f59e0b" strokeWidth={1.3}/>
+        <line x1="13" y1="16.5" x2="13" y2="18" stroke="#f59e0b" strokeWidth={1.3}/>
+      </svg>
+    ),
+  },
 ]
 
 // ─── Account switcher options ─────────────────────────────────────────────────
@@ -671,19 +780,31 @@ export default function DashboardPage() {
                   key={cat.label}
                   onClick={() => navigate('/dashboard/watchlists')}
                   style={{
-                    flexShrink: 0, width: 140, height: 90, borderRadius: 16,
-                    background: cat.gradient, border: `1px solid ${cat.accent}22`,
+                    flexShrink: 0, width: 148, height: 96, borderRadius: 18,
+                    background: cat.gradient, border: `1px solid ${cat.accent}28`,
                     cursor: 'pointer', display: 'flex', flexDirection: 'column',
                     alignItems: 'flex-start', justifyContent: 'space-between',
-                    padding: '10px 12px', overflow: 'hidden', position: 'relative',
+                    padding: '12px 14px', overflow: 'hidden', position: 'relative',
                   }}
                 >
-                  <div style={{ position: 'absolute', right: 8, top: 8, opacity: 0.5 }}>
-                    {cat.icon}
+                  {/* Glow blob */}
+                  <div style={{
+                    position: 'absolute', right: -10, bottom: -10,
+                    width: 72, height: 72, borderRadius: '50%',
+                    background: cat.accent, opacity: 0.12, filter: 'blur(16px)',
+                    pointerEvents: 'none',
+                  }}/>
+                  {/* Icon top-right */}
+                  <div style={{ position: 'absolute', right: 10, top: 10, opacity: 0.9 }}>
+                    {cat.img}
                   </div>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: '#fff', textAlign: 'left', lineHeight: 1.3 }}>
+                  <span style={{ fontSize: 13, fontWeight: 800, color: '#fff', textAlign: 'left', lineHeight: 1.3, zIndex: 1 }}>
                     {cat.label}
                   </span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, zIndex: 1 }}>
+                    <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke={cat.accent} strokeWidth={2.5}><polyline points="9 18 15 12 9 6"/></svg>
+                    <span style={{ fontSize: 10, fontWeight: 600, color: cat.accent }}>Explore</span>
+                  </div>
                 </button>
               ))}
             </div>
@@ -778,20 +899,28 @@ export default function DashboardPage() {
           <div style={{ marginBottom: 28 }}>
             <SectionHeader title="Discover markets" onMore={() => navigate('/dashboard/watchlists')} />
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 8 }}>
-              {DISCOVER.map(({ label, icon, path }) => (
+              {DISCOVER.map(({ label, icon, path, color, bg }) => (
                 <button
                   key={label}
                   onClick={() => navigate(path)}
                   style={{
                     display: 'flex', alignItems: 'center', gap: 12,
-                    padding: '16px', borderRadius: 14,
+                    padding: '14px 16px', borderRadius: 16,
                     background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)',
-                    cursor: 'pointer',
+                    cursor: 'pointer', textAlign: 'left',
                   }}
                 >
-                  <span style={{ fontSize: 22 }}>{icon}</span>
-                  <span style={{ fontSize: 14, fontWeight: 600, color: '#fff' }}>{label}</span>
-                  <span style={{ marginLeft: 'auto', color: 'rgba(255,255,255,0.3)', fontSize: 16 }}>›</span>
+                  <div style={{
+                    width: 42, height: 42, borderRadius: 12, flexShrink: 0,
+                    background: bg, border: `1px solid ${color}20`,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}>
+                    {icon}
+                  </div>
+                  <span style={{ fontSize: 14, fontWeight: 700, color: '#fff', flex: 1 }}>{label}</span>
+                  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="rgba(255,255,255,0.25)" strokeWidth={2.5}>
+                    <polyline points="9 18 15 12 9 6"/>
+                  </svg>
                 </button>
               ))}
             </div>
