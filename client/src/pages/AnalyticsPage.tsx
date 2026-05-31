@@ -119,138 +119,379 @@ function EquityCurve({ points }: { points: EquityPoint[] }) {
 }
 
 // ---------------------------------------------------------------------------
-// P&L Calendar
+// P&L Calendar — premium redesign
 // ---------------------------------------------------------------------------
 function PnlCalendar({ trades }: { trades: TradeRecord[] }) {
   const [monthOffset, setMonthOffset] = useState(0)
-  const now    = new Date()
-  const year   = new Date(now.getFullYear(), now.getMonth() + monthOffset, 1).getFullYear()
-  const month  = new Date(now.getFullYear(), now.getMonth() + monthOffset, 1).getMonth()
-  const label  = new Date(year, month, 1).toLocaleString('default', { month: 'long', year: 'numeric' })
+  const [tooltip, setTooltip] = useState<{ key: string; x: number; y: number } | null>(null)
 
-  // Group closed trades by date key YYYY-MM-DD
-  const dayMap: Record<string, { pnl: number; count: number }> = {}
+  const now   = new Date()
+  const base  = new Date(now.getFullYear(), now.getMonth() + monthOffset, 1)
+  const year  = base.getFullYear()
+  const month = base.getMonth()
+  const label = base.toLocaleString('default', { month: 'long', year: 'numeric' })
+
+  // ── Build day map ──────────────────────────────────────────────────────────
+  const dayMap: Record<string, { pnl: number; count: number; wins: number }> = {}
   trades.forEach(t => {
     if (!t.closedAt || t.netPnl == null) return
-    const d  = new Date(t.closedAt)
-    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`
-    if (!dayMap[key]) dayMap[key] = { pnl: 0, count: 0 }
+    const d   = new Date(t.closedAt)
+    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`
+    if (!dayMap[key]) dayMap[key] = { pnl: 0, count: 0, wins: 0 }
     dayMap[key].pnl   += t.netPnl
     dayMap[key].count += 1
+    if (t.netPnl > 0) dayMap[key].wins++
   })
 
-  const firstDay    = new Date(year, month, 1).getDay()  // 0=Sun
+  const firstDay    = new Date(year, month, 1).getDay()
   const daysInMonth = new Date(year, month + 1, 0).getDate()
   const todayStr    = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`
 
-  const allPnls   = Object.values(dayMap).map(d => Math.abs(d.pnl))
-  const maxAbs    = allPnls.length ? Math.max(...allPnls) : 1
+  const monthEntries = Object.entries(dayMap).filter(([k]) => {
+    const [y, m] = k.split('-').map(Number)
+    return y === year && m === month + 1
+  })
+  const monthlyPnl = monthEntries.reduce((s, [, v]) => s + v.pnl, 0)
+  const tradingDays = monthEntries.length
+  const winDays     = monthEntries.filter(([, v]) => v.pnl > 0).length
+  const monthPnls   = monthEntries.map(([, v]) => v.pnl)
+  const bestDay     = monthPnls.length ? Math.max(...monthPnls) : 0
+  const worstDay    = monthPnls.length ? Math.min(...monthPnls) : 0
+  const maxAbsMonth = Math.max(Math.abs(bestDay), Math.abs(worstDay), 1)
 
-  const cells: (null | number)[] = [
+  // ── Build rows (weeks) ────────────────────────────────────────────────────
+  const flatCells: (number | null)[] = [
     ...Array<null>(firstDay).fill(null),
     ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
   ]
+  // Pad to full weeks
+  while (flatCells.length % 7 !== 0) flatCells.push(null)
+  const rows: (number | null)[][] = []
+  for (let i = 0; i < flatCells.length; i += 7) rows.push(flatCells.slice(i, i + 7))
 
-  const monthlyPnl = Object.entries(dayMap)
-    .filter(([k]) => {
-      const [y, m] = k.split('-').map(Number)
-      return y === year && m === month + 1
-    })
-    .reduce((acc, [, v]) => acc + v.pnl, 0)
+  const weekTotal = (row: (number | null)[]): number =>
+    row.reduce<number>((s, day) => {
+      if (!day) return s
+      const k = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`
+      return s + (dayMap[k]?.pnl ?? 0)
+    }, 0)
+
+  const fmtShort = (v: number) => {
+    const sign = v >= 0 ? '+' : ''
+    if (Math.abs(v) >= 10000) return sign + '$' + (v/1000).toFixed(0) + 'k'
+    if (Math.abs(v) >= 1000)  return sign + '$' + (v/1000).toFixed(1) + 'k'
+    return sign + '$' + v.toFixed(0)
+  }
+
+  const G = '#10b981', R = '#ef4444', MUTED = '#334155'
 
   return (
-    <div className="rounded-xl p-5" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
-      {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <div>
-          <h3 className="text-sm font-semibold text-text-primary">P&amp;L Calendar</h3>
-          <p className="text-xs text-text-muted mt-0.5">Daily closed trade results</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <span className="text-sm font-mono font-bold tabular"
-            style={{ color: monthlyPnl >= 0 ? '#00c878' : '#ff3047' }}>
-            {monthlyPnl >= 0 ? '+' : ''}{formatCurrency(monthlyPnl)}
-          </span>
-          <div className="flex items-center gap-1">
-            <button type="button" onClick={() => setMonthOffset(o => o - 1)}
-              className="w-6 h-6 rounded flex items-center justify-center transition-colors text-text-muted hover:text-white"
-              style={{ background: 'rgba(255,255,255,0.06)' }}>
-              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><polyline points="15 18 9 12 15 6"/></svg>
-            </button>
-            <span className="text-xs font-semibold text-text-secondary w-36 text-center">{label}</span>
-            <button type="button" onClick={() => setMonthOffset(o => Math.min(o + 1, 0))}
-              disabled={monthOffset === 0}
-              className="w-6 h-6 rounded flex items-center justify-center transition-colors text-text-muted hover:text-white disabled:opacity-30"
-              style={{ background: 'rgba(255,255,255,0.06)' }}>
-              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><polyline points="9 18 15 12 9 6"/></svg>
-            </button>
+    <div style={{
+      borderRadius: 18, overflow: 'hidden',
+      background: 'linear-gradient(180deg, rgba(14,165,233,0.04) 0%, rgba(0,0,0,0) 60%)',
+      border: '1px solid rgba(255,255,255,0.09)',
+      boxShadow: '0 8px 40px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.06)',
+    }}>
+
+      {/* ── Top header ──────────────────────────────────────────────────────── */}
+      <div style={{ padding: '20px 22px 0', background: 'rgba(255,255,255,0.02)' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 16 }}>
+
+          {/* Title + icon */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{
+              width: 36, height: 36, borderRadius: 10, flexShrink: 0,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              background: 'linear-gradient(135deg, rgba(14,165,233,0.2), rgba(6,182,212,0.1))',
+              border: '1px solid rgba(14,165,233,0.25)',
+              boxShadow: '0 0 12px rgba(14,165,233,0.15)',
+            }}>
+              {/* Calendar icon */}
+              <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#38bdf8" strokeWidth={1.8}>
+                <rect x="3" y="4" width="18" height="18" rx="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/>
+                <line x1="8" y1="2" x2="8" y2="6"/>
+                <line x1="3" y1="10" x2="21" y2="10"/>
+              </svg>
+            </div>
+            <div>
+              <h3 style={{ fontSize: 15, fontWeight: 800, color: '#e2e8f0', margin: 0, lineHeight: 1.2 }}>P&amp;L Calendar</h3>
+              <p style={{ fontSize: 11, color: MUTED, margin: 0 }}>Daily closed trade performance</p>
+            </div>
+          </div>
+
+          {/* Month nav + monthly total */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <button onClick={() => setMonthOffset(o => o - 1)} style={{
+                width: 28, height: 28, borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)',
+                background: 'rgba(255,255,255,0.05)', color: '#64748b', cursor: 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><polyline points="15 18 9 12 15 6"/></svg>
+              </button>
+              <span style={{ fontSize: 12, fontWeight: 700, color: '#94a3b8', minWidth: 130, textAlign: 'center' }}>{label}</span>
+              <button onClick={() => setMonthOffset(o => Math.min(o + 1, 0))} disabled={monthOffset === 0} style={{
+                width: 28, height: 28, borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)',
+                background: 'rgba(255,255,255,0.05)', color: '#64748b', cursor: monthOffset === 0 ? 'not-allowed' : 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: monthOffset === 0 ? 0.3 : 1,
+              }}>
+                <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+            </div>
+            <div style={{
+              fontSize: 22, fontWeight: 900, fontFamily: 'monospace',
+              color: monthlyPnl >= 0 ? G : R,
+              textShadow: `0 0 20px ${monthlyPnl >= 0 ? 'rgba(16,185,129,0.4)' : 'rgba(239,68,68,0.4)'}`,
+              lineHeight: 1,
+            }}>
+              {monthlyPnl >= 0 ? '+' : ''}{formatCurrency(monthlyPnl)}
+            </div>
           </div>
         </div>
+
+        {/* ── Monthly stats strip ─────────────────────────────────────────── */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 16 }}>
+          {[
+            {
+              icon: <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#38bdf8" strokeWidth={2}><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
+              label: 'Trading Days', value: String(tradingDays), color: '#38bdf8',
+            },
+            {
+              icon: <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke={G} strokeWidth={2}><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>,
+              label: 'Win Days',
+              value: tradingDays > 0 ? `${winDays} (${Math.round(winDays/tradingDays*100)}%)` : '—',
+              color: G,
+            },
+            {
+              icon: <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke={G} strokeWidth={2}><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>,
+              label: 'Best Day', value: bestDay > 0 ? fmtShort(bestDay) : '—', color: G,
+            },
+            {
+              icon: <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke={R} strokeWidth={2}><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg>,
+              label: 'Worst Day', value: worstDay < 0 ? fmtShort(worstDay) : '—', color: R,
+            },
+          ].map(s => (
+            <div key={s.label} style={{ padding: '8px 10px', borderRadius: 10, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 4 }}>
+                {s.icon}
+                <span style={{ fontSize: 9, fontWeight: 700, color: MUTED, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{s.label}</span>
+              </div>
+              <span style={{ fontSize: 13, fontWeight: 800, fontFamily: 'monospace', color: s.color }}>{s.value}</span>
+            </div>
+          ))}
+        </div>
       </div>
 
-      {/* Weekday headers */}
-      <div className="grid grid-cols-7 mb-1">
-        {['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d => (
-          <div key={d} className="text-center text-[10px] font-semibold uppercase tracking-wider pb-1.5"
-               style={{ color: '#3b5070' }}>{d}</div>
-        ))}
-      </div>
+      {/* ── Grid ──────────────────────────────────────────────────────────── */}
+      <div data-calendar style={{ padding: '0 22px 20px', position: 'relative' }}>
 
-      {/* Calendar grid */}
-      <div className="grid grid-cols-7 gap-1">
-        {cells.map((day, i) => {
-          if (!day) return <div key={`e-${i}`} />
-          const key = `${year}-${String(month + 1).padStart(2,'0')}-${String(day).padStart(2,'0')}`
-          const data = dayMap[key]
-          const isToday = key === todayStr
-          const intensity = data ? Math.min(data.pnl === 0 ? 0 : Math.abs(data.pnl) / maxAbs, 1) : 0
-          const alpha     = data ? 0.15 + intensity * 0.6 : 0
+        {/* Weekday + Week header */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr) 64px', gap: 4, marginBottom: 4 }}>
+          {['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d => (
+            <div key={d} style={{ textAlign: 'center', fontSize: 10, fontWeight: 700, color: MUTED, textTransform: 'uppercase', letterSpacing: '0.07em', paddingBottom: 4 }}>{d}</div>
+          ))}
+          <div style={{ textAlign: 'center', fontSize: 10, fontWeight: 700, color: '#1e3a5f', textTransform: 'uppercase', letterSpacing: '0.07em' }}>Week</div>
+        </div>
 
-          let bg = 'rgba(255,255,255,0.03)'
-          let textColor = '#3b5070'
-          if (data) {
-            bg = data.pnl >= 0
-              ? `rgba(0,200,120,${alpha})`
-              : `rgba(255,48,71,${alpha})`
-            textColor = data.pnl >= 0 ? '#00c878' : '#ff3047'
-          }
-
+        {/* Weeks */}
+        {rows.map((row, ri) => {
+          const wPnl: number = weekTotal(row)
+          const hasWeekTrades = row.some(day => {
+            if (!day) return false
+            const k = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`
+            return !!dayMap[k]
+          })
           return (
-            <div key={key}
-              title={data ? `${formatCurrency(data.pnl)} (${data.count} trade${data.count > 1 ? 's' : ''})` : `${day} - no trades`}
-              className="aspect-square rounded-md flex flex-col items-center justify-center cursor-default relative transition-all"
-              style={{
-                background: bg,
-                border: isToday ? '1px solid rgba(14,165,233,0.5)' : '1px solid transparent',
+            <div key={ri} style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr) 64px', gap: 4, marginBottom: 4 }}>
+              {row.map((day, ci) => {
+                if (!day) return <div key={`e-${ri}-${ci}`} style={{ borderRadius: 10 }}/>
+                const key = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`
+                const data    = dayMap[key]
+                const isToday = key === todayStr
+                const inFuture = new Date(year, month, day) > now && key !== todayStr
+
+                // Heat map intensity relative to best/worst day this month
+                const intensity = data
+                  ? Math.min(Math.abs(data.pnl) / maxAbsMonth, 1)
+                  : 0
+                const alpha = data ? 0.12 + intensity * 0.55 : 0
+
+                const bg = data
+                  ? data.pnl >= 0
+                    ? `rgba(16,185,129,${alpha})`
+                    : `rgba(239,68,68,${alpha})`
+                  : inFuture ? 'rgba(255,255,255,0.01)' : 'rgba(255,255,255,0.03)'
+
+                const pnlColor2 = data
+                  ? data.pnl >= 0 ? G : R
+                  : inFuture ? '#1e293b' : MUTED
+
+                const borderStyle = isToday
+                  ? `1px solid rgba(56,189,248,0.7)`
+                  : data
+                  ? `1px solid ${data.pnl >= 0 ? 'rgba(16,185,129,0.25)' : 'rgba(239,68,68,0.25)'}`
+                  : '1px solid rgba(255,255,255,0.04)'
+
+                const glowShadow = isToday
+                  ? '0 0 0 2px rgba(56,189,248,0.15), inset 0 0 10px rgba(56,189,248,0.05)'
+                  : data && intensity > 0.5
+                  ? `inset 0 0 12px ${data.pnl >= 0 ? 'rgba(16,185,129,0.08)' : 'rgba(239,68,68,0.08)'}`
+                  : 'none'
+
+                return (
+                  <div
+                    key={key}
+                    onMouseEnter={e => {
+                      const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
+                      const parent = (e.currentTarget as HTMLElement).closest('[data-calendar]')?.getBoundingClientRect()
+                      setTooltip({ key, x: rect.left - (parent?.left ?? 0), y: rect.bottom - (parent?.top ?? 0) })
+                    }}
+                    onMouseLeave={() => setTooltip(null)}
+                    style={{
+                      minHeight: 58, borderRadius: 10, padding: '7px 6px',
+                      background: bg, border: borderStyle, boxShadow: glowShadow,
+                      cursor: data ? 'default' : 'default',
+                      transition: 'all 0.15s',
+                      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'space-between',
+                      position: 'relative', overflow: 'hidden',
+                    }}
+                  >
+                    {/* Gradient sheen for high-intensity days */}
+                    {data && intensity > 0.6 && (
+                      <div style={{
+                        position: 'absolute', inset: 0, borderRadius: 10,
+                        background: data.pnl >= 0
+                          ? 'linear-gradient(135deg, rgba(16,185,129,0.1) 0%, transparent 70%)'
+                          : 'linear-gradient(135deg, rgba(239,68,68,0.1) 0%, transparent 70%)',
+                        pointerEvents: 'none',
+                      }}/>
+                    )}
+
+                    {/* Day number */}
+                    <span style={{
+                      fontSize: 11, fontWeight: isToday ? 800 : 600, alignSelf: 'flex-start',
+                      color: isToday ? '#38bdf8' : data ? '#94a3b8' : inFuture ? '#1e293b' : '#334155',
+                      lineHeight: 1,
+                    }}>{day}</span>
+
+                    {/* P&L value */}
+                    {data && (
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+                        <span style={{
+                          fontSize: intensity > 0.4 ? 12 : 10,
+                          fontWeight: 800, fontFamily: 'monospace',
+                          color: pnlColor2, lineHeight: 1,
+                          textShadow: intensity > 0.6 ? `0 0 8px ${data.pnl >= 0 ? 'rgba(16,185,129,0.5)' : 'rgba(239,68,68,0.5)'}` : 'none',
+                        }}>
+                          {fmtShort(data.pnl)}
+                        </span>
+                        {/* Trade count dots */}
+                        <div style={{ display: 'flex', gap: 2 }}>
+                          {Array.from({ length: Math.min(data.count, 5) }).map((_, i) => (
+                            <span key={i} style={{
+                              width: 4, height: 4, borderRadius: '50%',
+                              background: data.pnl >= 0 ? 'rgba(16,185,129,0.7)' : 'rgba(239,68,68,0.7)',
+                              boxShadow: data.pnl >= 0 ? '0 0 3px rgba(16,185,129,0.5)' : '0 0 3px rgba(239,68,68,0.5)',
+                            }}/>
+                          ))}
+                          {data.count > 5 && <span style={{ fontSize: 8, color: pnlColor2, lineHeight: '4px' }}>+{data.count-5}</span>}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+
+              {/* Week total */}
+              <div style={{
+                minHeight: 58, borderRadius: 10, display: 'flex', flexDirection: 'column',
+                alignItems: 'center', justifyContent: 'center', gap: 3,
+                background: hasWeekTrades
+                  ? wPnl >= 0 ? 'rgba(16,185,129,0.07)' : 'rgba(239,68,68,0.07)'
+                  : 'rgba(255,255,255,0.02)',
+                border: hasWeekTrades
+                  ? `1px solid ${wPnl >= 0 ? 'rgba(16,185,129,0.18)' : 'rgba(239,68,68,0.18)'}`
+                  : '1px solid rgba(255,255,255,0.04)',
               }}>
-              <span className="text-[10px] font-mono leading-none" style={{ color: data ? textColor : '#3b5070' }}>{day}</span>
-              {data && (
-                <span className="text-[9px] font-mono font-bold leading-none mt-0.5 tabular" style={{ color: textColor }}>
-                  {data.pnl >= 0 ? '+' : ''}{data.pnl >= 1000 || data.pnl <= -1000
-                    ? (data.pnl / 1000).toFixed(1) + 'k'
-                    : data.pnl.toFixed(0)}
-                </span>
-              )}
+                {hasWeekTrades ? (
+                  <>
+                    <span style={{ fontSize: 8, fontWeight: 700, color: MUTED, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Wk</span>
+                    <span style={{ fontSize: 11, fontWeight: 800, fontFamily: 'monospace', color: wPnl >= 0 ? G : R, lineHeight: 1 }}>
+                      {fmtShort(wPnl)}
+                    </span>
+                  </>
+                ) : (
+                  <span style={{ fontSize: 10, color: '#1e3a5f' }}>—</span>
+                )}
+              </div>
             </div>
           )
         })}
+
+        {/* ── Hover tooltip ──────────────────────────────────────────────── */}
+        {tooltip && dayMap[tooltip.key] && (() => {
+          const d   = dayMap[tooltip.key]
+          const [y, m, day] = tooltip.key.split('-').map(Number)
+          const dateLabel = new Date(y, m-1, day).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
+          const winRate2 = d.count > 0 ? Math.round((d.wins / d.count) * 100) : 0
+          return (
+            <div style={{
+              position: 'absolute', left: Math.min(tooltip.x, 500), top: tooltip.y + 6,
+              zIndex: 50, pointerEvents: 'none',
+              background: 'rgba(10,14,26,0.97)', backdropFilter: 'blur(12px)',
+              border: `1px solid ${d.pnl >= 0 ? 'rgba(16,185,129,0.35)' : 'rgba(239,68,68,0.35)'}`,
+              borderRadius: 12, padding: '10px 14px', minWidth: 160,
+              boxShadow: `0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04)`,
+            }}>
+              <p style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', margin: '0 0 6px' }}>{dateLabel}</p>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 16, marginBottom: 4 }}>
+                <span style={{ fontSize: 10, color: '#475569' }}>Net P&L</span>
+                <span style={{ fontSize: 14, fontWeight: 900, fontFamily: 'monospace', color: d.pnl >= 0 ? G : R }}>
+                  {d.pnl >= 0 ? '+' : ''}{formatCurrency(d.pnl)}
+                </span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, marginBottom: 2 }}>
+                <span style={{ fontSize: 10, color: '#475569' }}>Trades</span>
+                <span style={{ fontSize: 11, fontWeight: 700, color: '#e2e8f0' }}>{d.count}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16 }}>
+                <span style={{ fontSize: 10, color: '#475569' }}>Win rate</span>
+                <span style={{ fontSize: 11, fontWeight: 700, color: winRate2 >= 50 ? G : R }}>{winRate2}%</span>
+              </div>
+            </div>
+          )
+        })()}
       </div>
 
-      {/* Legend */}
-      <div className="flex items-center justify-end gap-4 mt-3">
-        <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded-sm" style={{ background: 'rgba(0,200,120,0.55)' }} />
-          <span className="text-[10px] text-text-muted">Profit day</span>
+      {/* ── Legend + heatmap scale ───────────────────────────────────────── */}
+      <div style={{ padding: '12px 22px 16px', borderTop: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ width: 10, height: 10, borderRadius: 3, background: 'rgba(16,185,129,0.6)', boxShadow: '0 0 6px rgba(16,185,129,0.4)' }}/>
+            <span style={{ fontSize: 10, color: '#475569' }}>Profit day</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ width: 10, height: 10, borderRadius: 3, background: 'rgba(239,68,68,0.6)', boxShadow: '0 0 6px rgba(239,68,68,0.4)' }}/>
+            <span style={{ fontSize: 10, color: '#475569' }}>Loss day</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ width: 10, height: 10, borderRadius: 3, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}/>
+            <span style={{ fontSize: 10, color: '#475569' }}>No trades</span>
+          </div>
         </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded-sm" style={{ background: 'rgba(255,48,71,0.55)' }} />
-          <span className="text-[10px] text-text-muted">Loss day</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded-sm" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }} />
-          <span className="text-[10px] text-text-muted">No trades</span>
+        {/* Heatmap scale */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <span style={{ fontSize: 10, color: '#334155' }}>Low</span>
+          <div style={{
+            width: 80, height: 8, borderRadius: 4, overflow: 'hidden',
+            background: 'linear-gradient(to right, rgba(16,185,129,0.15), rgba(16,185,129,0.7))',
+          }}/>
+          <span style={{ fontSize: 10, color: '#334155' }}>High intensity</span>
         </div>
       </div>
+
+      <style>{`[data-calendar]{position:relative}`}</style>
     </div>
   )
 }
