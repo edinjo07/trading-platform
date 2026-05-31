@@ -5,155 +5,153 @@ import {
   Bot, BotStrategy, BotLog, BotEquityPoint, SymbolSentiment, getNewsSentiment,
 } from '../api/bots'
 
-// ─── Constants ────────────────────────────────────────────────────────────────
+// ─── Design tokens ────────────────────────────────────────────────────────────
 
-const STRATEGY_META: Record<BotStrategy, { label: string; color: string; desc: string; gradient: string }> = {
-  ma_crossover: { label: 'MA Cross',  color: '#0ea5e9', gradient: 'from-sky-500/10',    desc: 'Golden/death cross of fast & slow SMAs' },
-  rsi:          { label: 'RSI',       color: '#8b5cf6', gradient: 'from-violet-500/10', desc: 'Buy oversold, sell overbought via RSI' },
-  macd:         { label: 'MACD',      color: '#06b6d4', gradient: 'from-cyan-500/10',   desc: 'Signal-line crossover with histogram' },
-  momentum:     { label: 'Momentum',  color: '#f59e0b', gradient: 'from-amber-500/10',  desc: 'Breakout above/below N-period range' },
+const C = {
+  bg:        '#07090f',
+  surface:   '#0c1018',
+  surface2:  '#111927',
+  border:    'rgba(255,255,255,0.07)',
+  border2:   'rgba(255,255,255,0.12)',
+  text1:     '#e2e8f0',
+  text2:     '#64748b',
+  text3:     '#334155',
+  blue:      '#0ea5e9',
+  blueGlow:  'rgba(14,165,233,0.18)',
+  green:     '#10b981',
+  red:       '#ef4444',
+  amber:     '#f59e0b',
+  cyan:      '#06b6d4',
+  violet:    '#8b5cf6',
 }
 
-const STRATEGY_ICON: Record<BotStrategy, React.ReactNode> = {
-  ma_crossover: (
-    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-      <polyline points="3 17 9 11 13 15 21 7"/>
-      <polyline points="17 7 21 7 21 11"/>
-    </svg>
-  ),
-  rsi: (
-    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-      <path d="M2 12 Q6 4 10 12 Q14 20 18 12 Q20 8 22 12"/>
-    </svg>
-  ),
-  macd: (
-    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-      <rect x="3" y="12" width="3" height="8" rx="1"/>
-      <rect x="9" y="8"  width="3" height="12" rx="1"/>
-      <rect x="15" y="4" width="3" height="16" rx="1"/>
-      <rect x="21" y="10" width="1" height="1"/>
-    </svg>
-  ),
-  momentum: (
-    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-      <path d="M5 19 L12 5 L19 19"/>
-      <line x1="8" y1="14" x2="16" y2="14"/>
-    </svg>
-  ),
+const STRAT: Record<BotStrategy, { label: string; color: string; glow: string }> = {
+  ma_crossover: { label: 'MA Cross',  color: '#0ea5e9', glow: 'rgba(14,165,233,0.15)'  },
+  rsi:          { label: 'RSI',       color: '#8b5cf6', glow: 'rgba(139,92,246,0.15)'  },
+  macd:         { label: 'MACD',      color: '#06b6d4', glow: 'rgba(6,182,212,0.15)'   },
+  momentum:     { label: 'Momentum',  color: '#f59e0b', glow: 'rgba(245,158,11,0.15)'  },
 }
 
-const LOG_STYLE: Record<string, { color: string; bg: string; label: string }> = {
-  info:   { color: '#64748b', bg: 'transparent',              label: 'INFO'   },
-  signal: { color: '#f59e0b', bg: 'rgba(245,158,11,0.05)',    label: 'SIGNAL' },
-  trade:  { color: '#00c878', bg: 'rgba(0,200,120,0.05)',     label: 'TRADE'  },
-  risk:   { color: '#f43f5e', bg: 'rgba(244,63,94,0.05)',     label: 'RISK'   },
-  warn:   { color: '#f97316', bg: 'rgba(249,115,22,0.05)',    label: 'WARN'   },
-  error:  { color: '#ef4444', bg: 'rgba(239,68,68,0.05)',     label: 'ERROR'  },
+const STATUS_CFG: Record<string, { bg: string; color: string; label: string; pulse: boolean }> = {
+  running:    { bg: 'rgba(16,185,129,0.12)', color: '#10b981', label: 'Running',    pulse: true  },
+  warming_up: { bg: 'rgba(14,165,233,0.12)', color: '#0ea5e9', label: 'Warming up', pulse: true  },
+  paused:     { bg: 'rgba(245,158,11,0.12)', color: '#f59e0b', label: 'Paused',     pulse: false },
+  idle:       { bg: 'rgba(100,116,139,0.1)', color: '#64748b', label: 'Idle',       pulse: false },
+  stopped:    { bg: 'rgba(100,116,139,0.1)', color: '#475569', label: 'Stopped',    pulse: false },
+  error:      { bg: 'rgba(239,68,68,0.12)',  color: '#ef4444', label: 'Error',      pulse: false },
 }
 
-const SYMBOL_LIST = [
+const LOG_CFG: Record<string, { color: string; border: string; label: string }> = {
+  info:   { color: '#475569', border: '#1e293b', label: 'INFO'   },
+  signal: { color: '#f59e0b', border: '#78350f', label: 'SIGNAL' },
+  trade:  { color: '#10b981', border: '#064e3b', label: 'TRADE'  },
+  risk:   { color: '#f43f5e', border: '#881337', label: 'RISK'   },
+  warn:   { color: '#fb923c', border: '#7c2d12', label: 'WARN'   },
+  error:  { color: '#ef4444', border: '#7f1d1d', label: 'ERROR'  },
+}
+
+const SYMBOLS = [
   'BTCUSD','ETHUSD','SOLUSD','BNBUSD','XRPUSD',
   'AAPL','TSLA','NVDA','MSFT','GOOGL','AMZN','META',
   'EURUSD','GBPUSD','USDJPY','AUDUSD',
+  'XAUUSD','USOIL',
 ]
 
+// ─── Formatters ───────────────────────────────────────────────────────────────
+
+function fmtPnl(n: number) {
+  const s = n >= 0 ? '+' : '-'
+  return `${s}$${Math.abs(n).toFixed(2)}`
+}
 function fmtTime(iso: string) {
   return new Date(iso).toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })
 }
 function fmtDate(iso: string) {
   return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
 }
-function $pnl(n: number, showSign = true) {
-  const s = n >= 0 ? (showSign ? '+' : '') : '-'
-  return `${s}$${Math.abs(n).toFixed(2)}`
-}
 
 // ─── Status badge ─────────────────────────────────────────────────────────────
 
-function StatusBadge({ status, compact = false }: { status: Bot['status']; compact?: boolean }) {
-  const cfg: Record<string, { bg: string; color: string; label: string }> = {
-    running:    { bg: 'rgba(0,200,120,0.12)',   color: '#00c878', label: 'Running'    },
-    warming_up: { bg: 'rgba(56,189,248,0.12)',  color: '#38bdf8', label: 'Warming up' },
-    paused:     { bg: 'rgba(245,158,11,0.12)',  color: '#f59e0b', label: 'Paused'     },
-    idle:       { bg: 'rgba(148,163,184,0.12)', color: '#64748b', label: 'Idle'       },
-    stopped:    { bg: 'rgba(100,116,139,0.12)', color: '#64748b', label: 'Stopped'    },
-    error:      { bg: 'rgba(239,68,68,0.12)',   color: '#ef4444', label: 'Error'      },
-  }
-  const c = cfg[status] ?? cfg.idle
-  const alive = status === 'running' || status === 'warming_up'
+function StatusBadge({ status, compact = false }: { status: string; compact?: boolean }) {
+  const cfg = STATUS_CFG[status] ?? STATUS_CFG.idle
   return (
-    <span className={`inline-flex items-center gap-1.5 rounded-full font-semibold ${compact ? 'px-2 py-0.5 text-xs' : 'px-2.5 py-1 text-xs'}`}
-          style={{ background: c.bg, color: c.color }}>
-      <span className={`rounded-full shrink-0 ${compact ? 'w-1.5 h-1.5' : 'w-1.5 h-1.5'} ${alive ? 'animate-pulse' : ''}`}
-            style={{ background: c.color, boxShadow: alive ? `0 0 5px ${c.color}` : 'none' }} />
-      {c.label}
+    <span style={{
+      display: 'inline-flex', alignItems: 'center', gap: 5,
+      padding: compact ? '2px 8px' : '3px 10px',
+      borderRadius: 20, fontSize: compact ? 10 : 11, fontWeight: 700,
+      background: cfg.bg, color: cfg.color,
+      border: `1px solid ${cfg.color}22`,
+    }}>
+      <span style={{
+        width: 6, height: 6, borderRadius: '50%', background: cfg.color, flexShrink: 0,
+        boxShadow: cfg.pulse ? `0 0 6px ${cfg.color}` : 'none',
+        animation: cfg.pulse ? 'pulse 1.8s ease-in-out infinite' : 'none',
+      }} />
+      {cfg.label}
     </span>
   )
 }
 
-// ─── Equity area chart ────────────────────────────────────────────────────────
+// ─── Equity chart ─────────────────────────────────────────────────────────────
 
-function EquityChart({ curve, height = 80 }: { curve: BotEquityPoint[]; height?: number }) {
+function EquityChart({ curve, height = 100 }: { curve: BotEquityPoint[]; height?: number }) {
   if (!curve || curve.length < 2) {
     return (
-      <div className="flex items-center justify-center text-xs" style={{ height, color: '#334155' }}>
-        No equity data yet — trades will appear here
+      <div style={{ height, display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.text3, fontSize: 12 }}>
+        No equity data yet
       </div>
     )
   }
-  const W = 800
+  const W    = 800
   const pnls = curve.map(p => p.pnl)
   const rawMin = Math.min(...pnls), rawMax = Math.max(...pnls)
-  const pad  = (rawMax - rawMin) * 0.1 || 1
-  const min  = rawMin - pad, max = rawMax + pad
-  const range = max - min
-  const toY = (v: number) => height - ((v - min) / range) * height
-  const zeroY = toY(0)
-  const pts = curve.map((p, i) => ({ x: (i / (curve.length - 1)) * W, y: toY(p.pnl) }))
-  const linePts = pts.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ')
-  const fillPath =
-    `M ${pts[0].x},${Math.min(zeroY, height)} ` +
+  const pad    = (rawMax - rawMin) * 0.12 || 1
+  const min    = rawMin - pad, max = rawMax + pad, range = max - min
+  const toY    = (v: number) => height - ((v - min) / range) * height
+  const zeroY  = Math.max(0, Math.min(height, toY(0)))
+  const pts    = curve.map((p, i) => ({ x: (i / (curve.length - 1)) * W, y: toY(p.pnl) }))
+  const line   = pts.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ')
+  const fill   =
+    `M ${pts[0].x},${zeroY} ` +
     pts.map(p => `L ${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ') +
-    ` L ${pts[pts.length - 1].x},${Math.min(zeroY, height)} Z`
-  const lastPnl = pnls[pnls.length - 1]
-  const color = lastPnl >= 0 ? '#00c878' : '#ef4444'
-  const uid = Math.random().toString(36).slice(2, 7)
+    ` L ${pts[pts.length - 1].x},${zeroY} Z`
+  const last  = pnls[pnls.length - 1]
+  const color = last >= 0 ? C.green : C.red
+  const uid   = Math.random().toString(36).slice(2, 6)
   return (
     <div style={{ position: 'relative', height }}>
-      <svg width="100%" height={height} viewBox={`0 0 ${W} ${height}`} preserveAspectRatio="none"
-           style={{ display: 'block' }}>
+      <svg width="100%" height={height} viewBox={`0 0 ${W} ${height}`} preserveAspectRatio="none">
         <defs>
-          <linearGradient id={`eg-${uid}`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%"   stopColor={color} stopOpacity="0.25"/>
-            <stop offset="100%" stopColor={color} stopOpacity="0"/>
+          <linearGradient id={`g-${uid}`} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%"   stopColor={color} stopOpacity="0.3"/>
+            <stop offset="100%" stopColor={color} stopOpacity="0.02"/>
           </linearGradient>
         </defs>
-        {/* zero line */}
-        {zeroY >= 0 && zeroY <= height && (
+        {zeroY > 0 && zeroY < height && (
           <line x1="0" y1={zeroY} x2={W} y2={zeroY}
-                stroke="rgba(255,255,255,0.08)" strokeWidth="1" strokeDasharray="4 4"/>
+                stroke="rgba(255,255,255,0.08)" strokeWidth="1" strokeDasharray="6 4"/>
         )}
-        <path d={fillPath} fill={`url(#eg-${uid})`}/>
-        <polyline fill="none" stroke={color} strokeWidth="2" strokeLinejoin="round" points={linePts}/>
-        {/* last point dot */}
-        <circle cx={pts[pts.length - 1].x} cy={pts[pts.length - 1].y} r="3"
-                fill={color} stroke="#000" strokeWidth="2"/>
+        <path d={fill} fill={`url(#g-${uid})`}/>
+        <polyline fill="none" stroke={color} strokeWidth="2.5" strokeLinejoin="round" points={line}/>
+        <circle cx={pts[pts.length-1].x} cy={pts[pts.length-1].y} r="4"
+                fill={color} stroke={C.bg} strokeWidth="2.5"/>
       </svg>
     </div>
   )
 }
 
-// Mini sparkline for bot cards
-function MiniSparkline({ curve }: { curve: BotEquityPoint[] }) {
-  if (!curve || curve.length < 2) return <div style={{ width: 64, height: 24 }} />
-  const W = 64, H = 24
+function Sparkline({ curve }: { curve: BotEquityPoint[] }) {
+  if (!curve || curve.length < 2) return <div style={{ width: 56, height: 20 }}/>
+  const W = 56, H = 20
   const pnls = curve.map(p => p.pnl)
-  const min = Math.min(...pnls), max = Math.max(...pnls)
+  const min  = Math.min(...pnls), max = Math.max(...pnls)
   const range = max - min || 1
-  const pts = curve.map((p, i) => `${((i / (curve.length - 1)) * W).toFixed(1)},${(H - ((p.pnl - min) / range) * H).toFixed(1)}`).join(' ')
-  const color = pnls[pnls.length - 1] >= 0 ? '#00c878' : '#ef4444'
+  const pts   = curve.map((p, i) =>
+    `${((i / (curve.length - 1)) * W).toFixed(1)},${(H - ((p.pnl - min) / range) * H).toFixed(1)}`
+  ).join(' ')
+  const color = pnls[pnls.length - 1] >= 0 ? C.green : C.red
   return (
-    <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`}>
+    <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} style={{ display: 'block' }}>
       <polyline fill="none" stroke={color} strokeWidth="1.5" strokeLinejoin="round" points={pts}/>
     </svg>
   )
@@ -162,17 +160,27 @@ function MiniSparkline({ curve }: { curve: BotEquityPoint[] }) {
 // ─── Log line ─────────────────────────────────────────────────────────────────
 
 function LogLine({ log }: { log: BotLog }) {
-  const s = LOG_STYLE[log.level] ?? LOG_STYLE.info
+  const cfg = LOG_CFG[log.level] ?? LOG_CFG.info
   return (
-    <div className="flex items-start gap-3 px-4 py-1.5"
-         style={{ borderBottom: '1px solid rgba(255,255,255,0.03)', background: s.bg }}>
-      <span className="text-xs font-mono shrink-0 tabular-nums" style={{ color: '#334155', minWidth: 72 }}>
+    <div style={{
+      display: 'flex', alignItems: 'flex-start', gap: 10,
+      padding: '6px 14px 6px 0',
+      borderBottom: `1px solid rgba(255,255,255,0.03)`,
+      borderLeft: `3px solid ${cfg.border}`,
+      paddingLeft: 10,
+    }}>
+      <span style={{ fontSize: 10, color: C.text3, fontFamily: 'monospace', flexShrink: 0, minWidth: 68, paddingTop: 1 }}>
         {fmtTime(log.ts)}
       </span>
-      <span className="text-xs font-bold shrink-0 uppercase tabular-nums" style={{ color: s.color, minWidth: 52 }}>
-        {s.label}
+      <span style={{
+        fontSize: 9, fontWeight: 800, letterSpacing: '0.06em',
+        color: cfg.color, flexShrink: 0, minWidth: 46,
+        padding: '2px 5px', borderRadius: 4, background: `${cfg.border}44`,
+        paddingTop: 2,
+      }}>
+        {cfg.label}
       </span>
-      <span className="text-xs font-mono leading-relaxed break-all" style={{ color: s.color, opacity: 0.85 }}>
+      <span style={{ fontSize: 11, color: cfg.color, fontFamily: 'monospace', lineHeight: 1.5, wordBreak: 'break-all', opacity: 0.9 }}>
         {log.message}
       </span>
     </div>
@@ -182,83 +190,89 @@ function LogLine({ log }: { log: BotLog }) {
 // ─── Bot card ─────────────────────────────────────────────────────────────────
 
 function BotCard({ bot, selected, onClick }: { bot: Bot; selected: boolean; onClick: () => void }) {
-  const meta     = STRATEGY_META[bot.strategy]
-  const pnlPos   = bot.pnl >= 0
-  const winRate  = bot.trades > 0 ? ((bot.wins / bot.trades) * 100).toFixed(0) : null
-  const warmPct  = bot.warmupBarsNeeded > 0
+  const meta    = STRAT[bot.strategy]
+  const pnlPos  = bot.pnl >= 0
+  const winRate = bot.trades > 0 ? Math.round((bot.wins / bot.trades) * 100) : null
+  const warmPct = bot.warmupBarsNeeded > 0
     ? Math.min(100, Math.round((bot.warmupBarsCurrent / bot.warmupBarsNeeded) * 100))
     : 0
+  const alive = bot.status === 'running' || bot.status === 'warming_up'
 
   return (
     <div
       onClick={onClick}
-      className="relative overflow-hidden rounded-xl cursor-pointer transition-all duration-200"
       style={{
-        background: selected ? 'rgba(14,165,233,0.08)' : 'rgba(255,255,255,0.03)',
-        border: `1px solid ${selected ? 'rgba(14,165,233,0.3)' : 'rgba(255,255,255,0.07)'}`,
+        position: 'relative', overflow: 'hidden', borderRadius: 12, cursor: 'pointer',
+        background: selected ? `linear-gradient(135deg, ${meta.glow}, ${C.surface})` : C.surface,
+        border: `1px solid ${selected ? meta.color + '40' : C.border}`,
+        transition: 'all 0.18s',
+        boxShadow: selected ? `0 0 20px ${meta.glow}` : 'none',
       }}
     >
-      {/* Strategy color accent bar */}
-      <div className="absolute left-0 top-0 bottom-0 w-0.5 rounded-l-xl"
-           style={{ background: meta.color }}/>
+      {/* Strategy accent bar */}
+      <div style={{
+        position: 'absolute', left: 0, top: 0, bottom: 0, width: 3, borderRadius: '12px 0 0 12px',
+        background: alive
+          ? `linear-gradient(to bottom, ${meta.color}, ${meta.color}66)`
+          : `${meta.color}44`,
+      }}/>
 
-      <div className="pl-4 pr-3 pt-3 pb-3">
+      <div style={{ padding: '12px 12px 10px 14px' }}>
         {/* Top row */}
-        <div className="flex items-start justify-between gap-2 mb-2">
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2 mb-0.5">
-              <span className="text-sm font-bold text-white truncate leading-tight">{bot.name}</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className="text-xs font-medium" style={{ color: '#64748b' }}>{bot.symbol}</span>
-              <span className="w-1 h-1 rounded-full" style={{ background: '#1e2d3d' }}/>
-              <span className="text-xs font-semibold" style={{ color: meta.color }}>{meta.label}</span>
-              <span className="w-1 h-1 rounded-full" style={{ background: '#1e2d3d' }}/>
-              <span className="text-xs font-bold px-1.5 py-0.5 rounded"
-                    style={{ background: bot.mode === 'real' ? 'rgba(239,68,68,0.12)' : 'rgba(56,189,248,0.08)', color: bot.mode === 'real' ? '#ef4444' : '#38bdf8' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8, marginBottom: 8 }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <p style={{ fontSize: 13, fontWeight: 700, color: C.text1, margin: '0 0 4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              {bot.name}
+            </p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+              <span style={{ fontSize: 10, color: C.text2 }}>{bot.symbol}</span>
+              <span style={{ width: 3, height: 3, borderRadius: '50%', background: C.text3 }}/>
+              <span style={{ fontSize: 10, fontWeight: 700, color: meta.color }}>{meta.label}</span>
+              <span style={{
+                fontSize: 9, fontWeight: 800, padding: '1px 5px', borderRadius: 5, letterSpacing: '0.04em',
+                background: bot.mode === 'real' ? 'rgba(239,68,68,0.12)' : 'rgba(14,165,233,0.08)',
+                color: bot.mode === 'real' ? C.red : C.blue,
+                border: `1px solid ${bot.mode === 'real' ? 'rgba(239,68,68,0.2)' : 'rgba(14,165,233,0.2)'}`,
+              }}>
                 {bot.mode === 'real' ? 'REAL' : 'DEMO'}
               </span>
             </div>
           </div>
-          <div className="flex flex-col items-end gap-1.5 shrink-0">
-            <StatusBadge status={bot.status} compact />
-            <MiniSparkline curve={bot.equityCurve} />
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4, flexShrink: 0 }}>
+            <StatusBadge status={bot.status} compact/>
+            <Sparkline curve={bot.equityCurve}/>
           </div>
         </div>
 
         {/* Warmup bar */}
         {bot.status === 'warming_up' && (
-          <div className="mb-2">
-            <div className="flex justify-between text-xs mb-1" style={{ color: '#38bdf8' }}>
-              <span>Warming up</span>
-              <span>{bot.warmupBarsCurrent}/{bot.warmupBarsNeeded}</span>
+          <div style={{ marginBottom: 8 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 9, color: C.blue, marginBottom: 3 }}>
+              <span>Warming up</span><span>{bot.warmupBarsCurrent}/{bot.warmupBarsNeeded}</span>
             </div>
-            <div className="h-0.5 rounded-full" style={{ background: 'rgba(56,189,248,0.15)' }}>
-              <div className="h-0.5 rounded-full transition-all" style={{ width: `${warmPct}%`, background: '#38bdf8' }}/>
+            <div style={{ height: 2, borderRadius: 2, background: 'rgba(14,165,233,0.12)' }}>
+              <div style={{ height: 2, borderRadius: 2, width: `${warmPct}%`, background: C.blue, transition: 'width 0.5s' }}/>
             </div>
           </div>
         )}
 
         {/* Stats row */}
-        <div className="flex items-center gap-3 mt-1">
-          <div className="flex items-baseline gap-1">
-            <span className="text-xs font-bold font-mono" style={{ color: pnlPos ? '#00c878' : '#ef4444' }}>
-              {$pnl(bot.pnl)}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 3 }}>
+            <span style={{ fontSize: 13, fontWeight: 800, fontFamily: 'monospace', color: pnlPos ? C.green : C.red }}>
+              {fmtPnl(bot.pnl)}
             </span>
-            <span className="text-xs" style={{ color: '#334155' }}>pnl</span>
           </div>
-          <span style={{ color: '#1e2d3d' }}>·</span>
-          <div className="flex items-baseline gap-1">
-            <span className="text-xs font-bold text-white">{bot.trades}</span>
-            <span className="text-xs" style={{ color: '#334155' }}>trades</span>
-          </div>
-          {winRate && (
+          <div style={{ width: 1, height: 12, background: C.text3 }}/>
+          <span style={{ fontSize: 11, color: C.text2 }}>
+            <span style={{ color: C.text1, fontWeight: 700 }}>{bot.trades}</span> trades
+          </span>
+          {winRate !== null && (
             <>
-              <span style={{ color: '#1e2d3d' }}>·</span>
-              <div className="flex items-baseline gap-1">
-                <span className="text-xs font-bold" style={{ color: '#38bdf8' }}>{winRate}%</span>
-                <span className="text-xs" style={{ color: '#334155' }}>win</span>
-              </div>
+              <div style={{ width: 1, height: 12, background: C.text3 }}/>
+              <span style={{ fontSize: 11, fontWeight: 700, color: winRate >= 50 ? C.green : C.red }}>
+                {winRate}% win
+              </span>
             </>
           )}
         </div>
@@ -267,67 +281,80 @@ function BotCard({ bot, selected, onClick }: { bot: Bot; selected: boolean; onCl
   )
 }
 
-// ─── News Sentiment Panel ─────────────────────────────────────────────────────
+// ─── Metric card ─────────────────────────────────────────────────────────────
 
-const SENT_COLOR = { bullish: '#00c878', bearish: '#ef4444', neutral: '#f59e0b' }
-const SENT_BG    = { bullish: 'rgba(0,200,120,0.07)', bearish: 'rgba(239,68,68,0.07)', neutral: 'rgba(245,158,11,0.07)' }
+function MetricCard({ label, value, color, sub }: { label: string; value: string; color: string; sub?: string }) {
+  return (
+    <div style={{ background: C.bg, padding: '10px 14px' }}>
+      <p style={{ fontSize: 9, color: C.text3, textTransform: 'uppercase', letterSpacing: '0.07em', margin: '0 0 4px', fontWeight: 700 }}>{label}</p>
+      <p style={{ fontSize: 15, fontWeight: 800, fontFamily: 'monospace', color, margin: 0, lineHeight: 1 }}>{value}</p>
+      {sub && <p style={{ fontSize: 9, color: C.text3, margin: '3px 0 0' }}>{sub}</p>}
+    </div>
+  )
+}
+
+// ─── News sentiment ───────────────────────────────────────────────────────────
+
+const SENT_COLOR = { bullish: C.green, bearish: C.red, neutral: C.amber }
 
 function NewsSentimentPanel({ symbol }: { symbol: string }) {
-  const [data,    setData]    = useState<SymbolSentiment | null>(null)
+  const [data, setData] = useState<SymbolSentiment | null>(null)
   const [loading, setLoading] = useState(true)
-  const [err,     setErr]     = useState<string | null>(null)
+  const [err, setErr] = useState<string | null>(null)
   const load = useCallback(async () => {
-    try { const s = await getNewsSentiment(symbol); setData(s); setErr(null) }
-    catch (e: unknown) { setErr((e as { response?: { data?: { error?: string } }; message?: string }).response?.data?.error ?? (e as { message?: string }).message ?? 'Failed') }
+    try { setData(await getNewsSentiment(symbol)); setErr(null) }
+    catch (e: unknown) { setErr((e as { message?: string }).message ?? 'Failed') }
     finally { setLoading(false) }
   }, [symbol])
-  useEffect(() => { setLoading(true); setData(null); load(); const id = setInterval(load, 5 * 60_000); return () => clearInterval(id) }, [load])
+  useEffect(() => { setLoading(true); setData(null); load(); const id = setInterval(load, 300_000); return () => clearInterval(id) }, [load])
 
   const label = data?.label ?? 'neutral'
   const score = data?.score ?? 0
-  const barW  = Math.round(Math.abs(score) * 100)
 
   return (
-    <div className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.02)' }}>
-      <div className="flex items-center justify-between px-4 py-2.5" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-        <div className="flex items-center gap-2">
-          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="#38bdf8" strokeWidth={2}>
-            <path d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10l6 6v8a2 2 0 01-2 2z"/>
-            <line x1="9" y1="10" x2="15" y2="10"/><line x1="9" y1="14" x2="13" y2="14"/>
-          </svg>
-          <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#38bdf8' }}>News Sentiment</span>
+    <div style={{ borderRadius: 10, border: `1px solid ${C.border}`, background: C.surface, overflow: 'hidden' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 12px', borderBottom: `1px solid ${C.border}` }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: C.blue }}>News Sentiment</span>
           {data && (
-            <span className="px-2 py-0.5 rounded-full text-xs font-bold"
-                  style={{ background: SENT_BG[label], color: SENT_COLOR[label] }}>
-              {label.charAt(0).toUpperCase() + label.slice(1)} {data.score !== 0 ? `(${score >= 0 ? '+' : ''}${score.toFixed(2)})` : ''}
+            <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 10, background: `${SENT_COLOR[label]}15`, color: SENT_COLOR[label], border: `1px solid ${SENT_COLOR[label]}30` }}>
+              {label.charAt(0).toUpperCase() + label.slice(1)} {score !== 0 ? `(${score >= 0 ? '+' : ''}${score.toFixed(2)})` : ''}
             </span>
           )}
         </div>
-        <button onClick={load} className="text-xs px-2 py-0.5 rounded-lg"
-                style={{ color: '#38bdf8', background: 'rgba(56,189,248,0.07)', border: '1px solid rgba(56,189,248,0.12)' }}>↻</button>
+        <button onClick={load} style={{ fontSize: 12, padding: '2px 8px', borderRadius: 6, color: C.blue, background: `${C.blue}10`, border: `1px solid ${C.blue}20`, cursor: 'pointer' }}>↻</button>
       </div>
-      {loading && <p className="text-xs px-4 py-3" style={{ color: '#334155' }}>Loading…</p>}
-      {err     && <p className="text-xs px-4 py-3" style={{ color: '#f43f5e' }}>{err}</p>}
-      {data && !loading && (
-        <div className="px-4 py-3 space-y-2.5">
-          <div className="flex items-center gap-2">
-            <span className="text-xs w-8 text-right" style={{ color: '#ef4444' }}>Bear</span>
-            <div className="flex-1 h-1.5 rounded-full relative" style={{ background: 'rgba(255,255,255,0.06)' }}>
-              <div className="absolute top-0 h-1.5 rounded-full transition-all"
-                   style={{ width: `${barW}%`, left: score >= 0 ? '50%' : `${50 - barW}%`, background: SENT_COLOR[label] }}/>
-              <div className="absolute left-1/2 top-0 w-px h-1.5" style={{ background: '#334155' }}/>
+      <div style={{ padding: '10px 12px' }}>
+        {loading && <p style={{ fontSize: 11, color: C.text3, margin: 0 }}>Loading…</p>}
+        {err     && <p style={{ fontSize: 11, color: C.red,   margin: 0 }}>{err}</p>}
+        {data && !loading && (
+          <>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+              <span style={{ fontSize: 10, color: C.red }}>Bear</span>
+              <div style={{ flex: 1, height: 4, borderRadius: 2, background: C.surface2, position: 'relative', overflow: 'hidden' }}>
+                <div style={{
+                  position: 'absolute', height: '100%', borderRadius: 2,
+                  background: SENT_COLOR[label],
+                  width: `${Math.abs(score) * 100}%`,
+                  left: score >= 0 ? '50%' : `${50 - Math.abs(score) * 100}%`,
+                  transition: 'all 0.5s',
+                }}/>
+                <div style={{ position: 'absolute', left: '50%', top: 0, width: 1, height: '100%', background: C.text3 }}/>
+              </div>
+              <span style={{ fontSize: 10, color: C.green }}>Bull</span>
             </div>
-            <span className="text-xs w-8" style={{ color: '#00c878' }}>Bull</span>
-          </div>
-          {data.headlines.slice(0, 3).map((h, i) => (
-            <div key={i} className="flex items-start gap-2 text-xs">
-              <span className="shrink-0 mt-0.5" style={{ color: SENT_COLOR[h.label] }}>●</span>
-              <a href={h.url} target="_blank" rel="noopener noreferrer"
-                 className="hover:underline line-clamp-1 flex-1" style={{ color: '#64748b' }}>{h.title}</a>
-            </div>
-          ))}
-        </div>
-      )}
+            {data.headlines.slice(0, 3).map((h, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 6, marginBottom: 4 }}>
+                <span style={{ color: SENT_COLOR[h.label], fontSize: 9, flexShrink: 0, paddingTop: 2 }}>●</span>
+                <a href={h.url} target="_blank" rel="noopener noreferrer"
+                   style={{ fontSize: 10, color: C.text2, textDecoration: 'none', lineHeight: 1.4 }}>
+                  {h.title}
+                </a>
+              </div>
+            ))}
+          </>
+        )}
+      </div>
     </div>
   )
 }
@@ -336,65 +363,50 @@ function NewsSentimentPanel({ symbol }: { symbol: string }) {
 
 function RiskDisclosureModal({ onAccept, onClose }: { onAccept: () => void; onClose: () => void }) {
   const [checked, setChecked] = useState(false)
+  const risks = [
+    { icon: '⚠', color: C.amber, title: 'Automated trading carries significant financial risk', body: 'Bots execute trades autonomously. Market conditions change instantly and unpredictably.' },
+    { icon: '📉', color: C.red,   title: 'You may lose all capital allocated to this bot',    body: 'Past performance does not guarantee future results. Losses can exceed expectations.' },
+    { icon: '⚖',  color: C.violet, title: 'You are solely responsible for all losses',        body: 'TradePilot accepts no liability for any trading losses incurred by automated bots.' },
+    { icon: '💹', color: C.green, title: 'Real funds are at risk on live accounts',           body: 'Only deploy capital you can afford to lose. Use demo mode to validate strategies first.' },
+  ]
   return createPortal(
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
-         style={{ background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)' }}>
-      <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl"
-           style={{ background: '#111', border: '1px solid rgba(239,68,68,0.2)', overscrollBehavior: 'contain', WebkitOverflowScrolling: 'touch' } as React.CSSProperties}
-           onTouchMove={e => e.stopPropagation()}>
-        <div className="flex items-center gap-3 px-5 py-4 border-b" style={{ borderColor: 'rgba(239,68,68,0.12)' }}>
-          <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0"
-               style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)' }}>
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="#ef4444" strokeWidth={2}>
-              <path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
-            </svg>
+    <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, background: 'rgba(0,0,0,0.88)', backdropFilter: 'blur(10px)' }}>
+      <div style={{ width: '100%', maxWidth: 440, maxHeight: '90vh', overflowY: 'auto', borderRadius: 20, background: C.surface, border: `1px solid rgba(239,68,68,0.25)` }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '18px 20px 14px', borderBottom: `1px solid ${C.border}` }}>
+          <div style={{ width: 36, height: 36, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)', flexShrink: 0 }}>
+            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke={C.red} strokeWidth={2}><path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
           </div>
           <div>
-            <h2 className="text-sm font-bold text-white">Risk Disclosure</h2>
-            <p className="text-xs" style={{ color: '#ef4444' }}>Read before activating</p>
+            <h2 style={{ fontSize: 14, fontWeight: 800, color: C.text1, margin: 0 }}>Risk Disclosure</h2>
+            <p style={{ fontSize: 11, color: C.red, margin: 0 }}>Read carefully before activating</p>
           </div>
         </div>
-        <div className="px-5 py-4 space-y-3">
-          {[
-            { icon: '⚠', color: '#f59e0b', title: 'Automated trading carries real financial risk',    body: 'Bots execute trades autonomously. Market conditions can change instantly.' },
-            { icon: '📉', color: '#ef4444', title: 'You may lose all capital allocated to this bot', body: 'Past performance does not guarantee future results.' },
-            { icon: '⚖', color: '#a78bfa', title: 'You are solely responsible for all losses',      body: 'TradePilot accepts no liability for trading losses incurred.' },
-            { icon: '💹', color: '#00c878', title: 'Real funds are at risk',                         body: 'Bots execute live orders. Only deploy capital you can afford to lose.' },
-          ].map(r => (
-            <div key={r.title} className="flex gap-3 rounded-xl p-3"
-                 style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.05)' }}>
-              <span className="text-base shrink-0">{r.icon}</span>
-              <div>
-                <p className="text-xs font-semibold mb-0.5" style={{ color: r.color }}>{r.title}</p>
-                <p className="text-xs leading-relaxed" style={{ color: '#475569' }}>{r.body}</p>
+        <div style={{ padding: '16px 20px 20px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 14 }}>
+            {risks.map(r => (
+              <div key={r.title} style={{ display: 'flex', gap: 12, padding: '10px 12px', borderRadius: 10, background: C.bg, border: `1px solid ${C.border}` }}>
+                <span style={{ fontSize: 16, flexShrink: 0 }}>{r.icon}</span>
+                <div>
+                  <p style={{ fontSize: 11, fontWeight: 700, color: r.color, margin: '0 0 2px' }}>{r.title}</p>
+                  <p style={{ fontSize: 10, color: C.text2, margin: 0, lineHeight: 1.5 }}>{r.body}</p>
+                </div>
               </div>
-            </div>
-          ))}
-          <label className="flex items-start gap-3 cursor-pointer rounded-xl p-3 transition-all"
-                 style={{ background: checked ? 'rgba(0,200,120,0.07)' : 'rgba(255,255,255,0.03)',
-                          border: `1px solid ${checked ? 'rgba(0,200,120,0.25)' : 'rgba(255,255,255,0.07)'}` }}>
-            <input type="checkbox" className="mt-0.5 w-4 h-4 shrink-0 cursor-pointer"
-                   checked={checked} onChange={e => setChecked(e.target.checked)}/>
-            <span className="text-xs leading-relaxed" style={{ color: checked ? '#00c878' : '#64748b' }}>
-              I have read and understood the risks. I accept full responsibility for any losses.
+            ))}
+          </div>
+          <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '10px 12px', borderRadius: 10, cursor: 'pointer', background: checked ? 'rgba(16,185,129,0.07)' : C.bg, border: `1px solid ${checked ? 'rgba(16,185,129,0.25)' : C.border}`, marginBottom: 14, transition: 'all 0.15s' }}>
+            <input type="checkbox" checked={checked} onChange={e => setChecked(e.target.checked)} style={{ marginTop: 2, width: 14, height: 14, flexShrink: 0, cursor: 'pointer' }}/>
+            <span style={{ fontSize: 11, color: checked ? C.green : C.text2, lineHeight: 1.5 }}>
+              I have read and fully understood the risks. I accept sole responsibility for any losses.
             </span>
           </label>
-          <div className="flex gap-2.5 pt-1">
-            <button onClick={onClose}
-                    className="flex-1 py-2.5 rounded-xl text-sm font-semibold"
-                    style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#64748b' }}>
-              Cancel
-            </button>
-            <button onClick={onAccept} disabled={!checked}
-                    className="flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all"
-                    style={{
-                      background: checked ? 'rgba(0,200,120,0.15)' : 'rgba(255,255,255,0.03)',
-                      border: `1px solid ${checked ? 'rgba(0,200,120,0.35)' : 'rgba(255,255,255,0.06)'}`,
-                      color: checked ? '#00c878' : '#334155',
-                      cursor: checked ? 'pointer' : 'not-allowed',
-                    }}>
-              Accept &amp; Start
-            </button>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button onClick={onClose} style={{ flex: 1, padding: '11px 0', borderRadius: 10, background: C.surface2, border: `1px solid ${C.border}`, color: C.text2, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
+            <button onClick={onAccept} disabled={!checked} style={{
+              flex: 1, padding: '11px 0', borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: checked ? 'pointer' : 'not-allowed', transition: 'all 0.15s',
+              background: checked ? 'rgba(16,185,129,0.15)' : C.surface2,
+              border: `1px solid ${checked ? 'rgba(16,185,129,0.35)' : C.border}`,
+              color: checked ? C.green : C.text3,
+            }}>Accept &amp; Start</button>
           </div>
         </div>
       </div>
@@ -406,6 +418,20 @@ function RiskDisclosureModal({ onAccept, onClose }: { onAccept: () => void; onCl
 // ─── Create Bot Modal ─────────────────────────────────────────────────────────
 
 type TabKey = 'strategy' | 'risk'
+
+const STRAT_ICONS: Record<BotStrategy, React.ReactNode> = {
+  ma_crossover: <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><polyline points="3 17 9 11 13 15 21 7"/><polyline points="17 7 21 7 21 11"/></svg>,
+  rsi:          <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M2 12 Q6 4 10 12 Q14 20 18 12 Q20 8 22 12"/></svg>,
+  macd:         <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><rect x="3" y="12" width="3" height="8" rx="1"/><rect x="9" y="8" width="3" height="12" rx="1"/><rect x="15" y="4" width="3" height="16" rx="1"/></svg>,
+  momentum:     <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M5 19 L12 5 L19 19"/><line x1="8" y1="14" x2="16" y2="14"/></svg>,
+}
+
+const STRAT_DESC: Record<BotStrategy, string> = {
+  ma_crossover: 'Golden/death cross of fast & slow SMAs with RSI + trend filter',
+  rsi:          'Oversold/overbought entries confirmed by MACD histogram direction',
+  macd:         'Signal-line crossover filtered by 50 SMA trend bias + RSI guard',
+  momentum:     'ATR-gated breakout above/below N-period lookback range',
+}
 
 function CreateBotModal({ onClose, onCreate }: { onClose: () => void; onCreate: (b: Bot) => void }) {
   const [tab,       setTab]       = useState<TabKey>('strategy')
@@ -431,19 +457,12 @@ function CreateBotModal({ onClose, onCreate }: { onClose: () => void; onCreate: 
   const [loading,   setLoading]   = useState(false)
   const [err,       setErr]       = useState<string | null>(null)
 
-  const inputCls = "w-full rounded-xl px-3 py-2 text-sm text-white font-mono outline-none transition-all"
-  const inputStyle = {
-    background: 'rgba(255,255,255,0.04)',
-    border: '1px solid rgba(255,255,255,0.08)',
+  const inSty: React.CSSProperties = {
+    width: '100%', background: C.bg, border: `1px solid ${C.border2}`, borderRadius: 10,
+    color: C.text1, fontSize: 13, padding: '9px 12px', outline: 'none', fontFamily: 'monospace',
+    boxSizing: 'border-box',
   }
-  const inputFocus = (e: React.FocusEvent<HTMLInputElement | HTMLSelectElement>) => {
-    e.currentTarget.style.borderColor = 'rgba(14,165,233,0.4)'
-    e.currentTarget.style.background  = 'rgba(14,165,233,0.04)'
-  }
-  const inputBlur = (e: React.FocusEvent<HTMLInputElement | HTMLSelectElement>) => {
-    e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'
-    e.currentTarget.style.background  = 'rgba(255,255,255,0.04)'
-  }
+  const labelSty: React.CSSProperties = { fontSize: 10, fontWeight: 700, color: C.text2, textTransform: 'uppercase', letterSpacing: '0.07em', display: 'block', marginBottom: 6 }
 
   async function submit(e: React.FormEvent) {
     e.preventDefault()
@@ -470,260 +489,186 @@ function CreateBotModal({ onClose, onCreate }: { onClose: () => void; onCreate: 
     } finally { setLoading(false) }
   }
 
-  const labelCls = "block text-xs font-semibold uppercase tracking-wider mb-1.5"
-  const labelStyle = { color: '#475569' }
-
   return createPortal(
-    <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center"
-         style={{ background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(8px)' }}>
+    <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(10px)' }}>
+      <div style={{ width: '100%', maxWidth: 480, display: 'flex', flexDirection: 'column', borderRadius: '20px 20px 0 0', background: C.surface, border: `1px solid ${C.border}`, height: '92dvh', maxHeight: '92dvh' }}>
 
-      {/* Modal shell — flex-col, does NOT scroll itself */}
-      <div className="w-full sm:max-w-md flex flex-col rounded-t-2xl sm:rounded-2xl"
-           style={{ background: '#111', border: '1px solid rgba(255,255,255,0.08)', height: '92dvh', maxHeight: '92dvh' }}>
-
-        {/* Drag handle — mobile only */}
-        <div className="flex justify-center pt-2.5 pb-0.5 sm:hidden shrink-0">
-          <div className="w-10 h-1 rounded-full" style={{ background: 'rgba(255,255,255,0.15)' }}/>
+        {/* Drag handle */}
+        <div style={{ display: 'flex', justifyContent: 'center', paddingTop: 10, paddingBottom: 2, flexShrink: 0 }}>
+          <div style={{ width: 36, height: 4, borderRadius: 2, background: C.border2 }}/>
         </div>
 
-        {/* ── Fixed header ── */}
-        <div className="flex items-center justify-between px-5 py-4 border-b shrink-0"
-             style={{ borderColor: 'rgba(255,255,255,0.07)' }}>
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl flex items-center justify-center"
-                 style={{ background: 'rgba(14,165,233,0.12)', border: '1px solid rgba(14,165,233,0.2)' }}>
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="#0ea5e9" strokeWidth={2}>
-                <circle cx="12" cy="12" r="3"/>
-                <path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/>
-              </svg>
+        {/* Header */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 18px', borderBottom: `1px solid ${C.border}`, flexShrink: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{ width: 34, height: 34, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', background: `${C.blue}15`, border: `1px solid ${C.blue}30` }}>
+              <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke={C.blue} strokeWidth={2}><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
             </div>
             <div>
-              <h2 className="text-sm font-bold text-white">Deploy New Bot</h2>
-              <p className="text-xs" style={{ color: '#475569' }}>Configure strategy &amp; risk</p>
+              <h2 style={{ fontSize: 14, fontWeight: 800, color: C.text1, margin: 0 }}>Deploy New Bot</h2>
+              <p style={{ fontSize: 10, color: C.text2, margin: 0 }}>Configure strategy &amp; risk controls</p>
             </div>
           </div>
-          <button type="button" onClick={onClose}
-                  className="w-8 h-8 rounded-xl flex items-center justify-center"
-                  style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="#64748b" strokeWidth={2.5}><path d="M18 6L6 18M6 6l12 12"/></svg>
+          <button onClick={onClose} style={{ width: 30, height: 30, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', background: C.bg, border: `1px solid ${C.border}`, cursor: 'pointer' }}>
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke={C.text2} strokeWidth={2.5}><path d="M18 6L6 18M6 6l12 12"/></svg>
           </button>
         </div>
 
-        {/* ── Fixed tabs ── */}
-        <div className="flex border-b shrink-0" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
+        {/* Tabs */}
+        <div style={{ display: 'flex', borderBottom: `1px solid ${C.border}`, flexShrink: 0 }}>
           {(['strategy', 'risk'] as TabKey[]).map(t => (
-            <button key={t} type="button" onClick={() => setTab(t)}
-                    className="flex-1 py-3 text-xs font-bold uppercase tracking-wider transition-colors"
-                    style={{
-                      color: tab === t ? '#0ea5e9' : '#334155',
-                      borderBottom: `2px solid ${tab === t ? '#0ea5e9' : 'transparent'}`,
-                    }}>
-              {t === 'strategy' ? '⚙ Strategy' : '🛡 Risk Management'}
+            <button key={t} type="button" onClick={() => setTab(t)} style={{
+              flex: 1, padding: '10px 0', background: 'none', border: 'none', cursor: 'pointer',
+              fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em',
+              color: tab === t ? C.blue : C.text3,
+              borderBottom: `2px solid ${tab === t ? C.blue : 'transparent'}`,
+              transition: 'all 0.15s',
+            }}>
+              {t === 'strategy' ? '⚙ Strategy' : '🛡 Risk'}
             </button>
           ))}
         </div>
 
-        {/* ── Form wraps scrollable body + pinned footer ── */}
-        <form onSubmit={submit} className="flex flex-col min-h-0 flex-1">
-
-          {/* SCROLLABLE body — the only thing that moves */}
-          <div className="flex-1 overflow-y-scroll p-5 space-y-5"
-               style={{ WebkitOverflowScrolling: 'touch', overscrollBehavior: 'contain', height: 0 } as React.CSSProperties}>
+        {/* Scrollable body */}
+        <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
+          <div style={{ flex: 1, overflowY: 'auto', padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 14 }}>
 
             {tab === 'strategy' && (
               <>
-                <div className="grid grid-cols-2 gap-3">
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                   <div>
-                    <label className={labelCls} style={labelStyle}>Bot Name</label>
-                    <input className={inputCls} style={inputStyle} placeholder="Alpha Bot"
-                           value={name} onChange={e => setName(e.target.value)}
-                           onFocus={inputFocus} onBlur={inputBlur}/>
+                    <label style={labelSty}>Bot Name</label>
+                    <input style={inSty} value={name} onChange={e => setName(e.target.value)} placeholder="Alpha Bot"/>
                   </div>
                   <div>
-                    <label className={labelCls} style={labelStyle}>Market</label>
-                    <select className={inputCls} style={{ ...inputStyle, appearance: 'none' }}
-                            value={symbol} onChange={e => setSymbol(e.target.value)}
-                            onFocus={inputFocus} onBlur={inputBlur}>
-                      {SYMBOL_LIST.map(s => <option key={s} value={s}>{s}</option>)}
+                    <label style={labelSty}>Market</label>
+                    <select style={{ ...inSty, appearance: 'none' }} value={symbol} onChange={e => setSymbol(e.target.value)}>
+                      {SYMBOLS.map(s => <option key={s} value={s} style={{ background: C.surface }}>{s}</option>)}
                     </select>
                   </div>
                 </div>
 
                 <div>
-                  <label className={labelCls} style={labelStyle}>Algorithm</label>
-                  <div className="grid grid-cols-2 gap-2">
-                    {(Object.entries(STRATEGY_META) as [BotStrategy, typeof STRATEGY_META[BotStrategy]][]).map(([key, m]) => (
-                      <button key={key} type="button" onClick={() => setStrategy(key)}
-                              className="rounded-xl p-3 text-left transition-all"
-                              style={{
-                                border: `1px solid ${strategy === key ? m.color + '40' : 'rgba(255,255,255,0.07)'}`,
-                                background: strategy === key ? m.color + '12' : 'rgba(255,255,255,0.025)',
-                              }}>
-                        <div className="flex items-center gap-2 mb-1" style={{ color: strategy === key ? m.color : '#475569' }}>
-                          {STRATEGY_ICON[key]}
-                          <span className="text-xs font-bold">{m.label}</span>
+                  <label style={labelSty}>Algorithm</label>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                    {(Object.entries(STRAT) as [BotStrategy, typeof STRAT[BotStrategy]][]).map(([key, m]) => (
+                      <button key={key} type="button" onClick={() => setStrategy(key)} style={{
+                        padding: '10px 12px', borderRadius: 10, textAlign: 'left', cursor: 'pointer', transition: 'all 0.15s',
+                        background: strategy === key ? `${m.color}12` : C.bg,
+                        border: `1px solid ${strategy === key ? m.color + '45' : C.border}`,
+                        boxShadow: strategy === key ? `0 0 12px ${m.glow}` : 'none',
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4, color: strategy === key ? m.color : C.text2 }}>
+                          {STRAT_ICONS[key]}
+                          <span style={{ fontSize: 11, fontWeight: 700 }}>{m.label}</span>
                         </div>
-                        <p className="text-xs leading-snug" style={{ color: '#334155' }}>{m.desc}</p>
+                        <p style={{ fontSize: 10, color: C.text2, margin: 0, lineHeight: 1.4 }}>{STRAT_DESC[key]}</p>
                       </button>
                     ))}
                   </div>
                 </div>
 
                 {strategy === 'ma_crossover' && (
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className={labelCls} style={labelStyle}>Fast Period</label>
-                      <input className={inputCls} style={inputStyle} type="number" min={2} max={50}
-                             value={fastP} onChange={e => setFastP(+e.target.value)} onFocus={inputFocus} onBlur={inputBlur}/>
-                    </div>
-                    <div>
-                      <label className={labelCls} style={labelStyle}>Slow Period</label>
-                      <input className={inputCls} style={inputStyle} type="number" min={5} max={200}
-                             value={slowP} onChange={e => setSlowP(+e.target.value)} onFocus={inputFocus} onBlur={inputBlur}/>
-                    </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                    <div><label style={labelSty}>Fast Period</label><input style={inSty} type="number" min={2} max={50} value={fastP} onChange={e => setFastP(+e.target.value)}/></div>
+                    <div><label style={labelSty}>Slow Period</label><input style={inSty} type="number" min={5} max={200} value={slowP} onChange={e => setSlowP(+e.target.value)}/></div>
                   </div>
                 )}
                 {strategy === 'rsi' && (
-                  <div className="grid grid-cols-3 gap-3">
-                    {[
-                      { label: 'Period',     val: rsiP,  set: setRsiP,  min: 2,  max: 50 },
-                      { label: 'Overbought', val: rsiOb, set: setRsiOb, min: 55, max: 90 },
-                      { label: 'Oversold',   val: rsiOs, set: setRsiOs, min: 10, max: 45 },
-                    ].map(f => (
-                      <div key={f.label}>
-                        <label className={labelCls} style={labelStyle}>{f.label}</label>
-                        <input className={inputCls} style={inputStyle} type="number" min={f.min} max={f.max}
-                               value={f.val} onChange={e => f.set(+e.target.value)} onFocus={inputFocus} onBlur={inputBlur}/>
-                      </div>
-                    ))}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
+                    <div><label style={labelSty}>Period</label><input style={inSty} type="number" min={2} max={50} value={rsiP} onChange={e => setRsiP(+e.target.value)}/></div>
+                    <div><label style={labelSty}>Overbought</label><input style={inSty} type="number" min={55} max={90} value={rsiOb} onChange={e => setRsiOb(+e.target.value)}/></div>
+                    <div><label style={labelSty}>Oversold</label><input style={inSty} type="number" min={10} max={45} value={rsiOs} onChange={e => setRsiOs(+e.target.value)}/></div>
                   </div>
                 )}
                 {strategy === 'macd' && (
-                  <div className="grid grid-cols-3 gap-3">
-                    {[
-                      { label: 'Fast EMA', val: macdFast, set: setMacdFast, min: 2,  max: 50  },
-                      { label: 'Slow EMA', val: macdSlow, set: setMacdSlow, min: 5,  max: 200 },
-                      { label: 'Signal',   val: macdSig,  set: setMacdSig,  min: 2,  max: 50  },
-                    ].map(f => (
-                      <div key={f.label}>
-                        <label className={labelCls} style={labelStyle}>{f.label}</label>
-                        <input className={inputCls} style={inputStyle} type="number" min={f.min} max={f.max}
-                               value={f.val} onChange={e => f.set(+e.target.value)} onFocus={inputFocus} onBlur={inputBlur}/>
-                      </div>
-                    ))}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
+                    <div><label style={labelSty}>Fast EMA</label><input style={inSty} type="number" min={2} max={50} value={macdFast} onChange={e => setMacdFast(+e.target.value)}/></div>
+                    <div><label style={labelSty}>Slow EMA</label><input style={inSty} type="number" min={5} max={200} value={macdSlow} onChange={e => setMacdSlow(+e.target.value)}/></div>
+                    <div><label style={labelSty}>Signal</label><input style={inSty} type="number" min={2} max={50} value={macdSig} onChange={e => setMacdSig(+e.target.value)}/></div>
                   </div>
                 )}
                 {strategy === 'momentum' && (
-                  <div>
-                    <label className={labelCls} style={labelStyle}>Lookback Bars</label>
-                    <input className={inputCls} style={inputStyle} type="number" min={5} max={100}
-                           value={lookback} onChange={e => setLookback(+e.target.value)} onFocus={inputFocus} onBlur={inputBlur}/>
-                  </div>
+                  <div><label style={labelSty}>Lookback Bars</label><input style={inSty} type="number" min={5} max={100} value={lookback} onChange={e => setLookback(+e.target.value)}/></div>
                 )}
 
                 <div>
-                  <label className={labelCls} style={labelStyle}>Trade Size <span className="normal-case font-normal" style={{ color: '#334155' }}>(units per order)</span></label>
-                  <input className={inputCls} style={inputStyle} type="number" min={0.001} step={0.001}
-                         value={tradeSize} onChange={e => setTradeSize(+e.target.value)} onFocus={inputFocus} onBlur={inputBlur}/>
+                  <label style={labelSty}>Trade Size <span style={{ textTransform: 'none', color: C.text3, fontWeight: 400 }}>(units per order)</span></label>
+                  <input style={inSty} type="number" min={0.001} step={0.001} value={tradeSize} onChange={e => setTradeSize(+e.target.value)}/>
                 </div>
               </>
             )}
 
             {tab === 'risk' && (
-              <div className="space-y-4">
-                <p className="text-xs rounded-xl px-3 py-2.5" style={{ color: '#475569', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                  Leave blank to disable a limit. All limits checked on each price tick.
+              <>
+                <p style={{ fontSize: 11, color: C.text2, padding: '8px 10px', background: C.bg, borderRadius: 8, border: `1px solid ${C.border}`, margin: 0 }}>
+                  Leave blank to disable a limit. All guards are checked on every price tick.
                 </p>
-                <div className="grid grid-cols-2 gap-3">
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                   <div>
-                    <label className={labelCls} style={labelStyle}>Stop Loss %</label>
-                    <div className="relative">
-                      <input className={inputCls} style={{ ...inputStyle, paddingRight: 28 }} type="number" min={0.1} step={0.1} placeholder="2.0"
-                             value={slPct} onChange={e => setSlPct(e.target.value)} onFocus={inputFocus} onBlur={inputBlur}/>
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs" style={{ color: '#475569' }}>%</span>
+                    <label style={labelSty}>Stop Loss %</label>
+                    <div style={{ position: 'relative' }}>
+                      <input style={{ ...inSty, paddingRight: 28 }} type="number" min={0.1} step={0.1} placeholder="2.0" value={slPct} onChange={e => setSlPct(e.target.value)}/>
+                      <span style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', fontSize: 11, color: C.text2 }}>%</span>
                     </div>
                   </div>
                   <div>
-                    <label className={labelCls} style={labelStyle}>Take Profit %</label>
-                    <div className="relative">
-                      <input className={inputCls} style={{ ...inputStyle, paddingRight: 28 }} type="number" min={0.1} step={0.1} placeholder="4.0"
-                             value={tpPct} onChange={e => setTpPct(e.target.value)} onFocus={inputFocus} onBlur={inputBlur}/>
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs" style={{ color: '#475569' }}>%</span>
+                    <label style={labelSty}>Take Profit %</label>
+                    <div style={{ position: 'relative' }}>
+                      <input style={{ ...inSty, paddingRight: 28 }} type="number" min={0.1} step={0.1} placeholder="4.0" value={tpPct} onChange={e => setTpPct(e.target.value)}/>
+                      <span style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', fontSize: 11, color: C.text2 }}>%</span>
                     </div>
                   </div>
                   <div>
-                    <label className={labelCls} style={labelStyle}>Max Daily Loss</label>
-                    <div className="relative">
-                      <input className={inputCls} style={{ ...inputStyle, paddingLeft: 24 }} type="number" min={0} step={1} placeholder="500"
-                             value={maxDL} onChange={e => setMaxDL(e.target.value)} onFocus={inputFocus} onBlur={inputBlur}/>
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs" style={{ color: '#475569' }}>$</span>
-                    </div>
+                    <label style={labelSty}>Max Daily Loss ($)</label>
+                    <input style={inSty} type="number" min={0} step={1} placeholder="500" value={maxDL} onChange={e => setMaxDL(e.target.value)}/>
                   </div>
                   <div>
-                    <label className={labelCls} style={labelStyle}>Max Daily Trades</label>
-                    <input className={inputCls} style={inputStyle} type="number" min={1} step={1} placeholder="10"
-                           value={maxDT} onChange={e => setMaxDT(e.target.value)} onFocus={inputFocus} onBlur={inputBlur}/>
+                    <label style={labelSty}>Max Daily Trades</label>
+                    <input style={inSty} type="number" min={1} step={1} placeholder="10" value={maxDT} onChange={e => setMaxDT(e.target.value)}/>
                   </div>
                 </div>
                 <div>
-                  <label className={labelCls} style={labelStyle}>Confirm Bars <span className="normal-case font-normal" style={{ color: '#334155' }}>(consecutive signals before entry)</span></label>
-                  <input className={inputCls} style={inputStyle} type="number" min={1} max={10}
-                         value={confirmB} onChange={e => setConfirmB(+e.target.value)} onFocus={inputFocus} onBlur={inputBlur}/>
+                  <label style={labelSty}>Confirm Bars <span style={{ textTransform: 'none', color: C.text3, fontWeight: 400 }}>(consecutive signals required)</span></label>
+                  <input style={inSty} type="number" min={1} max={10} value={confirmB} onChange={e => setConfirmB(+e.target.value)}/>
                 </div>
-                <label className="flex items-start gap-3 cursor-pointer rounded-xl p-3.5 transition-all"
-                       style={{ background: useNews ? 'rgba(56,189,248,0.06)' : 'rgba(255,255,255,0.025)',
-                                border: `1px solid ${useNews ? 'rgba(56,189,248,0.25)' : 'rgba(255,255,255,0.06)'}` }}>
-                  <input type="checkbox" className="mt-0.5 w-4 h-4 shrink-0 cursor-pointer"
-                         checked={useNews} onChange={e => setUseNews(e.target.checked)}/>
+                <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '10px 12px', borderRadius: 10, cursor: 'pointer', background: useNews ? `${C.blue}08` : C.bg, border: `1px solid ${useNews ? C.blue + '30' : C.border}`, transition: 'all 0.15s' }}>
+                  <input type="checkbox" checked={useNews} onChange={e => setUseNews(e.target.checked)} style={{ marginTop: 2, width: 14, height: 14, flexShrink: 0, cursor: 'pointer' }}/>
                   <div>
-                    <p className="text-sm font-semibold mb-0.5" style={{ color: useNews ? '#38bdf8' : '#64748b' }}>News Sentiment Filter</p>
-                    <p className="text-xs leading-relaxed" style={{ color: '#334155' }}>
-                      Block buy signals when news sentiment for {symbol} is bearish. Cached 15 min.
-                    </p>
+                    <p style={{ fontSize: 12, fontWeight: 700, color: useNews ? C.blue : C.text2, margin: '0 0 2px' }}>News Sentiment Filter</p>
+                    <p style={{ fontSize: 10, color: C.text3, margin: 0, lineHeight: 1.4 }}>Block buy signals when {symbol} news sentiment is bearish. Refreshed every 15 min.</p>
                   </div>
                 </label>
                 {(slPct || tpPct || maxDL || maxDT || confirmB > 1 || useNews) && (
-                  <div className="rounded-xl p-3.5 space-y-1.5"
-                       style={{ background: 'rgba(14,165,233,0.05)', border: '1px solid rgba(14,165,233,0.12)' }}>
-                    <p className="text-xs font-bold mb-2" style={{ color: '#38bdf8' }}>Active guards</p>
-                    {slPct && <p className="text-xs" style={{ color: '#94a3b8' }}>🔴 SL at <b className="text-white">{slPct}%</b> below entry</p>}
-                    {tpPct && <p className="text-xs" style={{ color: '#94a3b8' }}>🟡 TP at <b className="text-white">{tpPct}%</b> above entry</p>}
-                    {maxDL && <p className="text-xs" style={{ color: '#94a3b8' }}>🛡 Halt after <b className="text-white">${maxDL}</b> daily loss</p>}
-                    {maxDT && <p className="text-xs" style={{ color: '#94a3b8' }}>⏱ Cap at <b className="text-white">{maxDT}</b> trades/day</p>}
-                    {confirmB > 1 && <p className="text-xs" style={{ color: '#94a3b8' }}>⚡ Require <b className="text-white">{confirmB}</b> consecutive signals</p>}
-                    {useNews && <p className="text-xs" style={{ color: '#38bdf8' }}>📰 News sentiment filter ON</p>}
+                  <div style={{ padding: '10px 12px', borderRadius: 10, background: `${C.blue}08`, border: `1px solid ${C.blue}18` }}>
+                    <p style={{ fontSize: 10, fontWeight: 800, color: C.blue, margin: '0 0 6px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Active guards</p>
+                    {slPct && <p style={{ fontSize: 11, color: C.text2, margin: '0 0 3px' }}>🔴 SL at <b style={{ color: C.text1 }}>{slPct}%</b> below entry (ATR-adjusted)</p>}
+                    {tpPct && <p style={{ fontSize: 11, color: C.text2, margin: '0 0 3px' }}>🟡 TP at <b style={{ color: C.text1 }}>{tpPct}%</b> above entry (ATR-adjusted)</p>}
+                    {maxDL && <p style={{ fontSize: 11, color: C.text2, margin: '0 0 3px' }}>🛡 Halt after <b style={{ color: C.text1 }}>${maxDL}</b> daily loss</p>}
+                    {maxDT && <p style={{ fontSize: 11, color: C.text2, margin: '0 0 3px' }}>⏱ Cap at <b style={{ color: C.text1 }}>{maxDT}</b> trades/day</p>}
+                    {confirmB > 1 && <p style={{ fontSize: 11, color: C.text2, margin: '0 0 3px' }}>⚡ Require <b style={{ color: C.text1 }}>{confirmB}</b> consecutive signals</p>}
+                    {useNews && <p style={{ fontSize: 11, color: C.blue, margin: 0 }}>📰 News sentiment filter active</p>}
                   </div>
                 )}
-              </div>
+              </>
             )}
           </div>
 
-          {/* ── Pinned footer — always visible, never scrolls away ── */}
-          <div className="shrink-0 px-5 pt-3 pb-5 border-t space-y-3"
-               style={{ borderColor: 'rgba(255,255,255,0.07)', background: '#111' }}>
+          {/* Footer */}
+          <div style={{ flexShrink: 0, padding: '12px 18px 20px', borderTop: `1px solid ${C.border}`, background: C.surface }}>
             {err && (
-              <div className="flex items-center gap-2 rounded-xl px-3 py-2.5"
-                   style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)' }}>
-                <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="#ef4444" strokeWidth={2}>
-                  <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-                </svg>
-                <p className="text-xs" style={{ color: '#fca5a5' }}>{err}</p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', borderRadius: 8, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', marginBottom: 10 }}>
+                <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke={C.red} strokeWidth={2}><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                <p style={{ fontSize: 11, color: '#fca5a5', margin: 0 }}>{err}</p>
               </div>
             )}
-            <div className="flex gap-3">
-              <button type="button" onClick={onClose}
-                      className="flex-1 py-3 rounded-xl text-sm font-semibold"
-                      style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#64748b' }}>
-                Cancel
-              </button>
-              <button type="submit" disabled={loading}
-                      className="flex-1 py-3 rounded-xl text-sm font-bold transition-all"
-                      style={{
-                        background: loading ? 'rgba(14,165,233,0.1)' : 'rgba(14,165,233,0.15)',
-                        border: '1px solid rgba(14,165,233,0.3)',
-                        color: '#38bdf8',
-                        cursor: loading ? 'not-allowed' : 'pointer',
-                      }}>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button type="button" onClick={onClose} style={{ flex: 1, padding: '12px 0', borderRadius: 12, background: C.bg, border: `1px solid ${C.border}`, color: C.text2, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
+              <button type="submit" disabled={loading} style={{
+                flex: 1, padding: '12px 0', borderRadius: 12, fontSize: 13, fontWeight: 800, cursor: loading ? 'not-allowed' : 'pointer', transition: 'all 0.15s',
+                background: loading ? C.surface2 : `${C.blue}18`,
+                border: `1px solid ${C.blue}40`, color: C.blue,
+              }}>
                 {loading ? 'Deploying…' : 'Deploy Bot →'}
               </button>
             </div>
@@ -738,16 +683,16 @@ function CreateBotModal({ onClose, onCreate }: { onClose: () => void; onCreate: 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function BotsPage() {
-  const [bots,            setBots]            = useState<Bot[]>([])
-  const [selected,        setSelected]        = useState<Bot | null>(null)
-  const [showModal,       setShowModal]       = useState(false)
-  const [loading,         setLoading]         = useState(true)
-  const [actionId,        setActionId]        = useState<string | null>(null)
-  const [showRiskModal,   setShowRiskModal]   = useState(false)
-  const [pendingStart,    setPendingStart]    = useState<Bot | null>(null)
-  const [mobileView,      setMobileView]      = useState<'list' | 'detail'>('list')
-  const [showNews,        setShowNews]        = useState(false)
-  const [activeLogFilter, setActiveLogFilter] = useState<string>('all')
+  const [bots,          setBots]          = useState<Bot[]>([])
+  const [selected,      setSelected]      = useState<Bot | null>(null)
+  const [showModal,     setShowModal]     = useState(false)
+  const [loading,       setLoading]       = useState(true)
+  const [actionId,      setActionId]      = useState<string | null>(null)
+  const [showRisk,      setShowRisk]      = useState(false)
+  const [pendingStart,  setPendingStart]  = useState<Bot | null>(null)
+  const [mobileView,    setMobileView]    = useState<'list' | 'detail'>('list')
+  const [showNews,      setShowNews]      = useState(false)
+  const [logFilter,     setLogFilter]     = useState<string>('all')
   const selectedIdRef = useRef<string | null>(null)
 
   const refresh = useCallback(async () => {
@@ -758,24 +703,18 @@ export default function BotsPage() {
         const updated = await getBotById(selectedIdRef.current).catch(() => null)
         if (updated) setSelected(updated)
       }
-    } catch { /* ignore */ }
-    finally { setLoading(false) }
+    } catch { /* ignore */ } finally { setLoading(false) }
   }, [])
 
-  useEffect(() => {
-    refresh()
-    const id = setInterval(refresh, 3000)
-    return () => clearInterval(id)
-  }, [refresh])
+  useEffect(() => { refresh(); const id = setInterval(refresh, 3000); return () => clearInterval(id) }, [refresh])
 
   async function handleStart(bot: Bot) {
     if (!localStorage.getItem('tradepilot_risk_v1')) {
-      setPendingStart(bot); setShowRiskModal(true); return
+      setPendingStart(bot); setShowRisk(true); return
     }
-    await _doStart(bot)
+    await doStart(bot)
   }
-
-  async function _doStart(bot: Bot) {
+  async function doStart(bot: Bot) {
     setActionId(bot.id)
     try {
       const updated = await startBot(bot.id)
@@ -785,7 +724,6 @@ export default function BotsPage() {
       alert((e as { response?: { data?: { error?: string } }; message?: string }).response?.data?.error ?? (e as { message?: string }).message)
     } finally { setActionId(null) }
   }
-
   async function handleStop(bot: Bot) {
     setActionId(bot.id)
     try {
@@ -796,7 +734,6 @@ export default function BotsPage() {
       alert((e as { response?: { data?: { error?: string } }; message?: string }).response?.data?.error ?? (e as { message?: string }).message)
     } finally { setActionId(null) }
   }
-
   async function handleDelete(bot: Bot) {
     if (!confirm(`Delete "${bot.name}"? This cannot be undone.`)) return
     setActionId(bot.id)
@@ -808,267 +745,249 @@ export default function BotsPage() {
       alert((e as { response?: { data?: { error?: string } }; message?: string }).response?.data?.error ?? (e as { message?: string }).message)
     } finally { setActionId(null) }
   }
-
   async function selectBot(bot: Bot) {
     selectedIdRef.current = bot.id
     try { setSelected(await getBotById(bot.id)) } catch { setSelected(bot) }
     setMobileView('detail')
   }
 
-  const activeCount  = bots.filter(b => b.status === 'running' || b.status === 'warming_up').length
-  const totalTrades  = bots.reduce((a, b) => a + b.trades, 0)
-  const totalPnl     = bots.reduce((a, b) => a + b.pnl, 0)
-  const allWins      = bots.reduce((a, b) => a + b.wins, 0)
-  const winRate      = totalTrades > 0 ? (allWins / totalTrades * 100).toFixed(1) : null
-
+  const activeCount = bots.filter(b => b.status === 'running' || b.status === 'warming_up').length
+  const totalTrades = bots.reduce((a, b) => a + b.trades, 0)
+  const totalPnl    = bots.reduce((a, b) => a + b.pnl, 0)
+  const allWins     = bots.reduce((a, b) => a + b.wins, 0)
+  const winRate     = totalTrades > 0 ? (allWins / totalTrades * 100).toFixed(1) : null
+  const canStart    = selected && ['idle', 'stopped', 'error', 'paused'].includes(selected.status)
   const filteredLogs = selected
-    ? (activeLogFilter === 'all' ? selected.logs : selected.logs.filter(l => l.level === activeLogFilter))
+    ? (logFilter === 'all' ? selected.logs : selected.logs.filter(l => l.level === logFilter))
     : []
 
-  const isStartable = (s: Bot['status']) => ['idle', 'stopped', 'error', 'paused'].includes(s)
+  // ── Sidebar ─────────────────────────────────────────────────────────────────
 
-  // ── Sidebar (bot list) ─────────────────────────────────────────────────────
+  const Sidebar = (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: C.surface }}>
 
-  const SidebarContent = (
-    <div className="flex flex-col h-full">
       {/* Sidebar header */}
-      <div className="px-4 pt-4 pb-3 flex items-center justify-between">
+      <div style={{ padding: '14px 14px 10px', borderBottom: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
         <div>
-          <h2 className="text-sm font-bold text-white">My Bots</h2>
-          <p className="text-xs mt-0.5" style={{ color: '#334155' }}>{bots.length} deployed · {activeCount} active</p>
+          <p style={{ fontSize: 13, fontWeight: 800, color: C.text1, margin: 0 }}>My Bots</p>
+          <p style={{ fontSize: 10, color: C.text3, margin: '2px 0 0' }}>{bots.length} deployed · {activeCount} active</p>
         </div>
-        <button onClick={() => setShowModal(true)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all"
-                style={{ background: 'rgba(14,165,233,0.12)', border: '1px solid rgba(14,165,233,0.25)', color: '#38bdf8' }}>
-          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path d="M12 5v14M5 12h14"/></svg>
+        <button onClick={() => setShowModal(true)} style={{
+          display: 'flex', alignItems: 'center', gap: 5, padding: '7px 12px', borderRadius: 10, fontSize: 11, fontWeight: 700, cursor: 'pointer',
+          background: `${C.blue}12`, border: `1px solid ${C.blue}30`, color: C.blue,
+        }}>
+          <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path d="M12 5v14M5 12h14"/></svg>
           New
         </button>
       </div>
 
       {/* Bot list */}
-      <div className="flex-1 overflow-y-auto px-3 pb-3 space-y-2">
+      <div style={{ flex: 1, overflowY: 'auto', padding: '10px' }}>
         {loading && (
-          <div className="flex items-center justify-center py-16">
-            <div className="w-6 h-6 rounded-full border-2 animate-spin" style={{ borderColor: 'rgba(14,165,233,0.2)', borderTopColor: '#0ea5e9' }}/>
+          <div style={{ display: 'flex', justifyContent: 'center', padding: '40px 0' }}>
+            <div style={{ width: 24, height: 24, borderRadius: '50%', border: `2px solid ${C.blue}30`, borderTopColor: C.blue, animation: 'spin 0.7s linear infinite' }}/>
           </div>
         )}
         {!loading && bots.length === 0 && (
-          <div className="text-center py-16 px-4">
-            <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4"
-                 style={{ background: 'rgba(14,165,233,0.06)', border: '1px solid rgba(14,165,233,0.12)' }}>
-              <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="#0ea5e9" strokeWidth={1.5}>
-                <circle cx="12" cy="12" r="3"/>
-                <path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/>
-              </svg>
+          <div style={{ textAlign: 'center', padding: '40px 16px' }}>
+            <div style={{ width: 52, height: 52, borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px', background: `${C.blue}08`, border: `1px solid ${C.blue}18` }}>
+              <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke={C.blue} strokeWidth={1.5}><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
             </div>
-            <p className="text-sm font-semibold text-white mb-1">No bots yet</p>
-            <p className="text-xs mb-4" style={{ color: '#334155' }}>Deploy your first automated strategy</p>
-            <button onClick={() => setShowModal(true)}
-                    className="px-4 py-2 rounded-xl text-xs font-bold"
-                    style={{ background: 'rgba(14,165,233,0.12)', border: '1px solid rgba(14,165,233,0.25)', color: '#38bdf8' }}>
+            <p style={{ fontSize: 13, fontWeight: 700, color: C.text1, margin: '0 0 4px' }}>No bots deployed</p>
+            <p style={{ fontSize: 11, color: C.text3, margin: '0 0 14px' }}>Deploy your first automated strategy</p>
+            <button onClick={() => setShowModal(true)} style={{ padding: '8px 18px', borderRadius: 10, fontSize: 11, fontWeight: 700, cursor: 'pointer', background: `${C.blue}12`, border: `1px solid ${C.blue}30`, color: C.blue }}>
               + Deploy Bot
             </button>
           </div>
         )}
-        {bots.map(bot => (
-          <BotCard key={bot.id} bot={bot} selected={selected?.id === bot.id} onClick={() => selectBot(bot)}/>
-        ))}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          {bots.map(bot => (
+            <BotCard key={bot.id} bot={bot} selected={selected?.id === bot.id} onClick={() => selectBot(bot)}/>
+          ))}
+        </div>
       </div>
     </div>
   )
 
-  // ── Detail panel ───────────────────────────────────────────────────────────
+  // ── Detail panel ─────────────────────────────────────────────────────────────
 
-  const DetailContent = selected ? (
-    <div className="flex flex-col h-full overflow-hidden">
+  const Detail = selected ? (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden', background: C.bg }}>
 
-      {/* Detail header */}
-      <div className="flex items-start justify-between gap-3 px-5 py-4 border-b shrink-0"
-           style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
-        <div className="min-w-0 flex-1">
-          {/* Mobile back button */}
-          <button onClick={() => setMobileView('list')}
-                  className="flex items-center gap-1.5 mb-2 text-xs font-semibold md:hidden"
-                  style={{ color: '#38bdf8' }}>
-            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-            All bots
-          </button>
-          <div className="flex items-center gap-2 flex-wrap mb-1">
-            <h2 className="text-base font-bold text-white">{selected.name}</h2>
-            <StatusBadge status={selected.status}/>
+      {/* Header */}
+      <div style={{
+        padding: '14px 18px 12px', borderBottom: `1px solid ${C.border}`, flexShrink: 0,
+        background: `linear-gradient(135deg, ${STRAT[selected.strategy].glow}, transparent)`,
+      }}>
+        {/* Mobile back */}
+        <button onClick={() => setMobileView('list')} style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 10, fontSize: 11, fontWeight: 700, color: C.blue, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                className="md:hidden">
+          <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          All bots
+        </button>
+
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10 }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 4 }}>
+              <h2 style={{ fontSize: 16, fontWeight: 800, color: C.text1, margin: 0 }}>{selected.name}</h2>
+              <StatusBadge status={selected.status}/>
+              <span style={{
+                fontSize: 9, fontWeight: 800, padding: '2px 6px', borderRadius: 5, letterSpacing: '0.06em',
+                background: selected.mode === 'real' ? 'rgba(239,68,68,0.12)' : `${C.blue}10`,
+                color: selected.mode === 'real' ? C.red : C.blue,
+                border: `1px solid ${selected.mode === 'real' ? 'rgba(239,68,68,0.2)' : C.blue + '25'}`,
+              }}>
+                {selected.mode === 'real' ? '🔴 REAL' : '🔵 DEMO'}
+              </span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+              <span style={{ fontSize: 11, color: C.text2 }}>{selected.symbol}</span>
+              <span style={{ width: 3, height: 3, borderRadius: '50%', background: C.text3 }}/>
+              <span style={{ fontSize: 11, fontWeight: 700, color: STRAT[selected.strategy].color }}>{STRAT[selected.strategy].label}</span>
+              {selected.startedAt && (
+                <>
+                  <span style={{ width: 3, height: 3, borderRadius: '50%', background: C.text3 }}/>
+                  <span style={{ fontSize: 10, color: C.text3 }}>Started {fmtDate(selected.startedAt)}</span>
+                </>
+              )}
+            </div>
           </div>
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-xs" style={{ color: '#475569' }}>{selected.symbol}</span>
-            <span style={{ color: '#1e2d3d' }}>·</span>
-            <span className="inline-flex items-center gap-1.5 text-xs font-semibold"
-                  style={{ color: STRATEGY_META[selected.strategy].color }}>
-              {STRATEGY_META[selected.strategy].label}
-            </span>
-            <span className="text-xs font-bold px-2 py-0.5 rounded-lg"
-                  style={{ background: selected.mode === 'real' ? 'rgba(239,68,68,0.12)' : 'rgba(56,189,248,0.08)', color: selected.mode === 'real' ? '#ef4444' : '#38bdf8', border: `1px solid ${selected.mode === 'real' ? 'rgba(239,68,68,0.2)' : 'rgba(56,189,248,0.15)'}` }}>
-              {selected.mode === 'real' ? '🔴 REAL' : '🔵 DEMO'}
-            </span>
-            {selected.startedAt && (
-              <>
-                <span style={{ color: '#1e2d3d' }}>·</span>
-                <span className="text-xs" style={{ color: '#334155' }}>Started {fmtDate(selected.startedAt)}</span>
-              </>
+
+          {/* Controls */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+            {canStart ? (
+              <button onClick={() => handleStart(selected)} disabled={!!actionId} style={{
+                display: 'flex', alignItems: 'center', gap: 5, padding: '7px 12px', borderRadius: 9, fontSize: 11, fontWeight: 700, cursor: actionId ? 'not-allowed' : 'pointer',
+                background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.28)', color: C.green,
+              }}>
+                <svg width="11" height="11" fill="currentColor" viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
+                {actionId === selected.id ? '…' : 'Start'}
+              </button>
+            ) : (
+              <button onClick={() => handleStop(selected)} disabled={!!actionId} style={{
+                display: 'flex', alignItems: 'center', gap: 5, padding: '7px 12px', borderRadius: 9, fontSize: 11, fontWeight: 700, cursor: actionId ? 'not-allowed' : 'pointer',
+                background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.28)', color: C.amber,
+              }}>
+                <svg width="11" height="11" fill="currentColor" viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+                {actionId === selected.id ? '…' : 'Stop'}
+              </button>
             )}
+            <button onClick={() => handleDelete(selected)} disabled={!!actionId} style={{
+              display: 'flex', alignItems: 'center', gap: 5, padding: '7px 12px', borderRadius: 9, fontSize: 11, fontWeight: 700, cursor: actionId ? 'not-allowed' : 'pointer',
+              background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', color: C.red,
+            }}>
+              <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
+              <span className="hidden sm:inline">Delete</span>
+            </button>
           </div>
-        </div>
-        <div className="flex items-center gap-2 shrink-0">
-          {isStartable(selected.status) ? (
-            <button onClick={() => handleStart(selected)} disabled={!!actionId}
-                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all"
-                    style={{ background: 'rgba(0,200,120,0.1)', border: '1px solid rgba(0,200,120,0.25)', color: '#00c878', cursor: actionId ? 'not-allowed' : 'pointer' }}>
-              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
-              {actionId === selected.id ? '…' : 'Start'}
-            </button>
-          ) : (
-            <button onClick={() => handleStop(selected)} disabled={!!actionId}
-                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all"
-                    style={{ background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.25)', color: '#f59e0b', cursor: actionId ? 'not-allowed' : 'pointer' }}>
-              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
-              {actionId === selected.id ? '…' : 'Stop'}
-            </button>
-          )}
-          <button onClick={() => handleDelete(selected)} disabled={!!actionId}
-                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all"
-                  style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', color: '#ef4444', cursor: actionId ? 'not-allowed' : 'pointer' }}>
-            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/>
-            </svg>
-            <span className="hidden sm:inline">Delete</span>
-          </button>
         </div>
       </div>
 
       {/* Warmup bar */}
       {selected.status === 'warming_up' && (
-        <div className="px-5 py-2.5 border-b shrink-0"
-             style={{ borderColor: 'rgba(255,255,255,0.05)', background: 'rgba(56,189,248,0.04)' }}>
-          <div className="flex justify-between text-xs mb-1.5" style={{ color: '#38bdf8' }}>
-            <span>Collecting bars for indicator warmup…</span>
-            <span className="font-mono">{selected.warmupBarsCurrent}/{selected.warmupBarsNeeded}</span>
+        <div style={{ padding: '8px 18px', borderBottom: `1px solid ${C.border}`, background: `${C.blue}06`, flexShrink: 0 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: C.blue, marginBottom: 4 }}>
+            <span>Collecting price bars for indicator warmup…</span>
+            <span style={{ fontFamily: 'monospace', fontWeight: 700 }}>{selected.warmupBarsCurrent}/{selected.warmupBarsNeeded}</span>
           </div>
-          <div className="h-1 rounded-full" style={{ background: 'rgba(56,189,248,0.12)' }}>
-            <div className="h-1 rounded-full transition-all duration-300"
-                 style={{
-                   width: `${Math.min(100, (selected.warmupBarsCurrent / Math.max(1, selected.warmupBarsNeeded)) * 100)}%`,
-                   background: 'linear-gradient(to right, #38bdf8, #0ea5e9)',
-                 }}/>
+          <div style={{ height: 3, borderRadius: 2, background: `${C.blue}15` }}>
+            <div style={{
+              height: 3, borderRadius: 2, transition: 'width 0.4s',
+              width: `${Math.min(100, (selected.warmupBarsCurrent / Math.max(1, selected.warmupBarsNeeded)) * 100)}%`,
+              background: `linear-gradient(to right, ${C.blue}, ${C.cyan})`,
+            }}/>
           </div>
         </div>
       )}
 
       {/* Active position strip */}
-      {selected.position === 'long' && (
-        <div className="px-5 py-2.5 border-b flex items-center gap-4 shrink-0"
-             style={{ borderColor: 'rgba(255,255,255,0.05)', background: 'rgba(0,200,120,0.04)' }}>
-          <div className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: '#00c878', boxShadow: '0 0 6px #00c878' }}/>
-            <span className="text-xs font-bold" style={{ color: '#00c878' }}>LONG</span>
+      {selected.position !== 'none' && (
+        <div style={{ padding: '8px 18px', borderBottom: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', gap: 16, flexShrink: 0, background: selected.position === 'long' ? 'rgba(16,185,129,0.05)' : 'rgba(239,68,68,0.05)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span style={{ width: 8, height: 8, borderRadius: '50%', background: selected.position === 'long' ? C.green : C.red, boxShadow: `0 0 8px ${selected.position === 'long' ? C.green : C.red}`, animation: 'pulse 1.8s ease-in-out infinite' }}/>
+            <span style={{ fontSize: 11, fontWeight: 800, color: selected.position === 'long' ? C.green : C.red }}>
+              {selected.position === 'long' ? '▲ LONG' : '▼ SHORT'}
+            </span>
           </div>
           {selected.currentEntryPrice && (
-            <span className="text-xs" style={{ color: '#64748b' }}>Entry <span className="text-white font-mono font-semibold">{selected.currentEntryPrice.toFixed(4)}</span></span>
+            <span style={{ fontSize: 11, color: C.text2 }}>Entry <span style={{ color: C.text1, fontFamily: 'monospace', fontWeight: 700 }}>{selected.currentEntryPrice.toFixed(4)}</span></span>
           )}
           {selected.currentSL && (
-            <span className="text-xs" style={{ color: '#f43f5e' }}>SL <span className="font-mono font-semibold">{selected.currentSL.toFixed(4)}</span></span>
+            <span style={{ fontSize: 11, color: C.red }}>SL <span style={{ fontFamily: 'monospace', fontWeight: 700 }}>{selected.currentSL.toFixed(4)}</span></span>
           )}
           {selected.currentTP && (
-            <span className="text-xs" style={{ color: '#fbbf24' }}>TP <span className="font-mono font-semibold">{selected.currentTP.toFixed(4)}</span></span>
+            <span style={{ fontSize: 11, color: C.amber }}>TP <span style={{ fontFamily: 'monospace', fontWeight: 700 }}>{selected.currentTP.toFixed(4)}</span></span>
           )}
         </div>
       )}
 
       {/* Metrics grid */}
-      <div className="grid grid-cols-3 sm:grid-cols-6 gap-px shrink-0"
-           style={{ background: 'rgba(255,255,255,0.04)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-        {[
-          { label: 'Total P&L',    value: $pnl(selected.pnl),  color: selected.pnl >= 0 ? '#00c878' : '#ef4444' },
-          { label: 'Win Rate',     value: selected.trades > 0 ? ((selected.wins/selected.trades)*100).toFixed(1)+'%' : '—', color: '#38bdf8' },
-          { label: 'Trades',       value: String(selected.trades), color: '#f59e0b' },
-          { label: 'Max Drawdown', value: selected.maxDrawdown > 0 ? `$${selected.maxDrawdown.toFixed(2)}` : '—', color: '#ef4444' },
-          { label: 'Today Trades', value: String(selected.dailyTrades), color: '#94a3b8' },
-          { label: 'Today Loss',   value: selected.dailyLoss > 0 ? `$${selected.dailyLoss.toFixed(2)}` : '—', color: selected.dailyLoss > 0 ? '#f43f5e' : '#334155' },
-        ].map(s => (
-          <div key={s.label} className="px-4 py-3" style={{ background: 'rgba(0,0,0,0.3)' }}>
-            <p className="text-xs mb-1 uppercase tracking-wider" style={{ color: '#334155' }}>{s.label}</p>
-            <p className="text-sm font-bold font-mono" style={{ color: s.color }}>{s.value}</p>
-          </div>
-        ))}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr) repeat(3, 1fr)', borderBottom: `1px solid ${C.border}`, flexShrink: 0 }}>
+        <MetricCard label="Total P&L"    value={fmtPnl(selected.pnl)} color={selected.pnl >= 0 ? C.green : C.red}/>
+        <MetricCard label="Win Rate"     value={selected.trades > 0 ? `${((selected.wins/selected.trades)*100).toFixed(1)}%` : '—'} color={C.blue}/>
+        <MetricCard label="Trades"       value={String(selected.trades)} color={C.amber} sub={`${selected.wins}W · ${selected.losses}L`}/>
+        <MetricCard label="Max Drawdown" value={selected.maxDrawdown > 0 ? `$${selected.maxDrawdown.toFixed(2)}` : '—'} color={C.red}/>
+        <MetricCard label="Today"        value={String(selected.dailyTrades)} color={C.text2} sub="trades"/>
+        <MetricCard label="Daily Loss"   value={selected.dailyLoss > 0 ? `$${selected.dailyLoss.toFixed(2)}` : '—'} color={selected.dailyLoss > 0 ? C.red : C.text3}/>
       </div>
 
-      {/* Equity chart section */}
-      <div className="px-5 pt-4 pb-3 border-b shrink-0" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-bold uppercase tracking-wider" style={{ color: '#475569' }}>Equity Curve</span>
-            {selected.equityCurve.length > 0 && (
-              <span className="text-xs font-mono font-bold" style={{ color: selected.pnl >= 0 ? '#00c878' : '#ef4444' }}>
-                {$pnl(selected.pnl)}
-              </span>
-            )}
+      {/* Equity chart */}
+      <div style={{ padding: '12px 18px 10px', borderBottom: `1px solid ${C.border}`, flexShrink: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ fontSize: 10, fontWeight: 700, color: C.text2, textTransform: 'uppercase', letterSpacing: '0.07em' }}>Equity Curve</span>
+            <span style={{ fontSize: 12, fontFamily: 'monospace', fontWeight: 800, color: selected.pnl >= 0 ? C.green : C.red }}>{fmtPnl(selected.pnl)}</span>
           </div>
-          <div className="flex flex-wrap gap-1.5 text-xs" style={{ color: '#334155' }}>
-            {selected.params.stopLossPercent   && <span className="px-2 py-0.5 rounded-full" style={{ background: 'rgba(244,63,94,0.08)', color: '#f43f5e', border: '1px solid rgba(244,63,94,0.15)' }}>SL {selected.params.stopLossPercent}%</span>}
-            {selected.params.takeProfitPercent && <span className="px-2 py-0.5 rounded-full" style={{ background: 'rgba(251,191,36,0.08)', color: '#fbbf24', border: '1px solid rgba(251,191,36,0.15)' }}>TP {selected.params.takeProfitPercent}%</span>}
-            {selected.params.tradeSize && <span className="px-2 py-0.5 rounded-full" style={{ background: 'rgba(255,255,255,0.04)', color: '#64748b', border: '1px solid rgba(255,255,255,0.07)' }}>Size {selected.params.tradeSize}</span>}
+          <div style={{ display: 'flex', gap: 6 }}>
+            {selected.params.stopLossPercent && <span style={{ fontSize: 10, padding: '2px 7px', borderRadius: 20, background: 'rgba(239,68,68,0.08)', color: C.red, border: '1px solid rgba(239,68,68,0.18)' }}>SL {selected.params.stopLossPercent}% (ATR-adj)</span>}
+            {selected.params.takeProfitPercent && <span style={{ fontSize: 10, padding: '2px 7px', borderRadius: 20, background: 'rgba(245,158,11,0.08)', color: C.amber, border: '1px solid rgba(245,158,11,0.18)' }}>TP {selected.params.takeProfitPercent}% (ATR-adj)</span>}
+            {selected.params.tradeSize && <span style={{ fontSize: 10, padding: '2px 7px', borderRadius: 20, background: C.surface2, color: C.text2, border: `1px solid ${C.border}` }}>Size {selected.params.tradeSize}</span>}
           </div>
         </div>
-        <div className="rounded-xl overflow-hidden" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
-          <EquityChart curve={selected.equityCurve} height={90}/>
+        <div style={{ borderRadius: 10, overflow: 'hidden', background: C.surface, border: `1px solid ${C.border}` }}>
+          <EquityChart curve={selected.equityCurve} height={100}/>
         </div>
       </div>
 
-      {/* News sentiment (collapsible) */}
-      <div className="px-5 py-3 border-b shrink-0" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
-        <button onClick={() => setShowNews(n => !n)}
-                className="flex items-center justify-between w-full text-xs font-semibold uppercase tracking-wider"
-                style={{ color: '#334155' }}>
+      {/* News sentiment */}
+      <div style={{ padding: '8px 18px', borderBottom: `1px solid ${C.border}`, flexShrink: 0 }}>
+        <button onClick={() => setShowNews(n => !n)} style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%',
+          fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: C.text2, background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+        }}>
           <span>News Sentiment · {selected.symbol}</span>
-          <svg className={`w-3.5 h-3.5 transition-transform ${showNews ? 'rotate-180' : ''}`}
-               fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+          <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5} style={{ transform: showNews ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>
             <polyline points="6 9 12 15 18 9"/>
           </svg>
         </button>
-        {showNews && (
-          <div className="mt-3">
-            <NewsSentimentPanel symbol={selected.symbol}/>
-          </div>
-        )}
+        {showNews && <div style={{ marginTop: 10 }}><NewsSentimentPanel symbol={selected.symbol}/></div>}
       </div>
 
       {/* Activity log */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <div className="flex items-center justify-between px-5 py-2.5 border-b shrink-0"
-             style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-bold uppercase tracking-wider" style={{ color: '#475569' }}>Activity Log</span>
-            <span className="text-xs font-mono px-1.5 py-0.5 rounded"
-                  style={{ background: 'rgba(255,255,255,0.04)', color: '#334155' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 18px', borderBottom: `1px solid ${C.border}`, flexShrink: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ fontSize: 10, fontWeight: 700, color: C.text2, textTransform: 'uppercase', letterSpacing: '0.07em' }}>Activity Log</span>
+            <span style={{ fontSize: 9, fontFamily: 'monospace', padding: '1px 6px', borderRadius: 4, background: C.surface, color: C.text3, border: `1px solid ${C.border}` }}>
               {filteredLogs.length}
             </span>
           </div>
-          <div className="flex gap-1">
+          <div style={{ display: 'flex', gap: 4 }}>
             {['all', 'trade', 'signal', 'risk', 'error'].map(lvl => (
-              <button key={lvl} onClick={() => setActiveLogFilter(lvl)}
-                      className="px-2 py-0.5 rounded-lg text-xs font-semibold transition-all capitalize"
-                      style={activeLogFilter === lvl
-                        ? { background: 'rgba(14,165,233,0.12)', color: '#38bdf8', border: '1px solid rgba(14,165,233,0.2)' }
-                        : { background: 'transparent', color: '#334155', border: '1px solid transparent' }}>
-                {lvl}
-              </button>
+              <button key={lvl} onClick={() => setLogFilter(lvl)} style={{
+                padding: '2px 8px', borderRadius: 6, fontSize: 9, fontWeight: 700, cursor: 'pointer', textTransform: 'capitalize', transition: 'all 0.12s',
+                background: logFilter === lvl ? `${C.blue}15` : 'transparent',
+                color: logFilter === lvl ? C.blue : C.text3,
+                border: `1px solid ${logFilter === lvl ? C.blue + '35' : 'transparent'}`,
+              }}>{lvl}</button>
             ))}
           </div>
         </div>
-        <div className="flex-1 overflow-y-auto font-mono text-xs">
+        <div style={{ flex: 1, overflowY: 'auto' }}>
           {filteredLogs.length === 0 && (
-            <div className="flex flex-col items-center justify-center h-full gap-2" style={{ color: '#1e2d3d' }}>
-              <svg className="w-8 h-8 opacity-30" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                <path d="M8 9h8M8 13h6M20 21H4a2 2 0 01-2-2V5a2 2 0 012-2h16a2 2 0 012 2v14a2 2 0 01-2 2z"/>
-              </svg>
-              <p>No log entries yet</p>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', gap: 8, color: C.text3 }}>
+              <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.3}><path d="M8 9h8M8 13h6M20 21H4a2 2 0 01-2-2V5a2 2 0 012-2h16a2 2 0 012 2v14a2 2 0 01-2 2z"/></svg>
+              <p style={{ fontSize: 11, margin: 0 }}>No log entries yet</p>
             </div>
           )}
           {[...filteredLogs].reverse().map((log, i) => <LogLine key={i} log={log}/>)}
@@ -1076,114 +995,107 @@ export default function BotsPage() {
       </div>
     </div>
   ) : (
-    /* Empty detail state */
-    <div className="flex-1 hidden md:flex flex-col items-center justify-center gap-4" style={{ color: '#1e2d3d' }}>
-      <div className="w-16 h-16 rounded-2xl flex items-center justify-center"
-           style={{ background: 'rgba(14,165,233,0.05)', border: '1px solid rgba(14,165,233,0.1)' }}>
-        <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="#0ea5e9" strokeWidth={1.4}>
-          <circle cx="12" cy="12" r="3"/>
-          <path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/>
-        </svg>
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12, color: C.text3 }} className="hidden md:flex">
+      <div style={{ width: 60, height: 60, borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', background: `${C.blue}06`, border: `1px solid ${C.blue}12` }}>
+        <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke={C.blue} strokeWidth={1.4} style={{ opacity: 0.5 }}><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
       </div>
-      <div className="text-center">
-        <p className="text-white font-semibold text-sm mb-1">Select a bot</p>
-        <p className="text-xs" style={{ color: '#1e2d3d' }}>View equity, logs &amp; controls</p>
-      </div>
+      <p style={{ fontSize: 13, fontWeight: 700, color: C.text2, margin: 0 }}>Select a bot to inspect</p>
+      <p style={{ fontSize: 11, margin: 0 }}>Equity, logs &amp; controls</p>
     </div>
   )
 
-  return (
-    <div className="flex flex-col h-full overflow-hidden">
+  // ── Portfolio summary ─────────────────────────────────────────────────────────
 
-      {/* ── Page header ── */}
-      <div className="flex items-center justify-between px-5 py-3.5 border-b shrink-0"
-           style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0"
-               style={{ background: 'linear-gradient(135deg,rgba(14,165,233,0.2),rgba(6,182,212,0.12))', border: '1px solid rgba(14,165,233,0.2)' }}>
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="#0ea5e9" strokeWidth={2}>
-              <circle cx="12" cy="12" r="3"/>
-              <path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/>
-            </svg>
+  const summaryItems = [
+    { label: 'Active',  value: String(activeCount),          color: C.green },
+    { label: 'Trades',  value: String(totalTrades),          color: C.amber },
+    { label: 'Net P&L', value: fmtPnl(totalPnl),            color: totalPnl >= 0 ? C.green : C.red },
+    { label: 'Win',     value: winRate ? winRate + '%' : '—', color: C.blue  },
+  ]
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden', background: C.bg }}>
+
+      {/* Pulse animation */}
+      <style>{`
+        @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.85)} }
+        @keyframes spin  { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+        .md\\:hidden { display:none } @media(max-width:767px){.md\\:hidden{display:flex}}
+        .md\\:flex   { display:none } @media(min-width:768px){.md\\:flex{display:flex}}
+        .hidden.md\\:flex { display:none } @media(min-width:768px){.hidden.md\\:flex{display:flex}}
+        .hidden.sm\\:inline { display:none } @media(min-width:640px){.hidden.sm\\:inline{display:inline}}
+      `}</style>
+
+      {/* Page header */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 18px', borderBottom: `1px solid ${C.border}`, flexShrink: 0, background: C.surface }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{
+            width: 36, height: 36, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+            background: `linear-gradient(135deg, ${C.blue}25, ${C.cyan}15)`,
+            border: `1px solid ${C.blue}30`,
+            boxShadow: `0 0 20px ${C.blueGlow}`,
+          }}>
+            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke={C.blue} strokeWidth={2}><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
           </div>
           <div>
-            <h1 className="text-base font-bold text-white leading-tight">TradePilot</h1>
-            <p className="text-xs hidden sm:block" style={{ color: '#334155' }}>MA · RSI · MACD · Momentum · SL/TP · Daily risk controls</p>
+            <h1 style={{ fontSize: 15, fontWeight: 800, color: C.text1, margin: 0, lineHeight: 1.2 }}>TradePilot</h1>
+            <p style={{ fontSize: 10, color: C.text3, margin: 0 }}>MA · RSI · MACD · Momentum · ATR SL/TP · Long &amp; Short</p>
           </div>
         </div>
 
-        {/* Portfolio summary pills */}
-        <div className="hidden lg:flex items-center gap-2">
-          {[
-            { label: 'Active', value: activeCount, color: '#00c878' },
-            { label: 'Trades', value: totalTrades, color: '#f59e0b' },
-            { label: 'P&L',    value: $pnl(totalPnl), color: totalPnl >= 0 ? '#00c878' : '#ef4444' },
-            { label: 'Win',    value: winRate ? winRate + '%' : '—', color: '#38bdf8' },
-          ].map(s => (
-            <div key={s.label} className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl"
-                 style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
-              <span className="text-xs" style={{ color: '#334155' }}>{s.label}</span>
-              <span className="text-xs font-bold font-mono" style={{ color: s.color }}>{s.value}</span>
-            </div>
-          ))}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          {/* Summary pills — desktop */}
+          <div style={{ display: 'flex', gap: 6 }}>
+            {summaryItems.map(s => (
+              <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '5px 10px', borderRadius: 8, background: C.surface2, border: `1px solid ${C.border}` }}
+                   className="hidden md:flex">
+                <span style={{ fontSize: 10, color: C.text3 }}>{s.label}</span>
+                <span style={{ fontSize: 11, fontWeight: 800, fontFamily: 'monospace', color: s.color }}>{s.value}</span>
+              </div>
+            ))}
+          </div>
+          <button onClick={() => setShowModal(true)} style={{
+            display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 10, fontSize: 12, fontWeight: 700, cursor: 'pointer',
+            background: `${C.blue}12`, border: `1px solid ${C.blue}35`, color: C.blue,
+          }}>
+            <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path d="M12 5v14M5 12h14"/></svg>
+            Deploy Bot
+          </button>
         </div>
-
-        <button onClick={() => setShowModal(true)}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-bold transition-all"
-                style={{ background: 'rgba(14,165,233,0.12)', border: '1px solid rgba(14,165,233,0.25)', color: '#38bdf8' }}>
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path d="M12 5v14M5 12h14"/></svg>
-          <span className="hidden sm:inline">Deploy Bot</span>
-          <span className="sm:hidden">New</span>
-        </button>
       </div>
 
-      {/* ── Mobile stats strip ── */}
-      <div className="flex gap-px border-b lg:hidden shrink-0" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
-        {[
-          { label: 'Active', value: String(activeCount), color: '#00c878' },
-          { label: 'Trades', value: String(totalTrades), color: '#f59e0b' },
-          { label: 'P&L',    value: $pnl(totalPnl),     color: totalPnl >= 0 ? '#00c878' : '#ef4444' },
-          { label: 'Win',    value: winRate ? winRate + '%' : '—', color: '#38bdf8' },
-        ].map(s => (
-          <div key={s.label} className="flex-1 px-3 py-2 text-center" style={{ background: 'rgba(255,255,255,0.01)' }}>
-            <p className="text-xs" style={{ color: '#334155' }}>{s.label}</p>
-            <p className="text-xs font-bold font-mono" style={{ color: s.color }}>{s.value}</p>
+      {/* Mobile stats strip */}
+      <div style={{ display: 'flex', borderBottom: `1px solid ${C.border}`, flexShrink: 0, background: C.surface }} className="md:hidden">
+        {summaryItems.map((s, i) => (
+          <div key={s.label} style={{ flex: 1, padding: '8px 0', textAlign: 'center', borderRight: i < summaryItems.length - 1 ? `1px solid ${C.border}` : 'none' }}>
+            <p style={{ fontSize: 9, color: C.text3, margin: '0 0 2px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{s.label}</p>
+            <p style={{ fontSize: 12, fontWeight: 800, fontFamily: 'monospace', color: s.color, margin: 0 }}>{s.value}</p>
           </div>
         ))}
       </div>
 
-      {/* ── Main layout ── */}
-      <div className="flex-1 flex overflow-hidden">
+      {/* Main layout */}
+      <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
 
-        {/* Sidebar — always shown on desktop, shown on mobile only if list view */}
-        <div className={`flex-col border-r overflow-hidden ${
-          mobileView === 'list' ? 'flex' : 'hidden'
-        } md:flex md:w-72 lg:w-80 w-full`}
-             style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
-          {SidebarContent}
+        {/* Sidebar */}
+        <div style={{ display: mobileView === 'list' ? 'flex' : 'none', flexDirection: 'column', width: '100%', borderRight: `1px solid ${C.border}`, overflow: 'hidden' }}
+             className="md:flex md:w-72">
+          {Sidebar}
         </div>
 
-        {/* Detail panel — shown on desktop always, on mobile only if detail view */}
-        <div className={`flex-col flex-1 overflow-hidden ${
-          mobileView === 'detail' ? 'flex' : 'hidden'
-        } md:flex`}>
-          {DetailContent}
+        {/* Detail */}
+        <div style={{ display: mobileView === 'detail' ? 'flex' : 'none', flexDirection: 'column', flex: 1, overflow: 'hidden' }}
+             className="md:flex">
+          {Detail}
         </div>
       </div>
 
-      {/* ── Modals ── */}
-      {showModal && (
-        <CreateBotModal onClose={() => setShowModal(false)} onCreate={b => setBots(prev => [b, ...prev])}/>
-      )}
-      {showRiskModal && pendingStart && (
+      {/* Modals */}
+      {showModal && <CreateBotModal onClose={() => setShowModal(false)} onCreate={b => setBots(p => [b, ...p])}/>}
+      {showRisk && pendingStart && (
         <RiskDisclosureModal
-          onAccept={() => {
-            localStorage.setItem('tradepilot_risk_v1', Date.now().toString())
-            setShowRiskModal(false)
-            _doStart(pendingStart)
-            setPendingStart(null)
-          }}
-          onClose={() => { setShowRiskModal(false); setPendingStart(null) }}
+          onAccept={() => { localStorage.setItem('tradepilot_risk_v1', Date.now().toString()); setShowRisk(false); doStart(pendingStart); setPendingStart(null) }}
+          onClose={() => { setShowRisk(false); setPendingStart(null) }}
         />
       )}
     </div>
