@@ -528,7 +528,24 @@ export interface MacroNews {
   sentiment:   number
   label:       'bullish' | 'bearish' | 'neutral'
   category:    string
+  imageUrl:    string
 }
+
+// Curated pool of financial / market Unsplash photos (free CDN, no API key needed)
+const HERO_IMAGES = [
+  'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=900&q=80&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=900&q=80&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1534951009808-766919b4fba2?w=900&q=80&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=900&q=80&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=900&q=80&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1642790106117-e829e14a795f?w=900&q=80&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=900&q=80&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1604594849809-dfedbc827105?w=900&q=80&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1553877522-43269d4ea984?w=900&q=80&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=900&q=80&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1621264448270-9ef00e88a935?w=900&q=80&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1638913671522-e645a0f9e66e?w=900&q=80&auto=format&fit=crop',
+]
 
 function categorizeMacro(title: string): string {
   const t = title.toLowerCase()
@@ -562,6 +579,9 @@ async function fetchMacroFeed(feed: { url: string; source: string }): Promise<Ma
   return parsed.slice(0, 20).map((item, i) => {
     const score = scoreText(item.title)
     const url   = item.link ? resolveUrl(item.link, feed.url) : ''
+    // Deterministic image: stable per-article using title hash
+    const hash     = [...item.title].reduce((acc, c) => (acc + c.charCodeAt(0)) & 0xffff, 0)
+    const imageUrl = HERO_IMAGES[hash % HERO_IMAGES.length]
     return {
       id:          `${feed.source.replace(/\s/g, '')}-${i}-${item.pubDate}`,
       title:       item.title,
@@ -571,6 +591,7 @@ async function fetchMacroFeed(feed: { url: string; source: string }): Promise<Ma
       sentiment:   score,
       label:       sentimentLabel(score),
       category:    categorizeMacro(item.title),
+      imageUrl,
     }
   })
 }

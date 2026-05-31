@@ -23,6 +23,7 @@ export interface MacroNews {
   sentiment:   number
   label:       'bullish' | 'bearish' | 'neutral'
   category:    string
+  imageUrl:    string
 }
 
 export const fetchEconomicCalendar = (): Promise<EconomicEvent[]> =>

@@ -1,325 +1,355 @@
-﻿import React, { useState, useEffect } from 'react'
-import api from '../api/client'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
+import { fetchMacroNews, MacroNews } from '../api/news'
 
-const BB_CATEGORIES = ['All', 'Markets', 'Technology', 'Politics']
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
-interface BloombergArticle {
-  title:       string
-  url:         string
-  publishedAt: string
-  category:    string
-  source:      string
+function timeAgo(iso: string): string {
+  try {
+    const ms = Date.now() - new Date(iso).getTime()
+    if (ms < 60_000)         return 'Just now'
+    if (ms < 3_600_000)      return `${Math.floor(ms / 60_000)} minutes ago`
+    if (ms < 7_200_000)      return `1 hour ago`
+    if (ms < 86_400_000)     return `${Math.floor(ms / 3_600_000)} hours ago`
+    if (ms < 172_800_000)    return `Yesterday, ${new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
+    return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+  } catch { return '' }
 }
 
-const FEATURED_POSTS = [
-  {
-    id: 1,
-    category: 'Market News',
-    title: 'US Dollar Climbs Against Most Majors Amid Tariff Uncertainty',
-    excerpt: 'The US dollar strengthened against most major currencies as investors assessed the potential impact of new tariff announcements on global trade flows.',
-    date: 'March 29, 2026',
-    readTime: '4 min read',
-    tag: 'FEATURED',
-  },
-  {
-    id: 2,
-    category: 'Education',
-    title: 'Understanding CFD Trading: A Complete Beginner\'s Guide',
-    excerpt: 'Contract for Difference (CFD) trading allows you to speculate on price movements without owning the underlying asset. Learn the fundamentals before you start.',
-    date: 'March 28, 2026',
-    readTime: '8 min read',
-    tag: 'EDUCATION',
-  },
-  {
-    id: 3,
-    category: 'Forex',
-    title: 'EUR/USD Technical Analysis: Key Levels to Watch This Week',
-    excerpt: 'The EUR/USD pair has been consolidating near the 1.0850 level. Traders are watching the upcoming ECB minutes and US NFP data for directional cues.',
-    date: 'March 27, 2026',
-    readTime: '5 min read',
-    tag: 'ANALYSIS',
-  },
-]
-
-const CATEGORY_COLORS: Record<string, { bg: string; text: string }> = {
-  'Market News': { bg: 'rgba(14,165,233,0.12)',  text: '#38bdf8' },
-  Education:     { bg: 'rgba(99,102,241,0.12)',   text: '#818cf8' },
-  Forex:         { bg: 'rgba(16,185,129,0.12)',   text: '#34d399' },
-  Crypto:        { bg: 'rgba(251,191,36,0.12)',   text: '#fbbf24' },
-  Commodities:   { bg: 'rgba(249,115,22,0.12)',   text: '#fb923c' },
-  Stocks:        { bg: 'rgba(236,72,153,0.12)',   text: '#f472b6' },
-  Markets:       { bg: 'rgba(14,165,233,0.12)',   text: '#38bdf8' },
-  Technology:    { bg: 'rgba(99,102,241,0.12)',   text: '#818cf8' },
-  Politics:      { bg: 'rgba(249,115,22,0.12)',   text: '#fb923c' },
-  All:           { bg: 'rgba(255,255,255,0.06)',  text: 'rgba(255,255,255,0.6)' },
+function safeUrl(url: string): string {
+  try {
+    const p = new URL(url)
+    return p.protocol === 'https:' || p.protocol === 'http:' ? p.href : '#'
+  } catch { return '#' }
 }
 
-function CategoryBadge({ cat }: { cat: string }) {
-  const c = CATEGORY_COLORS[cat] ?? CATEGORY_COLORS['All']
+const CAT_COLORS: Record<string, string> = {
+  'central-banks': '#8b5cf6',
+  'inflation':     '#ef4444',
+  'employment':    '#10b981',
+  'gdp':           '#0ea5e9',
+  'manufacturing': '#f59e0b',
+  'commodities':   '#f97316',
+  'trade':         '#06b6d4',
+  'markets':       '#a78bfa',
+  'general':       '#64748b',
+}
+
+const SOURCE_LABELS: Record<string, string> = {
+  'Reuters':        'Reuters News',
+  'Yahoo Finance':  'Yahoo Finance',
+  'CNBC Economy':   'CNBC',
+  'MarketWatch':    'MarketWatch',
+  'Bloomberg':      'Bloomberg',
+}
+
+// ─── Hero carousel ────────────────────────────────────────────────────────────
+
+function HeroCarousel({ articles }: { articles: MacroNews[] }) {
+  const [idx, setIdx]       = useState(0)
+  const [fading, setFading] = useState(false)
+  const touchX              = useRef(0)
+  const timerRef            = useRef<ReturnType<typeof setTimeout>>()
+  const items = articles.slice(0, 5)
+
+  const goTo = useCallback((next: number) => {
+    setFading(true)
+    setTimeout(() => { setIdx(next); setFading(false) }, 220)
+  }, [])
+
+  const advance = useCallback(() => {
+    goTo((idx + 1) % items.length)
+  }, [idx, items.length, goTo])
+
+  useEffect(() => {
+    if (items.length <= 1) return
+    timerRef.current = setTimeout(advance, 5_000)
+    return () => clearTimeout(timerRef.current)
+  }, [advance, items.length])
+
+  if (!items.length) return null
+  const art = items[idx]
+
   return (
-    <span className="text-xs font-semibold px-2 py-0.5 rounded-full" style={{ background: c.bg, color: c.text }}>
-      {cat}
-    </span>
+    <div style={{ marginBottom: 28 }}>
+      {/* Section header */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, paddingBottom: 0 }}>
+        <span style={{ fontSize: 18, fontWeight: 800, color: '#fff', letterSpacing: '-0.01em' }}>Major news</span>
+        <button style={{ display: 'flex', alignItems: 'center', gap: 2, background: 'none', border: 'none', color: '#4b5563', cursor: 'pointer', padding: 0 }}>
+          <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+
+      {/* Card */}
+      <a href={safeUrl(art.url)} target="_blank" rel="noopener noreferrer"
+         style={{ display: 'block', borderRadius: 16, overflow: 'hidden', textDecoration: 'none', position: 'relative', background: '#111' }}
+         onTouchStart={e => { touchX.current = e.touches[0].clientX }}
+         onTouchEnd={e => {
+           const dx = e.changedTouches[0].clientX - touchX.current
+           if (Math.abs(dx) > 50) goTo(dx < 0 ? (idx + 1) % items.length : (idx - 1 + items.length) % items.length)
+         }}
+      >
+        {/* Image */}
+        <div style={{ position: 'relative', width: '100%', paddingTop: '56%', overflow: 'hidden', background: '#1a1a1a' }}>
+          <img src={art.imageUrl} alt="" loading="lazy"
+               style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: fading ? 0 : 1, transition: 'opacity 0.22s ease' }}
+               onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}/>
+          {/* Gradient overlay */}
+          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent 30%, rgba(0,0,0,0.92) 100%)' }}/>
+          {/* Text overlay */}
+          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '16px 16px 14px' }}>
+            <h2 style={{ fontSize: 18, fontWeight: 700, color: '#fff', margin: '0 0 8px', lineHeight: 1.35, opacity: fading ? 0 : 1, transition: 'opacity 0.22s ease' }}>{art.title}</h2>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="#6b7280" strokeWidth={2}><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <span style={{ fontSize: 12, color: '#9ca3af' }}>{timeAgo(art.publishedAt)}</span>
+              <span style={{ fontSize: 12, color: '#6b7280' }}>·</span>
+              <span style={{ fontSize: 12, color: '#9ca3af' }}>{SOURCE_LABELS[art.source] ?? art.source}</span>
+            </div>
+          </div>
+        </div>
+      </a>
+
+      {/* Dots */}
+      {items.length > 1 && (
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 6, marginTop: 10 }}>
+          {items.map((_, i) => (
+            <button key={i} onClick={() => goTo(i)} style={{ padding: 0, border: 'none', background: 'none', cursor: 'pointer' }}>
+              <div style={{ width: i === idx ? 20 : 7, height: 7, borderRadius: 4, background: i === idx ? '#fff' : '#374151', transition: 'all 0.25s' }}/>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
   )
 }
 
-const FALLBACK_URL = 'https://www.bloomberg.com/markets'
+// ─── Horizontal scroll section ───────────────────────────────────────────────
 
-/**
- * Sanitize a URL before placing it in an href attribute.
- * Prevents DOM XSS (CWE-79) by:
- *   1. Rejecting null/empty → safe fallback
- *   2. Parsing with the URL Web API (throws on malformed input)
- *   3. Strict protocol allowlist — only 'https:' and 'http:' are accepted,
- *      which blocks javascript:, data:, vbscript: and any other scheme.
- *   4. Returning parsed.href (the URL-API normalised string) not the raw input.
- */
-function safeUrl(url: string | undefined | null): string {
-  if (!url || typeof url !== 'string') return FALLBACK_URL
-  
-  const trimmedUrl = url.trim()
-  if (!trimmedUrl) return FALLBACK_URL
-  
-  try {
-    const parsed = new URL(trimmedUrl)
-    if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') return FALLBACK_URL
-    return parsed.href
-  } catch {
-    return FALLBACK_URL
-  }
+function NewsSection({ title, articles, onRead }: { title: string; articles: MacroNews[]; onRead: (a: MacroNews) => void }) {
+  if (!articles.length) return null
+  return (
+    <div style={{ marginBottom: 28 }}>
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+        <span style={{ fontSize: 18, fontWeight: 800, color: '#fff', letterSpacing: '-0.01em' }}>{title}</span>
+        <button style={{ display: 'flex', alignItems: 'center', gap: 2, background: 'none', border: 'none', color: '#4b5563', cursor: 'pointer', padding: 0 }}>
+          <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+
+      {/* Horizontal scroll row */}
+      <div style={{ display: 'flex', gap: 10, overflowX: 'auto', paddingBottom: 4, scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+        {articles.map(art => (
+          <button key={art.id} onClick={() => onRead(art)}
+            style={{ flexShrink: 0, width: 'calc(65vw - 16px)', maxWidth: 260, minWidth: 180, borderRadius: 14, background: '#111', border: '1px solid rgba(255,255,255,0.06)', padding: '14px', textAlign: 'left', cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {/* Category dot + label */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <div style={{ width: 6, height: 6, borderRadius: '50%', background: CAT_COLORS[art.category] ?? '#64748b', flexShrink: 0 }}/>
+              <span style={{ fontSize: 10, fontWeight: 700, color: CAT_COLORS[art.category] ?? '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                {art.category.replace('-', ' ')}
+              </span>
+            </div>
+            {/* Headline */}
+            <p style={{ fontSize: 14, fontWeight: 700, color: '#fff', margin: 0, lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+              {art.title}
+            </p>
+            {/* Meta */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 'auto' }}>
+              <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="#4b5563" strokeWidth={2}><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <span style={{ fontSize: 11, color: '#4b5563' }}>{timeAgo(art.publishedAt)}</span>
+              <span style={{ fontSize: 11, color: '#374151' }}>·</span>
+              <span style={{ fontSize: 11, color: '#4b5563' }}>{SOURCE_LABELS[art.source] ?? art.source}</span>
+            </div>
+          </button>
+        ))}
+      </div>
+    </div>
+  )
 }
 
-function fmtDate(iso: string) {
-  try {
-    return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-  } catch {
-    return iso
-  }
+// ─── Article detail sheet ─────────────────────────────────────────────────────
+
+function ArticleSheet({ article, onClose }: { article: MacroNews; onClose: () => void }) {
+  const sentColor = article.label === 'bullish' ? '#10b981' : article.label === 'bearish' ? '#ef4444' : '#64748b'
+  const catColor  = CAT_COLORS[article.category] ?? '#64748b'
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, zIndex: 300, display: 'flex', alignItems: 'flex-end' }}
+         onClick={onClose}>
+      <div onClick={e => e.stopPropagation()}
+           style={{ width: '100%', maxHeight: '88dvh', background: '#111', borderRadius: '20px 20px 0 0', overflow: 'hidden', display: 'flex', flexDirection: 'column', animation: 'blog-slideUp 0.25s ease-out' }}>
+        {/* Drag handle */}
+        <div style={{ display: 'flex', justifyContent: 'center', paddingTop: 10, flexShrink: 0 }}>
+          <div style={{ width: 36, height: 4, borderRadius: 2, background: '#2d2d2d' }}/>
+        </div>
+
+        <div style={{ flex: 1, overflowY: 'auto' }}>
+          {/* Hero image */}
+          <div style={{ position: 'relative', width: '100%', paddingTop: '52%', background: '#1a1a1a' }}>
+            <img src={article.imageUrl} alt="" loading="lazy"
+                 style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+                 onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}/>
+            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent 40%, rgba(0,0,0,0.85) 100%)' }}/>
+            <button onClick={onClose} style={{ position: 'absolute', top: 12, right: 12, width: 32, height: 32, borderRadius: '50%', background: 'rgba(0,0,0,0.6)', border: 'none', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)' }}>
+              <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path d="M18 6L6 18M6 6l12 12"/></svg>
+            </button>
+          </div>
+
+          <div style={{ padding: '16px 16px 8px' }}>
+            {/* Category + source */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+              <span style={{ fontSize: 10, fontWeight: 800, padding: '3px 8px', borderRadius: 6, background: `${catColor}18`, color: catColor, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                {article.category.replace('-', ' ')}
+              </span>
+              <span style={{ fontSize: 11, color: '#4b5563' }}>{SOURCE_LABELS[article.source] ?? article.source}</span>
+              <span style={{ fontSize: 11, color: '#374151' }}>·</span>
+              <span style={{ fontSize: 11, color: '#4b5563' }}>{timeAgo(article.publishedAt)}</span>
+            </div>
+
+            {/* Headline */}
+            <h2 style={{ fontSize: 20, fontWeight: 800, color: '#fff', margin: '0 0 14px', lineHeight: 1.35 }}>{article.title}</h2>
+
+            {/* Sentiment bar */}
+            <div style={{ background: '#1a1a1a', borderRadius: 12, padding: '12px 14px', marginBottom: 16 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                <span style={{ fontSize: 11, fontWeight: 700, color: '#4b5563', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Market Sentiment</span>
+                <span style={{ fontSize: 12, fontWeight: 800, color: sentColor }}>
+                  {article.label === 'bullish' ? '↑ Bullish' : article.label === 'bearish' ? '↓ Bearish' : '→ Neutral'}
+                </span>
+              </div>
+              <div style={{ height: 5, borderRadius: 3, background: '#2d2d2d', position: 'relative', overflow: 'hidden' }}>
+                <div style={{ position: 'absolute', top: 0, height: '100%', borderRadius: 3, background: sentColor, width: `${Math.abs(article.sentiment) * 100}%`, left: article.sentiment >= 0 ? '50%' : `${50 - Math.abs(article.sentiment) * 100}%` }}/>
+                <div style={{ position: 'absolute', left: '50%', top: 0, width: 1, height: '100%', background: '#374151' }}/>
+              </div>
+            </div>
+
+            <p style={{ fontSize: 13, color: '#4b5563', lineHeight: 1.6, margin: '0 0 20px' }}>
+              This article is published by {SOURCE_LABELS[article.source] ?? article.source}. Click the button below to read the full story on their website.
+            </p>
+          </div>
+        </div>
+
+        {/* CTA */}
+        <div style={{ padding: '12px 16px 24px', borderTop: '1px solid #1f1f1f', flexShrink: 0, background: '#111' }}>
+          <a href={safeUrl(article.url)} target="_blank" rel="noopener noreferrer"
+             style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '14px 0', borderRadius: 14, background: '#fff', color: '#000', fontSize: 15, fontWeight: 800, textDecoration: 'none' }}>
+            Read Full Article
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ─── Main page ────────────────────────────────────────────────────────────────
+
+const CATEGORIES = ['All', 'Markets', 'Central Banks', 'Inflation', 'Employment', 'GDP', 'Commodities', 'Trade']
+const CAT_MAP: Record<string, string> = {
+  'All': '', 'Markets': 'markets', 'Central Banks': 'central-banks',
+  'Inflation': 'inflation', 'Employment': 'employment', 'GDP': 'gdp',
+  'Commodities': 'commodities', 'Trade': 'trade',
 }
 
 export default function BlogPage() {
-  const [bbCategory, setBbCategory]   = useState('All')
-  const [search, setSearch]           = useState('')
-  const [articles, setArticles]       = useState<BloombergArticle[]>([])
-  const [loading, setLoading]         = useState(true)
-  const [error, setError]             = useState<string | null>(null)
-  const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
+  const [articles,  setArticles]  = useState<MacroNews[]>([])
+  const [loading,   setLoading]   = useState(true)
+  const [filter,    setFilter]    = useState('All')
+  const [search,    setSearch]    = useState('')
+  const [selected,  setSelected]  = useState<MacroNews | null>(null)
+  const [lastUpd,   setLastUpd]   = useState<Date | null>(null)
 
-  const loadNews = async () => {
+  const load = useCallback(async () => {
     try {
-      setLoading(true)
-      setError(null)
-      const { data } = await api.get<BloombergArticle[]>('/news/bloomberg')
-      setArticles(data)
-      setLastUpdated(new Date())
-    } catch (e: any) {
-      setError('Could not load Bloomberg news. Retrying shortly...')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    loadNews()
-    const id = setInterval(loadNews, 10 * 60 * 1000) // refresh every 10 min
-    return () => clearInterval(id)
+      const data = await fetchMacroNews()
+      if (data.length) { setArticles(data); setLastUpd(new Date()) }
+    } catch { /* keep stale */ } finally { setLoading(false) }
   }, [])
 
+  useEffect(() => {
+    load()
+    const id = setInterval(load, 10 * 60_000)
+    return () => clearInterval(id)
+  }, [load])
+
   const filtered = articles.filter(a => {
-    const matchCat  = bbCategory === 'All' || a.category === bbCategory
-    const matchText = !search || a.title.toLowerCase().includes(search.toLowerCase())
-    return matchCat && matchText
+    const catMatch = !CAT_MAP[filter] || a.category === CAT_MAP[filter]
+    const txtMatch = !search || a.title.toLowerCase().includes(search.toLowerCase())
+    return catMatch && txtMatch
   })
 
-  return (
-    <div className="space-y-6">
-      {/* Page header */}
-      <div className="flex flex-col gap-1">
-        <div className="flex items-center gap-2">
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="#38bdf8" strokeWidth={1.8}>
-            <path d="M4 6h16M4 12h16M4 18h7" />
-          </svg>
-          <h1 className="text-text-primary text-2xl font-bold">Blog & Market Insights</h1>
-        </div>
-        <p className="text-text-muted text-sm">
-          Live news from <strong className="text-text-secondary">Bloomberg</strong> plus trading education and market analysis.
-        </p>
-      </div>
+  // Split: hero = top 5 most recent, "for you" = high-sentiment positives, rest = "all news"
+  const heroArticles   = filtered.slice(0, 5)
+  const allNewsSection = filtered.slice(5, 25)
+  const forYouSection  = filtered.filter(a => a.label === 'bullish' || a.sentiment > 0.1).slice(0, 15)
 
-      {/* Featured Posts (static editor picks) */}
-      <>
-        <h2 className="text-text-primary font-semibold text-sm uppercase tracking-wider opacity-60">Editor's Picks</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {FEATURED_POSTS.map(post => (
-            <a
-              key={post.id}
-              href="https://www.icmarkets.com/blog/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="rounded-xl p-5 flex flex-col gap-3 cursor-pointer transition-all group"
-              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}
-              onMouseEnter={e => (e.currentTarget.style.borderColor = 'rgba(14,165,233,0.3)')}
-              onMouseLeave={e => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)')}
-            >
-              <div className="flex items-center justify-between">
-                <CategoryBadge cat={post.category} />
-                <span className="text-2xs font-bold tracking-widest px-2 py-0.5 rounded"
-                      style={{ background: 'rgba(14,165,233,0.1)', color: '#38bdf8' }}>
-                  {post.tag}
-                </span>
-              </div>
-              <h3 className="text-text-primary font-semibold text-sm leading-snug group-hover:text-brand-300 transition-colors">
-                {post.title}
-              </h3>
-              <p className="text-text-muted text-xs leading-relaxed flex-1">{post.excerpt}</p>
-              <div className="flex items-center justify-between pt-2" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-                <span className="text-text-muted text-xs">{post.date}</span>
-                <span className="text-text-muted text-xs">{post.readTime}</span>
-              </div>
-            </a>
+  return (
+    <div style={{ background: '#000', minHeight: '100%', paddingBottom: 40 }}>
+      <style>{`
+        @keyframes blog-slideUp { from { transform: translateY(100%) } to { transform: translateY(0) } }
+        @keyframes blog-spin { from { transform: rotate(0deg) } to { transform: rotate(360deg) } }
+        ::-webkit-scrollbar { display: none; }
+      `}</style>
+
+      {/* ── Sticky top bar ──────────────────────────────────────────────── */}
+      <div style={{ position: 'sticky', top: 0, zIndex: 10, background: 'rgba(0,0,0,0.9)', backdropFilter: 'blur(16px)', padding: '12px 16px 0', WebkitBackdropFilter: 'blur(16px)' }}>
+        {/* Search bar */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: '#1a1a1a', borderRadius: 12, padding: '10px 14px', marginBottom: 12 }}>
+          <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#4b5563" strokeWidth={2}><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search news..."
+                 style={{ flex: 1, background: 'none', border: 'none', outline: 'none', color: '#fff', fontSize: 14 }}/>
+          {loading && <div style={{ width: 14, height: 14, borderRadius: '50%', border: '2px solid #374151', borderTopColor: '#9ca3af', animation: 'blog-spin 0.7s linear infinite', flexShrink: 0 }}/>}
+          {lastUpd && !loading && <span style={{ fontSize: 10, color: '#374151', flexShrink: 0 }}>{lastUpd.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</span>}
+        </div>
+
+        {/* Category pills */}
+        <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 12, scrollbarWidth: 'none' }}>
+          {CATEGORIES.map(cat => (
+            <button key={cat} onClick={() => setFilter(cat)} style={{
+              flexShrink: 0, padding: '6px 14px', borderRadius: 20, fontSize: 12, fontWeight: 700, cursor: 'pointer', border: 'none', transition: 'all 0.15s',
+              background: filter === cat ? '#fff' : '#1a1a1a',
+              color:      filter === cat ? '#000' : '#6b7280',
+            }}>{cat}</button>
           ))}
         </div>
-      </>
+      </div>
 
-      {/* Bloomberg Live News */}
-      <div className="rounded-2xl overflow-hidden"
-           style={{ border: '1px solid rgba(255,165,0,0.18)', background: 'rgba(255,255,255,0.04)' }}>
-        {/* Bloomberg header bar */}
-        <div className="flex items-center gap-3 px-4 py-3"
-             style={{ background: 'rgba(255,140,0,0.06)', borderBottom: '1px solid rgba(255,165,0,0.12)' }}>
-          {/* Bloomberg "B" logo placeholder */}
-          <div className="w-6 h-6 rounded flex items-center justify-center shrink-0 font-black text-sm"
-               style={{ background: '#f5821f', color: '#fff' }}>B</div>
-          <span className="text-text-primary text-sm font-bold">Bloomberg News</span>
-          <span className="text-xs px-2 py-0.5 rounded font-semibold ml-1"
-                style={{ background: 'rgba(255,140,0,0.15)', color: '#fb923c' }}>LIVE FEED</span>
-          {lastUpdated && (
-            <span className="text-text-muted text-xs ml-auto hidden sm:block">
-              Updated {lastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-            </span>
-          )}
-          <button
-            onClick={loadNews}
-            disabled={loading}
-            className="p-1.5 rounded-lg transition-colors ml-auto sm:ml-2 shrink-0"
-            style={{ color: 'rgba(255,255,255,0.4)' }}
-            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.08)'; (e.currentTarget as HTMLButtonElement).style.color = '#fff' }}
-            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; (e.currentTarget as HTMLButtonElement).style.color = 'rgba(255,255,255,0.4)' }}
-            title="Refresh"
-          >
-            <svg className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-          </button>
-        </div>
-
-        {/* Search + Category filter */}
-        <div className="flex flex-col sm:flex-row gap-2 p-3"
-             style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-          <div className="flex items-center gap-2 px-3 py-2 rounded-xl flex-1"
-               style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
-            <svg className="w-4 h-4 text-text-muted shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <circle cx="11" cy="11" r="8" /><path d="M21 21l-4.35-4.35" />
-            </svg>
-            <input
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              placeholder="Search Bloomberg articles..."
-              className="flex-1 bg-transparent text-sm text-text-primary placeholder-text-muted focus:outline-none"
-            />
+      {/* ── Content ─────────────────────────────────────────────────────── */}
+      <div style={{ padding: '16px 16px 0' }}>
+        {loading && articles.length === 0 ? (
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', paddingTop: 80, gap: 16 }}>
+            <div style={{ width: 36, height: 36, borderRadius: '50%', border: '3px solid #1f1f1f', borderTopColor: '#fff', animation: 'blog-spin 0.8s linear infinite' }}/>
+            <p style={{ fontSize: 14, color: '#4b5563', margin: 0 }}>Loading latest news…</p>
           </div>
-          <div className="flex gap-1.5">
-            {BB_CATEGORIES.map(cat => (
-              <button
-                key={cat}
-                onClick={() => setBbCategory(cat)}
-                className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
-                style={bbCategory === cat
-                  ? { background: 'rgba(251,146,60,0.15)', color: '#fb923c', border: '1px solid rgba(251,146,60,0.25)' }
-                  : { background: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.45)', border: '1px solid rgba(255,255,255,0.07)' }
-                }
-              >
-                {cat}
-              </button>
-            ))}
+        ) : filtered.length === 0 ? (
+          <div style={{ textAlign: 'center', paddingTop: 60 }}>
+            <p style={{ fontSize: 14, color: '#4b5563' }}>No news matches your search.</p>
           </div>
-        </div>
+        ) : (
+          <>
+            {/* Hero carousel */}
+            {heroArticles.length > 0 && <HeroCarousel articles={heroArticles}/>}
 
-        {/* Article list */}
-        <div className="divide-y" style={{ borderColor: 'rgba(255,255,255,0.04)' }}>
-          {loading && articles.length === 0 ? (
-            <div className="flex items-center justify-center gap-3 py-12">
-              <svg className="w-5 h-5 animate-spin text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-              <span className="text-text-muted text-sm">Loading Bloomberg news...</span>
-            </div>
-          ) : error && articles.length === 0 ? (
-            <div className="flex flex-col items-center gap-3 py-12 text-center px-6">
-              <svg className="w-8 h-8 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                <path d="M12 9v4m0 4h.01M10.293 4.293a1 1 0 011.414 0l7 7a1 1 0 010 1.414l-7 7a1 1 0 01-1.414 0l-7-7a1 1 0 010-1.414l7-7z" />
-              </svg>
-              <p className="text-text-muted text-sm">{error}</p>
-              <button
-                onClick={loadNews}
-                className="px-4 py-2 rounded-lg text-xs font-semibold transition-all"
-                style={{ background: 'rgba(14,165,233,0.12)', color: '#38bdf8', border: '1px solid rgba(14,165,233,0.2)' }}
-              >
-                Retry
-              </button>
-            </div>
-          ) : filtered.length === 0 ? (
-            <div className="py-12 text-center">
-              <p className="text-text-muted text-sm">No articles found.</p>
-            </div>
-          ) : (
-            filtered.map((article, i) => (
-              <a
-                key={`${article.url}-${i}`}
-                href={safeUrl(article.url)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-between px-4 py-3.5 transition-all group"
-                style={{ display: 'flex' }}
-                onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(255,255,255,0.025)' }}
-                onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = 'transparent' }}
-              >
-                <div className="flex items-center gap-3 min-w-0">
-                  <CategoryBadge cat={article.category} />
-                  <span className="text-text-primary text-sm font-medium group-hover:text-brand-300 transition-colors truncate">
-                    {article.title}
-                  </span>
-                </div>
-                <div className="flex items-center gap-3 shrink-0 ml-4">
-                  <span className="text-text-muted text-xs hidden sm:block">{fmtDate(article.publishedAt)}</span>
-                  <svg className="w-4 h-4 text-text-muted group-hover:text-brand-300 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path d="M5 12h14M12 5l7 7-7 7" />
-                  </svg>
-                </div>
-              </a>
-            ))
-          )}
-        </div>
+            {/* All news & Analysis */}
+            {allNewsSection.length > 0 && (
+              <NewsSection title="All news & Analysis" articles={allNewsSection} onRead={setSelected}/>
+            )}
 
-        {/* Footer attribution */}
-        {filtered.length > 0 && (
-          <div className="flex items-center justify-between px-4 py-3"
-               style={{ borderTop: '1px solid rgba(255,255,255,0.05)', background: 'rgba(255,255,255,0.015)' }}>
-            <span className="text-text-muted text-xs">
-              {filtered.length} article{filtered.length !== 1 ? 's' : ''} &middot; Source: Bloomberg
-            </span>
-            <a
-              href="https://www.bloomberg.com/markets"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs font-semibold transition-colors"
-              style={{ color: '#fb923c' }}
-            >
-              bloomberg.com →
-            </a>
-          </div>
+            {/* For you */}
+            {forYouSection.length > 0 && (
+              <NewsSection title="For you" articles={forYouSection} onRead={setSelected}/>
+            )}
+
+            {/* Source attribution */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 0', borderTop: '1px solid #111' }}>
+              <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#10b981', animation: 'blog-spin 0s' }}/>
+              <span style={{ fontSize: 11, color: '#374151' }}>Reuters · Yahoo Finance · CNBC · MarketWatch · Bloomberg · refreshes every 10 min</span>
+            </div>
+          </>
         )}
       </div>
+
+      {/* ── Article detail bottom sheet ──────────────────────────────────── */}
+      {selected && <ArticleSheet article={selected} onClose={() => setSelected(null)}/>}
     </div>
   )
 }
