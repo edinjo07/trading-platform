@@ -859,9 +859,9 @@ export default function BotsPage() {
         padding: '14px 18px 12px', borderBottom: `1px solid ${C.border}`, flexShrink: 0,
         background: `linear-gradient(135deg, ${STRAT[selected.strategy].glow}, transparent)`,
       }}>
-        {/* Mobile back */}
-        <button onClick={() => setMobileView('list')} style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 10, fontSize: 11, fontWeight: 700, color: C.blue, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
-                className="md:hidden">
+        {/* Mobile back — hidden on desktop */}
+        <button onClick={() => setMobileView('list')} className="bots-back-btn"
+                style={{ alignItems: 'center', gap: 5, marginBottom: 10, fontSize: 11, fontWeight: 700, color: C.blue, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
           <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
           All bots
         </button>
@@ -917,7 +917,7 @@ export default function BotsPage() {
               background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', color: C.red,
             }}>
               <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
-              <span className="hidden sm:inline">Delete</span>
+              <span className="bots-del-label">Delete</span>
             </button>
           </div>
         </div>
@@ -1035,7 +1035,7 @@ export default function BotsPage() {
       </div>
     </div>
   ) : (
-    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12, color: C.text3 }} className="hidden md:flex">
+    <div className="bots-empty-detail" style={{ flex: 1, flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12, color: C.text3 }}>
       <div style={{ width: 60, height: 60, borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', background: `${C.blue}06`, border: `1px solid ${C.blue}12` }}>
         <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke={C.blue} strokeWidth={1.4} style={{ opacity: 0.5 }}><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
       </div>
@@ -1060,10 +1060,49 @@ export default function BotsPage() {
       <style>{`
         @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.85)} }
         @keyframes spin  { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
-        .md\\:hidden { display:none } @media(max-width:767px){.md\\:hidden{display:flex}}
-        .md\\:flex   { display:none } @media(min-width:768px){.md\\:flex{display:flex}}
-        .hidden.md\\:flex { display:none } @media(min-width:768px){.hidden.md\\:flex{display:flex}}
-        .hidden.sm\\:inline { display:none } @media(min-width:640px){.hidden.sm\\:inline{display:inline}}
+
+        /* ── Sidebar ── */
+        .bots-sidebar {
+          display: flex; flex-direction: column;
+          width: 100%; flex-shrink: 0;
+          overflow: hidden;
+          border-right: 1px solid rgba(255,255,255,0.07);
+        }
+        .bots-sidebar.mob-hidden { display: none; }
+
+        /* ── Detail panel ── */
+        .bots-detail {
+          display: flex; flex-direction: column;
+          flex: 1; overflow: hidden; min-width: 0;
+        }
+        .bots-detail.mob-hidden { display: none; }
+
+        /* ── Desktop overrides (≥768px): always show both panels ── */
+        @media (min-width: 768px) {
+          .bots-sidebar           { width: 288px !important; }
+          .bots-sidebar.mob-hidden,
+          .bots-detail.mob-hidden { display: flex !important; }
+        }
+
+        /* ── Mobile-only stats strip ── */
+        .bots-mob-strip { display: flex; }
+        @media (min-width: 768px) { .bots-mob-strip { display: none !important; } }
+
+        /* ── Desktop-only pills ── */
+        .bots-desk-pills { display: none; }
+        @media (min-width: 768px) { .bots-desk-pills { display: flex !important; } }
+
+        /* ── Mobile-only back button ── */
+        .bots-back-btn { display: flex; }
+        @media (min-width: 768px) { .bots-back-btn { display: none !important; } }
+
+        /* ── Delete label: hidden on small screens ── */
+        .bots-del-label { display: none; }
+        @media (min-width: 640px) { .bots-del-label { display: inline; } }
+
+        /* ── Empty detail: hidden on mobile, flex on desktop ── */
+        .bots-empty-detail { display: none; }
+        @media (min-width: 768px) { .bots-empty-detail { display: flex; } }
       `}</style>
 
       {/* Page header */}
@@ -1084,11 +1123,10 @@ export default function BotsPage() {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          {/* Summary pills — desktop */}
-          <div style={{ display: 'flex', gap: 6 }}>
+          {/* Summary pills — desktop only */}
+          <div className="bots-desk-pills" style={{ gap: 6 }}>
             {summaryItems.map(s => (
-              <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '5px 10px', borderRadius: 8, background: C.surface2, border: `1px solid ${C.border}` }}
-                   className="hidden md:flex">
+              <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '5px 10px', borderRadius: 8, background: C.surface2, border: `1px solid ${C.border}` }}>
                 <span style={{ fontSize: 10, color: C.text3 }}>{s.label}</span>
                 <span style={{ fontSize: 11, fontWeight: 800, fontFamily: 'monospace', color: s.color }}>{s.value}</span>
               </div>
@@ -1104,8 +1142,8 @@ export default function BotsPage() {
         </div>
       </div>
 
-      {/* Mobile stats strip */}
-      <div style={{ display: 'flex', borderBottom: `1px solid ${C.border}`, flexShrink: 0, background: C.surface }} className="md:hidden">
+      {/* Mobile stats strip — hidden on desktop */}
+      <div className="bots-mob-strip" style={{ borderBottom: `1px solid ${C.border}`, flexShrink: 0, background: C.surface }}>
         {summaryItems.map((s, i) => (
           <div key={s.label} style={{ flex: 1, padding: '8px 0', textAlign: 'center', borderRight: i < summaryItems.length - 1 ? `1px solid ${C.border}` : 'none' }}>
             <p style={{ fontSize: 9, color: C.text3, margin: '0 0 2px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{s.label}</p>
@@ -1117,15 +1155,13 @@ export default function BotsPage() {
       {/* Main layout */}
       <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
 
-        {/* Sidebar */}
-        <div style={{ display: mobileView === 'list' ? 'flex' : 'none', flexDirection: 'column', width: '100%', borderRight: `1px solid ${C.border}`, overflow: 'hidden' }}
-             className="md:flex md:w-72">
+        {/* Sidebar — mob-hidden when detail view active; desktop always shows */}
+        <div className={`bots-sidebar${mobileView === 'detail' ? ' mob-hidden' : ''}`}>
           {Sidebar}
         </div>
 
-        {/* Detail */}
-        <div style={{ display: mobileView === 'detail' ? 'flex' : 'none', flexDirection: 'column', flex: 1, overflow: 'hidden' }}
-             className="md:flex">
+        {/* Detail — mob-hidden when list view active; desktop always shows */}
+        <div className={`bots-detail${mobileView === 'list' ? ' mob-hidden' : ''}`}>
           {Detail}
         </div>
       </div>
