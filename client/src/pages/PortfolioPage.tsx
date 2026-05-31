@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTradingStore } from '../store/tradingStore'
 import { useAuthStore } from '../store/authStore'
@@ -38,9 +38,47 @@ function EmptyTrades({ onExplore }: { onExplore: () => void }) {
 }
 
 // ─── Position row ─────────────────────────────────────────────────────────────
-function PositionRow({ pos, onClose, closing }: { pos: Position; onClose: () => void; closing: boolean }) {
-  const isLong = pos.side === 'long'
+function PositionRow({ pos, onClose, closing, currency }: { pos: Position; onClose: () => void; closing: boolean; currency: string }) {
+  const { updatePositionSltp } = useTradingStore()
+  const isLong   = pos.side === 'long'
   const pnlColor = pos.unrealizedPnl >= 0 ? '#00c878' : '#ff3047'
+
+  const [editing,   setEditing]   = useState(false)
+  const [slVal,     setSlVal]     = useState(pos.stop_loss  != null ? String(pos.stop_loss)  : '')
+  const [tpVal,     setTpVal]     = useState(pos.take_profit != null ? String(pos.take_profit) : '')
+  const [saving,    setSaving]    = useState(false)
+  const [saveError, setSaveError] = useState('')
+
+  const openEdit = useCallback(() => {
+    setSlVal(pos.stop_loss   != null ? String(pos.stop_loss)   : '')
+    setTpVal(pos.take_profit != null ? String(pos.take_profit) : '')
+    setSaveError('')
+    setEditing(true)
+  }, [pos.stop_loss, pos.take_profit])
+
+  const handleSave = async () => {
+    setSaveError('')
+    const sl = slVal.trim() === '' ? null : parseFloat(slVal)
+    const tp = tpVal.trim() === '' ? null : parseFloat(tpVal)
+    if (sl !== null && isNaN(sl)) { setSaveError('Invalid stop loss'); return }
+    if (tp !== null && isNaN(tp)) { setSaveError('Invalid take profit'); return }
+    setSaving(true)
+    try {
+      await updatePositionSltp(pos.id, tp, sl)
+      setEditing(false)
+    } catch (e) {
+      setSaveError(e instanceof Error ? e.message : 'Save failed')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const inputSty: React.CSSProperties = {
+    flex: 1, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)',
+    borderRadius: 8, color: '#fff', fontSize: 13, padding: '8px 10px', outline: 'none',
+    fontFamily: 'monospace', minWidth: 0,
+  }
+
   return (
     <div style={{
       background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)',
@@ -64,17 +102,17 @@ function PositionRow({ pos, onClose, closing }: { pos: Position; onClose: () => 
           )}
         </div>
         <span style={{ fontSize: 14, fontWeight: 700, fontFamily: 'monospace', color: pnlColor }}>
-          {pos.unrealizedPnl >= 0 ? '+' : ''}{formatCurrency(pos.unrealizedPnl)}
+          {pos.unrealizedPnl >= 0 ? '+' : ''}{formatCurrency(pos.unrealizedPnl, 2, currency)}
         </span>
       </div>
 
       {/* Grid */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 8, marginBottom: 12 }}>
         {[
-          { l: 'Units',    v: pos.quantity.toFixed(pos.quantity < 1 ? 4 : 2) },
-          { l: 'Open',     v: formatPrice(pos.avg_price, pos.symbol)          },
-          { l: 'Current',  v: formatPrice(pos.currentPrice, pos.symbol)       },
-          { l: 'P&L %',    v: (pos.unrealizedPnlPct >= 0 ? '+' : '') + pos.unrealizedPnlPct.toFixed(2) + '%' },
+          { l: 'Units',   v: pos.quantity.toFixed(pos.quantity < 1 ? 4 : 2) },
+          { l: 'Open',    v: formatPrice(pos.avg_price, pos.symbol)          },
+          { l: 'Current', v: formatPrice(pos.currentPrice, pos.symbol)       },
+          { l: 'P&L %',   v: (pos.unrealizedPnlPct >= 0 ? '+' : '') + pos.unrealizedPnlPct.toFixed(2) + '%' },
         ].map(({ l, v }) => (
           <div key={l}>
             <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', margin: '0 0 2px' }}>{l}</p>
@@ -83,12 +121,79 @@ function PositionRow({ pos, onClose, closing }: { pos: Position; onClose: () => 
         ))}
       </div>
 
-      {/* Footer: margin + liq + close */}
+      {/* SL / TP summary chips */}
+      {!editing && (pos.stop_loss != null || pos.take_profit != null) && (
+        <div style={{ display: 'flex', gap: 8, marginBottom: 10, flexWrap: 'wrap' }}>
+          {pos.stop_loss != null && (
+            <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 8px', borderRadius: 8, background: 'rgba(255,48,71,0.1)', border: '1px solid rgba(255,48,71,0.2)', color: '#ff7080', fontFamily: 'monospace' }}>
+              SL {formatPrice(pos.stop_loss, pos.symbol)}
+            </span>
+          )}
+          {pos.take_profit != null && (
+            <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 8px', borderRadius: 8, background: 'rgba(0,200,120,0.1)', border: '1px solid rgba(0,200,120,0.2)', color: '#00c878', fontFamily: 'monospace' }}>
+              TP {formatPrice(pos.take_profit, pos.symbol)}
+            </span>
+          )}
+        </div>
+      )}
+
+      {/* Inline SL/TP edit panel */}
+      {editing && (
+        <div style={{ marginBottom: 10, padding: '12px', borderRadius: 10, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+          <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+            {/* Stop Loss */}
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <label style={{ fontSize: 10, color: '#ff7080', fontWeight: 700, display: 'block', marginBottom: 4 }}>Stop Loss</label>
+              <div style={{ display: 'flex', gap: 4 }}>
+                <input
+                  type="number" value={slVal}
+                  onChange={e => setSlVal(e.target.value)}
+                  placeholder={pos.stop_loss != null ? String(pos.stop_loss) : 'None'}
+                  style={inputSty}
+                />
+                {slVal !== '' && (
+                  <button onClick={() => setSlVal('')} style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 6, color: '#888', fontSize: 14, padding: '0 8px', cursor: 'pointer' }}>✕</button>
+                )}
+              </div>
+            </div>
+            {/* Take Profit */}
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <label style={{ fontSize: 10, color: '#00c878', fontWeight: 700, display: 'block', marginBottom: 4 }}>Take Profit</label>
+              <div style={{ display: 'flex', gap: 4 }}>
+                <input
+                  type="number" value={tpVal}
+                  onChange={e => setTpVal(e.target.value)}
+                  placeholder={pos.take_profit != null ? String(pos.take_profit) : 'None'}
+                  style={inputSty}
+                />
+                {tpVal !== '' && (
+                  <button onClick={() => setTpVal('')} style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 6, color: '#888', fontSize: 14, padding: '0 8px', cursor: 'pointer' }}>✕</button>
+                )}
+              </div>
+            </div>
+          </div>
+          {saveError && (
+            <p style={{ fontSize: 11, color: '#ff7080', margin: '0 0 8px' }}>{saveError}</p>
+          )}
+          <div style={{ display: 'flex', gap: 6 }}>
+            <button
+              onClick={handleSave} disabled={saving}
+              style={{ flex: 1, padding: '8px 0', borderRadius: 8, background: '#1a6fff', border: 'none', color: '#fff', fontSize: 12, fontWeight: 700, cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.6 : 1 }}
+            >{saving ? 'Saving…' : 'Save'}</button>
+            <button
+              onClick={() => setEditing(false)}
+              style={{ padding: '8px 14px', borderRadius: 8, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#888', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
+            >Cancel</button>
+          </div>
+        </div>
+      )}
+
+      {/* Footer: margin + liq + edit + close */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', gap: 14 }}>
           <div>
             <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', margin: '0 0 2px' }}>Margin</p>
-            <p style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.65)', margin: 0, fontFamily: 'monospace' }}>{formatCurrency(pos.margin)}</p>
+            <p style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.65)', margin: 0, fontFamily: 'monospace' }}>{formatCurrency(pos.margin, 2, currency)}</p>
           </div>
           {pos.leverage > 1 && (
             <div>
@@ -99,21 +204,40 @@ function PositionRow({ pos, onClose, closing }: { pos: Position; onClose: () => 
           {pos.notionalValue > 0 && (
             <div>
               <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', margin: '0 0 2px' }}>Notional</p>
-              <p style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.65)', margin: 0, fontFamily: 'monospace' }}>{formatCurrency(pos.notionalValue)}</p>
+              <p style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.65)', margin: 0, fontFamily: 'monospace' }}>{formatCurrency(pos.notionalValue, 2, currency)}</p>
             </div>
           )}
         </div>
-        <button
-          disabled={closing}
-          onClick={onClose}
-          style={{
-            padding: '8px 20px', borderRadius: 22, fontSize: 12, fontWeight: 700,
-            background: 'rgba(255,48,71,0.12)', border: '1px solid rgba(255,48,71,0.3)',
-            color: '#ff3047', cursor: closing ? 'not-allowed' : 'pointer', opacity: closing ? 0.5 : 1,
-          }}
-        >
-          {closing ? '…' : 'Close'}
-        </button>
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          {!editing && (
+            <button
+              onClick={openEdit}
+              title="Edit SL / TP"
+              style={{
+                padding: '8px 12px', borderRadius: 22, fontSize: 12, fontWeight: 700,
+                background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)',
+                color: 'rgba(255,255,255,0.6)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
+              }}
+            >
+              <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
+                <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+              </svg>
+              Edit
+            </button>
+          )}
+          <button
+            disabled={closing}
+            onClick={onClose}
+            style={{
+              padding: '8px 20px', borderRadius: 22, fontSize: 12, fontWeight: 700,
+              background: 'rgba(255,48,71,0.12)', border: '1px solid rgba(255,48,71,0.3)',
+              color: '#ff3047', cursor: closing ? 'not-allowed' : 'pointer', opacity: closing ? 0.5 : 1,
+            }}
+          >
+            {closing ? '…' : 'Close'}
+          </button>
+        </div>
       </div>
     </div>
   )
@@ -161,16 +285,17 @@ function OrderRow({ order }: { order: Order }) {
 function AccountBar() {
   const { portfolio } = useTradingStore()
   const { user } = useAuthStore()
+  const currency = user?.currency ?? 'USD'
   const equity  = portfolio?.totalEquity  ?? user?.balance ?? 0
   const cash    = portfolio?.cashBalance  ?? 0
   const upnl    = portfolio?.unrealizedPnl ?? 0
   const rpnl    = portfolio?.realizedPnl   ?? 0
 
   const items = [
-    { l: 'Equity',     v: formatCurrency(equity), c: '#fff'    },
-    { l: 'Available',  v: formatCurrency(cash),   c: '#fff'    },
-    { l: 'Unrealised', v: formatPnl(upnl),        c: upnl >= 0 ? '#00c878' : '#ff3047' },
-    { l: 'Realised',   v: formatPnl(rpnl),        c: rpnl >= 0 ? '#00c878' : '#ff3047' },
+    { l: 'Equity',     v: formatCurrency(equity, 2, currency), c: '#fff'    },
+    { l: 'Available',  v: formatCurrency(cash, 2, currency),   c: '#fff'    },
+    { l: 'Unrealised', v: formatPnl(upnl, currency),           c: upnl >= 0 ? '#00c878' : '#ff3047' },
+    { l: 'Realised',   v: formatPnl(rpnl, currency),           c: rpnl >= 0 ? '#00c878' : '#ff3047' },
   ]
 
   return (
@@ -231,7 +356,7 @@ export default function PortfolioPage() {
               display: 'flex', alignItems: 'center',
             }}>
               <span style={{ fontSize: 14, fontWeight: 800, color: '#fff', fontFamily: 'monospace' }}>
-                {formatCurrency(equity)}
+                {formatCurrency(equity, 2, user?.currency ?? 'USD')}
               </span>
             </div>
           </div>
@@ -289,6 +414,7 @@ export default function PortfolioPage() {
                     key={pos.id} pos={pos}
                     closing={closingId === pos.id}
                     onClose={() => { if (!closingId) handleClose(pos.id) }}
+                    currency={user?.currency ?? 'USD'}
                   />
                 ))}
               </div>

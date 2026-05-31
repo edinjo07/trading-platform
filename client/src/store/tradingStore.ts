@@ -4,6 +4,7 @@ import {
   MarketSymbol, Candle, PerformanceStats, TradeRecord,
 } from '../types'
 import { useAlertsStore } from './alertsStore'
+import { useAuthStore } from './authStore'
 import { getSymbols, getCandles, getOrderBook, getRecentTrades } from '../api/markets'
 import {
   getOrders, placeOrder, PlaceOrderParams, PlaceOrderResult,
@@ -12,7 +13,7 @@ import {
 } from '../api/orders'
 import { getPortfolio } from '../api/portfolio'
 import { getPerformanceStats, getTradeJournal } from '../api/analytics'
-import { closePositionApi } from '../api/positions'
+import { closePositionApi, updatePositionSLTP } from '../api/positions'
 import { generateMockCandles, generateMockSymbols } from '../utils/mockCandles'
 
 interface TradingState {
@@ -51,6 +52,7 @@ interface TradingState {
   placeLimitOrder:         (params: LimitOrderParams) => Promise<PendingLimitOrder>
   removeLimitOrder:        (id: string) => Promise<void>
   closePosition:           (id: string) => Promise<void>
+  updatePositionSltp:      (id: string, takeProfit: number | null, stopLoss: number | null) => Promise<void>
   // WebSocket updates
   updateTickers:       (tickers: Ticker[]) => void
   updateOrderBook:     (ob: OrderBook) => void
@@ -289,6 +291,23 @@ export const useTradingStore = create<TradingState>((set, get) => ({
     } catch { /* already removed from local list; server may have already executed it */ }
   },
 
+  updatePositionSltp: async (id, takeProfit, stopLoss) => {
+    try {
+      await updatePositionSLTP(id, takeProfit, stopLoss)
+      const current = get().portfolio
+      if (current) {
+        const newPositions = current.positions.map(p =>
+          p.id === id ? { ...p, take_profit: takeProfit, stop_loss: stopLoss } : p
+        )
+        set({ portfolio: { ...current, positions: newPositions } })
+      }
+    } catch (err: unknown) {
+      const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error ?? 'Update failed'
+      set({ error: msg })
+      throw new Error(msg)
+    }
+  },
+
   closePosition: async (id) => {
     // Optimistic: remove position immediately
     const current = get().portfolio
@@ -340,6 +359,12 @@ export const useTradingStore = create<TradingState>((set, get) => ({
     const tickerMap: Record<string, Ticker> = {}
     for (const t of tickers) tickerMap[t.symbol] = t
 
+    // FX rate for converting USD P&L into account local currency
+    const currency = useAuthStore.getState().user?.currency ?? 'USD'
+    const fxRate   = currency === 'EUR' ? (tickerMap['EURUSD']?.price ?? 1)
+                   : currency === 'GBP' ? (tickerMap['GBPUSD']?.price ?? 1)
+                   : 1
+
     const portfolio = get().portfolio
     if (portfolio && portfolio.positions.length > 0) {
       let totalUnrealizedPnl = 0
@@ -349,10 +374,11 @@ export const useTradingStore = create<TradingState>((set, get) => ({
         const ticker = tickerMap[pos.symbol]
         const markPrice = ticker?.price ?? pos.currentPrice
 
-        const rawPnl = pos.side === 'long'
+        // rawPnlUsd is in USD; convert to account local currency
+        const rawPnlUsd = pos.side === 'long'
           ? (markPrice - pos.avg_price) * pos.quantity
           : (pos.avg_price - markPrice) * pos.quantity
-        const unrealizedPnl    = parseFloat(rawPnl.toFixed(2))
+        const unrealizedPnl    = parseFloat((rawPnlUsd / fxRate).toFixed(2))
         const unrealizedPnlPct = pos.margin > 0
           ? parseFloat(((unrealizedPnl / pos.margin) * 100).toFixed(2))
           : 0
@@ -360,12 +386,13 @@ export const useTradingStore = create<TradingState>((set, get) => ({
         totalUnrealizedPnl += unrealizedPnl
         totalMargin        += pos.margin
 
+        // notionalValue in local currency
         return {
           ...pos,
           currentPrice:     markPrice,
           unrealizedPnl,
           unrealizedPnlPct,
-          notionalValue: parseFloat((pos.quantity * markPrice).toFixed(2)),
+          notionalValue: parseFloat((pos.quantity * markPrice / fxRate).toFixed(2)),
         }
       })
 

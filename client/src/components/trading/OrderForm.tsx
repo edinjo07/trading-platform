@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { useTradingStore } from '../../store/tradingStore'
+import { useAuthStore } from '../../store/authStore'
 import { useToastStore } from '../../store/toastStore'
-import { formatPrice } from '../../utils/formatters'
+import { formatPrice, formatCurrency } from '../../utils/formatters'
 import { OrderSide } from '../../types'
 
 // ─── Asset helpers ────────────────────────────────────────────────────────────
@@ -197,10 +198,16 @@ export default function OrderForm() {
     pendingLimitOrders, placeLimitOrder, removeLimitOrder,
   } = useTradingStore()
   const { addToast } = useToastStore()
+  const { user } = useAuthStore()
 
   const ticker   = tickers[selectedSymbol]
   const cash     = portfolio?.cashBalance ?? 0
   const position = portfolio?.positions.find(p => p.symbol === selectedSymbol)
+
+  const currency  = user?.currency ?? 'USD'
+  const fxRate    = currency === 'EUR' ? (tickers['EURUSD']?.price ?? 1)
+                  : currency === 'GBP' ? (tickers['GBPUSD']?.price ?? 1)
+                  : 1
 
   const [side,       setSide]       = useState<OrderSide>('buy')
   const [qty,        setQty]        = useState(() => getDefaultQty(selectedSymbol))
@@ -241,6 +248,9 @@ export default function OrderForm() {
   const margin      = leverage > 0 ? notional / leverage : notional
   const commission  = parseFloat((notional * 0.0005).toFixed(2))
   const totalCost   = parseFloat((margin + commission).toFixed(2))
+  // Convert USD cost to account local currency for display and validation
+  const totalCostLocal   = parseFloat((totalCost / fxRate).toFixed(2))
+  const commissionLocal  = parseFloat((commission / fxRate).toFixed(2))
   const isBuy = side === 'buy'
 
   const adjustQty = (delta: number) => {
@@ -251,7 +261,8 @@ export default function OrderForm() {
   const setPct = (pct: number) => {
     if (!fillPrice) return
     if (side === 'buy') {
-      const maxQty = (cash * pct * leverage) / fillPrice
+      // cash is in local currency; fillPrice is in USD → convert via fxRate
+      const maxQty = (cash * pct * leverage * fxRate) / fillPrice
       setQty(maxQty < 1 ? maxQty.toFixed(4) : maxQty.toFixed(2))
     } else if (position) {
       const q = position.quantity * pct
@@ -297,8 +308,8 @@ export default function OrderForm() {
     setError('')
     setSide(submitSide)
     if (!quantity || quantity <= 0) { setError('Enter a valid quantity'); return }
-    if (execBuy && portfolio !== null && totalCost > cash) {
-      setError(`Insufficient funds — need $${totalCost.toFixed(2)}, have $${cash.toFixed(2)}`); return
+    if (execBuy && portfolio !== null && totalCostLocal > cash) {
+      setError(`Insufficient funds — need ${formatCurrency(totalCostLocal, 2, currency)}, have ${formatCurrency(cash, 2, currency)}`); return
     }
 
     setSubmitting(true)
@@ -460,13 +471,13 @@ export default function OrderForm() {
             <span style={{ fontSize: 12, color: '#666', fontWeight: 500 }}>Margin required</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, flexWrap: 'wrap' }}>
-            <span style={{ fontSize: 16, fontWeight: 700, color: totalCost > cash ? '#ff4444' : '#e8e8e8', fontFamily: 'monospace' }}>
-              ${totalCost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            <span style={{ fontSize: 16, fontWeight: 700, color: totalCostLocal > cash ? '#ff4444' : '#e8e8e8', fontFamily: 'monospace' }}>
+              {formatCurrency(totalCostLocal, 2, currency)}
             </span>
             <span style={{ fontSize: 12, color: '#444' }}>·</span>
             <span style={{ fontSize: 12, color: '#555' }}>
-              Available: <span style={{ color: totalCost > cash ? '#ff4444' : '#00c878', fontWeight: 600 }}>
-                ${cash.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+              Available: <span style={{ color: totalCostLocal > cash ? '#ff4444' : '#00c878', fontWeight: 600 }}>
+                {formatCurrency(cash, 0, currency)}
               </span>
             </span>
           </div>
@@ -578,7 +589,7 @@ export default function OrderForm() {
           <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
           </svg>
-          Order details · Commission ${commission.toFixed(2)}
+          Order details · Commission {formatCurrency(commissionLocal, 2, currency)}
         </button>
 
       </div>

@@ -151,8 +151,10 @@ router.post('/:id/start', async (req: AuthRequest, res: Response): Promise<void>
     res.status(409).json({ error: 'Bot is already running' }); return
   }
 
+  const currency = (req.headers['x-account-currency'] as string | undefined) ?? 'USD'
+
   try {
-    await startBotEngine(botId, userId)
+    await startBotEngine(botId, userId, currency)
   } catch (err) {
     res.status(500).json({ error: err instanceof Error ? err.message : 'Failed to start bot' }); return
   }

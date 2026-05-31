@@ -44,6 +44,7 @@ interface BotMemState {
   intervalId:          NodeJS.Timeout
   userId:              string
   mode:                'demo' | 'real'
+  currency:            string
   symbol:              string
   strategy:            string
   params:              BotParams
@@ -265,7 +266,7 @@ async function tick(botId: string) {
 
     if (closeReason) {
       try {
-        const result = await closePosition(state.positionId, state.userId, state.mode)
+        const result = await closePosition(state.positionId, state.userId, state.mode, state.currency)
         recordClose(state, result.netPnl)
         addLog(state, 'trade', `${closeReason} | net PnL: ${fmt(result.netPnl)}`)
       } catch (err) {
@@ -316,6 +317,7 @@ async function tick(botId: string) {
         leverage:   1,
         stopLoss:   sl,
         takeProfit: tp,
+        currency:   state.currency,
       })
 
       // Fetch the newly created position ID
@@ -344,7 +346,7 @@ async function tick(botId: string) {
   // ── Close long ────────────────────────────────────────────────────────────
   if (signal === 'sell' && state.positionId && confirmed) {
     try {
-      const result = await closePosition(state.positionId, state.userId, state.mode)
+      const result = await closePosition(state.positionId, state.userId, state.mode, state.currency)
       recordClose(state, result.netPnl)
       addLog(state, 'trade', `Closed LONG ${state.symbol} @ ${result.exitPrice.toFixed(4)} | net PnL: ${fmt(result.netPnl)}`)
     } catch (err) {
@@ -379,7 +381,7 @@ function fmt(n: number) { return `${n >= 0 ? '+' : ''}$${n.toFixed(2)}` }
 
 // ─── Public API ───────────────────────────────────────────────────────────────
 
-export async function startBotEngine(botId: string, userId: string): Promise<void> {
+export async function startBotEngine(botId: string, userId: string, currency = 'USD'): Promise<void> {
   if (running.has(botId)) return
 
   const { data: bot, error } = await supabase
@@ -395,10 +397,14 @@ export async function startBotEngine(botId: string, userId: string): Promise<voi
   const warmupBarsNeeded   = calcWarmupBarsNeeded(bot.strategy, params)
   const botMode            = (bot.mode ?? 'demo') as 'demo' | 'real'
 
+  // Prefer currency from the caller (request header); fall back to bot row's currency field if present
+  const resolvedCurrency = currency !== 'USD' ? currency : ((bot.currency as string | undefined) ?? currency)
+
   const state: BotMemState = {
     intervalId:          null as unknown as NodeJS.Timeout,
     userId,
     mode:                botMode,
+    currency:            resolvedCurrency,
     symbol:              bot.symbol,
     strategy:            bot.strategy,
     params,
