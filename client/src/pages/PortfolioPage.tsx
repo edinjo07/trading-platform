@@ -44,7 +44,7 @@ function PositionRow({ pos, onClose, closing, currency }: { pos: Position; onClo
   const pnlColor = pos.unrealizedPnl >= 0 ? '#00c878' : '#ff3047'
 
   const [editing,   setEditing]   = useState(false)
-  const [slVal,     setSlVal]     = useState(pos.stop_loss  != null ? String(pos.stop_loss)  : '')
+  const [slVal,     setSlVal]     = useState(pos.stop_loss   != null ? String(pos.stop_loss)   : '')
   const [tpVal,     setTpVal]     = useState(pos.take_profit != null ? String(pos.take_profit) : '')
   const [saving,    setSaving]    = useState(false)
   const [saveError, setSaveError] = useState('')
@@ -56,15 +56,44 @@ function PositionRow({ pos, onClose, closing, currency }: { pos: Position; onClo
     setEditing(true)
   }, [pos.stop_loss, pos.take_profit])
 
+  // ── Derived validation (runs on every render, no setState) ─────────────────
+  const slNum  = slVal.trim() === '' ? null : parseFloat(slVal)
+  const tpNum  = tpVal.trim() === '' ? null : parseFloat(tpVal)
+  const price  = pos.currentPrice  // anchor for direction checks
+  const entry  = pos.avg_price
+
+  // Direction rules:
+  //   LONG  → SL must be below market price; TP must be above market price
+  //   SHORT → SL must be above market price; TP must be below market price
+  const slError = slNum !== null && !isNaN(slNum)
+    ? isLong
+      ? slNum >= price ? `SL must be below current price (${formatPrice(price, pos.symbol)})` : ''
+      : slNum <= price ? `SL must be above current price (${formatPrice(price, pos.symbol)})` : ''
+    : ''
+  const tpError = tpNum !== null && !isNaN(tpNum)
+    ? isLong
+      ? tpNum <= price ? `TP must be above current price (${formatPrice(price, pos.symbol)})` : ''
+      : tpNum >= price ? `TP must be below current price (${formatPrice(price, pos.symbol)})` : ''
+    : ''
+
+  const canSave = !slError && !tpError && !saving
+
+  // Estimated P&L at each level (relative to entry, in account currency)
+  const estSlPnl = slNum != null && !isNaN(slNum)
+    ? (isLong ? slNum - entry : entry - slNum) * pos.quantity
+    : null
+  const estTpPnl = tpNum != null && !isNaN(tpNum)
+    ? (isLong ? tpNum - entry : entry - tpNum) * pos.quantity
+    : null
+
   const handleSave = async () => {
     setSaveError('')
-    const sl = slVal.trim() === '' ? null : parseFloat(slVal)
-    const tp = tpVal.trim() === '' ? null : parseFloat(tpVal)
-    if (sl !== null && isNaN(sl)) { setSaveError('Invalid stop loss'); return }
-    if (tp !== null && isNaN(tp)) { setSaveError('Invalid take profit'); return }
+    if (slError || tpError) return
+    if (slNum !== null && isNaN(slNum)) { setSaveError('Invalid stop loss'); return }
+    if (tpNum !== null && isNaN(tpNum)) { setSaveError('Invalid take profit'); return }
     setSaving(true)
     try {
-      await updatePositionSltp(pos.id, tp, sl)
+      await updatePositionSltp(pos.id, tpNum, slNum)
       setEditing(false)
     } catch (e) {
       setSaveError(e instanceof Error ? e.message : 'Save failed')
@@ -73,10 +102,58 @@ function PositionRow({ pos, onClose, closing, currency }: { pos: Position; onClo
     }
   }
 
-  const inputSty: React.CSSProperties = {
-    flex: 1, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)',
-    borderRadius: 8, color: '#fff', fontSize: 13, padding: '8px 10px', outline: 'none',
-    fontFamily: 'monospace', minWidth: 0,
+  // SL direction hint text
+  const slHint = isLong ? `↓ must be below ${formatPrice(price, pos.symbol)}` : `↑ must be above ${formatPrice(price, pos.symbol)}`
+  const tpHint = isLong ? `↑ must be above ${formatPrice(price, pos.symbol)}` : `↓ must be below ${formatPrice(price, pos.symbol)}`
+
+  const fieldInput = (
+    val: string, onChange: (v: string) => void,
+    err: string, hint: string,
+    estPnl: number | null,
+    accentColor: string, label: string, clearable: boolean,
+  ) => {
+    const isInvalid  = err !== ''
+    const isValid    = val.trim() !== '' && !isInvalid
+    const borderColor = isInvalid ? 'rgba(255,80,80,0.6)' : isValid ? `${accentColor}66` : 'rgba(255,255,255,0.12)'
+    return (
+      <div style={{ marginBottom: 10 }}>
+        {/* Label + hint */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 5 }}>
+          <span style={{ fontSize: 11, fontWeight: 700, color: accentColor }}>{label}</span>
+          <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)' }}>{hint}</span>
+        </div>
+        {/* Input row */}
+        <div style={{ display: 'flex', gap: 5, alignItems: 'center' }}>
+          <input
+            type="number" value={val}
+            onChange={e => onChange(e.target.value)}
+            placeholder="—"
+            style={{
+              flex: 1, background: 'rgba(255,255,255,0.06)',
+              border: `1px solid ${borderColor}`,
+              borderRadius: 9, color: '#fff', fontSize: 14, padding: '9px 12px',
+              outline: 'none', fontFamily: 'monospace', minWidth: 0,
+              transition: 'border-color 0.15s',
+            }}
+          />
+          {clearable && val.trim() !== '' && (
+            <button
+              onClick={() => onChange('')}
+              title="Remove"
+              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 7, color: '#666', fontSize: 15, padding: '7px 10px', cursor: 'pointer', lineHeight: 1, flexShrink: 0 }}
+            >✕</button>
+          )}
+        </div>
+        {/* Per-field error or est. P&L */}
+        {isInvalid ? (
+          <p style={{ fontSize: 10, color: '#ff7080', margin: '4px 0 0' }}>{err}</p>
+        ) : estPnl != null ? (
+          <p style={{ fontSize: 10, margin: '4px 0 0', color: estPnl >= 0 ? '#00c878' : '#ff7080', fontFamily: 'monospace' }}>
+            est. {estPnl >= 0 ? '+' : ''}{formatCurrency(estPnl, 2, currency)}
+          </p>
+        ) : null}
+      </div>
+    )
   }
 
   return (
@@ -121,68 +198,72 @@ function PositionRow({ pos, onClose, closing, currency }: { pos: Position; onClo
         ))}
       </div>
 
-      {/* SL / TP summary chips */}
+      {/* SL / TP summary chips (collapsed view) */}
       {!editing && (pos.stop_loss != null || pos.take_profit != null) && (
         <div style={{ display: 'flex', gap: 8, marginBottom: 10, flexWrap: 'wrap' }}>
           {pos.stop_loss != null && (
-            <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 8px', borderRadius: 8, background: 'rgba(255,48,71,0.1)', border: '1px solid rgba(255,48,71,0.2)', color: '#ff7080', fontFamily: 'monospace' }}>
-              SL {formatPrice(pos.stop_loss, pos.symbol)}
+            <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 8, background: 'rgba(255,48,71,0.1)', border: '1px solid rgba(255,48,71,0.22)', color: '#ff7080', fontFamily: 'monospace' }}>
+              SL · {formatPrice(pos.stop_loss, pos.symbol)}
             </span>
           )}
           {pos.take_profit != null && (
-            <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 8px', borderRadius: 8, background: 'rgba(0,200,120,0.1)', border: '1px solid rgba(0,200,120,0.2)', color: '#00c878', fontFamily: 'monospace' }}>
-              TP {formatPrice(pos.take_profit, pos.symbol)}
+            <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 8, background: 'rgba(0,200,120,0.1)', border: '1px solid rgba(0,200,120,0.22)', color: '#00c878', fontFamily: 'monospace' }}>
+              TP · {formatPrice(pos.take_profit, pos.symbol)}
             </span>
           )}
         </div>
       )}
 
-      {/* Inline SL/TP edit panel */}
+      {/* ── Inline SL/TP edit panel ────────────────────────────────────────────── */}
       {editing && (
-        <div style={{ marginBottom: 10, padding: '12px', borderRadius: 10, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
-          <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
-            {/* Stop Loss */}
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <label style={{ fontSize: 10, color: '#ff7080', fontWeight: 700, display: 'block', marginBottom: 4 }}>Stop Loss</label>
-              <div style={{ display: 'flex', gap: 4 }}>
-                <input
-                  type="number" value={slVal}
-                  onChange={e => setSlVal(e.target.value)}
-                  placeholder={pos.stop_loss != null ? String(pos.stop_loss) : 'None'}
-                  style={inputSty}
-                />
-                {slVal !== '' && (
-                  <button onClick={() => setSlVal('')} style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 6, color: '#888', fontSize: 14, padding: '0 8px', cursor: 'pointer' }}>✕</button>
-                )}
-              </div>
+        <div style={{ marginBottom: 10, padding: '14px', borderRadius: 12, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
+
+          {/* Reference bar */}
+          <div style={{ display: 'flex', gap: 16, marginBottom: 12, padding: '8px 10px', borderRadius: 8, background: 'rgba(255,255,255,0.04)' }}>
+            <div>
+              <p style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', margin: '0 0 2px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Entry</p>
+              <p style={{ fontSize: 12, fontWeight: 700, color: '#fff', margin: 0, fontFamily: 'monospace' }}>{formatPrice(entry, pos.symbol)}</p>
             </div>
-            {/* Take Profit */}
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <label style={{ fontSize: 10, color: '#00c878', fontWeight: 700, display: 'block', marginBottom: 4 }}>Take Profit</label>
-              <div style={{ display: 'flex', gap: 4 }}>
-                <input
-                  type="number" value={tpVal}
-                  onChange={e => setTpVal(e.target.value)}
-                  placeholder={pos.take_profit != null ? String(pos.take_profit) : 'None'}
-                  style={inputSty}
-                />
-                {tpVal !== '' && (
-                  <button onClick={() => setTpVal('')} style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 6, color: '#888', fontSize: 14, padding: '0 8px', cursor: 'pointer' }}>✕</button>
-                )}
-              </div>
+            <div style={{ width: 1, background: 'rgba(255,255,255,0.07)' }} />
+            <div>
+              <p style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', margin: '0 0 2px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Current</p>
+              <p style={{ fontSize: 12, fontWeight: 700, color: pnlColor, margin: 0, fontFamily: 'monospace' }}>{formatPrice(price, pos.symbol)}</p>
+            </div>
+            <div style={{ width: 1, background: 'rgba(255,255,255,0.07)' }} />
+            <div>
+              <p style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', margin: '0 0 2px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Direction</p>
+              <p style={{ fontSize: 12, fontWeight: 700, color: isLong ? '#00c878' : '#ff3047', margin: 0 }}>{isLong ? '↑ Long' : '↓ Short'}</p>
             </div>
           </div>
+
+          {/* Stop Loss field */}
+          {fieldInput(slVal, setSlVal, slError, slHint, estSlPnl, '#ff7080', 'Stop Loss', true)}
+
+          {/* Take Profit field */}
+          {fieldInput(tpVal, setTpVal, tpError, tpHint, estTpPnl, '#00c878', 'Take Profit', true)}
+
+          {/* Server error */}
           {saveError && (
-            <p style={{ fontSize: 11, color: '#ff7080', margin: '0 0 8px' }}>{saveError}</p>
+            <p style={{ fontSize: 11, color: '#ff7080', margin: '0 0 10px', padding: '6px 10px', background: 'rgba(255,80,80,0.08)', borderRadius: 6 }}>{saveError}</p>
           )}
+
+          {/* Action buttons */}
           <div style={{ display: 'flex', gap: 6 }}>
             <button
-              onClick={handleSave} disabled={saving}
-              style={{ flex: 1, padding: '8px 0', borderRadius: 8, background: '#1a6fff', border: 'none', color: '#fff', fontSize: 12, fontWeight: 700, cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.6 : 1 }}
-            >{saving ? 'Saving…' : 'Save'}</button>
+              onClick={handleSave}
+              disabled={!canSave}
+              style={{
+                flex: 1, padding: '10px 0', borderRadius: 10,
+                background: canSave ? '#1a6fff' : 'rgba(255,255,255,0.06)',
+                border: 'none', color: canSave ? '#fff' : 'rgba(255,255,255,0.3)',
+                fontSize: 13, fontWeight: 700,
+                cursor: canSave ? 'pointer' : 'not-allowed',
+                transition: 'all 0.15s',
+              }}
+            >{saving ? 'Saving…' : 'Save changes'}</button>
             <button
               onClick={() => setEditing(false)}
-              style={{ padding: '8px 14px', borderRadius: 8, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#888', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
+              style={{ padding: '10px 16px', borderRadius: 10, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.55)', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
             >Cancel</button>
           </div>
         </div>
