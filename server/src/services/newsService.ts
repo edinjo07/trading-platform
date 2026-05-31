@@ -420,6 +420,187 @@ export async function getBloombergNews(): Promise<BloombergArticle[]> {
   return articles
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Economic calendar — Forex Factory XML feed
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface EconomicEvent {
+  id:          string
+  title:       string
+  currency:    string
+  date:        string   // ISO datetime
+  time:        string   // HH:MM EST
+  impact:      'high' | 'medium' | 'low' | 'holiday'
+  forecast:    string
+  previous:    string
+  actual:      string | null
+  description: string
+  url:         string
+}
+
+const EC_CACHE_TTL = 15 * 60 * 1_000
+let ecCache: { data: EconomicEvent[]; ts: number } = { data: [], ts: 0 }
+
+function parseForexFactoryXml(xml: string): EconomicEvent[] {
+  const events: EconomicEvent[] = []
+  const eventRe = /<event>([\s\S]*?)<\/event>/g
+  let m: RegExpExecArray | null
+  let seq = 0
+
+  while ((m = eventRe.exec(xml)) !== null) {
+    const inner = m[1]
+    const get = (tag: string): string => {
+      const r = inner.match(new RegExp(`<${tag}><!\\[CDATA\\[([\\s\\S]*?)\\]\\]><\\/${tag}>`))
+             ?? inner.match(new RegExp(`<${tag}>([\\s\\S]*?)<\\/${tag}>`))
+      return r?.[1]?.trim().replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>') ?? ''
+    }
+
+    const title    = get('title')
+    const currency = get('country')
+    const dateStr  = get('date')
+    const rawImpact = get('impact').toLowerCase()
+    const impact: EconomicEvent['impact'] =
+      rawImpact === 'high' ? 'high'
+      : rawImpact === 'medium' ? 'medium'
+      : rawImpact === 'low' ? 'low'
+      : 'holiday'
+    const forecast    = get('forecast')
+    const previous    = get('previous')
+    const actualRaw   = get('actual')
+    const description = get('description')
+    const url         = get('url')
+
+    if (!title || !currency) continue
+
+    // Parse date — FF format: "Jun 06 2025 8:30am"
+    let dateIso = new Date().toISOString()
+    let time    = '00:00'
+    try {
+      const d = new Date(dateStr)
+      if (!isNaN(d.getTime())) {
+        dateIso = d.toISOString()
+        const h   = d.getHours()
+        const min = d.getMinutes()
+        time = `${String(h).padStart(2, '0')}:${String(min).padStart(2, '0')}`
+      }
+    } catch { /* keep defaults */ }
+
+    events.push({
+      id:          String(++seq),
+      title,
+      currency,
+      date:        dateIso,
+      time,
+      impact,
+      forecast:    forecast || '—',
+      previous:    previous || '—',
+      actual:      actualRaw || null,
+      description: description || '',
+      url:         url || '',
+    })
+  }
+  return events
+}
+
+export async function getEconomicCalendar(): Promise<EconomicEvent[]> {
+  if (ecCache.ts && Date.now() - ecCache.ts < EC_CACHE_TTL) return ecCache.data
+  try {
+    const xml    = await fetchUrl('https://nfs.faireconomy.media/ff_calendar_thisweek.xml', 8_000)
+    const events = parseForexFactoryXml(xml)
+    if (events.length > 0) {
+      ecCache = { data: events, ts: Date.now() }
+      return events
+    }
+  } catch { /* fall through to stale/empty */ }
+  return ecCache.data
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Macro financial news — multi-source RSS aggregator
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface MacroNews {
+  id:          string
+  title:       string
+  url:         string
+  source:      string
+  publishedAt: string
+  sentiment:   number
+  label:       'bullish' | 'bearish' | 'neutral'
+  category:    string
+}
+
+function categorizeMacro(title: string): string {
+  const t = title.toLowerCase()
+  if (/fed|fomc|federal reserve|interest rate|rate cut|rate hike|powell|basis points|monetary policy|central bank/.test(t)) return 'central-banks'
+  if (/inflation|cpi|pce|ppi|consumer prices|price index/.test(t)) return 'inflation'
+  if (/jobs|employment|payroll|jobless|unemployment|labor|hiring|layoff|nonfarm/.test(t)) return 'employment'
+  if (/gdp|growth|recession|economy|economic output|contraction/.test(t)) return 'gdp'
+  if (/pmi|manufacturing|factory|industrial output/.test(t)) return 'manufacturing'
+  if (/ecb|boe|rba|rbnz|bank of england|european central|reserve bank|boj/.test(t)) return 'central-banks'
+  if (/oil|gold|commodities|energy|crude|brent/.test(t)) return 'commodities'
+  if (/trade|tariff|export|import|deficit|surplus|sanctions/.test(t)) return 'trade'
+  if (/stock|market|rally|selloff|nasdaq|s&p|dow|equities/.test(t)) return 'markets'
+  return 'general'
+}
+
+const MACRO_FEEDS = [
+  { url: 'https://feeds.reuters.com/reuters/businessNews',                                            source: 'Reuters'        },
+  { url: 'https://feeds.reuters.com/reuters/topNews',                                                 source: 'Reuters'        },
+  { url: 'https://feeds.finance.yahoo.com/rss/2.0/headline?s=%5EGSPC&region=US&lang=en-US',          source: 'Yahoo Finance'  },
+  { url: 'https://www.cnbc.com/id/20910258/device/rss/rss.html',                                     source: 'CNBC Economy'   },
+  { url: 'https://feeds.marketwatch.com/marketwatch/topstories/',                                    source: 'MarketWatch'    },
+  { url: 'https://feeds.bloomberg.com/markets/news.rss',                                             source: 'Bloomberg'      },
+]
+
+const macroCache: { data: MacroNews[]; ts: number } = { data: [], ts: 0 }
+const MACRO_CACHE_TTL = 10 * 60 * 1_000
+
+async function fetchMacroFeed(feed: { url: string; source: string }): Promise<MacroNews[]> {
+  const body   = await fetchUrl(feed.url, 8_000)
+  const parsed = parseRssTitles(body)
+  return parsed.slice(0, 20).map((item, i) => {
+    const score = scoreText(item.title)
+    const url   = item.link ? resolveUrl(item.link, feed.url) : ''
+    return {
+      id:          `${feed.source.replace(/\s/g, '')}-${i}-${item.pubDate}`,
+      title:       item.title,
+      url:         url || `https://www.google.com/search?q=${encodeURIComponent(item.title)}`,
+      source:      feed.source,
+      publishedAt: (() => { try { return new Date(item.pubDate).toISOString() } catch { return new Date().toISOString() } })(),
+      sentiment:   score,
+      label:       sentimentLabel(score),
+      category:    categorizeMacro(item.title),
+    }
+  })
+}
+
+export async function getMacroNews(): Promise<MacroNews[]> {
+  if (macroCache.ts && Date.now() - macroCache.ts < MACRO_CACHE_TTL) return macroCache.data
+
+  const results = await Promise.allSettled(MACRO_FEEDS.map(fetchMacroFeed))
+  const all = results
+    .filter((r): r is PromiseFulfilledResult<MacroNews[]> => r.status === 'fulfilled')
+    .flatMap(r => r.value)
+    .filter(a => a.title && a.url)
+    .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
+
+  // Deduplicate by first 60 chars of title
+  const seen  = new Set<string>()
+  const unique = all.filter(a => {
+    const key = a.title.slice(0, 60).toLowerCase().replace(/\s+/g, ' ')
+    if (seen.has(key)) return false
+    seen.add(key)
+    return true
+  })
+
+  if (unique.length > 0) {
+    macroCache.data = unique
+    macroCache.ts   = Date.now()
+  }
+  return macroCache.data
+}
+
 /** Synchronous read from cache only (returns null if not cached) */
 export function getCachedSentiment(symbol: string): SymbolSentiment | null {
   const cached = cache.get(symbol)
