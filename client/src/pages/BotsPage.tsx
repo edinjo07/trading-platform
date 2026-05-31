@@ -50,11 +50,47 @@ const LOG_CFG: Record<string, { color: string; border: string; label: string }> 
   error:  { color: '#ef4444', border: '#7f1d1d', label: 'ERROR'  },
 }
 
-const SYMBOLS = [
-  'BTCUSD','ETHUSD','SOLUSD','BNBUSD','XRPUSD',
-  'AAPL','TSLA','NVDA','MSFT','GOOGL','AMZN','META',
-  'EURUSD','GBPUSD','USDJPY','AUDUSD',
-  'XAUUSD','USOIL',
+const SYMBOL_GROUPS: { label: string; symbols: string[] }[] = [
+  { label: 'Crypto', symbols: [
+    'BTCUSD','ETHUSD','SOLUSD','BNBUSD','XRPUSD','LTCUSD','BCHUSD','DSHUSD',
+    'DOTUSD','LNKUSD','ADAUSD','AVAXUSD','MATICUSD','DOGEUSD','XLMUSD',
+    'XTZUSD','UNIUSD','NEARUSD','ATOMUSD','ALGOUSD','FILUSD',
+  ]},
+  { label: 'Stocks', symbols: [
+    'AAPL','TSLA','NVDA','MSFT','GOOGL','AMZN','META','JPM','NFLX','COIN',
+    'AMD','DIS','LMT','RTX','NOC','GD','BA','HII','LDOS','CACI',
+    'XOM','CVX','COP',
+  ]},
+  { label: 'Forex Majors', symbols: [
+    'EURUSD','GBPUSD','USDJPY','USDCHF','USDCAD','AUDUSD','NZDUSD',
+  ]},
+  { label: 'Forex Minors', symbols: [
+    'AUDCAD','AUDCHF','AUDJPY','AUDNZD','CADCHF','CADJPY','CHFJPY',
+    'EURAUD','EURCAD','EURCHF','EURGBP','EURJPY','EURNZD',
+    'GBPAUD','GBPCAD','GBPCHF','GBPJPY','GBPNZD',
+    'NZDCAD','NZDCHF','NZDJPY',
+  ]},
+  { label: 'Forex Exotics', symbols: [
+    'EURHUF','EURNOK','EURPLN','EURSEK','EURZAR','EURMXN','EURTRY',
+    'GBPNOK','GBPPLN','GBPSEK','GBPZAR',
+    'USDCNH','USDCZK','USDDKK','USDHKD','USDHUF','USDILS','USDMXN',
+    'USDNOK','USDPLN','USDSEK','USDSGD','USDTHB','USDZAR','USDTRY',
+    'NOKJPY','SGDJPY','AUDMXN','AUDSGD','EURSGD','GBPSGD','NZDSGD','EURCZK',
+  ]},
+  { label: 'Commodities', symbols: [
+    'XAUUSD','XAGUSD','XPTUSD','XPDUSD',
+    'XBRUSD','WTI','BRENT','NGAS','GC25',
+    'COCOA','COFFEE','CORN','COTTON','OJ','SOYBEAN','SUGAR','WHEAT',
+    'COPPER','LUMBER','HO',
+  ]},
+  { label: 'Indices', symbols: [
+    'US500','USTEC','US30','UK100','DE40','F40','JP225','AUS200',
+    'STOXX50','CA60','CH20','HK50','ES35','IT40','NL25','NO25',
+    'SING','PL40','ZA50','TW50','IN50','KO200','DX','VIX','EUSTX50',
+  ]},
+  { label: 'Bonds', symbols: [
+    'TNOTE','BUND','GILT','JGB','OAT','BTP','AUB','BONO','USBOND',
+  ]},
 ]
 
 // ─── Formatters ───────────────────────────────────────────────────────────────
@@ -543,7 +579,11 @@ function CreateBotModal({ onClose, onCreate }: { onClose: () => void; onCreate: 
                   <div>
                     <label style={labelSty}>Market</label>
                     <select style={{ ...inSty, appearance: 'none' }} value={symbol} onChange={e => setSymbol(e.target.value)}>
-                      {SYMBOLS.map(s => <option key={s} value={s} style={{ background: C.surface }}>{s}</option>)}
+                      {SYMBOL_GROUPS.map(g => (
+                        <optgroup key={g.label} label={g.label} style={{ background: C.bg, color: C.text2 }}>
+                          {g.symbols.map(s => <option key={s} value={s} style={{ background: C.surface }}>{s}</option>)}
+                        </optgroup>
+                      ))}
                     </select>
                   </div>
                 </div>
