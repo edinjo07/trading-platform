@@ -24,13 +24,17 @@ export function initWebSocket(server: Server): void {
     ws.on('error', () => { /* prevent uncaught error crashes */ })
   })
 
-  // Tick all symbols and broadcast every second
+  // Advance the market simulation every second. This MUST run regardless of
+  // whether any browser is connected — server-side consumers (trading bots,
+  // SL/TP monitor, limit-order monitor) read live prices continuously, and a
+  // bot should keep trading after the user closes the tab. Only the network
+  // broadcast is gated on having connected clients.
   setInterval(() => {
-    if (!wss || wss.clients.size === 0) return
-
     for (const sym of SYMBOLS) {
       try { tickSymbol(sym.symbol) } catch { /* unknown symbol — skip */ }
     }
+
+    if (!wss || wss.clients.size === 0) return
 
     const message = JSON.stringify({ type: 'tickers', payload: getAllTickers() })
     for (const client of wss.clients) {

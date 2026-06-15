@@ -85,7 +85,7 @@ export default function Layout() {
 
       {/* ── Bottom nav (mobile / tablet only) — Capital.com style ── */}
       <nav
-        className="lg:hidden fixed bottom-0 left-0 right-0 z-30 flex items-end"
+        className="chrome-dark lg:hidden fixed bottom-0 left-0 right-0 z-30 flex items-end"
         style={{
           background: 'rgba(0,0,0,0.96)',
           backdropFilter: 'blur(20px)',

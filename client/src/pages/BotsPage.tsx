@@ -11,8 +11,8 @@ const C = {
   bg:        '#07090f',
   surface:   '#0c1018',
   surface2:  '#111927',
-  border:    'rgba(255,255,255,0.07)',
-  border2:   'rgba(255,255,255,0.12)',
+  border:    'rgba(var(--ink),0.07)',
+  border2:   'rgba(var(--ink),0.12)',
   text1:     '#e2e8f0',
   text2:     '#64748b',
   text3:     '#334155',
@@ -165,7 +165,7 @@ function EquityChart({ curve, height = 100 }: { curve: BotEquityPoint[]; height?
         </defs>
         {zeroY > 0 && zeroY < height && (
           <line x1="0" y1={zeroY} x2={W} y2={zeroY}
-                stroke="rgba(255,255,255,0.08)" strokeWidth="1" strokeDasharray="6 4"/>
+                stroke="currentColor" style={{ color: 'rgba(var(--ink),0.08)' }} strokeWidth="1" strokeDasharray="6 4"/>
         )}
         <path d={fill} fill={`url(#g-${uid})`}/>
         <polyline fill="none" stroke={color} strokeWidth="2.5" strokeLinejoin="round" points={line}/>

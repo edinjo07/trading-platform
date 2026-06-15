@@ -96,7 +96,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
 
   return (
     <header
-      className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 shrink-0"
+      className="chrome-dark flex items-center gap-2 sm:gap-3 px-3 sm:px-4 shrink-0"
       style={{
         background: '#0a0a0a',
         borderBottom: '1px solid rgba(255,255,255,0.08)',

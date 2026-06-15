@@ -9,13 +9,13 @@ import type { Position, Order } from '../types'
 function EmptyTrades({ onExplore }: { onExplore: () => void }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '60px 20px', gap: 14 }}>
-      <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'rgba(255,255,255,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="rgba(255,255,255,0.25)" strokeWidth={1.3}>
+      <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'rgba(var(--ink),0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ color: 'rgba(var(--ink),0.25)' }} strokeWidth={1.3}>
           <circle cx="11" cy="11" r="8"/><circle cx="11" cy="11" r="4"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
         </svg>
       </div>
-      <p style={{ fontSize: 17, fontWeight: 700, color: '#fff', margin: 0 }}>No open trades</p>
-      <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', margin: 0, textAlign: 'center' }}>
+      <p style={{ fontSize: 17, fontWeight: 700, color: 'rgb(var(--ink))', margin: 0 }}>No open trades</p>
+      <p style={{ fontSize: 13, color: 'rgba(var(--ink),0.45)', margin: 0, textAlign: 'center' }}>
         Explore our markets for trading ideas
       </p>
       <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'center', marginTop: 8 }}>
@@ -25,8 +25,8 @@ function EmptyTrades({ onExplore }: { onExplore: () => void }) {
             onClick={onExplore}
             style={{
               padding: '9px 18px', borderRadius: 22, fontSize: 12, fontWeight: 700,
-              background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)',
-              color: '#fff', cursor: 'pointer',
+              background: 'rgba(var(--ink),0.06)', border: '1px solid rgba(255,255,255,0.1)',
+              color: 'rgb(var(--ink))', cursor: 'pointer',
             }}
           >
             {label}
@@ -114,13 +114,13 @@ function PositionRow({ pos, onClose, closing, currency }: { pos: Position; onClo
   ) => {
     const isInvalid  = err !== ''
     const isValid    = val.trim() !== '' && !isInvalid
-    const borderColor = isInvalid ? 'rgba(255,80,80,0.6)' : isValid ? `${accentColor}66` : 'rgba(255,255,255,0.12)'
+    const borderColor = isInvalid ? 'rgba(255,80,80,0.6)' : isValid ? `${accentColor}66` : 'rgba(var(--ink),0.12)'
     return (
       <div style={{ marginBottom: 10 }}>
         {/* Label + hint */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 5 }}>
           <span style={{ fontSize: 11, fontWeight: 700, color: accentColor }}>{label}</span>
-          <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)' }}>{hint}</span>
+          <span style={{ fontSize: 10, color: 'rgba(var(--ink),0.35)' }}>{hint}</span>
         </div>
         {/* Input row */}
         <div style={{ display: 'flex', gap: 5, alignItems: 'center' }}>
@@ -129,9 +129,9 @@ function PositionRow({ pos, onClose, closing, currency }: { pos: Position; onClo
             onChange={e => onChange(e.target.value)}
             placeholder="—"
             style={{
-              flex: 1, background: 'rgba(255,255,255,0.06)',
+              flex: 1, background: 'rgba(var(--ink),0.06)',
               border: `1px solid ${borderColor}`,
-              borderRadius: 9, color: '#fff', fontSize: 14, padding: '9px 12px',
+              borderRadius: 9, color: 'rgb(var(--ink))', fontSize: 14, padding: '9px 12px',
               outline: 'none', fontFamily: 'monospace', minWidth: 0,
               transition: 'border-color 0.15s',
             }}
@@ -140,7 +140,7 @@ function PositionRow({ pos, onClose, closing, currency }: { pos: Position; onClo
             <button
               onClick={() => onChange('')}
               title="Remove"
-              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 7, color: '#666', fontSize: 15, padding: '7px 10px', cursor: 'pointer', lineHeight: 1, flexShrink: 0 }}
+              style={{ background: 'rgba(var(--ink),0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 7, color: '#666', fontSize: 15, padding: '7px 10px', cursor: 'pointer', lineHeight: 1, flexShrink: 0 }}
             >✕</button>
           )}
         </div>
@@ -158,13 +158,13 @@ function PositionRow({ pos, onClose, closing, currency }: { pos: Position; onClo
 
   return (
     <div style={{
-      background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)',
+      background: 'rgba(var(--ink),0.03)', border: '1px solid rgba(255,255,255,0.07)',
       borderRadius: 14, padding: '14px 16px', marginBottom: 8,
     }}>
       {/* Header row */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ fontSize: 15, fontWeight: 800, color: '#fff' }}>{pos.symbol}</span>
+          <span style={{ fontSize: 15, fontWeight: 800, color: 'rgb(var(--ink))' }}>{pos.symbol}</span>
           <span style={{
             fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 20,
             background: isLong ? 'rgba(0,200,120,0.12)' : 'rgba(255,48,71,0.12)',
@@ -173,7 +173,7 @@ function PositionRow({ pos, onClose, closing, currency }: { pos: Position; onClo
             {isLong ? 'BUY' : 'SELL'}
           </span>
           {pos.leverage > 1 && (
-            <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 10, background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.6)' }}>
+            <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 10, background: 'rgba(var(--ink),0.08)', color: 'rgba(var(--ink),0.6)' }}>
               {pos.leverage}x
             </span>
           )}
@@ -192,8 +192,8 @@ function PositionRow({ pos, onClose, closing, currency }: { pos: Position; onClo
           { l: 'P&L %',   v: (pos.unrealizedPnlPct >= 0 ? '+' : '') + pos.unrealizedPnlPct.toFixed(2) + '%' },
         ].map(({ l, v }) => (
           <div key={l}>
-            <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', margin: '0 0 2px' }}>{l}</p>
-            <p style={{ fontSize: 12, fontWeight: 600, color: '#fff', margin: 0, fontFamily: 'monospace' }}>{v}</p>
+            <p style={{ fontSize: 10, color: 'rgba(var(--ink),0.4)', margin: '0 0 2px' }}>{l}</p>
+            <p style={{ fontSize: 12, fontWeight: 600, color: 'rgb(var(--ink))', margin: 0, fontFamily: 'monospace' }}>{v}</p>
           </div>
         ))}
       </div>
@@ -216,22 +216,22 @@ function PositionRow({ pos, onClose, closing, currency }: { pos: Position; onClo
 
       {/* ── Inline SL/TP edit panel ────────────────────────────────────────────── */}
       {editing && (
-        <div style={{ marginBottom: 10, padding: '14px', borderRadius: 12, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
+        <div style={{ marginBottom: 10, padding: '14px', borderRadius: 12, background: 'rgba(var(--ink),0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
 
           {/* Reference bar */}
-          <div style={{ display: 'flex', gap: 16, marginBottom: 12, padding: '8px 10px', borderRadius: 8, background: 'rgba(255,255,255,0.04)' }}>
+          <div style={{ display: 'flex', gap: 16, marginBottom: 12, padding: '8px 10px', borderRadius: 8, background: 'rgba(var(--ink),0.04)' }}>
             <div>
-              <p style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', margin: '0 0 2px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Entry</p>
-              <p style={{ fontSize: 12, fontWeight: 700, color: '#fff', margin: 0, fontFamily: 'monospace' }}>{formatPrice(entry, pos.symbol)}</p>
+              <p style={{ fontSize: 9, color: 'rgba(var(--ink),0.35)', margin: '0 0 2px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Entry</p>
+              <p style={{ fontSize: 12, fontWeight: 700, color: 'rgb(var(--ink))', margin: 0, fontFamily: 'monospace' }}>{formatPrice(entry, pos.symbol)}</p>
             </div>
-            <div style={{ width: 1, background: 'rgba(255,255,255,0.07)' }} />
+            <div style={{ width: 1, background: 'rgba(var(--ink),0.07)' }} />
             <div>
-              <p style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', margin: '0 0 2px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Current</p>
+              <p style={{ fontSize: 9, color: 'rgba(var(--ink),0.35)', margin: '0 0 2px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Current</p>
               <p style={{ fontSize: 12, fontWeight: 700, color: pnlColor, margin: 0, fontFamily: 'monospace' }}>{formatPrice(price, pos.symbol)}</p>
             </div>
-            <div style={{ width: 1, background: 'rgba(255,255,255,0.07)' }} />
+            <div style={{ width: 1, background: 'rgba(var(--ink),0.07)' }} />
             <div>
-              <p style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', margin: '0 0 2px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Direction</p>
+              <p style={{ fontSize: 9, color: 'rgba(var(--ink),0.35)', margin: '0 0 2px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Direction</p>
               <p style={{ fontSize: 12, fontWeight: 700, color: isLong ? '#00c878' : '#ff3047', margin: 0 }}>{isLong ? '↑ Long' : '↓ Short'}</p>
             </div>
           </div>
@@ -254,8 +254,8 @@ function PositionRow({ pos, onClose, closing, currency }: { pos: Position; onClo
               disabled={!canSave}
               style={{
                 flex: 1, padding: '10px 0', borderRadius: 10,
-                background: canSave ? '#1a6fff' : 'rgba(255,255,255,0.06)',
-                border: 'none', color: canSave ? '#fff' : 'rgba(255,255,255,0.3)',
+                background: canSave ? '#1a6fff' : 'rgba(var(--ink),0.06)',
+                border: 'none', color: canSave ? 'rgb(var(--ink))' : 'rgba(var(--ink),0.3)',
                 fontSize: 13, fontWeight: 700,
                 cursor: canSave ? 'pointer' : 'not-allowed',
                 transition: 'all 0.15s',
@@ -263,7 +263,7 @@ function PositionRow({ pos, onClose, closing, currency }: { pos: Position; onClo
             >{saving ? 'Saving…' : 'Save changes'}</button>
             <button
               onClick={() => setEditing(false)}
-              style={{ padding: '10px 16px', borderRadius: 10, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.55)', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
+              style={{ padding: '10px 16px', borderRadius: 10, background: 'rgba(var(--ink),0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(var(--ink),0.55)', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
             >Cancel</button>
           </div>
         </div>
@@ -273,19 +273,19 @@ function PositionRow({ pos, onClose, closing, currency }: { pos: Position; onClo
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', gap: 14 }}>
           <div>
-            <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', margin: '0 0 2px' }}>Margin</p>
-            <p style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.65)', margin: 0, fontFamily: 'monospace' }}>{formatCurrency(pos.margin, 2, currency)}</p>
+            <p style={{ fontSize: 10, color: 'rgba(var(--ink),0.35)', margin: '0 0 2px' }}>Margin</p>
+            <p style={{ fontSize: 11, fontWeight: 600, color: 'rgba(var(--ink),0.65)', margin: 0, fontFamily: 'monospace' }}>{formatCurrency(pos.margin, 2, currency)}</p>
           </div>
           {pos.leverage > 1 && (
             <div>
-              <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', margin: '0 0 2px' }}>Liq.</p>
+              <p style={{ fontSize: 10, color: 'rgba(var(--ink),0.35)', margin: '0 0 2px' }}>Liq.</p>
               <p style={{ fontSize: 11, fontWeight: 600, color: '#ff3047', margin: 0, fontFamily: 'monospace' }}>{formatPrice(pos.liquidationPrice, pos.symbol)}</p>
             </div>
           )}
           {pos.notionalValue > 0 && (
             <div>
-              <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', margin: '0 0 2px' }}>Notional</p>
-              <p style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.65)', margin: 0, fontFamily: 'monospace' }}>{formatCurrency(pos.notionalValue, 2, currency)}</p>
+              <p style={{ fontSize: 10, color: 'rgba(var(--ink),0.35)', margin: '0 0 2px' }}>Notional</p>
+              <p style={{ fontSize: 11, fontWeight: 600, color: 'rgba(var(--ink),0.65)', margin: 0, fontFamily: 'monospace' }}>{formatCurrency(pos.notionalValue, 2, currency)}</p>
             </div>
           )}
         </div>
@@ -296,8 +296,8 @@ function PositionRow({ pos, onClose, closing, currency }: { pos: Position; onClo
               title="Edit SL / TP"
               style={{
                 padding: '8px 12px', borderRadius: 22, fontSize: 12, fontWeight: 700,
-                background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)',
-                color: 'rgba(255,255,255,0.6)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
+                background: 'rgba(var(--ink),0.06)', border: '1px solid rgba(255,255,255,0.1)',
+                color: 'rgba(var(--ink),0.6)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
               }}
             >
               <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
@@ -341,8 +341,8 @@ function OrderRow({ order }: { order: Order }) {
         {order.side.toUpperCase()}
       </span>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <p style={{ fontSize: 13, fontWeight: 700, color: '#fff', margin: 0 }}>{order.symbol}</p>
-        <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', margin: 0 }}>
+        <p style={{ fontSize: 13, fontWeight: 700, color: 'rgb(var(--ink))', margin: 0 }}>{order.symbol}</p>
+        <p style={{ fontSize: 10, color: 'rgba(var(--ink),0.4)', margin: 0 }}>
           {order.quantity} units · {order.fill_price ? formatPrice(order.fill_price, order.symbol) : '—'}
         </p>
       </div>
@@ -352,7 +352,7 @@ function OrderRow({ order }: { order: Order }) {
           background: order.status === 'filled' ? 'rgba(0,200,120,0.12)' : 'rgba(255,48,71,0.12)',
           color: order.status === 'filled' ? '#00c878' : '#ff3047',
         }}>{order.status}</span>
-        <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', margin: '4px 0 0', whiteSpace: 'nowrap' }}>
+        <p style={{ fontSize: 10, color: 'rgba(var(--ink),0.35)', margin: '4px 0 0', whiteSpace: 'nowrap' }}>
           {new Date(order.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
           {' '}
           {new Date(order.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -373,21 +373,21 @@ function AccountBar() {
   const rpnl    = portfolio?.realizedPnl   ?? 0
 
   const items = [
-    { l: 'Equity',     v: formatCurrency(equity, 2, currency), c: '#fff'    },
-    { l: 'Available',  v: formatCurrency(cash, 2, currency),   c: '#fff'    },
+    { l: 'Equity',     v: formatCurrency(equity, 2, currency), c: 'rgb(var(--ink))'    },
+    { l: 'Available',  v: formatCurrency(cash, 2, currency),   c: 'rgb(var(--ink))'    },
     { l: 'Unrealised', v: formatPnl(upnl, currency),           c: upnl >= 0 ? '#00c878' : '#ff3047' },
     { l: 'Realised',   v: formatPnl(rpnl, currency),           c: rpnl >= 0 ? '#00c878' : '#ff3047' },
   ]
 
   return (
     <div style={{
-      background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)',
+      background: 'rgba(var(--ink),0.03)', border: '1px solid rgba(255,255,255,0.07)',
       borderRadius: 16, padding: '16px', display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 12,
       marginBottom: 16,
     }}>
       {items.map(({ l, v, c }) => (
         <div key={l}>
-          <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', margin: '0 0 3px' }}>{l}</p>
+          <p style={{ fontSize: 10, color: 'rgba(var(--ink),0.4)', margin: '0 0 3px' }}>{l}</p>
           <p style={{ fontSize: 15, fontWeight: 700, color: c, margin: 0, fontFamily: 'monospace' }}>{v}</p>
         </div>
       ))}
@@ -420,12 +420,12 @@ export default function PortfolioPage() {
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100%', background: '#000' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100%', background: 'var(--t-bg)' }}>
 
       {/* Sticky header */}
       <div style={{
         position: 'sticky', top: 0, zIndex: 20,
-        background: 'rgba(0,0,0,0.95)', backdropFilter: 'blur(12px)',
+        background: 'rgba(var(--paper),0.85)', backdropFilter: 'blur(12px)',
         borderBottom: '1px solid rgba(255,255,255,0.06)',
         padding: '12px 16px 0',
       }}>
@@ -433,10 +433,10 @@ export default function PortfolioPage() {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1 }}>
             <div style={{
-              flex: 1, background: 'rgba(255,255,255,0.05)', borderRadius: 10, padding: '8px 12px',
+              flex: 1, background: 'rgba(var(--ink),0.05)', borderRadius: 10, padding: '8px 12px',
               display: 'flex', alignItems: 'center',
             }}>
-              <span style={{ fontSize: 14, fontWeight: 800, color: '#fff', fontFamily: 'monospace' }}>
+              <span style={{ fontSize: 14, fontWeight: 800, color: 'rgb(var(--ink))', fontFamily: 'monospace' }}>
                 {formatCurrency(equity, 2, user?.currency ?? 'USD')}
               </span>
             </div>
@@ -446,8 +446,8 @@ export default function PortfolioPage() {
             style={{
               marginLeft: 10, display: 'flex', alignItems: 'center', gap: 6,
               padding: '8px 14px', borderRadius: 20,
-              background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)',
-              color: 'rgba(255,255,255,0.7)', fontSize: 12, fontWeight: 700, cursor: 'pointer', flexShrink: 0,
+              background: 'rgba(var(--ink),0.07)', border: '1px solid rgba(255,255,255,0.1)',
+              color: 'rgba(var(--ink),0.7)', fontSize: 12, fontWeight: 700, cursor: 'pointer', flexShrink: 0,
             }}
           >
             <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
@@ -464,14 +464,14 @@ export default function PortfolioPage() {
               style={{
                 flex: 1, padding: '10px 0', background: 'none', border: 'none', cursor: 'pointer',
                 fontSize: 13, fontWeight: 700, textTransform: 'capitalize',
-                color: tab === t ? '#fff' : 'rgba(255,255,255,0.4)',
+                color: tab === t ? 'rgb(var(--ink))' : 'rgba(var(--ink),0.4)',
                 borderBottom: tab === t ? '2px solid #fff' : '2px solid transparent',
                 transition: 'all 0.15s',
               }}
             >
               {t}
               {t === 'trades' && positions.length > 0 && (
-                <span style={{ marginLeft: 6, fontSize: 10, fontWeight: 700, padding: '1px 6px', borderRadius: 10, background: 'rgba(255,255,255,0.15)', color: '#fff' }}>
+                <span style={{ marginLeft: 6, fontSize: 10, fontWeight: 700, padding: '1px 6px', borderRadius: 10, background: 'rgba(var(--ink),0.15)', color: 'rgb(var(--ink))' }}>
                   {positions.length}
                 </span>
               )}
@@ -505,15 +505,15 @@ export default function PortfolioPage() {
           orders.length === 0
             ? (
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '48px 20px', gap: 10 }}>
-                <svg width="44" height="44" fill="none" viewBox="0 0 24 24" stroke="rgba(255,255,255,0.2)" strokeWidth={1.2}>
+                <svg width="44" height="44" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ color: 'rgba(var(--ink),0.2)' }} strokeWidth={1.2}>
                   <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/>
                   <rect x="9" y="3" width="6" height="4" rx="1"/>
                 </svg>
-                <p style={{ fontSize: 15, fontWeight: 700, color: '#fff', margin: 0 }}>No orders yet</p>
-                <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', margin: 0 }}>Your executed orders will appear here</p>
+                <p style={{ fontSize: 15, fontWeight: 700, color: 'rgb(var(--ink))', margin: 0 }}>No orders yet</p>
+                <p style={{ fontSize: 12, color: 'rgba(var(--ink),0.4)', margin: 0 }}>Your executed orders will appear here</p>
               </div>
             ) : (
-              <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: 16, border: '1px solid rgba(255,255,255,0.07)', padding: '4px 14px' }}>
+              <div style={{ background: 'rgba(var(--ink),0.03)', borderRadius: 16, border: '1px solid rgba(255,255,255,0.07)', padding: '4px 14px' }}>
                 {orders.slice(0, 50).map((o: Order) => (
                   <OrderRow key={o.id} order={o} />
                 ))}
@@ -523,21 +523,21 @@ export default function PortfolioPage() {
 
         {tab === 'alerts' && (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '48px 20px', gap: 12 }}>
-            <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'rgba(255,255,255,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <svg width="26" height="26" fill="none" viewBox="0 0 24 24" stroke="rgba(255,255,255,0.25)" strokeWidth={1.3}>
+            <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'rgba(var(--ink),0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <svg width="26" height="26" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ color: 'rgba(var(--ink),0.25)' }} strokeWidth={1.3}>
                 <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/>
               </svg>
             </div>
-            <p style={{ fontSize: 15, fontWeight: 700, color: '#fff', margin: 0 }}>No price alerts yet</p>
-            <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', margin: 0, textAlign: 'center' }}>
+            <p style={{ fontSize: 15, fontWeight: 700, color: 'rgb(var(--ink))', margin: 0 }}>No price alerts yet</p>
+            <p style={{ fontSize: 12, color: 'rgba(var(--ink),0.4)', margin: 0, textAlign: 'center' }}>
               Get notified when a price level is reached
             </p>
             <button
               onClick={() => navigate('/dashboard/alerts')}
               style={{
                 marginTop: 8, padding: '10px 24px', borderRadius: 22,
-                background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)',
-                color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer',
+                background: 'rgba(var(--ink),0.07)', border: '1px solid rgba(255,255,255,0.12)',
+                color: 'rgb(var(--ink))', fontSize: 13, fontWeight: 700, cursor: 'pointer',
               }}
             >
               Set an alert

@@ -64,7 +64,7 @@ export default function MarketsPanel({ open, onClose }: MarketsPanelProps) {
       <div
         className="fixed bottom-0 left-0 right-0 z-50 flex flex-col rounded-t-2xl"
         style={{
-          background: '#0d0d0d',
+          background: 'var(--t-surface)',
           border: '1px solid rgba(255,255,255,0.08)',
           borderBottom: 'none',
           maxHeight: '90dvh',
@@ -74,7 +74,7 @@ export default function MarketsPanel({ open, onClose }: MarketsPanelProps) {
       >
         {/* Drag handle */}
         <div className="flex justify-center pt-3 pb-2 shrink-0">
-          <div className="w-10 h-1 rounded-full" style={{ background: 'rgba(255,255,255,0.18)' }} />
+          <div className="w-10 h-1 rounded-full" style={{ background: 'rgba(var(--ink),0.18)' }} />
         </div>
 
         {/* Header */}
@@ -83,7 +83,7 @@ export default function MarketsPanel({ open, onClose }: MarketsPanelProps) {
           <button
             onClick={onClose}
             className="w-8 h-8 flex items-center justify-center rounded-lg transition-all"
-            style={{ color: 'rgba(255,255,255,0.45)', background: 'rgba(255,255,255,0.05)' }}
+            style={{ color: 'rgba(var(--ink),0.45)', background: 'rgba(var(--ink),0.05)' }}
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
               <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
@@ -95,9 +95,9 @@ export default function MarketsPanel({ open, onClose }: MarketsPanelProps) {
         <div className="px-4 pb-3 shrink-0">
           <div
             className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl"
-            style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
+            style={{ background: 'rgba(var(--ink),0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
           >
-            <svg className="w-4 h-4 shrink-0" style={{ color: 'rgba(255,255,255,0.35)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <svg className="w-4 h-4 shrink-0" style={{ color: 'rgba(var(--ink),0.35)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <circle cx="11" cy="11" r="8" /><path d="M21 21l-4.35-4.35" />
             </svg>
             <input
@@ -110,7 +110,7 @@ export default function MarketsPanel({ open, onClose }: MarketsPanelProps) {
               style={{ color: '#f0f0f0' }}
             />
             {search && (
-              <button onClick={() => setSearch('')} style={{ color: 'rgba(255,255,255,0.35)' }}>
+              <button onClick={() => setSearch('')} style={{ color: 'rgba(var(--ink),0.35)' }}>
                 <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                   <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
                 </svg>
@@ -132,7 +132,7 @@ export default function MarketsPanel({ open, onClose }: MarketsPanelProps) {
                 className="px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap shrink-0 transition-all"
                 style={activeTab === tab.id
                   ? { background: 'rgba(14,165,233,0.15)', color: '#0ea5e9', border: '1px solid rgba(14,165,233,0.25)' }
-                  : { background: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.45)', border: '1px solid rgba(255,255,255,0.06)' }
+                  : { background: 'rgba(var(--ink),0.04)', color: 'rgba(var(--ink),0.45)', border: '1px solid rgba(255,255,255,0.06)' }
                 }
               >
                 {tab.label}
@@ -143,12 +143,12 @@ export default function MarketsPanel({ open, onClose }: MarketsPanelProps) {
         </div>
 
         {/* Divider */}
-        <div style={{ height: 1, background: 'rgba(255,255,255,0.05)', flexShrink: 0 }} />
+        <div style={{ height: 1, background: 'rgba(var(--ink),0.05)', flexShrink: 0 }} />
 
         {/* Symbol list */}
         <div className="overflow-y-auto flex-1" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 16px)' }}>
           {filteredSymbols.length === 0 ? (
-            <div className="px-4 py-14 text-center text-sm" style={{ color: 'rgba(255,255,255,0.35)' }}>
+            <div className="px-4 py-14 text-center text-sm" style={{ color: 'rgba(var(--ink),0.35)' }}>
               No markets found
             </div>
           ) : (
@@ -165,7 +165,7 @@ export default function MarketsPanel({ open, onClose }: MarketsPanelProps) {
                     background: isSelected ? 'rgba(14,165,233,0.07)' : 'transparent',
                     borderBottom: '1px solid rgba(255,255,255,0.03)',
                   }}
-                  onMouseEnter={e => { if (!isSelected) (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.03)' }}
+                  onMouseEnter={e => { if (!isSelected) (e.currentTarget as HTMLButtonElement).style.background = 'rgba(var(--ink),0.03)' }}
                   onMouseLeave={e => { if (!isSelected) (e.currentTarget as HTMLButtonElement).style.background = 'transparent' }}
                 >
                   <div className="flex items-center gap-3 min-w-0">
@@ -184,7 +184,7 @@ export default function MarketsPanel({ open, onClose }: MarketsPanelProps) {
                           </span>
                         )}
                       </div>
-                      <span className="text-xs block truncate" style={{ color: 'rgba(255,255,255,0.35)' }}>{s.name}</span>
+                      <span className="text-xs block truncate" style={{ color: 'rgba(var(--ink),0.35)' }}>{s.name}</span>
                     </div>
                   </div>
 
@@ -200,7 +200,7 @@ export default function MarketsPanel({ open, onClose }: MarketsPanelProps) {
                   ) : (
                     <div
                       className="w-16 h-9 rounded-lg animate-pulse shrink-0"
-                      style={{ background: 'rgba(255,255,255,0.06)' }}
+                      style={{ background: 'rgba(var(--ink),0.06)' }}
                     />
                   )}
                 </button>

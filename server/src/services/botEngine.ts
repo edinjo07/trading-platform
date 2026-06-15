@@ -589,25 +589,34 @@ export async function startBotEngine(botId: string, userId: string, currency = '
     confirmCount:      0,
   }
 
-  // Reconnect to any open position (order by opened_at DESC to get the most recent)
-  const { data: pos } = await supabase
-    .from('positions')
-    .select('id, side, avg_price, stop_loss, take_profit')
-    .eq('user_id', userId)
-    .eq('mode', botMode)
-    .eq('symbol', bot.symbol)
-    .in('side', ['long', 'short'])
-    .order('opened_at', { ascending: false })
-    .limit(1)
-    .maybeSingle()
+  // Reconnect to a position only if this bot believed it had one open
+  // (persisted `position` is 'long'/'short', not 'none'). Without this guard the
+  // bot would adopt — and later auto-close on SL/TP — a position the user opened
+  // manually or that another bot on the same symbol owns.
+  const persistedSide = (bot.position as string | undefined) ?? 'none'
+  if (persistedSide === 'long' || persistedSide === 'short') {
+    const { data: pos } = await supabase
+      .from('positions')
+      .select('id, side, avg_price, stop_loss, take_profit')
+      .eq('user_id', userId)
+      .eq('mode', botMode)
+      .eq('symbol', bot.symbol)
+      .eq('side', persistedSide)
+      .order('opened_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
 
-  if (pos) {
-    state.positionId   = pos.id as string
-    state.positionSide = pos.side as 'long' | 'short'
-    state.entryPrice   = pos.avg_price as number
-    state.currentSL    = pos.stop_loss  as number | null
-    state.currentTP    = pos.take_profit as number | null
-    addLog(state, 'info', `Reconnected to open ${pos.side} position ${pos.id}`)
+    if (pos) {
+      state.positionId   = pos.id as string
+      state.positionSide = pos.side as 'long' | 'short'
+      state.entryPrice   = pos.avg_price as number
+      state.currentSL    = pos.stop_loss  as number | null
+      state.currentTP    = pos.take_profit as number | null
+      addLog(state, 'info', `Reconnected to open ${pos.side} position ${pos.id}`)
+    } else {
+      // Bot thought it had a position but none exists (closed while stopped) — reset.
+      addLog(state, 'info', `No open ${persistedSide} position found on restart — starting flat`)
+    }
   }
 
   addLog(state, 'info', `Bot started — warming up ${warmupBarsNeeded} bars (${bot.strategy})`)

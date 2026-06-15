@@ -81,7 +81,7 @@ export default function Sidebar({ mobileOpen, onClose, onOpenMarkets }: SidebarP
 
   return (
     <aside
-      className={`sidebar-aside flex flex-col h-full overflow-hidden
+      className={`chrome-dark sidebar-aside flex flex-col h-full overflow-hidden
                   transition-[transform,width] duration-300 ease-in-out
                   fixed inset-y-0 left-0 z-50 w-[270px]
                   ${mobileOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'}

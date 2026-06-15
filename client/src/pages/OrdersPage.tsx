@@ -57,7 +57,7 @@ export default function OrdersPage() {
           </button>
 
           {/* Filter tabs */}
-          <div className="flex gap-1 p-1 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+          <div className="flex gap-1 p-1 rounded-xl" style={{ background: 'rgba(var(--ink),0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
           {FILTERS.map(s => (
             <button key={s} onClick={() => setFilter(s)}
               className="px-3 py-1.5 text-xs font-semibold capitalize rounded-lg transition-all"
@@ -89,7 +89,7 @@ export default function OrdersPage() {
         <div className="card overflow-hidden p-0">
           <table className="w-full text-xs font-mono">
             <thead>
-              <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', background: 'rgba(255,255,255,0.02)' }}>
+              <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', background: 'rgba(var(--ink),0.02)' }}>
                 {['Symbol', 'Type', 'Side', 'Qty', 'Fill Price', 'Status', 'Created'].map((h, i) => (
                   <th key={i} className={`py-3 px-4 text-[10px] font-semibold uppercase tracking-wider text-text-muted ${i >= 3 && i <= 4 ? 'text-right' : 'text-left'}`}>
                     {h}
@@ -103,7 +103,7 @@ export default function OrdersPage() {
                 return (
                   <tr key={order.id} className="transition-colors"
                     style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}
-                    onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.03)'}
+                    onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'rgba(var(--ink),0.03)'}
                     onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = ''}>
                     <td className="px-4 py-3 font-bold text-text-primary">{order.symbol}</td>
                     <td className="px-4 py-3 text-text-muted capitalize">{order.type}</td>

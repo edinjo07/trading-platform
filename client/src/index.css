@@ -4,6 +4,11 @@
 
 /* ── Theme tokens ──────────────────────────────────────────────────────────── */
 :root, [data-theme="dark"] {
+  /* Foreground / background "ink" triplets — used by inline styles via
+     rgba(var(--ink), <opacity>) so hardcoded whites flip with the theme.    */
+  --ink:            255,255,255;
+  --paper:          0,0,0;
+  --sheet:          #141414;   /* bottom-sheet / popover surface */
   --t-bg:           #000000;
   --t-surface:      #0a0a0a;
   --t-surface-2:    #111111;
@@ -28,6 +33,9 @@
 }
 
 [data-theme="light"] {
+  --ink:            15,23,42;       /* slate-900 — dark text on light bg */
+  --paper:          240,244,249;
+  --sheet:          #ffffff;
   --t-bg:           #f0f4f9;
   --t-surface:      #ffffff;
   --t-surface-2:    #f8fafc;
@@ -61,6 +69,19 @@ html {
 .t-surface-2 { background: var(--t-surface-2); }
 .t-border    { border-color: var(--t-border); }
 
+/* ── Persistent dark chrome ─────────────────────────────────────────────────
+   The side rail, top bar and mobile bottom nav stay dark in BOTH themes
+   (dark-chrome / light-content pattern). Pin the ink + text tokens to their
+   light-on-dark values inside this subtree so themed `text-text-*` utilities
+   and rgba(var(--ink)) values remain readable regardless of the active theme. */
+.chrome-dark {
+  --ink:       255,255,255;
+  --t-text-1:  #f0f0f0;
+  --t-text-2:  rgba(255,255,255,0.55);
+  --t-text-3:  rgba(255,255,255,0.3);
+  --t-border:  rgba(255,255,255,0.08);
+}
+
 @layer base {
   *, *::before, *::after { @apply box-border; }
 
@@ -79,11 +100,11 @@ html {
   /* Slim dark scrollbar */
   ::-webkit-scrollbar { width: 4px; height: 4px; }
   ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 99px; }
-  ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.22); }
+  ::-webkit-scrollbar-thumb { background: rgba(var(--ink),0.12); border-radius: 99px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(var(--ink),0.22); }
 
   /* Selection */
-  ::selection { background: rgba(14,165,233,0.3); color: #e0f2fe; }
+  ::selection { background: rgba(14,165,233,0.3); color: var(--t-text-1); }
 
   /* Smooth scrolling */
   html { scroll-behavior: smooth; }
