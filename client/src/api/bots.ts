@@ -123,3 +123,19 @@ export const deleteBot  = (id: string)           => api.delete(`/bots/${id}`).th
 export const getNewsSentiment = (symbol: string): Promise<SymbolSentiment> =>
   api.get<SymbolSentiment>(`/news/sentiment/${encodeURIComponent(symbol)}`).then(r => r.data)
 
+// ── News event-impact (causal, instrument-specific) ──────────────────────────
+
+export interface NewsImpact {
+  symbol:     string
+  direction:  'bullish' | 'bearish' | 'neutral'
+  confidence: number
+  rationale:  string
+  drivers:    string[]
+  headlines:  string[]
+  source:     'claude' | 'rules'
+  fetchedAt:  string
+}
+
+export const getNewsImpact = (symbol: string): Promise<NewsImpact> =>
+  api.get<NewsImpact>(`/news/impact/${encodeURIComponent(symbol)}`).then(r => r.data)
+

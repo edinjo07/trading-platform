@@ -1,6 +1,7 @@
 ﻿import { Router } from 'express'
 import { authenticate, AuthRequest } from '../middleware/auth'
 import { getSentiment, getBloombergNews, getEconomicCalendar, getMacroNews } from '../services/newsService'
+import { getNewsImpact } from '../services/newsImpactService'
 
 const router = Router()
 
@@ -44,6 +45,17 @@ router.get('/sentiment/:symbol', async (req: AuthRequest, res) => {
     res.json(sentiment)
   } catch (err: any) {
     res.status(500).json({ error: err.message })
+  }
+})
+
+/** GET /api/news/impact/:symbol - instrument-specific causal news verdict (bot filter) */
+router.get('/impact/:symbol', async (req: AuthRequest, res) => {
+  try {
+    const symbol = decodeURIComponent(req.params.symbol).toUpperCase()
+    const impact = await getNewsImpact(symbol)
+    res.json(impact)
+  } catch (err: unknown) {
+    res.status(500).json({ error: err instanceof Error ? err.message : 'Failed' })
   }
 })
 

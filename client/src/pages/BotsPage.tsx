@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import {
   getBots, getBotById, createBot, startBot, stopBot, deleteBot,
   Bot, BotStrategy, BotLog, BotEquityPoint, SymbolSentiment, getNewsSentiment,
+  NewsImpact, getNewsImpact,
 } from '../api/bots'
 
 // ─── Design tokens ────────────────────────────────────────────────────────────
@@ -335,17 +336,25 @@ const SENT_COLOR = { bullish: C.green, bearish: C.red, neutral: C.amber }
 
 function NewsSentimentPanel({ symbol }: { symbol: string }) {
   const [data, setData] = useState<SymbolSentiment | null>(null)
+  const [impact, setImpact] = useState<NewsImpact | null>(null)
   const [loading, setLoading] = useState(true)
   const [err, setErr] = useState<string | null>(null)
   const load = useCallback(async () => {
-    try { setData(await getNewsSentiment(symbol)); setErr(null) }
+    try {
+      const [s, im] = await Promise.all([
+        getNewsSentiment(symbol),
+        getNewsImpact(symbol).catch(() => null),
+      ])
+      setData(s); setImpact(im); setErr(null)
+    }
     catch (e: unknown) { setErr((e as { message?: string }).message ?? 'Failed') }
     finally { setLoading(false) }
   }, [symbol])
-  useEffect(() => { setLoading(true); setData(null); load(); const id = setInterval(load, 300_000); return () => clearInterval(id) }, [load])
+  useEffect(() => { setLoading(true); setData(null); setImpact(null); load(); const id = setInterval(load, 300_000); return () => clearInterval(id) }, [load])
 
   const label = data?.label ?? 'neutral'
   const score = data?.score ?? 0
+  const impColor = impact ? SENT_COLOR[impact.direction] : C.text2
 
   return (
     <div style={{ borderRadius: 10, border: `1px solid ${C.border}`, background: C.surface, overflow: 'hidden' }}>
@@ -363,6 +372,21 @@ function NewsSentimentPanel({ symbol }: { symbol: string }) {
       <div style={{ padding: '10px 12px' }}>
         {loading && <p style={{ fontSize: 11, color: C.text3, margin: 0 }}>Loading…</p>}
         {err     && <p style={{ fontSize: 11, color: C.red,   margin: 0 }}>{err}</p>}
+
+        {/* ── Trade Impact (causal, instrument-specific) ── */}
+        {impact && !loading && (
+          <div style={{ marginBottom: 10, padding: '8px 10px', borderRadius: 8, background: `${impColor}0d`, border: `1px solid ${impColor}26` }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+              <span style={{ fontSize: 9, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', color: C.text2 }}>Trade Impact</span>
+              <span style={{ fontSize: 10, fontWeight: 800, padding: '1px 7px', borderRadius: 10, background: `${impColor}1f`, color: impColor }}>
+                {impact.direction.toUpperCase()} {Math.round(impact.confidence * 100)}%
+              </span>
+              <span style={{ fontSize: 8, fontWeight: 700, color: C.text3, marginLeft: 'auto' }}>{impact.source === 'claude' ? 'AI' : 'RULES'}</span>
+            </div>
+            <p style={{ fontSize: 10.5, color: C.text2, margin: 0, lineHeight: 1.45 }}>{impact.rationale}</p>
+          </div>
+        )}
+
         {data && !loading && (
           <>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>

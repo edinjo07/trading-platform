@@ -24,6 +24,7 @@ import { supabase } from '../db'
 import { getPrice } from './priceService'
 import { placeMarketOrder, closePosition } from './orderEngine'
 import { getCandles } from './candleService'
+import { getCachedNewsImpact, refreshNewsImpact } from './newsImpactService'
 
 const TICK_MS  = 5_000
 const MAX_LOGS = 200
@@ -478,12 +479,23 @@ async function tick(botId: string) {
   const atrNow   = calcAtr(state.priceBuffer, 14)
   const trendNow = trendBias(state.priceBuffer, 50)
 
+  // ── News event-impact filter (optional) ────────────────────────────────────
+  // When enabled, the bot reads a cached, instrument-specific news verdict
+  // (Claude-reasoned or rules-based) and uses it to veto trades that fight a
+  // confident news read. Cache is read synchronously; misses trigger a
+  // background refresh so the tick never blocks.
+  const news = state.params.useNewsFilter ? getCachedNewsImpact(state.symbol) : null
+  if (state.params.useNewsFilter && !news) refreshNewsImpact(state.symbol)
+  const newsTag = news && news.direction !== 'neutral'
+    ? ` | news ${news.direction} (${(news.confidence * 100).toFixed(0)}%)`
+    : ''
+
   if (signal !== 'hold') {
     addLog(state, 'signal',
       `${signal.toUpperCase()} @ ${price.toFixed(4)}` +
       (!isNaN(rsiNow) ? ` | RSI ${rsiNow.toFixed(1)}` : '') +
       (!isNaN(atrNow) ? ` | ATR ${atrNow.toFixed(4)}` : '') +
-      ` | trend ${trendNow}`)
+      ` | trend ${trendNow}` + newsTag)
   } else {
     // Heartbeat: surface the bot's ongoing analysis (every ~30s) so it's
     // visibly working even while waiting for a valid entry.
@@ -493,7 +505,11 @@ async function tick(botId: string) {
         `Analysing ${state.symbol} @ ${price.toFixed(4)}` +
         (!isNaN(rsiNow) ? ` | RSI ${rsiNow.toFixed(1)}` : '') +
         (!isNaN(atrNow) ? ` | ATR ${atrNow.toFixed(4)}` : '') +
-        ` | trend ${trendNow} | ${state.positionId ? `holding ${state.positionSide}` : 'no entry — conditions not met'}`)
+        ` | trend ${trendNow}` + newsTag +
+        ` | ${state.positionId ? `holding ${state.positionSide}` : 'no entry — conditions not met'}`)
+      if (news && news.direction !== 'neutral' && news.rationale) {
+        addLog(state, 'info', `News: ${news.rationale}`)
+      }
     }
   }
 
@@ -540,6 +556,19 @@ async function tick(botId: string) {
 
   // ── Open new position ─────────────────────────────────────────────────────
   if (!state.positionId && confirmed && (signal === 'buy' || signal === 'sell')) {
+    // News veto: block entries that fight a confident, opposing news read.
+    const NEWS_VETO_CONF = 0.4
+    if (news && news.confidence >= NEWS_VETO_CONF &&
+        ((signal === 'buy'  && news.direction === 'bearish') ||
+         (signal === 'sell' && news.direction === 'bullish'))) {
+      addLog(state, 'risk',
+        `${signal.toUpperCase()} blocked — news ${news.direction} for ${state.symbol} ` +
+        `(${(news.confidence * 100).toFixed(0)}%): ${news.rationale}`)
+      state.confirmCount = 0
+      await persist(botId, state)
+      return
+    }
+
     const orderSide = signal === 'buy' ? 'buy' : 'sell'
     const { sl, tp } = calcSlTp(price, orderSide, state.params, state.priceBuffer)
 
