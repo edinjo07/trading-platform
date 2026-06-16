@@ -306,7 +306,7 @@ export default function LandingPage() {
   const goToApp   = () => navigate(user ? '/dashboard' : '/login')
 
   return (
-    <div className="min-h-screen" style={{ background: '#06090f', color: '#d4dde8' }}>
+    <div className="theme-dark-scope min-h-screen" style={{ background: '#06090f', color: '#d4dde8' }}>
       <Navbar onLogin={goToLogin} />
 
       {/* ── HERO ───────────────────────────────────────────────────────────── */}

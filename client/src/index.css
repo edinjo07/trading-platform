@@ -82,6 +82,27 @@ html {
   --t-border:  rgba(255,255,255,0.08);
 }
 
+/* ── Force-dark scope ───────────────────────────────────────────────────────
+   Pins the full dark palette inside a subtree so it renders dark regardless of
+   the global theme. Used for the admin back-office (dark-first, not converted
+   to light) so themed `card`/`text-text-*`/`var(--t-*)` values never break when
+   the user has light mode active in the main app. */
+.theme-dark-scope {
+  color-scheme: dark;
+  --ink:            255,255,255;
+  --paper:          0,0,0;
+  --sheet:          #141414;
+  --t-bg:           #06090f;
+  --t-surface:      #0a0a0a;
+  --t-surface-2:    #111111;
+  --t-surface-3:    #1a1a1a;
+  --t-border:       rgba(255,255,255,0.08);
+  --t-border-hover: rgba(255,255,255,0.16);
+  --t-text-1:       #f0f0f0;
+  --t-text-2:       rgba(255,255,255,0.55);
+  --t-text-3:       rgba(255,255,255,0.3);
+}
+
 @layer base {
   *, *::before, *::after { @apply box-border; }
 

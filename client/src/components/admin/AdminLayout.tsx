@@ -7,7 +7,7 @@ export default function AdminLayout() {
 
   return (
     <div
-      className="flex h-screen overflow-hidden"
+      className="theme-dark-scope flex h-screen overflow-hidden"
       style={{ background: '#06090f', fontFamily: "'Inter', system-ui, sans-serif" }}
     >
       <AdminSidebar />
