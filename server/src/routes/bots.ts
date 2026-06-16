@@ -2,7 +2,7 @@ import { Router, Response } from 'express'
 import { v4 as uuidv4 } from 'uuid'
 import { supabase } from '../db'
 import { authenticate, AuthRequest } from '../middleware/auth'
-import { isKnownSymbol } from '../services/priceService'
+import { isKnownSymbol, getPrice } from '../services/priceService'
 import { startBotEngine, stopBotEngine, isRunning } from '../services/botEngine'
 
 const router = Router()
@@ -70,7 +70,51 @@ router.get('/:id', async (req: AuthRequest, res: Response): Promise<void> => {
     .single()
 
   if (error || !data) { res.status(404).json({ error: 'Bot not found' }); return }
-  res.json(toApiBot(data))
+
+  const api = toApiBot(data) as ReturnType<typeof toApiBot> & {
+    currentEntryPrice?: number; currentQty?: number
+    currentSL?: number | null;  currentTP?: number | null
+    currentPrice?: number;      currentPnl?: number; currentPnlPct?: number
+  }
+
+  // ── Enrich with live open-position context (entry / SL / TP / unrealised P&L) ──
+  // The bot opens real positions via orderEngine; surface the most recent open
+  // one for this symbol+side so the detail panel can show a live ticket. No
+  // schema change needed — computed on read from the positions table + live price.
+  if (api.position === 'long' || api.position === 'short') {
+    const { data: pos } = await supabase
+      .from('positions')
+      .select('avg_price, quantity, stop_loss, take_profit')
+      .eq('user_id', userId)
+      .eq('mode', api.mode)
+      .eq('symbol', api.symbol)
+      .eq('side', api.position)
+      .order('opened_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+
+    if (pos) {
+      const price = getPrice(api.symbol as string)
+      const cur   = (data.currency as string | undefined) ?? 'USD'
+      const fx    = cur === 'EUR' ? (getPrice('EURUSD') ?? 1) : cur === 'GBP' ? (getPrice('GBPUSD') ?? 1) : 1
+      api.currentEntryPrice = pos.avg_price
+      api.currentQty        = pos.quantity
+      api.currentSL         = pos.stop_loss
+      api.currentTP         = pos.take_profit
+      if (price && price > 0) {
+        const rawUsd = api.position === 'long'
+          ? (price - pos.avg_price) * pos.quantity
+          : (pos.avg_price - price) * pos.quantity
+        api.currentPrice  = price
+        api.currentPnl    = parseFloat((rawUsd / fx).toFixed(2))
+        api.currentPnlPct = pos.avg_price > 0
+          ? parseFloat(((rawUsd / (pos.avg_price * pos.quantity)) * 100).toFixed(2))
+          : 0
+      }
+    }
+  }
+
+  res.json(api)
 })
 
 // ─── POST / — create bot ──────────────────────────────────────────────────────

@@ -572,6 +572,69 @@ const STRAT_DESC: Record<BotStrategy, string> = {
   momentum:     'ATR-gated breakout above/below N-period lookback range',
 }
 
+const STRAT_HOWTO: Record<BotStrategy, string> = {
+  ma_crossover: "Enters when a fast moving average crosses above a slow one (a 'golden cross'), confirmed by RSI and the broader 50-period trend. Exits on the opposite cross.",
+  rsi:          'Buys when momentum is oversold and turning back up, sells when overbought — each entry confirmed by the MACD histogram so it doesn’t fight the trend.',
+  macd:         'Trades MACD signal-line crossovers, filtered by the 50-period trend bias and guarded against entering at RSI extremes.',
+  momentum:     'Enters on strong breakouts beyond the recent price range, gated by volatility (ATR) so it only fires on genuine momentum, not chop.',
+}
+
+/** Illustrative mini-chart explaining how each strategy enters a trade */
+function StrategyPreview({ strategy }: { strategy: BotStrategy }) {
+  const m = STRAT[strategy], col = m.color
+  const W = 300, H = 82
+  let body: React.ReactNode = null
+  if (strategy === 'ma_crossover') {
+    body = (<>
+      <polyline points="0,58 40,54 80,57 120,48 160,40 200,31 240,26 300,18" fill="none" stroke={`${col}55`} strokeWidth={2}/>
+      <polyline points="0,50 40,57 80,49 120,51 160,34 200,24 240,20 300,13" fill="none" stroke={col} strokeWidth={2.5}/>
+      <circle cx="150" cy="37" r="5" fill={col} fillOpacity={0.25} stroke={col} strokeWidth={2}/>
+      <text x="150" y="22" fill={col} fontSize="9" textAnchor="middle" fontWeight="700">BUY</text>
+    </>)
+  } else if (strategy === 'rsi') {
+    body = (<>
+      <rect x="0" y="6" width={W} height="14" fill={C.red} fillOpacity={0.06}/>
+      <rect x="0" y={H - 22} width={W} height="14" fill={C.green} fillOpacity={0.06}/>
+      <line x1="0" y1="14" x2={W} y2="14" stroke={C.red} strokeOpacity={0.4} strokeDasharray="4 3"/>
+      <line x1="0" y1={H - 16} x2={W} y2={H - 16} stroke={C.green} strokeOpacity={0.4} strokeDasharray="4 3"/>
+      <path d={`M0,40 Q40,12 80,30 T160,${H - 14} Q200,${H - 20} 240,30 T300,20`} fill="none" stroke={col} strokeWidth={2.5}/>
+      <circle cx="150" cy={H - 15} r="5" fill={C.green} fillOpacity={0.25} stroke={C.green} strokeWidth={2}/>
+      <text x="150" y={H - 24} fill={C.green} fontSize="9" textAnchor="middle" fontWeight="700">BUY</text>
+    </>)
+  } else if (strategy === 'macd') {
+    const zero = 44
+    const bars = [-6, -12, -16, -12, -6, 4, 10, 16, 12, 8, 4, -2]
+    body = (<>
+      <line x1="0" y1={zero} x2={W} y2={zero} stroke={`${col}40`} strokeWidth={1}/>
+      {bars.map((h, i) => (
+        <rect key={i} x={8 + i * 24} y={h < 0 ? zero : zero - Math.abs(h)} width={13} height={Math.abs(h)} rx={2}
+              fill={h < 0 ? C.red : C.green} fillOpacity={0.7}/>
+      ))}
+      <circle cx={8 + 5 * 24 + 6} cy={zero} r="5" fill={col} fillOpacity={0.25} stroke={col} strokeWidth={2}/>
+      <text x={8 + 5 * 24 + 6} y={zero - 14} fill={col} fontSize="9" textAnchor="middle" fontWeight="700">BUY</text>
+    </>)
+  } else {
+    body = (<>
+      <rect x="0" y="34" width="172" height="30" fill={`${col}10`} stroke={`${col}40`} strokeDasharray="4 3"/>
+      <polyline points="10,52 40,48 70,54 100,46 130,50 160,42 190,30 220,20 260,12 300,8" fill="none" stroke={col} strokeWidth={2.5}/>
+      <circle cx="180" cy="33" r="5" fill={col} fillOpacity={0.25} stroke={col} strokeWidth={2}/>
+      <text x="205" y="20" fill={col} fontSize="9" textAnchor="middle" fontWeight="700">BREAKOUT</text>
+    </>)
+  }
+  return (
+    <div style={{ borderRadius: 10, border: `1px solid ${C.border}`, background: C.bg, padding: 10 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+        <span style={{ color: col, display: 'flex' }}>{STRAT_ICONS[strategy]}</span>
+        <span style={{ fontSize: 11, fontWeight: 800, color: C.text1 }}>{m.label} — how it trades</span>
+      </div>
+      <svg width="100%" height={H} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" style={{ display: 'block' }}>
+        {body}
+      </svg>
+      <p style={{ fontSize: 10, color: C.text2, margin: '8px 0 0', lineHeight: 1.45 }}>{STRAT_HOWTO[strategy]}</p>
+    </div>
+  )
+}
+
 function CreateBotModal({ onClose, onCreate }: { onClose: () => void; onCreate: (b: Bot) => void }) {
   const [tab,       setTab]       = useState<TabKey>('strategy')
   const [name,      setName]      = useState('')
@@ -714,6 +777,8 @@ function CreateBotModal({ onClose, onCreate }: { onClose: () => void; onCreate: 
                     ))}
                   </div>
                 </div>
+
+                <StrategyPreview strategy={strategy}/>
 
                 {strategy === 'ma_crossover' && (
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
@@ -1088,24 +1153,46 @@ export default function BotsPage() {
         </div>
       )}
 
-      {/* Active position strip */}
+      {/* Active position ticket — live entry / price / P&L / SL / TP */}
       {selected.position !== 'none' && (
-        <div style={{ padding: '8px 18px', borderBottom: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', gap: 16, flexShrink: 0, background: selected.position === 'long' ? 'rgba(16,185,129,0.05)' : 'rgba(239,68,68,0.05)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span style={{ width: 8, height: 8, borderRadius: '50%', background: selected.position === 'long' ? C.green : C.red, boxShadow: `0 0 8px ${selected.position === 'long' ? C.green : C.red}`, animation: 'pulse 1.8s ease-in-out infinite' }}/>
-            <span style={{ fontSize: 11, fontWeight: 800, color: selected.position === 'long' ? C.green : C.red }}>
-              {selected.position === 'long' ? '▲ LONG' : '▼ SHORT'}
-            </span>
+        <div style={{ padding: '10px 18px', borderBottom: `1px solid ${C.border}`, flexShrink: 0, background: selected.position === 'long' ? 'rgba(16,185,129,0.05)' : 'rgba(239,68,68,0.05)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ width: 8, height: 8, borderRadius: '50%', background: selected.position === 'long' ? C.green : C.red, boxShadow: `0 0 8px ${selected.position === 'long' ? C.green : C.red}`, animation: 'pulse 1.8s ease-in-out infinite' }}/>
+              <span style={{ fontSize: 12, fontWeight: 800, color: selected.position === 'long' ? C.green : C.red }}>
+                {selected.position === 'long' ? '▲ LONG' : '▼ SHORT'}
+              </span>
+              {selected.currentQty != null && (
+                <span style={{ fontSize: 10, color: C.text2, fontFamily: 'monospace' }}>{selected.currentQty} units</span>
+              )}
+            </div>
+            {selected.currentPnl != null && (
+              <div style={{ marginLeft: 'auto', textAlign: 'right' }}>
+                <span style={{ fontSize: 8, color: C.text3, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginRight: 6 }}>Unrealised</span>
+                <span style={{ fontSize: 16, fontWeight: 800, fontFamily: 'monospace', color: selected.currentPnl >= 0 ? C.green : C.red }}>
+                  {fmtPnl(selected.currentPnl)}
+                </span>
+                {selected.currentPnlPct != null && (
+                  <span style={{ fontSize: 10, fontWeight: 700, marginLeft: 6, color: selected.currentPnl >= 0 ? C.green : C.red }}>
+                    {selected.currentPnlPct >= 0 ? '+' : ''}{selected.currentPnlPct.toFixed(2)}%
+                  </span>
+                )}
+              </div>
+            )}
           </div>
-          {selected.currentEntryPrice && (
-            <span style={{ fontSize: 11, color: C.text2 }}>Entry <span style={{ color: C.text1, fontFamily: 'monospace', fontWeight: 700 }}>{selected.currentEntryPrice.toFixed(4)}</span></span>
-          )}
-          {selected.currentSL && (
-            <span style={{ fontSize: 11, color: C.red }}>SL <span style={{ fontFamily: 'monospace', fontWeight: 700 }}>{selected.currentSL.toFixed(4)}</span></span>
-          )}
-          {selected.currentTP && (
-            <span style={{ fontSize: 11, color: C.amber }}>TP <span style={{ fontFamily: 'monospace', fontWeight: 700 }}>{selected.currentTP.toFixed(4)}</span></span>
-          )}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 18, marginTop: 8, flexWrap: 'wrap' }}>
+            {([
+              selected.currentEntryPrice != null && { l: 'Entry',   v: selected.currentEntryPrice, c: C.text1 },
+              selected.currentPrice      != null && { l: 'Current', v: selected.currentPrice,      c: C.text1 },
+              selected.currentSL         != null && { l: 'Stop',    v: selected.currentSL,         c: C.red   },
+              selected.currentTP         != null && { l: 'Target',  v: selected.currentTP,         c: C.amber },
+            ].filter(Boolean) as { l: string; v: number; c: string }[]).map(f => (
+              <div key={f.l}>
+                <p style={{ fontSize: 8, color: C.text3, margin: '0 0 1px', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 700 }}>{f.l}</p>
+                <span style={{ fontSize: 12, fontWeight: 700, fontFamily: 'monospace', color: f.c }}>{f.v.toFixed(4)}</span>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 

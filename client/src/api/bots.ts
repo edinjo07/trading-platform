@@ -74,10 +74,14 @@ export interface Bot {
   // Warmup
   warmupBarsNeeded:  number
   warmupBarsCurrent: number
-  // Active position context
+  // Active position context (enriched live on GET /bots/:id)
   currentEntryPrice?: number
+  currentQty?:        number
+  currentPrice?:      number
   currentSL?:         number
   currentTP?:         number
+  currentPnl?:        number
+  currentPnlPct?:     number
   // Risk acceptance
   riskAccepted?:      boolean
   riskAcceptedAt?:    string
