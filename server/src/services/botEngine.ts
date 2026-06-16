@@ -23,6 +23,7 @@
 import { supabase } from '../db'
 import { getPrice } from './priceService'
 import { placeMarketOrder, closePosition } from './orderEngine'
+import { getCandles } from './candleService'
 
 const TICK_MS  = 5_000
 const MAX_LOGS = 200
@@ -83,6 +84,8 @@ interface BotMemState {
   warmupBarsCurrent: number
   logs:              BotLog[]
   confirmCount:      number
+  analysisCounter:   number
+  lastBarMin:        number
 }
 
 const running = new Map<string, BotMemState>()
@@ -407,7 +410,20 @@ async function tick(botId: string) {
     return
   }
 
-  state.priceBuffer.push(price)
+  // ── Update the rolling bar buffer ───────────────────────────────────────────
+  // While still warming up from an empty buffer, accept every 5s tick so the
+  // bot warms up quickly. Once warm, aggregate ticks into ~1-minute bars (update
+  // the forming bar each tick, commit a new bar each minute) so the indicators
+  // run on a consistent timeframe that matches the seeded 1-minute history
+  // instead of drifting onto noisy 5-second samples.
+  const nowMin     = Math.floor(Date.now() / 60_000)
+  const bufferWarm = state.priceBuffer.length >= state.warmupBarsNeeded && state.priceBuffer.length > 0
+  if (!bufferWarm || nowMin !== state.lastBarMin || state.priceBuffer.length === 0) {
+    state.priceBuffer.push(price)
+    state.lastBarMin = nowMin
+  } else {
+    state.priceBuffer[state.priceBuffer.length - 1] = price
+  }
   if (state.priceBuffer.length > 500) state.priceBuffer.shift()
 
   checkDailyReset(state)
@@ -458,13 +474,27 @@ async function tick(botId: string) {
 
   // ── Generate signal ───────────────────────────────────────────────────────
   const signal = generateSignal(state.strategy, state.params, state.priceBuffer)
+  const rsiNow   = calcRsi(state.priceBuffer, 14)
+  const atrNow   = calcAtr(state.priceBuffer, 14)
+  const trendNow = trendBias(state.priceBuffer, 50)
+
   if (signal !== 'hold') {
-    const rsi = calcRsi(state.priceBuffer, 14)
-    const atr = calcAtr(state.priceBuffer, 14)
     addLog(state, 'signal',
       `${signal.toUpperCase()} @ ${price.toFixed(4)}` +
-      (!isNaN(rsi) ? ` | RSI ${rsi.toFixed(1)}` : '') +
-      (!isNaN(atr) ? ` | ATR ${atr.toFixed(4)}` : ''))
+      (!isNaN(rsiNow) ? ` | RSI ${rsiNow.toFixed(1)}` : '') +
+      (!isNaN(atrNow) ? ` | ATR ${atrNow.toFixed(4)}` : '') +
+      ` | trend ${trendNow}`)
+  } else {
+    // Heartbeat: surface the bot's ongoing analysis (every ~30s) so it's
+    // visibly working even while waiting for a valid entry.
+    state.analysisCounter++
+    if (state.analysisCounter % 6 === 1) {
+      addLog(state, 'info',
+        `Analysing ${state.symbol} @ ${price.toFixed(4)}` +
+        (!isNaN(rsiNow) ? ` | RSI ${rsiNow.toFixed(1)}` : '') +
+        (!isNaN(atrNow) ? ` | ATR ${atrNow.toFixed(4)}` : '') +
+        ` | trend ${trendNow} | ${state.positionId ? `holding ${state.positionSide}` : 'no entry — conditions not met'}`)
+    }
   }
 
   // ── Risk guards ───────────────────────────────────────────────────────────
@@ -587,6 +617,41 @@ export async function startBotEngine(botId: string, userId: string, currency = '
     warmupBarsCurrent: 0,
     logs:              (bot.logs as BotLog[]) ?? [],
     confirmCount:      0,
+    analysisCounter:   0,
+    lastBarMin:        0,
+  }
+
+  // ── Seed the price buffer with recent history ───────────────────────────────
+  // Without this the bot starts from an empty buffer and needs minutes of live
+  // 5-second ticks before indicators warm up — and then only "sees" noisy 5s
+  // samples. Seeding with 1-minute candles (real Binance/TwelveData data, or a
+  // mock fallback) lets it analyse and trade almost immediately on proper bars.
+  try {
+    const candles = await getCandles(bot.symbol, '1m', Math.max(warmupBarsNeeded + 50, 200))
+    let closes    = candles.map(c => c.close).filter(n => Number.isFinite(n) && n > 0)
+    // Align the historical level to the live price the bot actually ticks on, so
+    // appending live ticks doesn't create an artificial gap. Scaling preserves
+    // the series' shape (returns/volatility), keeping all indicators valid.
+    const live = getPrice(bot.symbol)
+    if (live && closes.length > 0) {
+      const lastClose = closes[closes.length - 1]
+      if (lastClose > 0 && Math.abs(lastClose - live) / live > 0.005) {
+        const scale = live / lastClose
+        closes = closes.map(c => c * scale)
+      }
+    }
+    if (closes.length > 0) {
+      state.priceBuffer       = closes.slice(-500)
+      state.warmupBarsCurrent = Math.min(state.priceBuffer.length, warmupBarsNeeded)
+      if (state.priceBuffer.length >= warmupBarsNeeded) {
+        state.status = 'running'
+        addLog(state, 'info', `Seeded ${state.priceBuffer.length} historical bars — engine active immediately`)
+      } else {
+        addLog(state, 'info', `Seeded ${state.priceBuffer.length} bars — collecting ${warmupBarsNeeded - state.priceBuffer.length} more live`)
+      }
+    }
+  } catch (err) {
+    addLog(state, 'warn', `History seed failed (${err instanceof Error ? err.message : 'unknown'}) — warming up on live ticks`)
   }
 
   // Reconnect to a position only if this bot believed it had one open
@@ -619,13 +684,15 @@ export async function startBotEngine(botId: string, userId: string, currency = '
     }
   }
 
-  addLog(state, 'info', `Bot started — warming up ${warmupBarsNeeded} bars (${bot.strategy})`)
+  addLog(state, 'info', state.status === 'running'
+    ? `Bot started — ${bot.strategy} live and analysing`
+    : `Bot started — warming up ${warmupBarsNeeded} bars (${bot.strategy})`)
 
   await supabase.from('bots').update({
-    status:              'warming_up',
+    status:              state.status,
     started_at:          new Date().toISOString(),
     warmup_bars_needed:  warmupBarsNeeded,
-    warmup_bars_current: 0,
+    warmup_bars_current: state.warmupBarsCurrent,
     updated_at:          new Date().toISOString(),
   }).eq('id', botId)
 
