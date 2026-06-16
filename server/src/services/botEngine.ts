@@ -48,6 +48,7 @@ interface BotParams {
   maxDailyTrades?:    number
   confirmBars?:       number
   useNewsFilter?:     boolean
+  newsMinConfidence?: number   // 0..1 — min news confidence to veto/boost (default 0.4)
 }
 
 interface BotLog {
@@ -527,11 +528,19 @@ async function tick(botId: string) {
     return
   }
 
-  // ── Confirm bars ──────────────────────────────────────────────────────────
+  // ── Confirm bars (with news-aligned boost) ────────────────────────────────
   const confirmBars = state.params.confirmBars ?? 1
+  const newsMin     = state.params.newsMinConfidence ?? 0.4
   if (signal !== 'hold') state.confirmCount++
   else                    state.confirmCount = 0
-  const confirmed = state.confirmCount >= confirmBars
+
+  // A confident news read in the trade's favour is treated as extra confluence:
+  // the entry clears the confirmation gate one bar sooner (min 1 bar).
+  const newsAligned = !!news && news.confidence >= newsMin && (
+    (signal === 'buy'  && news.direction === 'bullish') ||
+    (signal === 'sell' && news.direction === 'bearish'))
+  const requiredConfirm = newsAligned ? Math.max(1, confirmBars - 1) : confirmBars
+  const confirmed = state.confirmCount >= requiredConfirm
 
   // ── Close opposite position before reversing ──────────────────────────────
   if (state.positionId && state.positionSide && confirmed) {
@@ -557,8 +566,7 @@ async function tick(botId: string) {
   // ── Open new position ─────────────────────────────────────────────────────
   if (!state.positionId && confirmed && (signal === 'buy' || signal === 'sell')) {
     // News veto: block entries that fight a confident, opposing news read.
-    const NEWS_VETO_CONF = 0.4
-    if (news && news.confidence >= NEWS_VETO_CONF &&
+    if (news && news.confidence >= newsMin &&
         ((signal === 'buy'  && news.direction === 'bearish') ||
          (signal === 'sell' && news.direction === 'bullish'))) {
       addLog(state, 'risk',
@@ -592,7 +600,8 @@ async function tick(botId: string) {
       state.confirmCount = 0
 
       addLog(state, 'trade',
-        `[${state.positionSide.toUpperCase()} OPENED] ${state.params.tradeSize} ${state.symbol} @ ${result.fillPrice.toFixed(4)} | SL: ${sl.toFixed(4)} TP: ${tp.toFixed(4)}`)
+        `[${state.positionSide.toUpperCase()} OPENED] ${state.params.tradeSize} ${state.symbol} @ ${result.fillPrice.toFixed(4)} | SL: ${sl.toFixed(4)} TP: ${tp.toFixed(4)}` +
+        (newsAligned ? ` | news-boosted (${news!.direction} ${(news!.confidence * 100).toFixed(0)}%)` : ''))
     } catch (err) {
       addLog(state, 'error', `Open failed: ${err instanceof Error ? err.message : String(err)}`)
       state.confirmCount = 0

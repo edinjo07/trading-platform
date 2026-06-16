@@ -31,6 +31,7 @@ export interface BotParams {
   // News & sentiment filter
   useNewsFilter?:      boolean
   newsWeight?:         number
+  newsMinConfidence?:  number   // 0..1 — min news confidence to veto/boost
 }
 
 export interface BotEquityPoint {

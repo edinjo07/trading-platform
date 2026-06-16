@@ -514,6 +514,7 @@ function CreateBotModal({ onClose, onCreate }: { onClose: () => void; onCreate: 
   const [maxDT,     setMaxDT]     = useState('')
   const [confirmB,  setConfirmB]  = useState(1)
   const [useNews,   setUseNews]   = useState(false)
+  const [newsConf,  setNewsConf]  = useState(40)   // % — news veto/boost threshold
   const [loading,   setLoading]   = useState(false)
   const [err,       setErr]       = useState<string | null>(null)
 
@@ -540,7 +541,10 @@ function CreateBotModal({ onClose, onCreate }: { onClose: () => void; onCreate: 
       if (maxDL)       params.maxDailyLoss      = parseFloat(maxDL)
       if (maxDT)       params.maxDailyTrades    = parseInt(maxDT)
       if (confirmB > 1) params.confirmBars      = confirmB
-      if (useNews)     params.useNewsFilter      = true
+      if (useNews) {
+        params.useNewsFilter     = true
+        params.newsMinConfidence = Math.max(0, Math.min(1, newsConf / 100))
+      }
       const accountMode = (localStorage.getItem('account_mode') ?? 'demo') as 'demo' | 'real'
       const bot = await createBot({ name: name.trim(), symbol, strategy, params, mode: accountMode })
       onCreate(bot); onClose()
@@ -699,10 +703,27 @@ function CreateBotModal({ onClose, onCreate }: { onClose: () => void; onCreate: 
                 <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '10px 12px', borderRadius: 10, cursor: 'pointer', background: useNews ? `${C.blue}08` : C.bg, border: `1px solid ${useNews ? C.blue + '30' : C.border}`, transition: 'all 0.15s' }}>
                   <input type="checkbox" checked={useNews} onChange={e => setUseNews(e.target.checked)} style={{ marginTop: 2, width: 14, height: 14, flexShrink: 0, cursor: 'pointer' }}/>
                   <div>
-                    <p style={{ fontSize: 12, fontWeight: 700, color: useNews ? C.blue : C.text2, margin: '0 0 2px' }}>News Sentiment Filter</p>
-                    <p style={{ fontSize: 10, color: C.text3, margin: 0, lineHeight: 1.4 }}>Block buy signals when {symbol} news sentiment is bearish. Refreshed every 15 min.</p>
+                    <p style={{ fontSize: 12, fontWeight: 700, color: useNews ? C.blue : C.text2, margin: '0 0 2px' }}>News Event Filter</p>
+                    <p style={{ fontSize: 10, color: C.text3, margin: 0, lineHeight: 1.4 }}>Reads the causal price impact of news on {symbol}: vetoes trades that fight a confident opposing read and boosts trades the news agrees with. Refreshed every 15 min.</p>
                   </div>
                 </label>
+
+                {useNews && (
+                  <div style={{ padding: '10px 12px', borderRadius: 10, background: C.bg, border: `1px solid ${C.border}` }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+                      <label style={{ fontSize: 10, fontWeight: 700, color: C.text2, textTransform: 'uppercase', letterSpacing: '0.07em' }}>News Confidence Threshold</label>
+                      <span style={{ fontSize: 12, fontWeight: 800, fontFamily: 'monospace', color: C.blue }}>{newsConf}%</span>
+                    </div>
+                    <input
+                      type="range" min={10} max={90} step={5} value={newsConf}
+                      onChange={e => setNewsConf(+e.target.value)}
+                      style={{ width: '100%', accentColor: C.blue, cursor: 'pointer' }}
+                    />
+                    <p style={{ fontSize: 10, color: C.text3, margin: '6px 0 0', lineHeight: 1.4 }}>
+                      Only act on news at or above this confidence. Lower = react to more news (more sensitive); higher = only strong, clear events.
+                    </p>
+                  </div>
+                )}
                 {(slPct || tpPct || maxDL || maxDT || confirmB > 1 || useNews) && (
                   <div style={{ padding: '10px 12px', borderRadius: 10, background: `${C.blue}08`, border: `1px solid ${C.blue}18` }}>
                     <p style={{ fontSize: 10, fontWeight: 800, color: C.blue, margin: '0 0 6px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Active guards</p>
@@ -711,7 +732,7 @@ function CreateBotModal({ onClose, onCreate }: { onClose: () => void; onCreate: 
                     {maxDL && <p style={{ fontSize: 11, color: C.text2, margin: '0 0 3px' }}>🛡 Halt after <b style={{ color: C.text1 }}>${maxDL}</b> daily loss</p>}
                     {maxDT && <p style={{ fontSize: 11, color: C.text2, margin: '0 0 3px' }}>⏱ Cap at <b style={{ color: C.text1 }}>{maxDT}</b> trades/day</p>}
                     {confirmB > 1 && <p style={{ fontSize: 11, color: C.text2, margin: '0 0 3px' }}>⚡ Require <b style={{ color: C.text1 }}>{confirmB}</b> consecutive signals</p>}
-                    {useNews && <p style={{ fontSize: 11, color: C.blue, margin: 0 }}>📰 News sentiment filter active</p>}
+                    {useNews && <p style={{ fontSize: 11, color: C.blue, margin: 0 }}>📰 News event filter — veto &amp; boost at <b style={{ color: C.text1 }}>{newsConf}%</b> confidence</p>}
                   </div>
                 )}
               </>
