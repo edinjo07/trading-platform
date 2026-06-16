@@ -224,6 +224,61 @@ function LogLine({ log }: { log: BotLog }) {
   )
 }
 
+// ─── Shared helpers ───────────────────────────────────────────────────────────
+
+function relTime(iso?: string): string {
+  if (!iso) return ''
+  const s = Math.max(0, (Date.now() - new Date(iso).getTime()) / 1000)
+  if (s < 60)    return `${Math.floor(s)}s`
+  if (s < 3600)  return `${Math.floor(s / 60)}m`
+  if (s < 86400) return `${Math.floor(s / 3600)}h`
+  return `${Math.floor(s / 86400)}d`
+}
+
+/** Circular win-rate gauge */
+function WinRing({ pct, size = 36 }: { pct: number; size?: number }) {
+  const r = (size - 5) / 2
+  const circ = 2 * Math.PI * r
+  const color = pct >= 50 ? C.green : pct > 0 ? C.amber : C.text3
+  return (
+    <div style={{ position: 'relative', width: size, height: size, flexShrink: 0 }}>
+      <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }}>
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="currentColor" style={{ color: C.surface2 }} strokeWidth={3.5}/>
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={color} strokeWidth={3.5} strokeLinecap="round"
+                strokeDasharray={circ} strokeDashoffset={circ * (1 - Math.min(100, Math.max(0, pct)) / 100)}
+                style={{ transition: 'stroke-dashoffset 0.6s ease' }}/>
+      </svg>
+      <span style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 800, color }}>
+        {pct}%
+      </span>
+    </div>
+  )
+}
+
+/** Strategy avatar tile with a live indicator dot */
+function BotAvatar({ strategy, alive, size = 40 }: { strategy: BotStrategy; alive: boolean; size?: number }) {
+  const meta = STRAT[strategy]
+  return (
+    <div style={{ position: 'relative', flexShrink: 0 }}>
+      <div style={{
+        width: size, height: size, borderRadius: 11, display: 'flex', alignItems: 'center', justifyContent: 'center',
+        background: `linear-gradient(135deg, ${meta.color}22, ${meta.color}0a)`,
+        border: `1px solid ${meta.color}33`, color: meta.color,
+        boxShadow: alive ? `0 0 14px ${meta.glow}` : 'none', transition: 'box-shadow 0.3s',
+      }}>
+        {STRAT_ICONS[strategy]}
+      </div>
+      {alive && (
+        <span style={{
+          position: 'absolute', top: -2, right: -2, width: 10, height: 10, borderRadius: '50%',
+          background: C.green, border: `2px solid ${C.surface}`,
+          boxShadow: `0 0 6px ${C.green}`, animation: 'pulse 1.6s ease-in-out infinite',
+        }}/>
+      )}
+    </div>
+  )
+}
+
 // ─── Bot card ─────────────────────────────────────────────────────────────────
 
 function BotCard({ bot, selected, onClick }: { bot: Bot; selected: boolean; onClick: () => void }) {
@@ -233,7 +288,15 @@ function BotCard({ bot, selected, onClick }: { bot: Bot; selected: boolean; onCl
   const warmPct = bot.warmupBarsNeeded > 0
     ? Math.min(100, Math.round((bot.warmupBarsCurrent / bot.warmupBarsNeeded) * 100))
     : 0
-  const alive = bot.status === 'running' || bot.status === 'warming_up'
+  const alive   = bot.status === 'running' || bot.status === 'warming_up'
+  const lastLog = bot.logs && bot.logs.length ? bot.logs[bot.logs.length - 1] : null
+  const activity = bot.status === 'warming_up'
+    ? `Warming up · ${bot.warmupBarsCurrent}/${bot.warmupBarsNeeded} bars`
+    : lastLog ? lastLog.message
+    : bot.status === 'running' ? 'Monitoring the market…'
+    : bot.status === 'stopped' ? 'Stopped'
+    : 'Idle — ready to deploy'
+  const actColor = lastLog ? (LOG_CFG[lastLog.level]?.color ?? C.text3) : C.text3
 
   return (
     <div
@@ -241,28 +304,40 @@ function BotCard({ bot, selected, onClick }: { bot: Bot; selected: boolean; onCl
       style={{
         position: 'relative', overflow: 'hidden', borderRadius: 12, cursor: 'pointer',
         background: selected ? `linear-gradient(135deg, ${meta.glow}, ${C.surface})` : C.surface,
-        border: `1px solid ${selected ? meta.color + '40' : C.border}`,
+        border: `1px solid ${selected ? meta.color + '55' : C.border}`,
         transition: 'all 0.18s',
-        boxShadow: selected ? `0 0 20px ${meta.glow}` : 'none',
+        boxShadow: selected ? `0 0 22px ${meta.glow}` : 'none',
       }}
     >
       {/* Strategy accent bar */}
       <div style={{
-        position: 'absolute', left: 0, top: 0, bottom: 0, width: 3, borderRadius: '12px 0 0 12px',
+        position: 'absolute', left: 0, top: 0, bottom: 0, width: 3,
         background: alive
-          ? `linear-gradient(to bottom, ${meta.color}, ${meta.color}66)`
+          ? `linear-gradient(to bottom, ${meta.color}, ${meta.color}55)`
           : `${meta.color}44`,
       }}/>
+      {/* Animated scan line on live bots */}
+      {alive && (
+        <div style={{
+          position: 'absolute', top: 0, left: 0, right: 0, height: 1.5,
+          background: `linear-gradient(90deg, transparent, ${meta.color}, transparent)`,
+          animation: 'botscan 2.4s ease-in-out infinite',
+        }}/>
+      )}
 
-      <div style={{ padding: '12px 12px 10px 14px' }}>
+      <div style={{ padding: '11px 12px 10px 15px' }}>
         {/* Top row */}
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8, marginBottom: 8 }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 11, marginBottom: 9 }}>
+          <BotAvatar strategy={bot.strategy} alive={alive}/>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <p style={{ fontSize: 13, fontWeight: 700, color: C.text1, margin: '0 0 4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              {bot.name}
-            </p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3 }}>
+              <p style={{ fontSize: 13, fontWeight: 700, color: C.text1, margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', flex: 1 }}>
+                {bot.name}
+              </p>
+              <StatusBadge status={bot.status} compact/>
+            </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-              <span style={{ fontSize: 10, color: C.text2 }}>{bot.symbol}</span>
+              <span style={{ fontSize: 10, fontWeight: 600, color: C.text2 }}>{bot.symbol}</span>
               <span style={{ width: 3, height: 3, borderRadius: '50%', background: C.text3 }}/>
               <span style={{ fontSize: 10, fontWeight: 700, color: meta.color }}>{meta.label}</span>
               <span style={{
@@ -275,43 +350,47 @@ function BotCard({ bot, selected, onClick }: { bot: Bot; selected: boolean; onCl
               </span>
             </div>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4, flexShrink: 0 }}>
-            <StatusBadge status={bot.status} compact/>
-            <Sparkline curve={bot.equityCurve}/>
-          </div>
         </div>
 
         {/* Warmup bar */}
         {bot.status === 'warming_up' && (
-          <div style={{ marginBottom: 8 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 9, color: C.blue, marginBottom: 3 }}>
-              <span>Warming up</span><span>{bot.warmupBarsCurrent}/{bot.warmupBarsNeeded}</span>
-            </div>
+          <div style={{ marginBottom: 9 }}>
             <div style={{ height: 2, borderRadius: 2, background: 'rgba(14,165,233,0.12)' }}>
-              <div style={{ height: 2, borderRadius: 2, width: `${warmPct}%`, background: C.blue, transition: 'width 0.5s' }}/>
+              <div style={{ height: 2, borderRadius: 2, width: `${warmPct}%`, background: `linear-gradient(90deg, ${C.blue}, ${C.cyan})`, transition: 'width 0.5s' }}/>
             </div>
           </div>
         )}
 
+        {/* Live activity line */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 10, padding: '5px 8px', borderRadius: 7, background: C.bg, border: `1px solid ${C.border}` }}>
+          <span style={{
+            width: 6, height: 6, borderRadius: '50%', flexShrink: 0, background: actColor,
+            boxShadow: alive ? `0 0 5px ${actColor}` : 'none',
+            animation: alive ? 'pulse 1.8s ease-in-out infinite' : 'none',
+          }}/>
+          <span style={{ fontSize: 10, color: C.text2, fontFamily: 'monospace', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', flex: 1 }}>
+            {activity}
+          </span>
+          {lastLog && <span style={{ fontSize: 9, color: C.text3, fontFamily: 'monospace', flexShrink: 0 }}>{relTime(lastLog.ts)}</span>}
+        </div>
+
         {/* Stats row */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: 3 }}>
-            <span style={{ fontSize: 13, fontWeight: 800, fontFamily: 'monospace', color: pnlPos ? C.green : C.red }}>
+          <div>
+            <p style={{ fontSize: 8, color: C.text3, margin: '0 0 1px', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 700 }}>P&amp;L</p>
+            <span style={{ fontSize: 14, fontWeight: 800, fontFamily: 'monospace', color: pnlPos ? C.green : C.red }}>
               {fmtPnl(bot.pnl)}
             </span>
           </div>
-          <div style={{ width: 1, height: 12, background: C.text3 }}/>
-          <span style={{ fontSize: 11, color: C.text2 }}>
-            <span style={{ color: C.text1, fontWeight: 700 }}>{bot.trades}</span> trades
-          </span>
-          {winRate !== null && (
-            <>
-              <div style={{ width: 1, height: 12, background: C.text3 }}/>
-              <span style={{ fontSize: 11, fontWeight: 700, color: winRate >= 50 ? C.green : C.red }}>
-                {winRate}% win
-              </span>
-            </>
-          )}
+          <div style={{ width: 1, height: 22, background: C.border }}/>
+          <div>
+            <p style={{ fontSize: 8, color: C.text3, margin: '0 0 1px', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 700 }}>Trades</p>
+            <span style={{ fontSize: 14, fontWeight: 800, fontFamily: 'monospace', color: C.text1 }}>{bot.trades}</span>
+          </div>
+          <div style={{ flex: 1 }}/>
+          {winRate !== null
+            ? <WinRing pct={winRate}/>
+            : <div style={{ width: 36 }}><Sparkline curve={bot.equityCurve}/></div>}
         </div>
       </div>
     </div>
@@ -912,29 +991,38 @@ export default function BotsPage() {
         </button>
 
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10 }}>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 4 }}>
-              <h2 style={{ fontSize: 16, fontWeight: 800, color: C.text1, margin: 0 }}>{selected.name}</h2>
-              <StatusBadge status={selected.status}/>
-              <span style={{
-                fontSize: 9, fontWeight: 800, padding: '2px 6px', borderRadius: 5, letterSpacing: '0.06em',
-                background: selected.mode === 'real' ? 'rgba(239,68,68,0.12)' : `${C.blue}10`,
-                color: selected.mode === 'real' ? C.red : C.blue,
-                border: `1px solid ${selected.mode === 'real' ? 'rgba(239,68,68,0.2)' : C.blue + '25'}`,
-              }}>
-                {selected.mode === 'real' ? '🔴 REAL' : '🔵 DEMO'}
-              </span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-              <span style={{ fontSize: 11, color: C.text2 }}>{selected.symbol}</span>
-              <span style={{ width: 3, height: 3, borderRadius: '50%', background: C.text3 }}/>
-              <span style={{ fontSize: 11, fontWeight: 700, color: STRAT[selected.strategy].color }}>{STRAT[selected.strategy].label}</span>
-              {selected.startedAt && (
-                <>
-                  <span style={{ width: 3, height: 3, borderRadius: '50%', background: C.text3 }}/>
-                  <span style={{ fontSize: 10, color: C.text3 }}>Started {fmtDate(selected.startedAt)}</span>
-                </>
-              )}
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, flex: 1, minWidth: 0 }}>
+            <BotAvatar strategy={selected.strategy} alive={selected.status === 'running' || selected.status === 'warming_up'} size={44}/>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 4 }}>
+                <h2 style={{ fontSize: 16, fontWeight: 800, color: C.text1, margin: 0 }}>{selected.name}</h2>
+                <StatusBadge status={selected.status}/>
+                <span style={{
+                  fontSize: 9, fontWeight: 800, padding: '2px 6px', borderRadius: 5, letterSpacing: '0.06em',
+                  background: selected.mode === 'real' ? 'rgba(239,68,68,0.12)' : `${C.blue}10`,
+                  color: selected.mode === 'real' ? C.red : C.blue,
+                  border: `1px solid ${selected.mode === 'real' ? 'rgba(239,68,68,0.2)' : C.blue + '25'}`,
+                }}>
+                  {selected.mode === 'real' ? '🔴 REAL' : '🔵 DEMO'}
+                </span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                <span style={{ fontSize: 11, color: C.text2 }}>{selected.symbol}</span>
+                <span style={{ width: 3, height: 3, borderRadius: '50%', background: C.text3 }}/>
+                <span style={{ fontSize: 11, fontWeight: 700, color: STRAT[selected.strategy].color }}>{STRAT[selected.strategy].label}</span>
+                {selected.status === 'running' && selected.startedAt && (
+                  <>
+                    <span style={{ width: 3, height: 3, borderRadius: '50%', background: C.text3 }}/>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: C.green }}>● {relTime(selected.startedAt)} live</span>
+                  </>
+                )}
+                {selected.startedAt && selected.status !== 'running' && (
+                  <>
+                    <span style={{ width: 3, height: 3, borderRadius: '50%', background: C.text3 }}/>
+                    <span style={{ fontSize: 10, color: C.text3 }}>Started {fmtDate(selected.startedAt)}</span>
+                  </>
+                )}
+              </div>
             </div>
           </div>
 
@@ -967,6 +1055,21 @@ export default function BotsPage() {
           </div>
         </div>
       </div>
+
+      {/* Live activity tape — latest bot action at a glance */}
+      {selected.logs.length > 0 && (() => {
+        const last = selected.logs[selected.logs.length - 1]
+        const c    = LOG_CFG[last.level]?.color ?? C.text3
+        const live = selected.status === 'running' || selected.status === 'warming_up'
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '7px 18px', borderBottom: `1px solid ${C.border}`, background: C.surface, flexShrink: 0 }}>
+            <span style={{ width: 7, height: 7, borderRadius: '50%', flexShrink: 0, background: c, boxShadow: live ? `0 0 6px ${c}` : 'none', animation: live ? 'pulse 1.8s ease-in-out infinite' : 'none' }}/>
+            <span style={{ fontSize: 9, fontWeight: 800, color: c, letterSpacing: '0.05em', flexShrink: 0 }}>{LOG_CFG[last.level]?.label ?? 'INFO'}</span>
+            <span style={{ fontSize: 11, color: C.text2, fontFamily: 'monospace', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', flex: 1 }}>{last.message}</span>
+            <span style={{ fontSize: 9, color: C.text3, fontFamily: 'monospace', flexShrink: 0 }}>{relTime(last.ts)} ago</span>
+          </div>
+        )
+      })()}
 
       {/* Warmup bar */}
       {selected.status === 'warming_up' && (
@@ -1105,6 +1208,8 @@ export default function BotsPage() {
       <style>{`
         @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.85)} }
         @keyframes spin  { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+        @keyframes botscan { 0%{transform:translateX(-100%);opacity:0} 50%{opacity:1} 100%{transform:translateX(100%);opacity:0} }
+        @keyframes livedot { 0%,100%{box-shadow:0 0 0 0 rgba(16,185,129,0.5)} 50%{box-shadow:0 0 0 5px rgba(16,185,129,0)} }
 
         /* ── Sidebar ── */
         .bots-sidebar {

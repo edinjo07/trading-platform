@@ -2,7 +2,7 @@ import api from './client'
 
 export type BotStrategy = 'ma_crossover' | 'rsi' | 'macd' | 'momentum'
 export type BotStatus   = 'idle' | 'warming_up' | 'running' | 'paused' | 'stopped' | 'error'
-export type BotPosition = 'long' | 'none'
+export type BotPosition = 'long' | 'short' | 'none'
 export type LogLevel    = 'info' | 'signal' | 'trade' | 'risk' | 'warn' | 'error'
 export type Signal      = 'buy' | 'sell' | 'hold'
 
