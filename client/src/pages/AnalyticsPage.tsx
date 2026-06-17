@@ -2,6 +2,7 @@
 import { useTradingStore } from '../store/tradingStore'
 import { formatCurrency, formatPnl } from '../utils/formatters'
 import { PerformanceStats, TradeRecord, EquityPoint } from '../types'
+import { getAttribution, Attribution } from '../api/analytics'
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -657,6 +658,91 @@ function AssetBreakdown({ trades }: { trades: TradeRecord[] }) {
 }
 
 // ---------------------------------------------------------------------------
+// Performance attribution — per bot / per strategy / bots vs manual
+// ---------------------------------------------------------------------------
+const STRAT_ATTR: Record<string, { label: string; color: string }> = {
+  ma_crossover: { label: 'MA Cross', color: '#0ea5e9' },
+  rsi:          { label: 'RSI',      color: '#8b5cf6' },
+  macd:         { label: 'MACD',     color: '#06b6d4' },
+  momentum:     { label: 'Momentum', color: '#f59e0b' },
+}
+const stratMeta = (s: string) => STRAT_ATTR[s] ?? { label: s, color: '#64748b' }
+
+function PerformanceAttribution({ data }: { data: Attribution | null }) {
+  if (!data || data.bots.length === 0) return null
+  const { bots, byStrategy, totals } = data
+  const maxStratAbs = Math.max(1, ...byStrategy.map(s => Math.abs(s.pnl)))
+  const G = '#00c878', R = '#ff3047'
+
+  return (
+    <div className="rounded-xl p-5" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
+      <div className="flex items-center gap-2 mb-4">
+        <h3 className="text-sm font-semibold text-text-primary">Performance Attribution</h3>
+        <span className="text-2xs text-text-muted">all-time · who’s making the money</span>
+      </div>
+
+      {/* Bots vs Manual */}
+      <div className="grid grid-cols-2 gap-3 mb-5">
+        <div className="rounded-lg p-3" style={{ background: 'rgba(14,165,233,0.06)', border: '1px solid rgba(14,165,233,0.15)' }}>
+          <p className="text-2xs uppercase tracking-wider text-text-muted mb-1">🤖 Bots</p>
+          <p className="text-xl font-bold font-mono tabular-nums" style={{ color: pnlColor(totals.botPnl) }}>{formatPnl(totals.botPnl)}</p>
+          <p className="text-2xs text-text-muted mt-0.5">{totals.botTrades} trades · {bots.length} bot{bots.length === 1 ? '' : 's'}</p>
+        </div>
+        <div className="rounded-lg p-3" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+          <p className="text-2xs uppercase tracking-wider text-text-muted mb-1">✋ Manual</p>
+          <p className="text-xl font-bold font-mono tabular-nums" style={{ color: pnlColor(totals.manualPnl) }}>{formatPnl(totals.manualPnl)}</p>
+          <p className="text-2xs text-text-muted mt-0.5">{totals.manualTrades} trades</p>
+        </div>
+      </div>
+
+      {/* By strategy */}
+      <p className="text-2xs uppercase tracking-wider text-text-muted mb-2.5 font-semibold">By Strategy</p>
+      <div className="flex flex-col gap-2.5 mb-5">
+        {byStrategy.map(s => {
+          const meta = stratMeta(s.strategy)
+          const w = (Math.abs(s.pnl) / maxStratAbs) * 100
+          return (
+            <div key={s.strategy} className="flex items-center gap-3">
+              <div className="flex items-center gap-2 w-24 shrink-0">
+                <span className="w-2.5 h-2.5 rounded-sm shrink-0" style={{ background: meta.color }} />
+                <span className="text-xs font-semibold text-text-secondary truncate">{meta.label}</span>
+              </div>
+              <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.05)' }}>
+                <div style={{ width: w + '%', height: '100%', background: s.pnl >= 0 ? G : R, borderRadius: 99, transition: 'width 0.5s' }} />
+              </div>
+              <span className="text-xs font-mono font-bold w-20 text-right tabular-nums" style={{ color: pnlColor(s.pnl) }}>{formatPnl(s.pnl)}</span>
+              <span className="text-2xs font-mono text-text-muted w-24 text-right hidden sm:inline">{s.trades} tr · {Math.round(s.winRate * 100)}% win</span>
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Bot leaderboard */}
+      <p className="text-2xs uppercase tracking-wider text-text-muted mb-2.5 font-semibold">Bot Leaderboard</p>
+      <div className="flex flex-col gap-1.5">
+        {bots.slice(0, 8).map((b, i) => {
+          const meta = stratMeta(b.strategy)
+          return (
+            <div key={b.id} className="flex items-center gap-3 px-3 py-2 rounded-lg" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
+              <span className="text-2xs font-bold text-text-muted w-4 text-center shrink-0">{i + 1}</span>
+              <span className="w-2 h-2 rounded-full shrink-0" style={{ background: meta.color }} />
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold text-text-primary truncate">{b.name}</p>
+                <p className="text-2xs text-text-muted">{b.symbol} · {meta.label}</p>
+              </div>
+              <div className="text-right shrink-0">
+                <p className="text-xs font-mono font-bold tabular-nums" style={{ color: pnlColor(b.pnl) }}>{formatPnl(b.pnl)}</p>
+                <p className="text-2xs font-mono text-text-muted">{b.trades} tr · {Math.round(b.winRate * 100)}%</p>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
 // Main page
 // ---------------------------------------------------------------------------
 export default function AnalyticsPage() {
@@ -664,14 +750,19 @@ export default function AnalyticsPage() {
   const [range, setRange] = useState<'7d' | '30d' | 'all'>('all')
   const [chartMode, setChartMode] = useState<'value' | 'percent'>('value')
   const [lastUpdated, setLastUpdated] = useState<number>(Date.now())
+  const [attribution, setAttribution] = useState<Attribution | null>(null)
   const firstLoad = useRef(true)
 
   useEffect(() => {
     // First mount shows the spinner; range switches refresh silently (we keep data on screen)
     loadAnalytics(!firstLoad.current, range).then(() => setLastUpdated(Date.now()))
+    getAttribution().then(setAttribution).catch(() => {})
     firstLoad.current = false
-    // Live: silently refresh every 10s so KPIs, equity (mark-to-market) and calendar stay current
-    const id = setInterval(() => { loadAnalytics(true, range).then(() => setLastUpdated(Date.now())) }, 10_000)
+    // Live: silently refresh every 10s so KPIs, equity (mark-to-market), attribution and calendar stay current
+    const id = setInterval(() => {
+      loadAnalytics(true, range).then(() => setLastUpdated(Date.now()))
+      getAttribution().then(setAttribution).catch(() => {})
+    }, 10_000)
     return () => clearInterval(id)
   }, [loadAnalytics, range])
 
@@ -877,6 +968,9 @@ export default function AnalyticsPage() {
                 </div>
               </div>
             )}
+
+            {/* Performance attribution — per bot / strategy / bots vs manual */}
+            <PerformanceAttribution data={attribution} />
 
             {/* Trade journal - always shown when there are any entries */}
             <div className="rounded-xl overflow-hidden" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>

@@ -192,4 +192,55 @@ router.get('/stats', authenticate, async (req: AuthRequest, res: Response) => {
   })
 })
 
+// GET /api/analytics/attribution — per-bot & per-strategy performance (all-time, current mode)
+router.get('/attribution', authenticate, async (req: AuthRequest, res: Response) => {
+  const userId = req.user!.userId
+  const mode   = getMode(req)
+
+  const { data: botRows, error } = await supabase
+    .from('bots')
+    .select('id, name, strategy, symbol, status, pnl, trades, wins, losses')
+    .eq('user_id', userId)
+    .eq('mode', mode)
+  if (error) return res.status(500).json({ error: error.message })
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const bots = ((botRows ?? []) as any[]).map(b => {
+    const trades = Number(b.trades) || 0
+    const wins   = Number(b.wins) || 0
+    return {
+      id: b.id, name: b.name, strategy: b.strategy, symbol: b.symbol, status: b.status,
+      pnl: parseFloat((Number(b.pnl) || 0).toFixed(2)),
+      trades, wins, losses: Number(b.losses) || 0,
+      winRate: trades > 0 ? parseFloat((wins / trades).toFixed(4)) : 0,
+    }
+  })
+
+  // ── Per-strategy aggregate ──────────────────────────────────────────────────
+  const stratMap: Record<string, { strategy: string; pnl: number; trades: number; wins: number; botCount: number }> = {}
+  for (const b of bots) {
+    const s = (stratMap[b.strategy] ??= { strategy: b.strategy, pnl: 0, trades: 0, wins: 0, botCount: 0 })
+    s.pnl += b.pnl; s.trades += b.trades; s.wins += b.wins; s.botCount++
+  }
+  const byStrategy = Object.values(stratMap)
+    .map(s => ({ ...s, pnl: parseFloat(s.pnl.toFixed(2)), winRate: s.trades > 0 ? parseFloat((s.wins / s.trades).toFixed(4)) : 0 }))
+    .sort((a, b) => b.pnl - a.pnl)
+
+  const botPnl    = parseFloat(bots.reduce((s, b) => s + b.pnl, 0).toFixed(2))
+  const botTrades = bots.reduce((s, b) => s + b.trades, 0)
+
+  // ── Bots vs Manual: total realized P&L from trades minus bot-attributed P&L ──
+  const { data: tr } = await supabase.from('trades').select('net_pnl').eq('user_id', userId).eq('mode', mode)
+  const totalPnl     = parseFloat(((tr ?? []).reduce((s, t: { net_pnl: number }) => s + (t.net_pnl ?? 0), 0)).toFixed(2))
+  const totalTrades  = (tr ?? []).length
+  const manualPnl    = parseFloat((totalPnl - botPnl).toFixed(2))
+  const manualTrades = Math.max(0, totalTrades - botTrades)
+
+  return res.json({
+    bots: bots.sort((a, b) => b.pnl - a.pnl),
+    byStrategy,
+    totals: { botPnl, botTrades, manualPnl, manualTrades, totalPnl, totalTrades },
+  })
+})
+
 export default router
