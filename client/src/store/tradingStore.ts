@@ -46,7 +46,7 @@ interface TradingState {
   loadCandles:       () => Promise<void>
   loadOrders:              () => Promise<void>
   loadPortfolio:           () => Promise<void>
-  loadAnalytics:           (silent?: boolean) => Promise<void>
+  loadAnalytics:           (silent?: boolean, range?: '7d' | '30d' | 'all') => Promise<void>
   loadPendingLimitOrders:  () => Promise<void>
   placeOrder:              (params: PlaceOrderParams) => Promise<PlaceOrderResult>
   placeLimitOrder:         (params: LimitOrderParams) => Promise<PendingLimitOrder>
@@ -128,10 +128,10 @@ export const useTradingStore = create<TradingState>((set, get) => ({
     } catch { /* keep existing state on network error */ }
   },
 
-  loadAnalytics: async (silent = false) => {
+  loadAnalytics: async (silent = false, range = 'all') => {
     if (!silent) set({ analyticsLoading: true })
     try {
-      const [stats, journal] = await Promise.all([getPerformanceStats(), getTradeJournal()])
+      const [stats, journal] = await Promise.all([getPerformanceStats(range), getTradeJournal()])
       set({
         performanceStats: stats && typeof stats === 'object' ? stats : null,
         tradeJournal:     Array.isArray(journal) ? journal : [],

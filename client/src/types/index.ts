@@ -24,10 +24,11 @@ export interface User {
 
 // Equity curve point (used by AnalyticsPage)
 export interface EquityPoint {
-  time:          string
-  equity:        number
-  cashBalance:   number
-  unrealizedPnl: number
+  time:           number | string
+  equity:         number
+  cashBalance?:   number
+  unrealizedPnl?: number
+  live?:          boolean
 }
 
 // ─── Market symbol ────────────────────────────────────────────────────────────
@@ -209,6 +210,9 @@ export interface PerformanceStats {
   totalVolume?:        number
   startingBalance?:    number
   currentEquity?:      number
+  unrealizedPnl?:      number
+  openPositions?:      number
+  range?:              string
   userId?:             string
   equityCurve?:        EquityPoint[]
 }

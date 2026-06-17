@@ -53,6 +53,7 @@ function EquityCurve({ points }: { points: EquityPoint[] }) {
   }
 
   const W = 900, H = 220
+  const isLive = points[points.length - 1]?.live === true
   const PAD = { top: 12, right: 24, bottom: 32, left: 64 }
   const equities = points.map(p => p.equity)
   const minE = Math.min(...equities)
@@ -112,6 +113,13 @@ function EquityCurve({ points }: { points: EquityPoint[] }) {
         <text key={i} x={t.x} y={H - 6} textAnchor="middle"
           fontSize={10} fill="#4b6070" fontFamily="monospace">{t.label}</text>
       ))}
+      {/* Live mark-to-market pulse */}
+      {isLive && (
+        <circle cx={xs[xs.length - 1]} cy={ys[ys.length - 1]} r={4} fill="none" stroke={lineColor} strokeWidth={2}>
+          <animate attributeName="r" values="4;12;4" dur="1.8s" repeatCount="indefinite" />
+          <animate attributeName="opacity" values="0.7;0;0.7" dur="1.8s" repeatCount="indefinite" />
+        </circle>
+      )}
       {/* Endpoint dot */}
       <circle cx={xs[xs.length - 1]} cy={ys[ys.length - 1]} r={4} fill={lineColor} />
     </svg>
@@ -591,14 +599,18 @@ function AssetBreakdown({ trades }: { trades: TradeRecord[] }) {
 // ---------------------------------------------------------------------------
 export default function AnalyticsPage() {
   const { performanceStats: stats, tradeJournal: trades, analyticsLoading, loadAnalytics } = useTradingStore()
+  const [range, setRange] = useState<'7d' | '30d' | 'all'>('all')
   const [lastUpdated, setLastUpdated] = useState<number>(Date.now())
+  const firstLoad = useRef(true)
 
   useEffect(() => {
-    loadAnalytics().then(() => setLastUpdated(Date.now()))
-    // Live: silently refresh every 10s so stats/equity/calendar update as trades close
-    const id = setInterval(() => { loadAnalytics(true).then(() => setLastUpdated(Date.now())) }, 10_000)
+    // First mount shows the spinner; range switches refresh silently (we keep data on screen)
+    loadAnalytics(!firstLoad.current, range).then(() => setLastUpdated(Date.now()))
+    firstLoad.current = false
+    // Live: silently refresh every 10s so KPIs, equity (mark-to-market) and calendar stay current
+    const id = setInterval(() => { loadAnalytics(true, range).then(() => setLastUpdated(Date.now())) }, 10_000)
     return () => clearInterval(id)
-  }, [loadAnalytics])
+  }, [loadAnalytics, range])
 
   if (analyticsLoading) {
     return (
@@ -657,6 +669,42 @@ export default function AnalyticsPage() {
           </div>
         ) : (
           <>
+            {/* ── Live equity (mark-to-market) + timeframe filter ── */}
+            <div className="rounded-xl p-4 flex items-center justify-between flex-wrap gap-3"
+                 style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
+              <div className="flex items-center gap-6 flex-wrap">
+                <div>
+                  <p className="text-2xs font-medium text-text-muted uppercase tracking-wider mb-0.5">Live Equity · mark-to-market</p>
+                  <span className="text-2xl font-bold font-mono tabular-nums" style={{ color: '#e2eaf0' }}>
+                    {formatCurrency(stats?.currentEquity ?? stats?.startingBalance ?? 0)}
+                  </span>
+                </div>
+                {(stats?.openPositions ?? 0) > 0 && (
+                  <div>
+                    <p className="text-2xs font-medium text-text-muted uppercase tracking-wider mb-0.5">
+                      Open P&amp;L · {stats?.openPositions} pos
+                    </p>
+                    <span className="text-lg font-bold font-mono tabular-nums inline-flex items-center gap-1.5" style={{ color: pnlColor(stats?.unrealizedPnl ?? 0) }}>
+                      <span className="w-1.5 h-1.5 rounded-full animate-pulse2" style={{ background: pnlColor(stats?.unrealizedPnl ?? 0) }} />
+                      {formatPnl(stats?.unrealizedPnl ?? 0)}
+                    </span>
+                  </div>
+                )}
+              </div>
+              {/* Timeframe segmented control */}
+              <div className="flex items-center gap-1 p-1 rounded-lg" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                {([['7d', '7D'], ['30d', '30D'], ['all', 'All']] as const).map(([key, label]) => (
+                  <button key={key} onClick={() => setRange(key)}
+                    className="px-3.5 py-1.5 rounded-md text-xs font-bold transition-all"
+                    style={range === key
+                      ? { background: 'rgba(14,165,233,0.15)', color: '#38bdf8', border: '1px solid rgba(14,165,233,0.35)' }
+                      : { background: 'transparent', color: '#64748b', border: '1px solid transparent' }}>
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             {/* Stats & charts - only visible once a position has been closed */}
             {hasClosedTrades ? (<>
             {/* KPI cards */}
@@ -693,7 +741,17 @@ export default function AnalyticsPage() {
             {/* Equity curve */}
             <div className="rounded-xl p-5" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-semibold text-text-primary">Equity Curve</h3>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-sm font-semibold text-text-primary">Equity Curve</h3>
+                  <span className="text-2xs font-semibold px-1.5 py-0.5 rounded" style={{ background: 'rgba(14,165,233,0.1)', color: '#38bdf8' }}>
+                    {range === 'all' ? 'All time' : range.toUpperCase()}
+                  </span>
+                  {(stats?.openPositions ?? 0) > 0 && (
+                    <span className="text-2xs font-semibold text-bull inline-flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-bull animate-pulse2" /> live MTM
+                    </span>
+                  )}
+                </div>
                 {(stats!.equityCurve ?? []).length > 0 && (
                   <span className="text-xs font-mono font-semibold"
                     style={{ color: pnlColor((stats!.equityCurve ?? [])[(stats!.equityCurve ?? []).length - 1].equity - (stats!.equityCurve ?? [])[0].equity) }}>
