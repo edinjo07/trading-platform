@@ -4,6 +4,21 @@ import { useTradingStore } from '../store/tradingStore'
 import { formatPrice } from '../utils/formatters'
 import AssetIcon from '../components/ui/AssetIcon'
 
+// ─── Design tokens (match TradePilot / Analytics / Scanner) ───────────────────
+const C = {
+  bg:       '#07090f',
+  surface:  '#0c1018',
+  surface2: '#0f1623',
+  border:   'rgba(255,255,255,0.07)',
+  text1:    '#e2e8f0',
+  text2:    '#64748b',
+  text3:    '#334155',
+  blue:     '#0ea5e9',
+  blueText: '#38bdf8',
+  green:    '#00c878',
+  red:      '#ff3047',
+}
+
 const QUICK_SYMBOLS = [
   { symbol: 'BTCUSD',  name: 'Bitcoin',    assetClass: 'crypto'    },
   { symbol: 'ETHUSD',  name: 'Ethereum',   assetClass: 'crypto'    },
@@ -26,7 +41,7 @@ const QUICK_SYMBOLS = [
 const STATUS = {
   active:    { label: 'Active',    color: '#0ea5e9', bg: 'rgba(14,165,233,0.12)'   },
   triggered: { label: 'Triggered', color: '#00c878', bg: 'rgba(0,200,120,0.12)'    },
-  dismissed: { label: 'Done',      color: '#6b7280', bg: 'rgba(107,114,128,0.10)'  },
+  dismissed: { label: 'Done',      color: '#64748b', bg: 'rgba(107,114,128,0.10)'  },
 }
 
 // ── Create alert bottom sheet ─────────────────────────────────────────────────
@@ -63,7 +78,7 @@ function CreateSheet({ onClose }: { onClose: () => void }) {
     >
       <div
         onClick={e => e.stopPropagation()}
-        style={{ width: '100%', background: '#111', borderRadius: '22px 22px 0 0', padding: '0 0 env(safe-area-inset-bottom)', maxHeight: '92vh', overflowY: 'auto' }}
+        style={{ width: '100%', background: '#0c1018', borderRadius: '22px 22px 0 0', padding: '0 0 env(safe-area-inset-bottom)', maxHeight: '92vh', overflowY: 'auto' }}
       >
         {/* Drag handle */}
         <div style={{ padding: '14px 20px 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -74,12 +89,12 @@ function CreateSheet({ onClose }: { onClose: () => void }) {
           {/* Header */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
             <div>
-              <h3 style={{ fontSize: 19, fontWeight: 800, color: '#fff', margin: 0 }}>Create Alert</h3>
-              <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', margin: '3px 0 0' }}>Get notified when price hits your target</p>
+              <h3 style={{ fontSize: 19, fontWeight: 800, color: '#e2e8f0', margin: 0 }}>Create Alert</h3>
+              <p style={{ fontSize: 12, color: '#64748b', margin: '3px 0 0' }}>Get notified when price hits your target</p>
             </div>
             <button
               onClick={onClose}
-              style={{ width: 34, height: 34, borderRadius: 10, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'rgba(255,255,255,0.5)' }}
+              style={{ width: 34, height: 34, borderRadius: 10, background: '#0f1623', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#64748b' }}
             >
               <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                 <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
@@ -90,7 +105,7 @@ function CreateSheet({ onClose }: { onClose: () => void }) {
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
             {/* Instrument */}
             <div>
-              <label style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.45)', display: 'block', marginBottom: 8 }}>Instrument</label>
+              <label style={{ fontSize: 12, fontWeight: 600, color: '#64748b', display: 'block', marginBottom: 8 }}>Instrument</label>
               <div style={{ position: 'relative' }}>
                 <input
                   type="text"
@@ -100,14 +115,14 @@ function CreateSheet({ onClose }: { onClose: () => void }) {
                   onFocus={() => setSymOpen(true)}
                   style={{
                     width: '100%', padding: '13px 14px', borderRadius: 12,
-                    background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)',
-                    color: '#fff', fontSize: 14, outline: 'none', boxSizing: 'border-box',
+                    background: '#0f1623', border: '1px solid rgba(255,255,255,0.1)',
+                    color: '#e2e8f0', fontSize: 14, outline: 'none', boxSizing: 'border-box',
                   }}
                 />
                 {symOpen && filtered.length > 0 && (
                   <div style={{
                     position: 'absolute', top: '100%', left: 0, right: 0, marginTop: 4,
-                    background: '#1a1a1a', border: '1px solid rgba(255,255,255,0.1)',
+                    background: '#0f1623', border: '1px solid rgba(255,255,255,0.1)',
                     borderRadius: 12, overflow: 'hidden', zIndex: 10, maxHeight: 220, overflowY: 'auto',
                   }}>
                     {filtered.map(s => (
@@ -119,11 +134,11 @@ function CreateSheet({ onClose }: { onClose: () => void }) {
                       >
                         <AssetIcon symbol={s.symbol} assetClass={s.assetClass} size={28} />
                         <div style={{ flex: 1 }}>
-                          <span style={{ fontSize: 13, fontWeight: 700, color: '#fff', display: 'block' }}>{s.symbol}</span>
-                          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{s.name}</span>
+                          <span style={{ fontSize: 13, fontWeight: 700, color: '#e2e8f0', display: 'block' }}>{s.symbol}</span>
+                          <span style={{ fontSize: 11, color: '#64748b' }}>{s.name}</span>
                         </div>
                         {tickers[s.symbol] && (
-                          <span style={{ fontSize: 12, fontFamily: 'monospace', color: 'rgba(255,255,255,0.55)' }}>
+                          <span style={{ fontSize: 12, fontFamily: 'monospace', color: '#64748b' }}>
                             {formatPrice(tickers[s.symbol].price, s.symbol)}
                           </span>
                         )}
@@ -135,9 +150,9 @@ function CreateSheet({ onClose }: { onClose: () => void }) {
               {selected && (
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
                   <AssetIcon symbol={selected.symbol} assetClass={selected.assetClass} size={20} />
-                  <span style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{selected.name}</span>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: '#e2e8f0' }}>{selected.name}</span>
                   {currentPrice && (
-                    <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', fontFamily: 'monospace', marginLeft: 'auto' }}>
+                    <span style={{ fontSize: 12, color: '#64748b', fontFamily: 'monospace', marginLeft: 'auto' }}>
                       {formatPrice(currentPrice, selected.symbol)}
                     </span>
                   )}
@@ -147,7 +162,7 @@ function CreateSheet({ onClose }: { onClose: () => void }) {
 
             {/* Direction */}
             <div>
-              <label style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.45)', display: 'block', marginBottom: 8 }}>Alert when price goes</label>
+              <label style={{ fontSize: 12, fontWeight: 600, color: '#64748b', display: 'block', marginBottom: 8 }}>Alert when price goes</label>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                 {(['above', 'below'] as AlertCondition[]).map(c => (
                   <button
@@ -158,10 +173,10 @@ function CreateSheet({ onClose }: { onClose: () => void }) {
                       padding: '13px', borderRadius: 12, fontSize: 14, fontWeight: 700, cursor: 'pointer',
                       background: condition === c
                         ? (c === 'above' ? 'rgba(0,200,120,0.15)' : 'rgba(255,48,71,0.15)')
-                        : 'rgba(255,255,255,0.04)',
+                        : '#0f1623',
                       color: condition === c
                         ? (c === 'above' ? '#00c878' : '#ff3047')
-                        : 'rgba(255,255,255,0.35)',
+                        : '#334155',
                       border: `1px solid ${condition === c
                         ? (c === 'above' ? 'rgba(0,200,120,0.35)' : 'rgba(255,48,71,0.35)')
                         : 'rgba(255,255,255,0.08)'}`,
@@ -176,7 +191,7 @@ function CreateSheet({ onClose }: { onClose: () => void }) {
             {/* Target price */}
             <div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                <label style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.45)' }}>Target Price</label>
+                <label style={{ fontSize: 12, fontWeight: 600, color: '#64748b' }}>Target Price</label>
                 {currentPrice && (
                   <button
                     type="button"
@@ -197,8 +212,8 @@ function CreateSheet({ onClose }: { onClose: () => void }) {
                 onChange={e => setTargetPrice(e.target.value)}
                 style={{
                   width: '100%', padding: '13px 14px', borderRadius: 12,
-                  background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)',
-                  color: '#fff', fontSize: 18, fontFamily: 'monospace', fontWeight: 700,
+                  background: '#0f1623', border: '1px solid rgba(255,255,255,0.1)',
+                  color: '#e2e8f0', fontSize: 18, fontFamily: 'monospace', fontWeight: 700,
                   outline: 'none', boxSizing: 'border-box',
                 }}
               />
@@ -206,7 +221,7 @@ function CreateSheet({ onClose }: { onClose: () => void }) {
 
             {/* Note */}
             <div>
-              <label style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.45)', display: 'block', marginBottom: 8 }}>Note (optional)</label>
+              <label style={{ fontSize: 12, fontWeight: 600, color: '#64748b', display: 'block', marginBottom: 8 }}>Note (optional)</label>
               <input
                 type="text"
                 maxLength={80}
@@ -215,8 +230,8 @@ function CreateSheet({ onClose }: { onClose: () => void }) {
                 onChange={e => setNote(e.target.value)}
                 style={{
                   width: '100%', padding: '13px 14px', borderRadius: 12,
-                  background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)',
-                  color: '#fff', fontSize: 14, outline: 'none', boxSizing: 'border-box',
+                  background: '#0f1623', border: '1px solid rgba(255,255,255,0.1)',
+                  color: '#e2e8f0', fontSize: 14, outline: 'none', boxSizing: 'border-box',
                 }}
               />
             </div>
@@ -229,7 +244,7 @@ function CreateSheet({ onClose }: { onClose: () => void }) {
                 background: (!selected || !targetPrice)
                   ? 'rgba(14,165,233,0.2)'
                   : 'linear-gradient(135deg, #0ea5e9 0%, #0369a1 100%)',
-                color: '#fff', fontSize: 15, fontWeight: 800,
+                color: '#e2e8f0', fontSize: 15, fontWeight: 800,
                 border: 'none', cursor: (!selected || !targetPrice) ? 'not-allowed' : 'pointer',
                 boxShadow: (!selected || !targetPrice) ? 'none' : '0 2px 12px rgba(14,165,233,0.35)',
                 marginTop: 4,
@@ -267,7 +282,7 @@ function AlertCard({ alert, onDelete, onDismiss }: {
       padding: '14px 16px', borderRadius: 16,
       background: alert.status === 'triggered'
         ? 'rgba(0,200,120,0.04)'
-        : 'rgba(255,255,255,0.03)',
+        : '#0c1018',
       border: `1px solid ${alert.status === 'triggered' ? 'rgba(0,200,120,0.15)' : 'rgba(255,255,255,0.07)'}`,
     }}>
       {/* Direction icon */}
@@ -290,27 +305,27 @@ function AlertCard({ alert, onDelete, onDismiss }: {
               <AssetIcon symbol={alert.symbol} assetClass={symInfo.assetClass} size={16} />
             </span>
           )}
-          <span style={{ fontSize: 14, fontWeight: 800, color: '#fff' }}>{alert.symbol}</span>
+          <span style={{ fontSize: 14, fontWeight: 800, color: '#e2e8f0' }}>{alert.symbol}</span>
           <span style={{ fontSize: 12, color: isAbove ? '#00c878' : '#ff3047', fontWeight: 600 }}>
             {isAbove ? '↑ Above' : '↓ Below'} {formatPrice(alert.targetPrice, alert.symbol)}
           </span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
           {current !== undefined && (
-            <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', fontFamily: 'monospace' }}>
+            <span style={{ fontSize: 11, color: '#64748b', fontFamily: 'monospace' }}>
               Now {formatPrice(current, alert.symbol)}
             </span>
           )}
           {distPct !== null && (
             <span style={{
               fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 8,
-              background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.45)',
+              background: '#0f1623', color: '#64748b',
             }}>
               {distPct > 0 ? '+' : ''}{distPct.toFixed(2)}% to target
             </span>
           )}
           {alert.note && (
-            <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 120 }}>
+            <span style={{ fontSize: 10, color: '#334155', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 120 }}>
               {alert.note}
             </span>
           )}
@@ -320,6 +335,16 @@ function AlertCard({ alert, onDelete, onDismiss }: {
             </span>
           )}
         </div>
+        {/* Live proximity bar — fills as price approaches the target */}
+        {distPct !== null && alert.status === 'active' && (() => {
+          const prox = Math.max(0, Math.min(1, 1 - Math.abs(distPct) / 10))
+          const col  = isAbove ? C.green : C.red
+          return (
+            <div style={{ marginTop: 8, height: 3, borderRadius: 2, background: C.surface2, overflow: 'hidden' }}>
+              <div style={{ width: `${prox * 100}%`, height: '100%', background: col, borderRadius: 2, transition: 'width 0.4s', boxShadow: prox > 0.85 ? `0 0 6px ${col}` : 'none' }} />
+            </div>
+          )
+        })()}
       </div>
 
       {/* Status + actions */}
@@ -371,6 +396,13 @@ export default function AlertsPage() {
   const { alerts, dismissAlert, deleteAlert } = useAlertsStore()
   const [showCreate, setShowCreate] = useState(false)
   const [filter, setFilter]         = useState<'all' | 'active' | 'triggered' | 'dismissed'>('all')
+  const [notifPerm, setNotifPerm]   = useState<NotificationPermission>(
+    typeof Notification !== 'undefined' ? Notification.permission : 'denied'
+  )
+  const requestNotif = () => {
+    if (typeof Notification === 'undefined') return
+    Notification.requestPermission().then(p => setNotifPerm(p)).catch(() => {})
+  }
 
   const activeCount    = alerts.filter(a => a.status === 'active').length
   const triggeredCount = alerts.filter(a => a.status === 'triggered').length
@@ -380,34 +412,47 @@ export default function AlertsPage() {
     <div style={{ maxWidth: 640, margin: '0 auto' }}>
 
       {/* ── Page header ── */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 24 }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 24, gap: 12 }}>
         <div>
-          <h1 style={{ fontSize: 22, fontWeight: 800, color: 'var(--t-text-1)', margin: 0 }}>Price Alerts</h1>
-          <p style={{ fontSize: 13, color: 'var(--t-text-2)', margin: '4px 0 0' }}>
-            {activeCount > 0 ? `${activeCount} active` : 'No active alerts'}
+          <h1 style={{ fontSize: 22, fontWeight: 800, color: C.text1, margin: 0 }}>Price Alerts</h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', margin: '6px 0 0' }}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 11, fontWeight: 700, color: C.green }}>
+              <span className="animate-pulse2" style={{ width: 6, height: 6, borderRadius: '50%', background: C.green, boxShadow: `0 0 6px ${C.green}` }} />
+              Live monitoring
+            </span>
+            <span style={{ fontSize: 12, color: C.text2 }}>· {activeCount > 0 ? `${activeCount} active` : 'No active alerts'}</span>
             {triggeredCount > 0 && (
-              <span style={{ marginLeft: 8, padding: '2px 8px', borderRadius: 12, background: 'rgba(0,200,120,0.15)', color: '#00c878', fontSize: 11, fontWeight: 700 }}>
+              <span style={{ padding: '2px 8px', borderRadius: 12, background: 'rgba(0,200,120,0.15)', color: C.green, fontSize: 11, fontWeight: 700 }}>
                 {triggeredCount} triggered
               </span>
             )}
-          </p>
+          </div>
         </div>
-        <button
-          onClick={() => setShowCreate(true)}
-          style={{
-            display: 'flex', alignItems: 'center', gap: 7,
-            padding: '10px 18px', borderRadius: 24,
-            background: 'linear-gradient(135deg, #0ea5e9 0%, #0369a1 100%)',
-            color: '#fff', fontSize: 13, fontWeight: 700,
-            border: 'none', cursor: 'pointer',
-            boxShadow: '0 2px 12px rgba(14,165,233,0.3)',
-          }}
-        >
-          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-          </svg>
-          New Alert
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+          {notifPerm === 'default' && (
+            <button onClick={requestNotif} title="Enable browser notifications"
+              style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '9px 12px', borderRadius: 24, background: 'rgba(14,165,233,0.1)', border: '1px solid rgba(14,165,233,0.25)', color: C.blueText, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+              <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+              <span className="hidden sm:inline">Enable alerts</span>
+            </button>
+          )}
+          <button
+            onClick={() => setShowCreate(true)}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 7,
+              padding: '10px 18px', borderRadius: 24,
+              background: 'linear-gradient(135deg, #0ea5e9 0%, #0369a1 100%)',
+              color: '#fff', fontSize: 13, fontWeight: 700,
+              border: 'none', cursor: 'pointer',
+              boxShadow: '0 2px 12px rgba(14,165,233,0.3)',
+            }}
+          >
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            New Alert
+          </button>
+        </div>
       </div>
 
       {/* ── Filter tabs ── */}
@@ -423,8 +468,8 @@ export default function AlertsPage() {
                 style={{
                   padding: '7px 14px', borderRadius: 20, fontSize: 12, fontWeight: 700,
                   flexShrink: 0, cursor: 'pointer', textTransform: 'capitalize',
-                  background: isActive ? 'rgba(14,165,233,0.15)' : 'rgba(255,255,255,0.04)',
-                  color:      isActive ? '#38bdf8' : 'rgba(255,255,255,0.4)',
+                  background: isActive ? 'rgba(14,165,233,0.15)' : '#0f1623',
+                  color:      isActive ? '#38bdf8' : '#64748b',
                   border: `1px solid ${isActive ? 'rgba(14,165,233,0.3)' : 'rgba(255,255,255,0.07)'}`,
                 }}
               >
@@ -439,8 +484,8 @@ export default function AlertsPage() {
       {filtered.length === 0 ? (
         <div style={{
           textAlign: 'center', padding: '64px 24px',
-          background: 'rgba(255,255,255,0.02)', borderRadius: 20,
-          border: '1px solid rgba(255,255,255,0.06)',
+          background: '#0c1018', borderRadius: 20,
+          border: '1px solid rgba(255,255,255,0.07)',
         }}>
           <div style={{
             width: 68, height: 68, borderRadius: '50%',
@@ -451,10 +496,10 @@ export default function AlertsPage() {
               <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/>
             </svg>
           </div>
-          <p style={{ fontSize: 17, fontWeight: 800, color: '#fff', margin: '0 0 8px' }}>
+          <p style={{ fontSize: 17, fontWeight: 800, color: '#e2e8f0', margin: '0 0 8px' }}>
             {filter === 'all' ? 'No alerts yet' : `No ${filter} alerts`}
           </p>
-          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.38)', margin: '0 0 28px', lineHeight: 1.5 }}>
+          <p style={{ fontSize: 13, color: '#64748b', margin: '0 0 28px', lineHeight: 1.5 }}>
             Set a target price on any instrument and we'll notify you the moment it's reached.
           </p>
           {filter === 'all' && (

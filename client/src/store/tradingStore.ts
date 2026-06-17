@@ -3,8 +3,30 @@ import {
   Ticker, OrderBook, Trade, Order, Portfolio, Position,
   MarketSymbol, Candle, PerformanceStats, TradeRecord,
 } from '../types'
-import { useAlertsStore } from './alertsStore'
+import { useAlertsStore, PriceAlert } from './alertsStore'
 import { useAuthStore } from './authStore'
+import { useToastStore } from './toastStore'
+import { formatPrice } from '../utils/formatters'
+
+// Surface a toast (and browser notification, if permitted) when a price alert fires.
+function notifyTriggeredAlerts(triggered: PriceAlert[]) {
+  if (!triggered.length) return
+  const { addToast } = useToastStore.getState()
+  for (const a of triggered) {
+    const dir = a.condition === 'above' ? 'rose above' : 'fell below'
+    addToast({
+      variant: 'success',
+      title: `🔔 ${a.symbol} alert triggered`,
+      message: `Price ${dir} ${formatPrice(a.targetPrice, a.symbol)}${a.note ? ` · ${a.note}` : ''}`,
+      duration: 8000,
+    })
+    try {
+      if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+        new Notification(`${a.symbol} alert triggered`, { body: `Price ${dir} ${a.targetPrice}` })
+      }
+    } catch { /* ignore */ }
+  }
+}
 import { getSymbols, getCandles, getOrderBook, getRecentTrades } from '../api/markets'
 import {
   getOrders, placeOrder, PlaceOrderParams, PlaceOrderResult,
@@ -410,12 +432,12 @@ export const useTradingStore = create<TradingState>((set, get) => ({
           totalEquity,
         },
       })
-      useAlertsStore.getState().checkAlerts(tickerMap)
+      notifyTriggeredAlerts(useAlertsStore.getState().checkAlerts(tickerMap))
       return
     }
 
     set({ tickers: tickerMap })
-    useAlertsStore.getState().checkAlerts(tickerMap)
+    notifyTriggeredAlerts(useAlertsStore.getState().checkAlerts(tickerMap))
   },
 
   updateOrderBook: (ob) => {
