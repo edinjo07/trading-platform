@@ -42,7 +42,7 @@ function StatCard({ label, value, sub, color, icon }: { label: string; value: st
 // ---------------------------------------------------------------------------
 // SVG equity curve
 // ---------------------------------------------------------------------------
-function EquityCurve({ points }: { points: EquityPoint[] }) {
+function EquityCurve({ points, mode = 'value' }: { points: EquityPoint[]; mode?: 'value' | 'percent' }) {
   const svgRef = useRef<SVGSVGElement>(null)
   if (points.length < 2) {
     return (
@@ -55,7 +55,11 @@ function EquityCurve({ points }: { points: EquityPoint[] }) {
   const W = 900, H = 220
   const isLive = points[points.length - 1]?.live === true
   const PAD = { top: 12, right: 24, bottom: 32, left: 64 }
-  const equities = points.map(p => p.equity)
+  // In percent mode, plot return relative to the window's baseline (first point)
+  const baseline = points[0].equity
+  const equities = points.map(p => mode === 'percent'
+    ? (baseline !== 0 ? ((p.equity / baseline) - 1) * 100 : 0)
+    : p.equity)
   const minE = Math.min(...equities)
   const maxE = Math.max(...equities)
   const rangeE = maxE - minE || 1
@@ -74,10 +78,13 @@ function EquityCurve({ points }: { points: EquityPoint[] }) {
   const gradStop = isUp ? '#00c878' : '#ff3047'
 
   // Y-axis ticks (4)
-  const yTicks = [0, 0.33, 0.67, 1].map(t => ({
-    y: PAD.top + (1 - t) * (H - PAD.top - PAD.bottom),
-    label: formatCurrency(minE + t * rangeE),
-  }))
+  const yTicks = [0, 0.33, 0.67, 1].map(t => {
+    const v = minE + t * rangeE
+    return {
+      y: PAD.top + (1 - t) * (H - PAD.top - PAD.bottom),
+      label: mode === 'percent' ? (v >= 0 ? '+' : '') + v.toFixed(1) + '%' : formatCurrency(v),
+    }
+  })
 
   // X-axis ticks (5)
   const xTickIdxs = [0, 0.25, 0.5, 0.75, 1].map(t => Math.round(t * (points.length - 1)))
@@ -122,6 +129,61 @@ function EquityCurve({ points }: { points: EquityPoint[] }) {
       )}
       {/* Endpoint dot */}
       <circle cx={xs[xs.length - 1]} cy={ys[ys.length - 1]} r={4} fill={lineColor} />
+    </svg>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Drawdown underwater chart
+// ---------------------------------------------------------------------------
+function DrawdownChart({ points }: { points: EquityPoint[] }) {
+  if (points.length < 2) {
+    return <div className="flex items-center justify-center h-full text-text-muted text-sm" style={{ height: 90 }}>No drawdown data yet</div>
+  }
+  const W = 900, H = 110
+  const PAD = { top: 10, right: 24, bottom: 22, left: 64 }
+
+  // Running drawdown % from the peak so far (≤ 0)
+  let peak = points[0].equity
+  const dd = points.map(p => {
+    if (p.equity > peak) peak = p.equity
+    return peak > 0 ? ((p.equity - peak) / peak) * 100 : 0
+  })
+  const minDD = Math.min(...dd, 0)
+  const range = Math.abs(minDD) || 1
+
+  const xs = points.map((_, i) => PAD.left + (i / (points.length - 1)) * (W - PAD.left - PAD.right))
+  const ys = dd.map(d => PAD.top + ((-d) / range) * (H - PAD.top - PAD.bottom))
+  const zeroY = PAD.top
+  const lineD = xs.map((x, i) => (i === 0 ? `M${x},${ys[i]}` : `L${x},${ys[i]}`)).join(' ')
+  const areaD = `M${xs[0]},${zeroY} ` + xs.map((x, i) => `L${x},${ys[i]}`).join(' ') + ` L${xs[xs.length - 1]},${zeroY} Z`
+  const maxDDidx = dd.indexOf(minDD)
+  const R = '#ff3047'
+
+  const yT = [0, 0.5, 1].map(t => ({
+    y: PAD.top + t * (H - PAD.top - PAD.bottom),
+    label: (-(t * range)).toFixed(1) + '%',
+  }))
+
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ height: H }}>
+      <defs>
+        <linearGradient id="ddGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={R} stopOpacity="0.05" />
+          <stop offset="100%" stopColor={R} stopOpacity="0.3" />
+        </linearGradient>
+      </defs>
+      {yT.map((t, i) => (
+        <line key={i} x1={PAD.left} y1={t.y} x2={W - PAD.right} y2={t.y} stroke="rgba(255,255,255,0.05)" strokeWidth={1} />
+      ))}
+      <path d={areaD} fill="url(#ddGrad)" />
+      <path d={lineD} fill="none" stroke={R} strokeWidth={1.5} strokeLinejoin="round" />
+      {yT.map((t, i) => (
+        <text key={i} x={PAD.left - 8} y={t.y + 4} textAnchor="end" fontSize={10} fill="#4b6070" fontFamily="monospace">{t.label}</text>
+      ))}
+      {maxDDidx >= 0 && minDD < 0 && (
+        <circle cx={xs[maxDDidx]} cy={ys[maxDDidx]} r={3.5} fill={R} />
+      )}
     </svg>
   )
 }
@@ -600,6 +662,7 @@ function AssetBreakdown({ trades }: { trades: TradeRecord[] }) {
 export default function AnalyticsPage() {
   const { performanceStats: stats, tradeJournal: trades, analyticsLoading, loadAnalytics } = useTradingStore()
   const [range, setRange] = useState<'7d' | '30d' | 'all'>('all')
+  const [chartMode, setChartMode] = useState<'value' | 'percent'>('value')
   const [lastUpdated, setLastUpdated] = useState<number>(Date.now())
   const firstLoad = useRef(true)
 
@@ -752,15 +815,49 @@ export default function AnalyticsPage() {
                     </span>
                   )}
                 </div>
-                {(stats!.equityCurve ?? []).length > 0 && (
-                  <span className="text-xs font-mono font-semibold"
-                    style={{ color: pnlColor((stats!.equityCurve ?? [])[(stats!.equityCurve ?? []).length - 1].equity - (stats!.equityCurve ?? [])[0].equity) }}>
-                    {formatCurrency((stats!.equityCurve ?? [])[(stats!.equityCurve ?? []).length - 1].equity)}
-                  </span>
-                )}
+                <div className="flex items-center gap-2">
+                  {(stats!.equityCurve ?? []).length > 0 && (() => {
+                    const ec = stats!.equityCurve!
+                    const base = ec[0].equity, lastEq = ec[ec.length - 1].equity
+                    const ret = base !== 0 ? (lastEq / base - 1) * 100 : 0
+                    return (
+                      <span className="text-xs font-mono font-semibold" style={{ color: pnlColor(lastEq - base) }}>
+                        {chartMode === 'percent' ? (ret >= 0 ? '+' : '') + ret.toFixed(2) + '%' : formatCurrency(lastEq)}
+                      </span>
+                    )
+                  })()}
+                  {/* $ / % toggle */}
+                  <div className="flex items-center gap-0.5 p-0.5 rounded-md" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                    {(['value', 'percent'] as const).map(mo => (
+                      <button key={mo} onClick={() => setChartMode(mo)}
+                        className="px-2 py-0.5 rounded text-2xs font-bold transition-all"
+                        style={chartMode === mo
+                          ? { background: 'rgba(14,165,233,0.15)', color: '#38bdf8' }
+                          : { background: 'transparent', color: '#64748b' }}>
+                        {mo === 'value' ? '$' : '%'}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
-              <EquityCurve points={stats!.equityCurve ?? []} />
+              <EquityCurve points={stats!.equityCurve ?? []} mode={chartMode} />
             </div>
+
+            {/* Drawdown underwater chart */}
+            {(stats!.equityCurve ?? []).length >= 2 && (
+              <div className="rounded-xl p-5" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-sm font-semibold text-text-primary">Drawdown</h3>
+                    <span className="text-2xs text-text-muted">underwater from peak</span>
+                  </div>
+                  <span className="text-xs font-mono font-semibold" style={{ color: '#ff3047' }}>
+                    Max {fmtPct(-(stats!.maxDrawdownPercent ?? 0) / 100)}
+                  </span>
+                </div>
+                <DrawdownChart points={stats!.equityCurve ?? []} />
+              </div>
+            )}
 
             {/* Asset breakdown */}
             <AssetBreakdown trades={trades} />
