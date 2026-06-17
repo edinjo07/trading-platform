@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import { getLeaderboard, LeaderboardEntry } from '../api/leaderboard'
+import { useAuthStore } from '../store/authStore'
 
-const FLAG: Record<string, string> = {
-  US: '🇺🇸', UK: '🇬🇧', DE: '🇩🇪', AU: '🇦🇺', CA: '🇨🇦',
-  SG: '🇸🇬', JP: '🇯🇵', FR: '🇫🇷', BR: '🇧🇷', NZ: '🇳🇿',
-}
+const pnlColor = (v: number) => (v >= 0 ? '#00c878' : '#ff3047')
+const retStr   = (v: number) => `${v >= 0 ? '+' : ''}${v.toFixed(1)}%`
 
 const MEDAL = ['🥇', '🥈', '🥉']
 
@@ -17,6 +16,7 @@ const GRADIENT = [
 type SortKey = 'returnPct' | 'netPnl' | 'winRate' | 'sharpe' | 'trades'
 
 export default function LeaderboardPage() {
+  const me = useAuthStore(s => s.user)
   const [data, setData]       = useState<LeaderboardEntry[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError]     = useState<string | null>(null)
@@ -24,10 +24,16 @@ export default function LeaderboardPage() {
   const [period, setPeriod]   = useState<'monthly' | 'all-time'>('monthly')
 
   useEffect(() => {
-    setLoading(true)
-    getLeaderboard()
-      .then(d => { setData(d); setLoading(false) })
-      .catch(() => { setError('Failed to load leaderboard'); setLoading(false) })
+    let alive = true
+    setLoading(true); setError(null)
+    const load = (silent: boolean) => getLeaderboard(period)
+      .then(d => { if (alive) { setData(d); setError(null) } })
+      .catch(() => { if (alive && !silent) setError('Failed to load leaderboard') })
+      .finally(() => { if (alive) setLoading(false) })
+    load(false)
+    // Live: refresh every 60s without flashing the loader
+    const id = setInterval(() => load(true), 60_000)
+    return () => { alive = false; clearInterval(id) }
   }, [period])
 
   const sorted = [...data].sort((a, b) => b[sortKey] - a[sortKey]).map((e, i) => ({ ...e, displayRank: i + 1 }))
@@ -50,7 +56,12 @@ export default function LeaderboardPage() {
           <h1 className="text-text-primary text-2xl font-bold flex items-center gap-2">
             🏆 Leaderboard
           </h1>
-          <p className="text-text-muted text-sm mt-1">Top traders ranked by verified performance</p>
+          <div className="flex items-center gap-2 mt-1">
+            <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-bull">
+              <span className="w-1.5 h-1.5 rounded-full bg-bull animate-pulse2" /> Live
+            </span>
+            <span className="text-text-muted text-sm">· Ranked by realized demo P&amp;L</span>
+          </div>
         </div>
 
         {/* Period selector */}
@@ -75,7 +86,17 @@ export default function LeaderboardPage() {
         <div className="card flex items-center justify-center py-20 text-bear text-sm">{error}</div>
       )}
 
-      {!loading && !error && (
+      {!loading && !error && data.length === 0 && (
+        <div className="card flex flex-col items-center justify-center py-20 gap-3 text-center">
+          <div className="text-4xl">🏁</div>
+          <p className="text-text-primary font-semibold">No ranked traders yet</p>
+          <p className="text-text-muted text-sm max-w-xs">
+            Close some trades on a demo account to get on the board. Rankings are computed from real demo performance.
+          </p>
+        </div>
+      )}
+
+      {!loading && !error && data.length > 0 && (
         <>
           {/* ─ Podium top 3 ─ */}
           <div className="grid grid-cols-3 gap-4">
@@ -95,9 +116,9 @@ export default function LeaderboardPage() {
                     {entry.avatar}
                   </div>
                   <div className="font-bold text-white text-sm">{entry.username}</div>
-                  <div className="text-xs text-text-muted mb-1">{FLAG[entry.country] ?? ''} {entry.country}</div>
-                  <div className="text-xl font-black font-mono" style={{ color: '#00c878' }}>
-                    +{entry.returnPct.toFixed(1)}%
+                  <div className="text-xs text-text-muted mb-1">{entry.trades} trades · {(entry.winRate * 100).toFixed(0)}% win</div>
+                  <div className="text-xl font-black font-mono" style={{ color: pnlColor(entry.returnPct) }}>
+                    {retStr(entry.returnPct)}
                   </div>
                   <div className="text-xs text-text-muted">${entry.netPnl.toLocaleString()} P&L</div>
                   {/* Podium bar */}
@@ -139,12 +160,14 @@ export default function LeaderboardPage() {
                 </tr>
               </thead>
               <tbody>
-                {sorted.map((entry, i) => (
+                {sorted.map((entry, i) => {
+                  const isMe = !!me && entry.userId === me.id
+                  return (
                   <tr key={entry.userId}
                     className="transition-colors"
-                    style={{ borderBottom: i < sorted.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}
-                    onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'rgba(14,165,233,0.03)'}
-                    onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = ''}>
+                    style={{ borderBottom: i < sorted.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none', background: isMe ? 'rgba(14,165,233,0.06)' : undefined }}
+                    onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'rgba(14,165,233,0.06)'}
+                    onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = isMe ? 'rgba(14,165,233,0.06)' : ''}>
                     {/* Rank */}
                     <td className="px-4 py-3.5">
                       {entry.displayRank <= 3
@@ -159,15 +182,18 @@ export default function LeaderboardPage() {
                           {entry.avatar}
                         </div>
                         <div>
-                          <div className="font-semibold text-text-primary text-sm">{entry.username}</div>
-                          <div className="text-text-muted text-[11px]">{FLAG[entry.country] ?? ''} {entry.country}</div>
+                          <div className="font-semibold text-text-primary text-sm flex items-center gap-2">
+                            {entry.username}
+                            {isMe && <span className="text-[9px] font-bold px-1.5 py-0.5 rounded" style={{ background: 'rgba(14,165,233,0.18)', color: '#38bdf8' }}>YOU</span>}
+                          </div>
+                          <div className="text-text-muted text-[11px] font-mono">Equity ${entry.equity.toLocaleString()}</div>
                         </div>
                       </div>
                     </td>
                     {/* Return */}
                     <td className="px-4 py-3.5 text-right">
-                      <span className="font-black font-mono tabular text-sm" style={{ color: '#00c878' }}>
-                        +{entry.returnPct.toFixed(1)}%
+                      <span className="font-black font-mono tabular text-sm" style={{ color: pnlColor(entry.returnPct) }}>
+                        {retStr(entry.returnPct)}
                       </span>
                     </td>
                     {/* Net P&L */}
@@ -204,14 +230,15 @@ export default function LeaderboardPage() {
                       )}
                     </td>
                   </tr>
-                ))}
+                  )
+                })}
               </tbody>
             </table>
           </div>
 
           {/* Footer note */}
           <p className="text-center text-text-muted text-xs">
-            Rankings update every 60 seconds · Verified by TradeX Pro · FCA Regulated
+            Ranked by realized demo P&amp;L across all traders · Updates live every 60s
           </p>
         </>
       )}

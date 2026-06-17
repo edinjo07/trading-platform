@@ -15,7 +15,7 @@ export interface LeaderboardEntry {
   streak:    number
 }
 
-export async function getLeaderboard(): Promise<LeaderboardEntry[]> {
-  const res = await api.get<{ success: boolean; data: LeaderboardEntry[] }>('/leaderboard')
+export async function getLeaderboard(period: 'monthly' | 'all-time' = 'all-time'): Promise<LeaderboardEntry[]> {
+  const res = await api.get<{ success: boolean; data: LeaderboardEntry[] }>('/leaderboard', { params: { period } })
   return res.data.data
 }
