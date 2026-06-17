@@ -591,8 +591,14 @@ function AssetBreakdown({ trades }: { trades: TradeRecord[] }) {
 // ---------------------------------------------------------------------------
 export default function AnalyticsPage() {
   const { performanceStats: stats, tradeJournal: trades, analyticsLoading, loadAnalytics } = useTradingStore()
+  const [lastUpdated, setLastUpdated] = useState<number>(Date.now())
 
-  useEffect(() => { loadAnalytics() }, [])
+  useEffect(() => {
+    loadAnalytics().then(() => setLastUpdated(Date.now()))
+    // Live: silently refresh every 10s so stats/equity/calendar update as trades close
+    const id = setInterval(() => { loadAnalytics(true).then(() => setLastUpdated(Date.now())) }, 10_000)
+    return () => clearInterval(id)
+  }, [loadAnalytics])
 
   if (analyticsLoading) {
     return (
@@ -616,16 +622,27 @@ export default function AnalyticsPage() {
       <div className="px-6 pt-6 pb-4 shrink-0 flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold text-text-primary">Performance Analytics</h1>
-          <p className="text-xs text-text-muted mt-0.5">Your detailed trading statistics and trade journal</p>
+          <p className="text-xs text-text-muted mt-0.5">Live trading statistics, equity curve &amp; trade journal</p>
         </div>
-        <button onClick={() => loadAnalytics()}
-          className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
-          style={{ background: 'rgba(14,165,233,0.1)', border: '1px solid rgba(14,165,233,0.2)', color: '#38bdf8' }}>
-          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-          </svg>
-          Refresh
-        </button>
+        <div className="flex items-center gap-2.5">
+          {/* Live indicator */}
+          <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg"
+               style={{ background: 'rgba(0,200,120,0.08)', border: '1px solid rgba(0,200,120,0.2)' }}>
+            <span className="w-1.5 h-1.5 rounded-full bg-bull animate-pulse2" />
+            <span className="text-2xs font-semibold text-bull">LIVE</span>
+            <span className="text-2xs text-text-muted font-mono hidden sm:inline">
+              · {new Date(lastUpdated).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+            </span>
+          </div>
+          <button onClick={() => loadAnalytics().then(() => setLastUpdated(Date.now()))}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
+            style={{ background: 'rgba(14,165,233,0.1)', border: '1px solid rgba(14,165,233,0.2)', color: '#38bdf8' }}>
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+            </svg>
+            Refresh
+          </button>
+        </div>
       </div>
 
       <div className="px-6 pb-6 flex flex-col gap-5">
