@@ -15,6 +15,7 @@ import ProfilePage from './pages/ProfilePage'
 import LandingPage from './pages/LandingPage'
 import LeaderboardPage from './pages/LeaderboardPage'
 import AlertsPage from './pages/AlertsPage'
+import NotificationsPage from './pages/NotificationsPage'
 import BotsPage from './pages/BotsPage'
 import DepositPage from './pages/DepositPage'
 import WithdrawPage from './pages/WithdrawPage'
@@ -122,6 +123,7 @@ export default function App() {
           <Route path="analytics" element={<AnalyticsPage />} />
           <Route path="leaderboard" element={<LeaderboardPage />} />
           <Route path="alerts" element={<AlertsPage />} />
+          <Route path="notifications" element={<NotificationsPage />} />
           <Route path="bots" element={<BotsPage />} />
           <Route path="deposit" element={<DepositPage />} />
           <Route path="withdraw" element={<WithdrawPage />} />

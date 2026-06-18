@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
 import { useTradingStore } from '../store/tradingStore'
 import { formatCurrency } from '../utils/formatters'
+import { withdrawDemo } from '../api/accounts'
+import type { Currency } from '../types'
 
 type Method = 'bank' | 'crypto'
 
@@ -12,7 +14,8 @@ const PRESET_AMOUNTS = [100, 250, 500, 1000, 2500, 5000]
 export default function WithdrawPage() {
   const navigate = useNavigate()
   const { user } = useAuthStore()
-  const { portfolio } = useTradingStore()
+  const { portfolio, loadPortfolio } = useTradingStore()
+  const currency = (user?.currency ?? 'USD') as Currency
 
   const available = portfolio?.cashBalance ?? user?.balance ?? 0
 
@@ -24,6 +27,8 @@ export default function WithdrawPage() {
   const [iban, setIban]           = useState('')
   const [swift, setSwift]         = useState('')
   const [step, setStep]           = useState<'form' | 'confirm' | 'done'>('form')
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError]         = useState('')
 
   const parsedAmount = parseFloat(amount.replace(/,/g, ''))
   const isValid = !isNaN(parsedAmount) && parsedAmount >= 50 && parsedAmount <= available
@@ -31,10 +36,20 @@ export default function WithdrawPage() {
   const networkFee = method === 'crypto' ? 2.5 : 0
   const willReceive = isValid ? parsedAmount - networkFee : 0
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!isValid) return
     if (step === 'form') { setStep('confirm'); return }
-    setStep('done')
+    // Confirm step → actually process the withdrawal (deducts balance, fires notification)
+    setSubmitting(true); setError('')
+    try {
+      await withdrawDemo(currency, parsedAmount)
+      await loadPortfolio()
+      setStep('done')
+    } catch (e: unknown) {
+      setError((e as { response?: { data?: { error?: string } } })?.response?.data?.error ?? 'Withdrawal failed')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   if (step === 'done') {
@@ -48,9 +63,9 @@ export default function WithdrawPage() {
             </svg>
           </div>
           <div>
-            <h2 className="text-xl font-bold text-text-primary">Withdrawal Requested</h2>
+            <h2 className="text-xl font-bold text-text-primary">Withdrawal Processed</h2>
             <p className="text-text-muted text-sm mt-1">
-              Your withdrawal of <span className="font-semibold" style={{ color: '#fb923c' }}>{formatCurrency(parsedAmount)}</span> is pending review.
+              Your withdrawal of <span className="font-semibold" style={{ color: '#fb923c' }}>{formatCurrency(parsedAmount)}</span> has been processed.
             </p>
           </div>
           <div className="w-full rounded-xl p-4 text-sm space-y-2" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
@@ -59,7 +74,7 @@ export default function WithdrawPage() {
             {networkFee > 0 && <div className="flex justify-between"><span className="text-text-muted">Network fee</span><span className="text-bear font-mono">−{formatCurrency(networkFee)}</span></div>}
             <div className="h-px" style={{ background: 'rgba(255,255,255,0.06)' }} />
             <div className="flex justify-between font-bold"><span className="text-text-primary">You receive</span><span className="font-mono text-base" style={{ color: '#fb923c' }}>{formatCurrency(willReceive)}</span></div>
-            <div className="flex justify-between"><span className="text-text-muted">Status</span><span className="px-2 py-0.5 rounded text-xs font-bold" style={{ background: 'rgba(251,146,60,0.12)', color: '#fb923c' }}>Pending Review</span></div>
+            <div className="flex justify-between"><span className="text-text-muted">Status</span><span className="px-2 py-0.5 rounded text-xs font-bold" style={{ background: 'rgba(16,185,129,0.12)', color: '#10b981' }}>Processed</span></div>
           </div>
           <div className="flex gap-3 w-full">
             <button onClick={() => { setStep('form'); setAmount('') }}
@@ -97,15 +112,21 @@ export default function WithdrawPage() {
           <div className="rounded-lg p-3 text-xs" style={{ background: 'rgba(251,146,60,0.08)', border: '1px solid rgba(251,146,60,0.2)', color: '#fb923c' }}>
             ⚠ Withdrawals are reviewed by our team within 24 hours. Ensure your details are correct - funds sent to wrong addresses cannot be recovered.
           </div>
+          {error && (
+            <div className="rounded-lg p-3 text-xs" style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', color: '#fca5a5' }}>
+              {error}
+            </div>
+          )}
           <div className="flex gap-3">
-            <button onClick={() => setStep('form')}
-              className="flex-1 py-2.5 rounded-lg text-sm font-semibold"
+            <button onClick={() => setStep('form')} disabled={submitting}
+              className="flex-1 py-2.5 rounded-lg text-sm font-semibold disabled:opacity-50"
               style={{ background: 'rgba(255,255,255,0.06)', color: '#e2e8f0', border: '1px solid rgba(255,255,255,0.1)' }}>
               Back
             </button>
-            <button onClick={handleSubmit} className="flex-1 py-2.5 rounded-lg text-sm font-bold transition-all"
+            <button onClick={handleSubmit} disabled={submitting}
+              className="flex-1 py-2.5 rounded-lg text-sm font-bold transition-all disabled:opacity-60 disabled:cursor-not-allowed"
               style={{ background: 'linear-gradient(135deg,#f97316,#ea580c)', color: 'white' }}>
-              Submit Withdrawal
+              {submitting ? 'Processing…' : 'Submit Withdrawal'}
             </button>
           </div>
         </div>

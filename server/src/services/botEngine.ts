@@ -22,9 +22,11 @@
 
 import { supabase } from '../db'
 import { getPrice } from './priceService'
+import { getSymbolInfo } from './mockDataService'
 import { placeMarketOrder, closePosition } from './orderEngine'
 import { getCandles } from './candleService'
 import { getCachedNewsImpact, refreshNewsImpact } from './newsImpactService'
+import { createNotification } from './notificationService'
 
 const TICK_MS  = 5_000
 const MAX_LOGS = 200
@@ -60,6 +62,7 @@ interface BotLog {
 interface BotMemState {
   intervalId:        NodeJS.Timeout
   userId:            string
+  botName:           string
   mode:              'demo' | 'real'
   currency:          string
   symbol:            string
@@ -400,6 +403,24 @@ function recordClose(state: BotMemState, netPnl: number) {
 
 function fmtPnl(n: number) { return `${n >= 0 ? '+' : ''}${n.toFixed(4)}` }
 
+function notifyBotOpen(state: BotMemState, side: 'long' | 'short') {
+  const name = getSymbolInfo(state.symbol)?.name
+  createNotification(state.userId, {
+    type: 'bot', severity: 'info',
+    title: `${state.botName} opened a trade`,
+    message: `${state.botName} opened ${side.toUpperCase()} ${state.symbol}${name ? ` (${name})` : ''}.`,
+    metadata: { symbol: state.symbol, side, bot: state.botName, silent: true },
+  })
+}
+function notifyBotClose(state: BotMemState, side: 'long' | 'short', netPnl: number) {
+  createNotification(state.userId, {
+    type: 'bot', severity: netPnl >= 0 ? 'success' : 'warning',
+    title: `${state.botName} closed a trade`,
+    message: `${state.botName} closed ${side.toUpperCase()} ${state.symbol} · P&L ${netPnl >= 0 ? '+' : ''}${netPnl.toFixed(2)} ${state.currency}.`,
+    metadata: { symbol: state.symbol, side, netPnl, bot: state.botName, silent: true },
+  })
+}
+
 // ─── Main tick ────────────────────────────────────────────────────────────────
 
 async function tick(botId: string) {
@@ -460,10 +481,12 @@ async function tick(botId: string) {
     }
 
     if (closeReason) {
+      const side = state.positionSide
       try {
         const result = await closePosition(state.positionId, state.userId, state.mode, state.currency)
         recordClose(state, result.netPnl)
-        addLog(state, 'trade', `[${state.positionSide.toUpperCase()} CLOSED] ${closeReason} | P&L: ${fmtPnl(result.netPnl)}`)
+        addLog(state, 'trade', `[${side.toUpperCase()} CLOSED] ${closeReason} | P&L: ${fmtPnl(result.netPnl)}`)
+        notifyBotClose(state, side, result.netPnl)
       } catch (err) {
         addLog(state, 'error', `SL/TP close failed: ${err instanceof Error ? err.message : String(err)}`)
         state.positionId   = null
@@ -549,11 +572,13 @@ async function tick(botId: string) {
       (state.positionSide === 'short' && signal === 'buy')
 
     if (shouldClose) {
+      const side = state.positionSide
       try {
         const result = await closePosition(state.positionId, state.userId, state.mode, state.currency)
         recordClose(state, result.netPnl)
         addLog(state, 'trade',
-          `[${state.positionSide === 'long' ? 'LONG' : 'SHORT'} CLOSED] @ ${price.toFixed(4)} | P&L: ${fmtPnl(result.netPnl)}`)
+          `[${side === 'long' ? 'LONG' : 'SHORT'} CLOSED] @ ${price.toFixed(4)} | P&L: ${fmtPnl(result.netPnl)}`)
+        notifyBotClose(state, side, result.netPnl)
       } catch (err) {
         addLog(state, 'error', `Close failed: ${err instanceof Error ? err.message : String(err)}`)
         state.positionId   = null
@@ -602,6 +627,7 @@ async function tick(botId: string) {
       addLog(state, 'trade',
         `[${state.positionSide.toUpperCase()} OPENED] ${state.params.tradeSize} ${state.symbol} @ ${result.fillPrice.toFixed(4)} | SL: ${sl.toFixed(4)} TP: ${tp.toFixed(4)}` +
         (newsAligned ? ` | news-boosted (${news!.direction} ${(news!.confidence * 100).toFixed(0)}%)` : ''))
+      notifyBotOpen(state, state.positionSide)
     } catch (err) {
       addLog(state, 'error', `Open failed: ${err instanceof Error ? err.message : String(err)}`)
       state.confirmCount = 0
@@ -629,6 +655,7 @@ export async function startBotEngine(botId: string, userId: string, currency = '
   const state: BotMemState = {
     intervalId:        null as unknown as NodeJS.Timeout,
     userId,
+    botName:           (bot.name as string) ?? 'TradePilot bot',
     mode:              botMode,
     currency:          resolvedCurrency,
     symbol:            bot.symbol,

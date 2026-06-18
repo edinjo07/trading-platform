@@ -145,4 +145,53 @@ router.post('/deposit', authenticate, async (req: AuthRequest, res: Response) =>
   return res.json({ cash_balance: (updated as Record<string, unknown>).cash_balance })
 })
 
+// POST /api/accounts/withdraw — withdraw from a demo account (simulated payout)
+router.post('/withdraw', authenticate, async (req: AuthRequest, res: Response) => {
+  const userId = req.user!.userId
+  const { currency, amount } = req.body
+
+  if (!VALID_CURRENCIES.includes(currency)) {
+    return res.status(400).json({ error: 'currency must be USD, EUR, or GBP' })
+  }
+  const amt = parseFloat(amount)
+  if (!isFinite(amt) || amt <= 0) {
+    return res.status(400).json({ error: 'amount must be a positive number' })
+  }
+
+  const { data: acct, error: fetchErr } = await supabase
+    .from('accounts')
+    .select('id, cash_balance')
+    .eq('user_id', userId)
+    .eq('mode', 'demo')
+    .eq('currency', currency)
+    .single()
+
+  if (fetchErr || !acct) return res.status(404).json({ error: 'Demo account not found' })
+  if (acct.cash_balance < amt) return res.status(400).json({ error: 'Insufficient available balance' })
+
+  const newBalance = parseFloat((acct.cash_balance - amt).toFixed(2))
+  const { data: updated, error: updateErr } = await supabase
+    .from('accounts')
+    .update({ cash_balance: newBalance, updated_at: new Date().toISOString() })
+    .eq('user_id', userId)
+    .eq('mode', 'demo')
+    .eq('currency', currency)
+    .gte('cash_balance', amt)   // atomic guard against overdraft
+    .select('cash_balance')
+
+  if (updateErr) return res.status(500).json({ error: updateErr.message })
+  if (!updated || (updated as unknown[]).length === 0) {
+    return res.status(400).json({ error: 'Insufficient available balance' })
+  }
+
+  createNotification(userId, {
+    type: 'withdrawal', severity: 'success',
+    title: 'Withdrawal processed',
+    message: `Your withdrawal of ${amt.toFixed(2)} ${currency} has been processed.`,
+    metadata: { currency, amount: amt },
+  })
+
+  return res.json({ cash_balance: (updated as { cash_balance: number }[])[0].cash_balance })
+})
+
 export default router

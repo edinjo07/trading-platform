@@ -37,7 +37,9 @@ export const useNotificationsStore = create<NotifState>((set, get) => ({
       // Toast newly-arrived notifications. Skip the very first poll so we don't
       // flood the screen with the existing backlog on page load.
       if (!firstPoll) {
-        const fresh = notifications.filter(n => !seen.has(n.id))
+        // High-volume / low-priority events (bot trades, limit placed) carry
+        // metadata.silent — they populate the inbox but don't pop a toast.
+        const fresh = notifications.filter(n => !seen.has(n.id) && n.metadata?.silent !== true)
         const { addToast } = useToastStore.getState()
         for (const n of [...fresh].reverse()) {
           addToast({

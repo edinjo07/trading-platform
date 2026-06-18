@@ -3,6 +3,8 @@ import { authenticate, AuthRequest } from '../middleware/auth'
 import { placeMarketOrder } from '../services/orderEngine'
 import { addLimitOrder, cancelLimitOrder, getPendingLimitOrders } from '../services/limitOrderMonitor'
 import { getPrice } from '../services/priceService'
+import { getSymbolInfo } from '../services/mockDataService'
+import { createNotification } from '../services/notificationService'
 import { supabase } from '../db'
 import { AccountMode, OrderSide } from '../types'
 
@@ -65,6 +67,13 @@ router.post('/', authenticate, async (req: AuthRequest, res: Response) => {
       stopLoss:   stopLoss   != null ? parseFloat(String(stopLoss))   : undefined,
     })
 
+    createNotification(userId, {
+      type: 'order_placed', severity: 'info',
+      title: 'Limit order placed',
+      message: `${String(side).toUpperCase()} ${qty} ${sym} limit @ ${lp} is now pending.`,
+      metadata: { symbol: sym, side, quantity: qty, limitPrice: lp, silent: true },
+    })
+
     return res.status(201).json({
       id, type: 'limit', status: 'pending',
       symbol: sym, side, quantity: qty, limitPrice: lp, condition,
@@ -81,6 +90,13 @@ router.post('/', authenticate, async (req: AuthRequest, res: Response) => {
       takeProfit: takeProfit != null ? parseFloat(String(takeProfit)) : undefined,
       stopLoss:   stopLoss   != null ? parseFloat(String(stopLoss))   : undefined,
       currency,
+    })
+    const name = getSymbolInfo(sym)?.name ?? sym
+    createNotification(userId, {
+      type: 'order_filled', severity: 'success',
+      title: 'Order filled',
+      message: `${String(side).toUpperCase()} ${qty} ${name} filled at ${order.fillPrice}.`,
+      metadata: { symbol: sym, side, quantity: qty, fillPrice: order.fillPrice },
     })
     return res.status(201).json(order)
   } catch (err: unknown) {

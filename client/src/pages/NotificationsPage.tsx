@@ -1,0 +1,133 @@
+import React, { useEffect, useState } from 'react'
+import { useNotificationsStore } from '../store/notificationsStore'
+import { AppNotification, NotifSeverity } from '../api/notifications'
+
+const C = {
+  surface:  '#0c1018',
+  surface2: '#0f1623',
+  border:   'rgba(255,255,255,0.07)',
+  text1:    '#e2e8f0',
+  text2:    '#94a3b8',
+  text3:    '#64748b',
+  blue:     '#38bdf8',
+  green:    '#10b981',
+}
+const SEV: Record<NotifSeverity, { color: string; bg: string }> = {
+  critical: { color: '#ef4444', bg: 'rgba(239,68,68,0.12)' },
+  warning:  { color: '#f59e0b', bg: 'rgba(245,158,11,0.12)' },
+  success:  { color: '#10b981', bg: 'rgba(16,185,129,0.12)' },
+  info:     { color: '#38bdf8', bg: 'rgba(14,165,233,0.12)' },
+}
+
+function sevIcon(sev: NotifSeverity) {
+  const p = { width: 17, height: 17, fill: 'none', viewBox: '0 0 24 24', strokeWidth: 2, stroke: 'currentColor' } as const
+  if (sev === 'success') return <svg {...p}><path d="M20 6L9 17l-5-5" strokeLinecap="round" strokeLinejoin="round" /></svg>
+  if (sev === 'info')    return <svg {...p}><circle cx="12" cy="12" r="10" /><path d="M12 16v-4M12 8h.01" strokeLinecap="round" /></svg>
+  return <svg {...p}><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" strokeLinejoin="round" /><path d="M12 9v4M12 17h.01" strokeLinecap="round" /></svg>
+}
+
+function timeAgo(iso: string): string {
+  const s = Math.max(0, (Date.now() - new Date(iso).getTime()) / 1000)
+  if (s < 60)    return 'just now'
+  if (s < 3600)  return `${Math.floor(s / 60)}m ago`
+  if (s < 86400) return `${Math.floor(s / 3600)}h ago`
+  return `${Math.floor(s / 86400)}d ago`
+}
+
+function Row({ n, onRead, onRemove }: { n: AppNotification; onRead: (id: string) => void; onRemove: (id: string) => void }) {
+  const s = SEV[n.severity] ?? SEV.info
+  return (
+    <div
+      onClick={() => !n.read && onRead(n.id)}
+      style={{
+        display: 'flex', gap: 13, padding: '14px 16px', borderRadius: 12, cursor: n.read ? 'default' : 'pointer',
+        background: n.read ? C.surface : 'rgba(14,165,233,0.05)',
+        border: `1px solid ${n.read ? C.border : 'rgba(14,165,233,0.18)'}`, position: 'relative',
+      }}
+    >
+      <div style={{ width: 36, height: 36, borderRadius: 10, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: s.bg, color: s.color }}>
+        {sevIcon(n.severity)}
+      </div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          {!n.read && <span style={{ width: 6, height: 6, borderRadius: '50%', background: C.blue, flexShrink: 0 }} />}
+          <span style={{ fontSize: 13.5, fontWeight: 700, color: C.text1, flex: 1, minWidth: 0 }}>{n.title}</span>
+          <span style={{ fontSize: 10.5, color: C.text3, flexShrink: 0 }}>{timeAgo(n.created_at)}</span>
+        </div>
+        <p style={{ fontSize: 12.5, color: C.text2, margin: '4px 0 0', lineHeight: 1.5 }}>{n.message}</p>
+      </div>
+      <button onClick={e => { e.stopPropagation(); onRemove(n.id) }} title="Dismiss"
+        style={{ alignSelf: 'flex-start', width: 24, height: 24, borderRadius: 7, background: 'rgba(255,255,255,0.05)', border: 'none', color: C.text3, cursor: 'pointer', flexShrink: 0, fontSize: 13 }}>
+        ✕
+      </button>
+    </div>
+  )
+}
+
+export default function NotificationsPage() {
+  const { notifications, unread, start, poll, markRead, markAllRead, remove, clearAll } = useNotificationsStore()
+  const [filter, setFilter] = useState<'all' | 'unread'>('all')
+
+  useEffect(() => { start(); poll() }, [start, poll])
+
+  const list = filter === 'unread' ? notifications.filter(n => !n.read) : notifications
+
+  return (
+    <div style={{ maxWidth: 720, margin: '0 auto' }}>
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, marginBottom: 18 }}>
+        <div>
+          <h1 style={{ fontSize: 22, fontWeight: 800, color: C.text1, margin: 0 }}>Notifications</h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6 }}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 11, fontWeight: 700, color: C.green }}>
+              <span className="animate-pulse2" style={{ width: 6, height: 6, borderRadius: '50%', background: C.green }} /> Live
+            </span>
+            <span style={{ fontSize: 12, color: C.text3 }}>· {unread} unread · {notifications.length} total</span>
+          </div>
+        </div>
+        <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
+          {unread > 0 && (
+            <button onClick={() => markAllRead()} style={{ fontSize: 12, fontWeight: 700, color: C.blue, background: 'rgba(14,165,233,0.1)', border: '1px solid rgba(14,165,233,0.25)', borderRadius: 10, padding: '8px 12px', cursor: 'pointer' }}>
+              Mark all read
+            </button>
+          )}
+          {notifications.length > 0 && (
+            <button onClick={() => clearAll()} style={{ fontSize: 12, fontWeight: 700, color: C.text2, background: C.surface2, border: `1px solid ${C.border}`, borderRadius: 10, padding: '8px 12px', cursor: 'pointer' }}>
+              Clear all
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Filter tabs */}
+      <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
+        {(['all', 'unread'] as const).map(f => (
+          <button key={f} onClick={() => setFilter(f)}
+            style={{
+              padding: '7px 16px', borderRadius: 20, fontSize: 12, fontWeight: 700, cursor: 'pointer', textTransform: 'capitalize',
+              background: filter === f ? 'rgba(14,165,233,0.15)' : C.surface2,
+              color:      filter === f ? C.blue : C.text3,
+              border:     `1px solid ${filter === f ? 'rgba(14,165,233,0.35)' : C.border}`,
+            }}>
+            {f}{f === 'unread' && unread > 0 ? ` (${unread})` : ''}
+          </button>
+        ))}
+      </div>
+
+      {/* List */}
+      {list.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: '70px 24px', background: C.surface, borderRadius: 16, border: `1px solid ${C.border}` }}>
+          <div style={{ width: 56, height: 56, borderRadius: '50%', margin: '0 auto 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(14,165,233,0.07)', border: '1px solid rgba(14,165,233,0.15)', color: C.blue }}>
+            <svg width="26" height="26" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0" /></svg>
+          </div>
+          <p style={{ fontSize: 15, fontWeight: 700, color: C.text1, margin: '0 0 6px' }}>{filter === 'unread' ? 'No unread notifications' : 'No notifications yet'}</p>
+          <p style={{ fontSize: 12.5, color: C.text3, margin: 0 }}>Margin alerts, closed positions, fills and account events appear here.</p>
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {list.map(n => <Row key={n.id} n={n} onRead={markRead} onRemove={remove} />)}
+        </div>
+      )}
+    </div>
+  )
+}

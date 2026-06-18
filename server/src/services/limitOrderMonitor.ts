@@ -13,7 +13,9 @@
 
 import { v4 as uuidv4 } from 'uuid'
 import { getPrice } from './priceService'
+import { getSymbolInfo } from './mockDataService'
 import { placeMarketOrder } from './orderEngine'
+import { createNotification } from './notificationService'
 import { AccountMode, OrderSide } from '../types'
 
 export interface PendingLimitOrder {
@@ -95,6 +97,13 @@ async function runCheck(): Promise<void> {
         takeProfit: order.takeProfit,
         stopLoss:   order.stopLoss,
         currency:   order.currency,
+      })
+      const name = getSymbolInfo(order.symbol)?.name ?? order.symbol
+      await createNotification(order.userId, {
+        type: 'order_filled', severity: 'success',
+        title: 'Limit order filled',
+        message: `Your ${order.side.toUpperCase()} ${order.quantity} ${name} limit order filled at ${price}.`,
+        metadata: { symbol: order.symbol, side: order.side, quantity: order.quantity, fillPrice: price },
       })
     } catch (err) {
       console.error(`[Limit] Execution failed for ${id}:`, err)

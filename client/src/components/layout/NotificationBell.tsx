@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useNotificationsStore } from '../../store/notificationsStore'
 import { AppNotification, NotifSeverity } from '../../api/notifications'
 
@@ -67,6 +68,7 @@ export default function NotificationBell() {
   const { notifications, unread, start, poll, markRead, markAllRead, remove, clearAll } = useNotificationsStore()
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
+  const nav = useNavigate()
 
   useEffect(() => { start() }, [start])
 
@@ -141,6 +143,14 @@ export default function NotificationBell() {
             ) : (
               notifications.map(n => <Row key={n.id} n={n} onRead={markRead} onRemove={remove} />)
             )}
+          </div>
+
+          {/* Footer */}
+          <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', flexShrink: 0 }}>
+            <button onClick={() => { setOpen(false); nav('/dashboard/notifications') }}
+              style={{ width: '100%', padding: '11px', background: 'none', border: 'none', color: '#38bdf8', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+              See all notifications
+            </button>
           </div>
         </div>
       )}

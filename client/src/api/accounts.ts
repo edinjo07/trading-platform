@@ -27,3 +27,8 @@ export const depositDemo = async (currency: Currency, amount: number): Promise<{
   const { data } = await api.post<{ cash_balance: number }>('/accounts/deposit', { currency, amount })
   return data
 }
+
+export const withdrawDemo = async (currency: Currency, amount: number): Promise<{ cash_balance: number }> => {
+  const { data } = await api.post<{ cash_balance: number }>('/accounts/withdraw', { currency, amount })
+  return data
+}
