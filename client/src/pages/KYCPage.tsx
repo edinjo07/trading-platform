@@ -1,6 +1,6 @@
 ﻿import React, { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useAuthStore } from '../store/authStore'
+import { useKYCStore } from '../store/kycStore'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type DocStatus = 'empty' | 'uploaded' | 'pending' | 'verified' | 'rejected'
@@ -9,41 +9,6 @@ interface DocFile {
   name: string
   size: number
   dataUrl: string
-}
-
-interface KYCState {
-  idType: string
-  idFile: DocFile | null
-  idStatus: DocStatus
-  poaType: string
-  poaFile: DocFile | null
-  poaStatus: DocStatus
-  submittedAt?: string
-}
-
-const KYC_STORAGE_KEY = 'tradex_kyc_state'
-
-function loadKYCState(): KYCState {
-  try {
-    const raw = localStorage.getItem(KYC_STORAGE_KEY)
-    if (raw) return JSON.parse(raw)
-  } catch {}
-  return { idType: '', idFile: null, idStatus: 'empty', poaType: '', poaFile: null, poaStatus: 'empty' }
-}
-
-function saveKYCState(s: KYCState) {
-  localStorage.setItem(KYC_STORAGE_KEY, JSON.stringify(s))
-}
-
-export function getKYCStatus(): 'unverified' | 'pending' | 'verified' {
-  try {
-    const raw = localStorage.getItem(KYC_STORAGE_KEY)
-    if (!raw) return 'unverified'
-    const s: KYCState = JSON.parse(raw)
-    if (s.idStatus === 'verified' && s.poaStatus === 'verified') return 'verified'
-    if (s.idStatus === 'pending' || s.poaStatus === 'pending') return 'pending'
-  } catch {}
-  return 'unverified'
 }
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -115,7 +80,7 @@ function UploadZone({
           )}
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold text-text-primary truncate">{file.name}</p>
-            <p className="text-xs text-text-muted mt-0.5">{fmtSize(file.size)}</p>
+            <p className="text-xs text-text-muted mt-0.5">{file.size > 0 ? fmtSize(file.size) : 'On file'}</p>
           </div>
           {!disabled && (
             <button onClick={() => inputRef.current?.click()}
@@ -353,40 +318,61 @@ const POA_REQUIREMENTS = [
   'File must be JPG, PNG or PDF - maximum 10 MB',
 ]
 
-const OVERALL_STEPS: { key: string; label: string; done: (s: KYCState) => boolean }[] = [
-  { key: 'id',  label: 'Identity Document', done: s => s.idStatus === 'verified' || s.idStatus === 'pending' },
-  { key: 'poa', label: 'Proof of Address',  done: s => s.poaStatus === 'verified' || s.poaStatus === 'pending' },
-  { key: 'review', label: 'Under Review',   done: s => s.idStatus === 'verified' && s.poaStatus === 'verified' },
+const OVERALL_STEPS: { key: string; label: string; done: (idS: DocStatus, poaS: DocStatus) => boolean }[] = [
+  { key: 'id',  label: 'Identity Document', done: (idS) => idS === 'verified' || idS === 'pending' },
+  { key: 'poa', label: 'Proof of Address',  done: (_idS, poaS) => poaS === 'verified' || poaS === 'pending' },
+  { key: 'review', label: 'Under Review',   done: (idS, poaS) => idS === 'verified' && poaS === 'verified' },
 ]
 
 export default function KYCPage() {
   const navigate = useNavigate()
-  const { user } = useAuthStore()
+  const { record, load, submit } = useKYCStore()
 
-  const [state, setState] = useState<KYCState>(loadKYCState)
+  // Local (ephemeral) document selections. File previews stay client-side in this
+  // simulator — only the document type + filename are sent to the backend.
+  const [idType,  setIdType]  = useState('')
+  const [idFile,  setIdFile]  = useState<DocFile | null>(null)
+  const [poaType, setPoaType] = useState('')
+  const [poaFile, setPoaFile] = useState<DocFile | null>(null)
+  const [submitting, setSubmitting] = useState(false)
 
-  const setIdType  = (v: string)    => setState(s => { const n = { ...s, idType: v };  saveKYCState(n); return n })
-  const setIdFile  = (f: DocFile)   => setState(s => { const n = { ...s, idFile: f };  saveKYCState(n); return n })
-  const setPoaType = (v: string)    => setState(s => { const n = { ...s, poaType: v }; saveKYCState(n); return n })
-  const setPoaFile = (f: DocFile)   => setState(s => { const n = { ...s, poaFile: f }; saveKYCState(n); return n })
+  useEffect(() => { load() }, [load])
 
-  const canSubmitId  = state.idType && state.idFile  && state.idStatus  !== 'pending' && state.idStatus  !== 'verified'
-  const canSubmitPoa = state.poaType && state.poaFile && state.poaStatus !== 'pending' && state.poaStatus !== 'verified'
+  // Prefill the type pickers from any saved submission
+  useEffect(() => {
+    if (record.id_type)  setIdType(record.id_type)
+    if (record.poa_type) setPoaType(record.poa_type)
+  }, [record.id_type, record.poa_type])
+
+  const idServer  = record.id_status
+  const poaServer = record.poa_status
+
+  // Display status: a server decision wins; a locally-picked-but-unsent file = "uploaded".
+  const idDisplay:  DocStatus = idServer  !== 'empty' ? idServer  : (idFile  ? 'uploaded' : 'empty')
+  const poaDisplay: DocStatus = poaServer !== 'empty' ? poaServer : (poaFile ? 'uploaded' : 'empty')
+
+  // For submitted docs with no local preview, synthesize a placeholder from the filename.
+  const idFileShown  = idFile  ?? (record.id_doc_name  ? { name: record.id_doc_name,  size: 0, dataUrl: '' } : null)
+  const poaFileShown = poaFile ?? (record.poa_doc_name ? { name: record.poa_doc_name, size: 0, dataUrl: '' } : null)
+
+  const canSubmitId  = !!idType  && !!idFile  && idServer  !== 'pending' && idServer  !== 'verified'
+  const canSubmitPoa = !!poaType && !!poaFile && poaServer !== 'pending' && poaServer !== 'verified'
   const canSubmitAll = canSubmitId || canSubmitPoa
 
-  const overallStatus: 'unverified' | 'pending' | 'verified' =
-    state.idStatus === 'verified' && state.poaStatus === 'verified' ? 'verified'
-    : state.idStatus === 'pending' || state.poaStatus === 'pending' ? 'pending'
-    : 'unverified'
+  const overallStatus = record.status
 
-  const handleSubmit = () => {
-    const updates: Partial<KYCState> = {}
-    if (canSubmitId)  updates.idStatus  = 'pending'
-    if (canSubmitPoa) updates.poaStatus = 'pending'
-    updates.submittedAt = new Date().toISOString()
-    const n = { ...state, ...updates }
-    saveKYCState(n)
-    setState(n)
+  const handleSubmit = async () => {
+    setSubmitting(true)
+    try {
+      await submit({
+        idType:     canSubmitId  ? idType        : undefined,
+        idDocName:  canSubmitId  ? idFile!.name   : undefined,
+        poaType:    canSubmitPoa ? poaType        : undefined,
+        poaDocName: canSubmitPoa ? poaFile!.name  : undefined,
+      })
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -411,13 +397,14 @@ export default function KYCPage() {
           <p className="text-xs font-bold uppercase tracking-widest text-text-muted">Verification Progress</p>
           {overallStatus === 'verified' && <StatusBadge status="verified" />}
           {overallStatus === 'pending'  && <StatusBadge status="pending" />}
+          {overallStatus === 'rejected' && <StatusBadge status="rejected" />}
           {overallStatus === 'unverified' && <StatusBadge status="empty" />}
         </div>
 
         {/* Step track */}
         <div className="flex items-center gap-0 mb-4">
           {OVERALL_STEPS.map((step, i) => {
-            const done = step.done(state)
+            const done = step.done(idServer, poaServer)
             const isLast = i === OVERALL_STEPS.length - 1
             return (
               <React.Fragment key={step.key}>
@@ -468,11 +455,11 @@ export default function KYCPage() {
         accent="#0ea5e9"
         typeLabel="Select Document Type"
         typeOptions={ID_TYPES}
-        docType={state.idType}
+        docType={idType}
         setDocType={setIdType}
-        file={state.idFile}
+        file={idFileShown}
         setFile={setIdFile}
-        status={state.idStatus}
+        status={idDisplay}
         requirements={ID_REQUIREMENTS}
       />
 
@@ -484,11 +471,11 @@ export default function KYCPage() {
         accent="#8b5cf6"
         typeLabel="Select Document Type"
         typeOptions={POA_TYPES}
-        docType={state.poaType}
+        docType={poaType}
         setDocType={setPoaType}
-        file={state.poaFile}
+        file={poaFileShown}
         setFile={setPoaFile}
-        status={state.poaStatus}
+        status={poaDisplay}
         requirements={POA_REQUIREMENTS}
       />
 
@@ -501,8 +488,9 @@ export default function KYCPage() {
               Submit your documents for review. You'll be notified within 1–2 business days.
             </p>
           </div>
-          <button onClick={handleSubmit} className="btn-primary px-6 py-2.5 text-sm shrink-0">
-            Submit for Verification
+          <button onClick={handleSubmit} disabled={submitting}
+            className="btn-primary px-6 py-2.5 text-sm shrink-0 disabled:opacity-50">
+            {submitting ? 'Submitting…' : 'Submit for Verification'}
           </button>
         </div>
       )}
@@ -516,7 +504,7 @@ export default function KYCPage() {
           <div>
             <p className="text-sm font-semibold text-text-primary">Verification in progress</p>
             <p className="text-xs text-text-muted mt-0.5">
-              Submitted {state.submittedAt ? new Date(state.submittedAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : 'recently'} · 
+              Submitted {record.submitted_at ? new Date(record.submitted_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : 'recently'} ·
               Our compliance team typically reviews documents within <strong className="text-text-primary">1–2 business days</strong>.
             </p>
           </div>

@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { useAuthStore } from '../../store/authStore'
-import { getKYCStatus } from '../../pages/KYCPage'
+import { useKYCStore } from '../../store/kycStore'
 import {
   LayoutDashboard, TrendingUp, Bot, Briefcase, ClipboardList,
   BarChart3, ScanLine, Bell, Trophy, ArrowDownToLine, ArrowUpFromLine,
@@ -67,8 +67,11 @@ export default function Sidebar({ mobileOpen, onClose, onOpenMarkets }: SidebarP
   const [discoverOpen, setDiscoverOpen] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
   const profileRef = React.useRef<HTMLDivElement>(null)
-  const kycStatus = getKYCStatus()
+  const { record: kycRecord, start: startKyc } = useKYCStore()
+  const kycStatus = kycRecord.status
   const isOnTrade = location.pathname === '/dashboard/trade'
+
+  React.useEffect(() => { startKyc() }, [startKyc])
 
   React.useEffect(() => {
     if (!profileOpen) return

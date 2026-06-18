@@ -13,6 +13,7 @@ import accountsRoutes  from './routes/accounts'
 import botsRoutes      from './routes/bots'
 import leaderboardRoutes from './routes/leaderboard'
 import notificationsRoutes from './routes/notifications'
+import kycRoutes         from './routes/kyc'
 
 const app = express()
 
@@ -38,6 +39,7 @@ app.use('/api/accounts',  accountsRoutes)
 app.use('/api/bots',      botsRoutes)
 app.use('/api/leaderboard', leaderboardRoutes)
 app.use('/api/notifications', notificationsRoutes)
+app.use('/api/kyc',         kycRoutes)
 
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString(), env: config.nodeEnv })

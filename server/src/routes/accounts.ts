@@ -2,7 +2,11 @@ import { Router, Response } from 'express'
 import { authenticate, AuthRequest } from '../middleware/auth'
 import { supabase } from '../db'
 import { createNotification } from '../services/notificationService'
+import { getKYC } from '../services/kycService'
 import { AccountMode, Currency, AccountType } from '../types/index'
+
+// Unverified accounts can withdraw up to this per transaction; verified = unlimited.
+const UNVERIFIED_WITHDRAW_LIMIT = 10_000
 
 const VALID_MODES:        AccountMode[] = ['demo', 'real']
 const VALID_CURRENCIES:   Currency[]    = ['USD', 'EUR', 'GBP']
@@ -151,6 +155,17 @@ router.post('/withdraw', authenticate, async (req: AuthRequest, res: Response) =
   const amt = parseFloat(amount)
   if (!isFinite(amt) || amt <= 0) {
     return res.status(400).json({ error: 'amount must be a positive number' })
+  }
+
+  // KYC gating: unverified accounts are capped per withdrawal.
+  const kyc = await getKYC(userId)
+  if (kyc.status !== 'verified' && amt > UNVERIFIED_WITHDRAW_LIMIT) {
+    return res.status(403).json({
+      error: `Unverified accounts can withdraw up to ${UNVERIFIED_WITHDRAW_LIMIT.toLocaleString()} ${currency} per transaction. Verify your identity to remove this limit.`,
+      code: 'kyc_required',
+      limit: UNVERIFIED_WITHDRAW_LIMIT,
+      kycStatus: kyc.status,
+    })
   }
 
   const { data: acct, error: fetchErr } = await supabase

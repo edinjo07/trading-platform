@@ -7,6 +7,7 @@ import { initWebSocket } from './websocket/wsServer'
 import { startSLMonitor } from './services/slMonitor'
 import { startLimitMonitor } from './services/limitOrderMonitor'
 import { startMarginMonitor } from './services/marginMonitor'
+import { startKycMonitor } from './services/kycService'
 
 const sslKeyPath  = process.env.SSL_KEY_FILE
 const sslCertPath = process.env.SSL_CERT_FILE
@@ -31,6 +32,7 @@ initWebSocket(server)
 startSLMonitor()
 startLimitMonitor()
 startMarginMonitor()
+startKycMonitor()
 
 server.listen(config.port, () => {
   const proto   = sslKeyPath && sslCertPath ? 'https' : 'http'

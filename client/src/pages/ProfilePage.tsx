@@ -3,10 +3,10 @@ import { useSearchParams } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
 import { useTradingStore } from '../store/tradingStore'
 import { useNotificationsStore } from '../store/notificationsStore'
+import { useKYCStore } from '../store/kycStore'
 import { formatCurrency } from '../utils/formatters'
 import { AccountType, Currency } from '../types'
 import { supabase } from '../lib/supabase'
-import { getKYCStatus } from './KYCPage'
 
 function timeAgo(iso: string): string {
   const s = Math.max(0, (Date.now() - new Date(iso).getTime()) / 1000)
@@ -207,8 +207,10 @@ export default function ProfilePage() {
   const { user, setAccountMode, setCurrency } = useAuthStore()
   const { portfolio, performanceStats, loadAnalytics } = useTradingStore()
   const { notifications } = useNotificationsStore()
+  const { record: kyc, start: startKyc } = useKYCStore()
 
   useEffect(() => { loadAnalytics(true) }, [loadAnalytics])
+  useEffect(() => { startKyc() }, [startKyc])
 
   const [searchParams] = useSearchParams()
   const initialTab = (['profile','account','security','settings'] as Tab[]).find(t => t === searchParams.get('tab')) ?? 'profile'
@@ -284,9 +286,8 @@ export default function ProfilePage() {
   const totalTrades = performanceStats?.totalTrades ?? 0
   const pl          = portfolio?.unrealizedPnl ?? 0
   const equity      = portfolio?.totalEquity ?? user?.balance ?? 0
-  const kycRaw      = getKYCStatus()
   const kycLevel: 'unverified' | 'basic' | 'verified' =
-    kycRaw === 'verified' ? 'verified' : kycRaw === 'pending' ? 'basic' : 'unverified'
+    kyc.status === 'verified' ? 'verified' : kyc.status === 'pending' ? 'basic' : 'unverified'
   const kycVerified = kycLevel === 'verified'
 
   const displayName = user?.username ?? 'Trader'
