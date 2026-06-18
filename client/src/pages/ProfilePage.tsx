@@ -1,10 +1,29 @@
-﻿import React, { useState } from 'react'
+﻿import React, { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
 import { useTradingStore } from '../store/tradingStore'
+import { useNotificationsStore } from '../store/notificationsStore'
 import { formatCurrency } from '../utils/formatters'
 import { AccountType, Currency } from '../types'
 import { supabase } from '../lib/supabase'
+import { getKYCStatus } from './KYCPage'
+
+function timeAgo(iso: string): string {
+  const s = Math.max(0, (Date.now() - new Date(iso).getTime()) / 1000)
+  if (s < 60)    return 'Just now'
+  if (s < 3600)  return `${Math.floor(s / 60)} min ago`
+  if (s < 86400) return `${Math.floor(s / 3600)} hr ago`
+  return `${Math.floor(s / 86400)}d ago`
+}
+
+const SEV_DOT: Record<string, string> = { critical: '#ef4444', warning: '#f59e0b', success: '#10b981', info: '#0ea5e9' }
+
+function currentDevice(): string {
+  const ua = typeof navigator !== 'undefined' ? navigator.userAgent : ''
+  const os = /Windows/.test(ua) ? 'Windows' : /Mac/.test(ua) ? 'macOS' : /Android/.test(ua) ? 'Android' : /iPhone|iPad/.test(ua) ? 'iOS' : 'Unknown OS'
+  const br = /Edg\//.test(ua) ? 'Edge' : /Chrome\//.test(ua) ? 'Chrome' : /Firefox\//.test(ua) ? 'Firefox' : /Safari\//.test(ua) ? 'Safari' : 'Browser'
+  return `${os} — ${br}`
+}
 
 const ACCOUNT_LABELS: Record<AccountType, string> = {
   raw_spread: 'Raw Spread (MetaTrader)',
@@ -186,7 +205,10 @@ type Tab = 'profile' | 'account' | 'security' | 'settings'
 
 export default function ProfilePage() {
   const { user, setAccountMode, setCurrency } = useAuthStore()
-  const { portfolio, performanceStats } = useTradingStore()
+  const { portfolio, performanceStats, loadAnalytics } = useTradingStore()
+  const { notifications } = useNotificationsStore()
+
+  useEffect(() => { loadAnalytics(true) }, [loadAnalytics])
 
   const [searchParams] = useSearchParams()
   const initialTab = (['profile','account','security','settings'] as Tab[]).find(t => t === searchParams.get('tab')) ?? 'profile'
@@ -258,11 +280,14 @@ export default function ProfilePage() {
     ? new Date(parseInt(user.id.slice(-8), 16) * 1000).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
     : 'March 2026'
 
-  const winRate   = performanceStats?.winRate ?? 0
-  const totalTrades = (portfolio?.positions?.length ?? 0) + 12
-  const pl        = portfolio?.unrealizedPnl ?? 0
-  const equity    = portfolio?.totalEquity ?? user?.balance ?? 0
-  const kycLevel: 'unverified' | 'basic' | 'verified' = 'basic'
+  const winRate     = (performanceStats?.winRate ?? 0) * 100
+  const totalTrades = performanceStats?.totalTrades ?? 0
+  const pl          = portfolio?.unrealizedPnl ?? 0
+  const equity      = portfolio?.totalEquity ?? user?.balance ?? 0
+  const kycRaw      = getKYCStatus()
+  const kycLevel: 'unverified' | 'basic' | 'verified' =
+    kycRaw === 'verified' ? 'verified' : kycRaw === 'pending' ? 'basic' : 'unverified'
+  const kycVerified = kycLevel === 'verified'
 
   const displayName = user?.username ?? 'Trader'
   const initials    = displayName.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
@@ -335,7 +360,7 @@ export default function ProfilePage() {
           {/* Name + badges */}
           <div className="flex-1 min-w-0">
             <div className="flex flex-wrap items-center gap-2 mb-1">
-              <h1 className="text-xl font-bold text-white">{displayName}</h1>
+              <h1 className="text-xl font-bold text-text-primary">{displayName}</h1>
               <KYCBadge level={kycLevel} />
             </div>
             <div className="text-sm text-text-secondary mb-1">{user?.email ?? '-'}</div>
@@ -358,7 +383,7 @@ export default function ProfilePage() {
           {/* Equity pill */}
           <div className="shrink-0 text-right">
             <div className="text-[10px] text-text-muted mb-1 uppercase tracking-widest">Total Equity</div>
-            <div className="text-3xl font-bold font-mono text-white">{formatCurrency(equity, 2, user?.currency ?? 'USD')}</div>
+            <div className="text-3xl font-bold font-mono text-text-primary">{formatCurrency(equity, 2, user?.currency ?? 'USD')}</div>
             <div className="flex items-center justify-end gap-2 mt-1">
               <span className="text-xs font-semibold px-2 py-0.5 rounded-full"
                 style={{
@@ -440,9 +465,9 @@ export default function ProfilePage() {
             <div className="space-y-3">
               {[
                 { step: 1, label: 'Email Verified',      desc: 'Your email address is confirmed',           done: true  },
-                { step: 2, label: 'Identity Document',   desc: 'Upload a government-issued photo ID',       done: false },
-                { step: 3, label: 'Proof of Address',    desc: 'Upload a recent utility bill or bank statement', done: false },
-                { step: 4, label: 'Full Verification',   desc: 'Complete review by our compliance team',    done: false },
+                { step: 2, label: 'Identity Document',   desc: 'Upload a government-issued photo ID',       done: kycVerified },
+                { step: 3, label: 'Proof of Address',    desc: 'Upload a recent utility bill or bank statement', done: kycVerified },
+                { step: 4, label: 'Full Verification',   desc: 'Complete review by our compliance team',    done: kycVerified },
               ].map(item => (
                 <div key={item.step}
                   className="flex items-center gap-4 p-4 rounded-xl"
@@ -462,7 +487,7 @@ export default function ProfilePage() {
                     <div className="text-xs text-text-muted">{item.desc}</div>
                   </div>
                   {!item.done && (
-                    <a href="/kyc"
+                    <a href="/dashboard/verify"
                       className="px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-opacity hover:opacity-80"
                       style={{ background: 'rgba(14,165,233,0.1)', color: '#38bdf8', border: '1px solid rgba(14,165,233,0.2)' }}>
                       Start
@@ -561,9 +586,9 @@ export default function ProfilePage() {
           <Card title="Verification Status" description="Identity verification levels and limits">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
               {[
-                { level: 'Level 1', label: 'Email verified',        limit: '$10,000/day',  done: true  },
-                { level: 'Level 2', label: 'ID + address verified', limit: '$50,000/day',  done: false },
-                { level: 'Level 3', label: 'Full compliance',       limit: 'Unlimited',    done: false },
+                { level: 'Level 1', label: 'Email verified',        limit: '$10,000/day',  done: true        },
+                { level: 'Level 2', label: 'ID + address verified', limit: '$50,000/day',  done: kycVerified },
+                { level: 'Level 3', label: 'Full compliance',       limit: 'Unlimited',    done: kycVerified },
               ].map(item => (
                 <div key={item.level} className="p-4 rounded-xl flex flex-col gap-2"
                   style={{
@@ -582,7 +607,7 @@ export default function ProfilePage() {
                 </div>
               ))}
             </div>
-            <a href="/kyc"
+            <a href="/dashboard/verify"
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold text-white"
               style={{ background: 'linear-gradient(135deg,#0ea5e9,#0369a1)' }}>
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
@@ -591,24 +616,23 @@ export default function ProfilePage() {
           </Card>
 
           {/* Recent activity */}
-          <Card title="Recent Activity" description="Your latest account actions">
-            <div className="space-y-2">
-              {[
-                { dot: '#10b981', text: 'Logged in successfully',        time: 'Just now'  },
-                { dot: '#0ea5e9', text: 'Viewed EURUSD chart',           time: '2 min ago' },
-                { dot: '#0ea5e9', text: 'Portfolio summary reviewed',    time: '5 min ago' },
-                { dot: '#f59e0b', text: 'Price alert triggered: BTCUSD', time: '1 hr ago'  },
-                { dot: '#0ea5e9', text: 'Orders page visited',           time: '2 hrs ago' },
-                { dot: '#6b8099', text: 'Session started',               time: 'Yesterday' },
-              ].map((item, i) => (
-                <div key={i} className="flex items-center gap-3 py-2.5 px-3 rounded-lg"
-                  style={{ background: 'rgba(255,255,255,0.02)' }}>
-                  <span className="w-2 h-2 rounded-full shrink-0" style={{ background: item.dot }} />
-                  <span className="flex-1 text-sm text-text-secondary">{item.text}</span>
-                  <span className="text-xs text-text-muted shrink-0">{item.time}</span>
-                </div>
-              ))}
-            </div>
+          <Card title="Recent Activity" description="Your latest account notifications">
+            {notifications.length === 0 ? (
+              <div className="py-8 text-center text-sm text-text-muted">
+                No recent activity yet. Your account events will appear here.
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {notifications.slice(0, 6).map(n => (
+                  <div key={n.id} className="flex items-center gap-3 py-2.5 px-3 rounded-lg"
+                    style={{ background: 'rgba(255,255,255,0.02)' }}>
+                    <span className="w-2 h-2 rounded-full shrink-0" style={{ background: SEV_DOT[n.severity] ?? '#6b8099' }} />
+                    <span className="flex-1 text-sm text-text-secondary truncate">{n.title}</span>
+                    <span className="text-xs text-text-muted shrink-0">{timeAgo(n.created_at)}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </Card>
         </div>
       )}
@@ -677,31 +701,16 @@ export default function ProfilePage() {
             </div>
           </Card>
 
-          <Card title="Login History" description="Recent sign-in activity for your account">
-            <div className="space-y-2">
-              {[
-                { device: 'Windows — Chrome 122',  location: 'Tirana, AL',    time: 'Active now',  current: true  },
-                { device: 'iPhone 15 — Safari',    location: 'Tirana, AL',    time: '2 days ago',  current: false },
-                { device: 'MacBook — Firefox',     location: 'London, GB',    time: '1 week ago',  current: false },
-              ].map((s, i) => (
-                <div key={i} className="flex items-center gap-3 p-3 rounded-xl"
-                  style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.05)' }}>
-                  <div className={`w-2 h-2 rounded-full shrink-0 ${s.current ? 'bg-bull animate-pulse' : 'bg-text-muted'}`} />
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium text-text-primary truncate">{s.device}</div>
-                    <div className="text-xs text-text-muted">{s.location} · {s.time}</div>
-                  </div>
-                  {s.current
-                    ? <span className="text-xs font-semibold px-2.5 py-1 rounded-full shrink-0"
-                        style={{ color: '#10b981', background: 'rgba(16,185,129,0.1)' }}>Current</span>
-                    : <button className="text-xs font-semibold px-3 py-1 rounded-lg shrink-0 transition-opacity hover:opacity-80"
-                        style={{ color: '#ef4444', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)' }}
-                        onClick={() => showToast('Session revoked', 'ok')}>
-                        Revoke
-                      </button>
-                  }
-                </div>
-              ))}
+          <Card title="Active Session" description="The device currently signed in to your account">
+            <div className="flex items-center gap-3 p-3 rounded-xl"
+              style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.05)' }}>
+              <div className="w-2 h-2 rounded-full shrink-0 bg-bull animate-pulse" />
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-medium text-text-primary truncate">{currentDevice()}</div>
+                <div className="text-xs text-text-muted">This device · Active now</div>
+              </div>
+              <span className="text-xs font-semibold px-2.5 py-1 rounded-full shrink-0"
+                style={{ color: '#10b981', background: 'rgba(16,185,129,0.1)' }}>Current</span>
             </div>
           </Card>
 
