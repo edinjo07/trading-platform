@@ -4,6 +4,7 @@ import { useTradingStore } from '../../store/tradingStore'
 import { useAuthStore } from '../../store/authStore'
 import { formatPrice, formatCurrency } from '../../utils/formatters'
 import { useTheme } from '../../context/ThemeContext'
+import NotificationBell from './NotificationBell'
 
 const MORE_LINKS = [
   {
@@ -223,6 +224,9 @@ export default function Header({ onMenuClick }: HeaderProps) {
             </div>
           )}
         </div>
+
+        {/* Notifications */}
+        <NotificationBell />
 
         {/* Theme toggle */}
         <button

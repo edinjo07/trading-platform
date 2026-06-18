@@ -10,7 +10,9 @@
 
 import { supabase } from '../db'
 import { getPrice } from './priceService'
+import { getSymbolInfo } from './mockDataService'
 import { closePosition } from './orderEngine'
+import { createNotification } from './notificationService'
 import { PositionRow, AccountMode } from '../types'
 
 let timer: ReturnType<typeof setInterval> | null = null
@@ -82,6 +84,15 @@ async function runCheck(): Promise<void> {
           .eq('mode', row.mode)
         const currency = accts?.length === 1 ? (accts[0].currency ?? 'USD') : 'USD'
         await closePosition(row.id, row.user_id, row.mode as AccountMode, currency)
+        const name = getSymbolInfo(row.symbol)?.name ?? row.symbol
+        const isTp = reason === 'take-profit'
+        await createNotification(row.user_id, {
+          type:     isTp ? 'tp_hit' : 'sl_hit',
+          severity: isTp ? 'success' : 'warning',
+          title:    isTp ? 'Take-profit reached' : 'Stop-loss reached',
+          message:  `Your ${name} position has been closed — ${isTp ? 'take-profit' : 'stop-loss'} level reached.`,
+          metadata: { symbol: row.symbol, mode: row.mode },
+        })
       } catch (err) {
         console.error(`[SL Monitor] Auto-close failed for position ${row.id}:`, err)
       }

@@ -1,6 +1,7 @@
 import { Router, Response } from 'express'
 import { authenticate, AuthRequest } from '../middleware/auth'
 import { supabase } from '../db'
+import { createNotification } from '../services/notificationService'
 import { AccountMode, Currency, AccountType } from '../types/index'
 
 const VALID_MODES:        AccountMode[] = ['demo', 'real']
@@ -132,6 +133,15 @@ router.post('/deposit', authenticate, async (req: AuthRequest, res: Response) =>
     .single()
 
   if (updateErr) return res.status(500).json({ error: updateErr.message })
+
+  const sym = currency === 'EUR' ? '€' : currency === 'GBP' ? '£' : '$'
+  createNotification(userId, {
+    type: 'deposit', severity: 'success',
+    title: 'Deposit processed',
+    message: `Your deposit of ${sym}${depositAmount.toLocaleString()} has been processed.`,
+    metadata: { currency, amount: depositAmount },
+  })
+
   return res.json({ cash_balance: (updated as Record<string, unknown>).cash_balance })
 })
 

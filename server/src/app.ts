@@ -12,6 +12,7 @@ import newsRoutes      from './routes/news'
 import accountsRoutes  from './routes/accounts'
 import botsRoutes      from './routes/bots'
 import leaderboardRoutes from './routes/leaderboard'
+import notificationsRoutes from './routes/notifications'
 
 const app = express()
 
@@ -36,6 +37,7 @@ app.use('/api/news',      newsRoutes)
 app.use('/api/accounts',  accountsRoutes)
 app.use('/api/bots',      botsRoutes)
 app.use('/api/leaderboard', leaderboardRoutes)
+app.use('/api/notifications', notificationsRoutes)
 
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString(), env: config.nodeEnv })
