@@ -29,7 +29,7 @@ export default function TradingPage() {
   useEffect(() => { loadPendingLimitOrders() }, [loadPendingLimitOrders])
 
   return (
-    <div className="flex flex-col lg:flex-row gap-0 h-full overflow-hidden -m-4">
+    <div className="theme-dark-scope flex flex-col lg:flex-row gap-0 h-full overflow-hidden -m-4">
       {/* ── Chart + order book column ─────────────────────────── */}
       <div className="h-[58vh] shrink-0 lg:h-auto lg:flex-1 lg:min-w-0 flex flex-col overflow-hidden">
         {/* Sub-header: symbol + price strip */}
