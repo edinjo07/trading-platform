@@ -763,22 +763,41 @@ export async function startBotEngine(botId: string, userId: string, currency = '
 
   state.intervalId = setInterval(() => { tick(botId).catch(console.error) }, TICK_MS)
   running.set(botId, state)
+
+  await createNotification(userId, {
+    type: 'bot', severity: 'info',
+    title: `${state.botName} started`,
+    message: state.status === 'running'
+      ? `${state.botName} is live and analysing ${bot.symbol}.`
+      : `${state.botName} started — warming up on ${bot.symbol}.`,
+    metadata: { bot: state.botName, symbol: bot.symbol },
+  })
 }
 
 export async function stopBotEngine(botId: string, userId: string): Promise<void> {
   const state = running.get(botId)
   if (!state) {
+    const { data: bot } = await supabase.from('bots').select('name').eq('id', botId).eq('user_id', userId).maybeSingle()
     await supabase.from('bots').update({
       status:     'stopped',
       stopped_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     }).eq('id', botId).eq('user_id', userId)
+    const name = (bot?.name as string) ?? 'Bot'
+    await createNotification(userId, {
+      type: 'bot', severity: 'info', title: `${name} stopped`,
+      message: `${name} has been stopped.`, metadata: { bot: name },
+    })
     return
   }
 
   clearInterval(state.intervalId)
   running.delete(botId)
   addLog(state, 'info', 'Bot stopped by user')
+  await createNotification(userId, {
+    type: 'bot', severity: 'info', title: `${state.botName} stopped`,
+    message: `${state.botName} has been stopped.`, metadata: { bot: state.botName },
+  })
 
   await persist(botId, state, {
     status:     'stopped',

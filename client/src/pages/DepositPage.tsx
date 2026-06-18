@@ -1,7 +1,10 @@
 ﻿import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
+import { useTradingStore } from '../store/tradingStore'
 import { formatCurrency } from '../utils/formatters'
+import { depositDemo } from '../api/accounts'
+import type { Currency } from '../types'
 
 type Method = 'bank' | 'card' | 'crypto'
 
@@ -55,6 +58,9 @@ const CRYPTO_OPTIONS = ['USDT (TRC-20)', 'USDT (ERC-20)', 'Bitcoin (BTC)', 'Ethe
 export default function DepositPage() {
   const navigate = useNavigate()
   const { user } = useAuthStore()
+  const { portfolio, loadPortfolio } = useTradingStore()
+  const currency = (user?.currency ?? 'USD') as Currency
+  const balance = portfolio?.cashBalance ?? user?.balance ?? 0
 
   const [method, setMethod]   = useState<Method>('bank')
   const [amount, setAmount]   = useState('')
@@ -63,6 +69,8 @@ export default function DepositPage() {
   const [cardNumber, setCardNumber] = useState('')
   const [cardExpiry, setCardExpiry] = useState('')
   const [cardCVC, setCardCVC]       = useState('')
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError]           = useState('')
 
   const parsedAmount = parseFloat(amount.replace(/,/g, ''))
   const isValid = !isNaN(parsedAmount) && parsedAmount >= 10
@@ -72,10 +80,20 @@ export default function DepositPage() {
   const feeAmount = method === 'card' ? (parsedAmount * 0.025) : 0
   const totalDebit = isValid ? parsedAmount + feeAmount : 0
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!isValid) return
     if (step === 'form') { setStep('confirm'); return }
-    setStep('done')
+    // Confirm step → credit the demo account (fires a deposit notification)
+    setSubmitting(true); setError('')
+    try {
+      await depositDemo(currency, parsedAmount)
+      await loadPortfolio()
+      setStep('done')
+    } catch (e: unknown) {
+      setError((e as { response?: { data?: { error?: string } } })?.response?.data?.error ?? 'Deposit failed')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   if (step === 'done') {
@@ -89,9 +107,9 @@ export default function DepositPage() {
             </svg>
           </div>
           <div>
-            <h2 className="text-xl font-bold text-text-primary">Deposit Request Submitted</h2>
+            <h2 className="text-xl font-bold text-text-primary">Deposit Processed</h2>
             <p className="text-text-muted text-sm mt-1">
-              Your deposit of <span className="text-bull font-semibold">{formatCurrency(parsedAmount)}</span> is being processed.
+              Your deposit of <span className="text-bull font-semibold">{formatCurrency(parsedAmount)}</span> has been credited to your account.
             </p>
           </div>
           <div className="w-full rounded-xl p-4 text-sm space-y-2" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
@@ -128,12 +146,17 @@ export default function DepositPage() {
             <div className="flex justify-between font-bold"><span className="text-text-primary">Total charged</span><span className="text-bull font-mono text-base">{formatCurrency(totalDebit)}</span></div>
             <div className="flex justify-between"><span className="text-text-muted">Processing time</span><span className="text-brand-300 font-medium">{selectedMethod.time}</span></div>
           </div>
+          {error && (
+            <div className="rounded-lg p-3 text-xs" style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', color: '#fca5a5' }}>
+              {error}
+            </div>
+          )}
           <div className="flex gap-3">
-            <button onClick={() => setStep('form')} className="flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all" style={{ background: 'rgba(255,255,255,0.06)', color: '#e2e8f0', border: '1px solid rgba(255,255,255,0.1)' }}>
+            <button onClick={() => setStep('form')} disabled={submitting} className="flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all disabled:opacity-50" style={{ background: 'rgba(255,255,255,0.06)', color: '#e2e8f0', border: '1px solid rgba(255,255,255,0.1)' }}>
               Back
             </button>
-            <button onClick={handleSubmit} className="btn-primary flex-1 py-2.5">
-              Confirm Deposit
+            <button onClick={handleSubmit} disabled={submitting} className="btn-primary flex-1 py-2.5 disabled:opacity-60 disabled:cursor-not-allowed">
+              {submitting ? 'Processing…' : 'Confirm Deposit'}
             </button>
           </div>
         </div>
@@ -154,7 +177,7 @@ export default function DepositPage() {
         <div>
           <h1 className="text-2xl font-bold text-text-primary">Deposit Funds</h1>
           <p className="text-text-muted text-sm mt-0.5">
-            Current balance: <span className="text-brand-300 font-semibold font-mono">{formatCurrency(user?.balance ?? 0)}</span>
+            Current balance: <span className="text-brand-300 font-semibold font-mono">{formatCurrency(balance)}</span>
           </p>
         </div>
       </div>

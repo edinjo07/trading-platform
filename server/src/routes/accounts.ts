@@ -9,8 +9,7 @@ const VALID_CURRENCIES:   Currency[]    = ['USD', 'EUR', 'GBP']
 const VALID_TYPES:        AccountType[] = ['raw_spread', 'ctrader', 'standard']
 const DEMO_START  = 100_000
 const REAL_START  = 0
-const DEMO_MAX    = 100_000
-const DEPOSIT_UNLOCK_BELOW = 10_000
+const DEMO_MAX    = 10_000_000   // generous demo balance ceiling
 
 const router = Router()
 
@@ -116,10 +115,6 @@ router.post('/deposit', authenticate, async (req: AuthRequest, res: Response) =>
 
   if (fetchErr || !acct) {
     return res.status(404).json({ error: 'Demo account not found' })
-  }
-
-  if (acct.cash_balance >= DEPOSIT_UNLOCK_BELOW) {
-    return res.status(400).json({ error: `Deposit only available when balance is below ${DEPOSIT_UNLOCK_BELOW}` })
   }
 
   const newBalance = Math.min(parseFloat((acct.cash_balance + depositAmount).toFixed(2)), DEMO_MAX)
