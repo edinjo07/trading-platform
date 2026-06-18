@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useNotificationsStore } from '../../store/notificationsStore'
+import { useNotificationsStore, categoryOf } from '../../store/notificationsStore'
 import { AppNotification, NotifSeverity } from '../../api/notifications'
 
 // ─── Severity styling ──────────────────────────────────────────────────────────
@@ -65,10 +65,11 @@ function Row({ n, onRead, onRemove }: { n: AppNotification; onRead: (id: string)
 
 // ─── Bell + panel ────────────────────────────────────────────────────────────────
 export default function NotificationBell() {
-  const { notifications, unread, start, poll, markRead, markAllRead, remove, clearAll } = useNotificationsStore()
+  const { notifications, unread, mutedCategories, start, poll, markRead, markAllRead, remove, clearAll } = useNotificationsStore()
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
   const nav = useNavigate()
+  const visible = notifications.filter(n => !mutedCategories.includes(categoryOf(n.type)))
 
   useEffect(() => { start() }, [start])
 
@@ -122,7 +123,7 @@ export default function NotificationBell() {
                   Mark all read
                 </button>
               )}
-              {notifications.length > 0 && (
+              {visible.length > 0 && (
                 <button onClick={() => clearAll()} style={{ fontSize: 11, fontWeight: 700, color: '#64748b', background: 'none', border: 'none', cursor: 'pointer' }}>
                   Clear
                 </button>
@@ -132,7 +133,7 @@ export default function NotificationBell() {
 
           {/* List */}
           <div style={{ overflowY: 'auto' }}>
-            {notifications.length === 0 ? (
+            {visible.length === 0 ? (
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, padding: '40px 20px', color: '#475569' }}>
                 <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.4}>
                   <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0" />
@@ -141,7 +142,7 @@ export default function NotificationBell() {
                 <p style={{ fontSize: 10.5, margin: 0, textAlign: 'center' }}>Margin alerts, closed positions and account events appear here.</p>
               </div>
             ) : (
-              notifications.map(n => <Row key={n.id} n={n} onRead={markRead} onRemove={remove} />)
+              visible.map(n => <Row key={n.id} n={n} onRead={markRead} onRemove={remove} />)
             )}
           </div>
 

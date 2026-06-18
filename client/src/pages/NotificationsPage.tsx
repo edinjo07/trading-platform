@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { useNotificationsStore } from '../store/notificationsStore'
+import { useNotificationsStore, categoryOf, CATEGORY_META } from '../store/notificationsStore'
 import { AppNotification, NotifSeverity } from '../api/notifications'
 
 const C = {
@@ -65,12 +65,14 @@ function Row({ n, onRead, onRemove }: { n: AppNotification; onRead: (id: string)
 }
 
 export default function NotificationsPage() {
-  const { notifications, unread, start, poll, markRead, markAllRead, remove, clearAll } = useNotificationsStore()
+  const { notifications, unread, mutedCategories, toggleCategory, start, poll, markRead, markAllRead, remove, clearAll } = useNotificationsStore()
   const [filter, setFilter] = useState<'all' | 'unread'>('all')
+  const [showPrefs, setShowPrefs] = useState(false)
 
   useEffect(() => { start(); poll() }, [start, poll])
 
-  const list = filter === 'unread' ? notifications.filter(n => !n.read) : notifications
+  const visible = notifications.filter(n => !mutedCategories.includes(categoryOf(n.type)))
+  const list = filter === 'unread' ? visible.filter(n => !n.read) : visible
 
   return (
     <div style={{ maxWidth: 720, margin: '0 auto' }}>
@@ -85,7 +87,12 @@ export default function NotificationsPage() {
             <span style={{ fontSize: 12, color: C.text3 }}>· {unread} unread · {notifications.length} total</span>
           </div>
         </div>
-        <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
+        <div style={{ display: 'flex', gap: 8, flexShrink: 0, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+          <button onClick={() => setShowPrefs(p => !p)}
+            style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, fontWeight: 700, color: showPrefs ? C.blue : C.text2, background: showPrefs ? 'rgba(14,165,233,0.1)' : C.surface2, border: `1px solid ${showPrefs ? 'rgba(14,165,233,0.25)' : C.border}`, borderRadius: 10, padding: '8px 12px', cursor: 'pointer' }}>
+            <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9z" /></svg>
+            Preferences
+          </button>
           {unread > 0 && (
             <button onClick={() => markAllRead()} style={{ fontSize: 12, fontWeight: 700, color: C.blue, background: 'rgba(14,165,233,0.1)', border: '1px solid rgba(14,165,233,0.25)', borderRadius: 10, padding: '8px 12px', cursor: 'pointer' }}>
               Mark all read
@@ -98,6 +105,30 @@ export default function NotificationsPage() {
           )}
         </div>
       </div>
+
+      {/* Preferences */}
+      {showPrefs && (
+        <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 14, marginBottom: 14, overflow: 'hidden' }}>
+          {CATEGORY_META.map(cat => {
+            const muted = mutedCategories.includes(cat.key)
+            return (
+              <div key={cat.key} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '11px 14px', borderBottom: `1px solid ${C.border}` }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ fontSize: 13, fontWeight: 700, color: C.text1, margin: 0 }}>{cat.label}</p>
+                  <p style={{ fontSize: 11, color: C.text3, margin: '2px 0 0' }}>{cat.desc}</p>
+                </div>
+                <button onClick={() => toggleCategory(cat.key)} role="switch" aria-checked={!muted} title={muted ? 'Muted' : 'On'}
+                  style={{ width: 42, height: 23, borderRadius: 12, border: 'none', cursor: 'pointer', position: 'relative', flexShrink: 0, transition: 'background 0.15s', background: muted ? '#1e293b' : C.green }}>
+                  <span style={{ position: 'absolute', top: 2.5, left: muted ? 3 : 22, width: 18, height: 18, borderRadius: '50%', background: '#fff', transition: 'left 0.15s' }} />
+                </button>
+              </div>
+            )
+          })}
+          <p style={{ fontSize: 10.5, color: C.text3, padding: '10px 14px', margin: 0 }}>
+            Muted categories are hidden from the bell and this list and won't pop toasts. (Margin closeouts are still executed regardless.)
+          </p>
+        </div>
+      )}
 
       {/* Filter tabs */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
