@@ -1,229 +1,206 @@
-﻿import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useKYCStore } from '../store/kycStore'
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-type DocStatus = 'empty' | 'uploaded' | 'pending' | 'verified' | 'rejected'
-
-interface DocFile {
-  name: string
-  size: number
-  dataUrl: string
+// ── Theme palette (flips with light/dark) ─────────────────────────────────────
+const S = {
+  surface:  'var(--t-surface)',
+  surface2: 'var(--t-surface-2)',
+  border:   'var(--t-border)',
+  text1:    'var(--t-text-1)',
+  text2:    'var(--t-text-2)',
+  text3:    'var(--t-text-3)',
+  bull:     'var(--t-bull)',
+  bear:     'var(--t-bear)',
+  warn:     'var(--t-warn)',
+  accent:   'var(--t-accent)',
 }
 
-// ─── Sub-components ───────────────────────────────────────────────────────────
-function StatusBadge({ status }: { status: DocStatus }) {
-  const cfg = {
-    empty:    { label: 'Not Submitted', bg: 'rgba(107,128,153,0.12)', color: '#6b8099', border: 'rgba(107,128,153,0.2)' },
-    uploaded: { label: 'Ready',         bg: 'rgba(14,165,233,0.12)',  color: '#38bdf8', border: 'rgba(14,165,233,0.25)' },
-    pending:  { label: 'Under Review',  bg: 'rgba(245,158,11,0.12)',  color: '#fbbf24', border: 'rgba(245,158,11,0.25)' },
-    verified: { label: 'Verified',      bg: 'rgba(0,200,120,0.12)',   color: '#00c878', border: 'rgba(0,200,120,0.25)' },
-    rejected: { label: 'Rejected',      bg: 'rgba(255,48,71,0.12)',   color: '#ff3047', border: 'rgba(255,48,71,0.25)' },
-  }[status]
+type DocStatus = 'empty' | 'uploaded' | 'pending' | 'verified' | 'rejected'
+interface DocFile { name: string; size: number; dataUrl: string }
+
+// status → { label, color }
+const STATUS_META: Record<DocStatus, { label: string; color: string }> = {
+  empty:    { label: 'Not submitted', color: S.text3  },
+  uploaded: { label: 'Ready',         color: S.accent },
+  pending:  { label: 'Under review',  color: S.warn   },
+  verified: { label: 'Verified',      color: S.bull   },
+  rejected: { label: 'Rejected',      color: S.bear   },
+}
+
+function StatusPill({ status, big }: { status: DocStatus; big?: boolean }) {
+  const m = STATUS_META[status]
   return (
-    <span className="text-2xs font-bold px-2.5 py-1 rounded-full uppercase tracking-wide"
-          style={{ background: cfg.bg, color: cfg.color, border: `1px solid ${cfg.border}` }}>
-      {status === 'verified' && '✓ '}{cfg.label}
+    <span style={{
+      display: 'inline-flex', alignItems: 'center', gap: 5,
+      fontSize: big ? 12 : 10.5, fontWeight: 700, padding: big ? '5px 12px' : '3px 9px',
+      borderRadius: 99, background: `${m.color}1e`, color: m.color, letterSpacing: '0.02em', whiteSpace: 'nowrap',
+    }}>
+      {status === 'verified' && <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><polyline points="20 6 9 17 4 12"/></svg>}
+      {status === 'pending' && <span style={{ width: 6, height: 6, borderRadius: 99, background: m.color }} className="animate-pulse2" />}
+      {m.label}
     </span>
   )
 }
 
-function UploadZone({
-  file, onFile, disabled, accent
-}: {
-  file: DocFile | null
-  onFile: (f: DocFile) => void
-  disabled: boolean
-  accent: string
-}) {
+// ── Circular progress ring (hero) ─────────────────────────────────────────────
+function ProgressRing({ pct, color, children }: { pct: number; color: string; children: React.ReactNode }) {
+  const R = 34, C = 2 * Math.PI * R
+  return (
+    <div style={{ position: 'relative', width: 84, height: 84, flexShrink: 0 }}>
+      <svg width="84" height="84" viewBox="0 0 84 84" style={{ transform: 'rotate(-90deg)' }}>
+        <circle cx="42" cy="42" r={R} fill="none" stroke="rgba(var(--ink),0.09)" strokeWidth="6" />
+        <circle cx="42" cy="42" r={R} fill="none" stroke={color} strokeWidth="6" strokeLinecap="round"
+          strokeDasharray={C} strokeDashoffset={C - (C * pct) / 100} style={{ transition: 'stroke-dashoffset 0.6s ease' }} />
+      </svg>
+      <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{children}</div>
+    </div>
+  )
+}
+
+// ── Upload zone ────────────────────────────────────────────────────────────────
+function UploadZone({ file, onFile, disabled, accent }: { file: DocFile | null; onFile: (f: DocFile) => void; disabled: boolean; accent: string }) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [dragging, setDragging] = useState(false)
 
-  const handle = (file: File) => {
-    if (!file) return
+  const handle = (f: File) => {
+    if (!f) return
     const reader = new FileReader()
-    reader.onload = () => {
-      onFile({ name: file.name, size: file.size, dataUrl: reader.result as string })
-    }
-    reader.readAsDataURL(file)
+    reader.onload = () => onFile({ name: f.name, size: f.size, dataUrl: reader.result as string })
+    reader.readAsDataURL(f)
   }
-
-  const onDrop = (e: React.DragEvent) => {
-    e.preventDefault()
-    setDragging(false)
-    if (disabled) return
-    const f = e.dataTransfer.files?.[0]
-    if (f) handle(f)
-  }
-
   const fmtSize = (b: number) => b < 1024 * 1024 ? `${(b / 1024).toFixed(0)} KB` : `${(b / 1024 / 1024).toFixed(1)} MB`
 
   return (
     <div>
-      <input ref={inputRef} type="file" accept="image/*,.pdf" className="hidden"
-             onChange={e => { const f = e.target.files?.[0]; if (f) handle(f) }} />
+      <input ref={inputRef} type="file" accept="image/*,.pdf" style={{ display: 'none' }}
+        onChange={e => { const f = e.target.files?.[0]; if (f) handle(f) }} />
       {file ? (
-        <div className="rounded-xl p-4 flex items-center gap-3"
-             style={{ background: `${accent}0a`, border: `1px solid ${accent}28` }}>
-          {/* preview or icon */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 14, borderRadius: 12, background: `${accent}0d`, border: `1px solid ${accent}33` }}>
           {file.dataUrl.startsWith('data:image') ? (
-            <img src={file.dataUrl} alt="doc" className="w-14 h-14 rounded-lg object-cover shrink-0 border"
-                 style={{ borderColor: `${accent}30` }} />
+            <img src={file.dataUrl} alt="doc" style={{ width: 52, height: 52, borderRadius: 10, objectFit: 'cover', flexShrink: 0, border: `1px solid ${accent}40` }} />
           ) : (
-            <div className="w-14 h-14 rounded-lg flex items-center justify-center shrink-0"
-                 style={{ background: `${accent}15`, border: `1px solid ${accent}25`, color: accent }}>
-              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
-                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
-                <polyline points="14 2 14 8 20 8" />
-              </svg>
+            <div style={{ width: 52, height: 52, borderRadius: 10, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: `${accent}1a`, color: accent }}>
+              <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
             </div>
           )}
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-text-primary truncate">{file.name}</p>
-            <p className="text-xs text-text-muted mt-0.5">{file.size > 0 ? fmtSize(file.size) : 'On file'}</p>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <p style={{ fontSize: 13.5, fontWeight: 700, color: S.text1, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{file.name}</p>
+            <p style={{ fontSize: 11.5, color: S.text3, margin: '2px 0 0' }}>{file.size > 0 ? fmtSize(file.size) : 'On file'}</p>
           </div>
           {!disabled && (
             <button onClick={() => inputRef.current?.click()}
-              className="text-xs font-semibold px-2.5 py-1 rounded-lg transition-all shrink-0"
-              style={{ background: `${accent}15`, color: accent, border: `1px solid ${accent}25` }}>
+              style={{ fontSize: 12, fontWeight: 700, padding: '7px 13px', borderRadius: 9, background: `${accent}1a`, color: accent, border: `1px solid ${accent}33`, cursor: 'pointer', flexShrink: 0 }}>
               Replace
             </button>
           )}
         </div>
       ) : (
-        <button
-          disabled={disabled}
-          onClick={() => inputRef.current?.click()}
+        <button disabled={disabled} onClick={() => inputRef.current?.click()}
           onDragOver={e => { e.preventDefault(); if (!disabled) setDragging(true) }}
           onDragLeave={() => setDragging(false)}
-          onDrop={onDrop}
-          className="w-full rounded-xl py-8 flex flex-col items-center gap-2 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-          style={{
-            background: dragging ? `${accent}10` : 'rgba(255,255,255,0.02)',
-            border: `2px dashed ${dragging ? accent : 'rgba(255,255,255,0.1)'}`,
-          }}>
-          <div className="w-10 h-10 rounded-full flex items-center justify-center mb-1"
-               style={{ background: `${accent}12`, color: accent }}>
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
-              <polyline points="17 8 12 3 7 8" />
-              <line x1="12" y1="3" x2="12" y2="15" />
-            </svg>
+          onDrop={e => { e.preventDefault(); setDragging(false); if (!disabled) { const f = e.dataTransfer.files?.[0]; if (f) handle(f) } }}
+          style={{ width: '100%', padding: '26px 16px', borderRadius: 12, cursor: disabled ? 'not-allowed' : 'pointer', opacity: disabled ? 0.45 : 1,
+            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
+            background: dragging ? `${accent}12` : 'rgba(var(--ink),0.02)',
+            border: `2px dashed ${dragging ? accent : 'rgba(var(--ink),0.12)'}`, transition: 'all 0.15s' }}>
+          <div style={{ width: 40, height: 40, borderRadius: 99, display: 'flex', alignItems: 'center', justifyContent: 'center', background: `${accent}14`, color: accent, marginBottom: 2 }}>
+            <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
           </div>
-          <p className="text-sm font-semibold text-text-primary">Click or drag &amp; drop</p>
-          <p className="text-xs text-text-muted">JPG, PNG or PDF · max 10 MB</p>
+          <p style={{ fontSize: 13.5, fontWeight: 700, color: S.text1, margin: 0 }}>Click or drag &amp; drop</p>
+          <p style={{ fontSize: 11.5, color: S.text3, margin: 0 }}>JPG, PNG or PDF · max 10 MB</p>
         </button>
       )}
     </div>
   )
 }
 
-interface DocSectionProps {
-  step: 1 | 2
-  title: string
-  subtitle: string
-  accent: string
-  typeLabel: string
+interface DocCardProps {
+  step: number; title: string; subtitle: string; accent: string
   typeOptions: { value: string; label: string; icon: React.ReactNode }[]
-  docType: string
-  setDocType: (v: string) => void
-  file: DocFile | null
-  setFile: (f: DocFile) => void
-  status: DocStatus
-  requirements: string[]
+  docType: string; setDocType: (v: string) => void
+  file: DocFile | null; setFile: (f: DocFile) => void
+  status: DocStatus; requirements: string[]
 }
 
-function DocSection({
-  step, title, subtitle, accent, typeLabel, typeOptions,
-  docType, setDocType, file, setFile, status, requirements
-}: DocSectionProps) {
+function DocCard({ step, title, subtitle, accent, typeOptions, docType, setDocType, file, setFile, status, requirements }: DocCardProps) {
   const locked = status === 'pending' || status === 'verified'
+  const done   = status === 'verified'
   return (
-    <div className="card overflow-hidden">
+    <div style={{ background: S.surface, border: `1px solid ${done ? `${S.bull}33` : S.border}`, borderRadius: 18, overflow: 'hidden', boxShadow: 'var(--t-shadow-sm)' }}>
       {/* Header */}
-      <div className="flex items-center justify-between px-6 py-4 gap-3 flex-wrap"
-           style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', background: `${accent}06` }}>
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0"
-               style={{ background: `${accent}20`, border: `1px solid ${accent}30`, color: accent }}>
-            {status === 'verified' ? (
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><polyline points="20 6 9 17 4 12"/></svg>
-            ) : String(step)}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: '16px 20px', borderBottom: `1px solid ${S.border}`, background: `${accent}08` }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 13 }}>
+          <div style={{ width: 36, height: 36, borderRadius: 11, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, fontWeight: 800,
+            background: done ? 'var(--t-bull-s)' : `${accent}1f`, border: `1px solid ${done ? `${S.bull}55` : `${accent}40`}`, color: done ? S.bull : accent }}>
+            {done ? <svg width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.6}><polyline points="20 6 9 17 4 12"/></svg> : step}
           </div>
           <div>
-            <p className="font-bold text-sm text-text-primary">{title}</p>
-            <p className="text-xs text-text-muted">{subtitle}</p>
+            <p style={{ fontSize: 14.5, fontWeight: 800, color: S.text1, margin: 0 }}>{title}</p>
+            <p style={{ fontSize: 11.5, color: S.text3, margin: '2px 0 0' }}>{subtitle}</p>
           </div>
         </div>
-        <StatusBadge status={status} />
+        <StatusPill status={status} />
       </div>
 
-      <div className="p-6 space-y-5">
-        {/* Document type picker */}
+      <div style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 18 }}>
+        {/* Type picker */}
         <div>
-          <p className="text-xs font-bold uppercase tracking-widest text-text-muted mb-2.5">{typeLabel}</p>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-            {typeOptions.map(opt => (
-              <button
-                key={opt.value}
-                disabled={locked}
-                onClick={() => setDocType(opt.value)}
-                className="flex items-center gap-2.5 px-3.5 py-3 rounded-xl text-left transition-all disabled:opacity-60 disabled:cursor-not-allowed"
-                style={docType === opt.value
-                  ? { background: `${accent}15`, border: `1px solid ${accent}40`, color: accent }
-                  : { background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)', color: '#94a3b8' }}
-                onMouseEnter={e => docType !== opt.value && !locked && ((e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.14)')}
-                onMouseLeave={e => docType !== opt.value && !locked && ((e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.06)')}
-              >
-                <span className="shrink-0">{opt.icon}</span>
-                <span className="text-xs font-semibold text-text-primary">{opt.label}</span>
-                {docType === opt.value && (
-                  <span className="ml-auto shrink-0 w-4 h-4 rounded-full flex items-center justify-center" style={{ background: accent }}>
-                    <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><polyline points="20 6 9 17 4 12"/></svg>
-                  </span>
-                )}
-              </button>
-            ))}
+          <p style={{ fontSize: 11, fontWeight: 700, color: S.text3, textTransform: 'uppercase', letterSpacing: '0.07em', margin: '0 0 10px' }}>Document type</p>
+          <div className="grid grid-cols-1 sm:grid-cols-3" style={{ gap: 8 }}>
+            {typeOptions.map(opt => {
+              const on = docType === opt.value
+              return (
+                <button key={opt.value} disabled={locked} onClick={() => setDocType(opt.value)}
+                  style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '11px 13px', borderRadius: 12, cursor: locked ? 'not-allowed' : 'pointer', opacity: locked && !on ? 0.5 : 1, textAlign: 'left',
+                    background: on ? `${accent}16` : 'rgba(var(--ink),0.025)', border: `1px solid ${on ? `${accent}55` : S.border}`, color: on ? accent : S.text2 }}>
+                  <span style={{ flexShrink: 0, display: 'flex' }}>{opt.icon}</span>
+                  <span style={{ fontSize: 12.5, fontWeight: 700, color: on ? accent : S.text1, flex: 1 }}>{opt.label}</span>
+                  {on && <span style={{ width: 16, height: 16, borderRadius: 99, flexShrink: 0, background: accent, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="#fff" strokeWidth={3.5}><polyline points="20 6 9 17 4 12"/></svg>
+                  </span>}
+                </button>
+              )
+            })}
           </div>
         </div>
 
         {/* Upload */}
         <div>
-          <p className="text-xs font-bold uppercase tracking-widest text-text-muted mb-2.5">Upload Document</p>
+          <p style={{ fontSize: 11, fontWeight: 700, color: S.text3, textTransform: 'uppercase', letterSpacing: '0.07em', margin: '0 0 10px' }}>Upload document</p>
           <UploadZone file={file} onFile={setFile} disabled={locked || !docType} accent={accent} />
         </div>
 
-        {/* Requirements checklist */}
-        <div className="rounded-xl p-4" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }}>
-          <p className="text-xs font-bold uppercase tracking-widest text-text-muted mb-2">Requirements</p>
-          <ul className="space-y-1.5">
+        {/* Requirements */}
+        <div style={{ borderRadius: 12, padding: 14, background: 'rgba(var(--ink),0.02)', border: `1px solid ${S.border}` }}>
+          <p style={{ fontSize: 11, fontWeight: 700, color: S.text3, textTransform: 'uppercase', letterSpacing: '0.07em', margin: '0 0 8px' }}>Requirements</p>
+          <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 7 }}>
             {requirements.map(r => (
-              <li key={r} className="flex items-start gap-2 text-xs text-text-secondary">
-                <svg className="w-3.5 h-3.5 mt-0.5 shrink-0 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><polyline points="20 6 9 17 4 12"/></svg>
+              <li key={r} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 12, color: S.text2, lineHeight: 1.4 }}>
+                <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke={accent} strokeWidth={2.4} style={{ marginTop: 2, flexShrink: 0 }}><polyline points="20 6 9 17 4 12"/></svg>
                 {r}
               </li>
             ))}
           </ul>
         </div>
 
+        {/* State banners */}
         {status === 'rejected' && (
-          <div className="rounded-xl p-4 flex gap-3" style={{ background: 'rgba(255,48,71,0.08)', border: '1px solid rgba(255,48,71,0.2)' }}>
-            <svg className="w-4 h-4 text-bear shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
-            <p className="text-xs text-bear">Your document was rejected. Please upload a clearer, unedited copy of a valid document and resubmit.</p>
+          <div style={{ display: 'flex', gap: 10, padding: 13, borderRadius: 11, background: 'var(--t-bear-s)', border: `1px solid ${S.bear}33` }}>
+            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke={S.bear} strokeWidth={2} style={{ flexShrink: 0, marginTop: 1 }}><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+            <p style={{ fontSize: 12, color: S.bear, margin: 0, lineHeight: 1.4 }}>This document was rejected. Please upload a clearer, unedited copy and resubmit.</p>
           </div>
         )}
-
         {status === 'pending' && (
-          <div className="rounded-xl p-4 flex gap-3" style={{ background: 'rgba(245,158,11,0.07)', border: '1px solid rgba(245,158,11,0.2)' }}>
-            <svg className="w-4 h-4 shrink-0 mt-0.5" style={{ color: '#fbbf24' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            <p className="text-xs" style={{ color: '#fbbf24' }}>Your document is under review. This typically takes 1–2 business days. We'll notify you by email once reviewed.</p>
+          <div style={{ display: 'flex', gap: 10, padding: 13, borderRadius: 11, background: 'var(--t-warn-s)', border: `1px solid ${S.warn}33` }}>
+            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke={S.warn} strokeWidth={2} style={{ flexShrink: 0, marginTop: 1 }}><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <p style={{ fontSize: 12, color: S.warn, margin: 0, lineHeight: 1.4 }}>Under review — we'll notify you once it's checked, usually within 1–2 business days.</p>
           </div>
         )}
-
         {status === 'verified' && (
-          <div className="rounded-xl p-4 flex gap-3" style={{ background: 'rgba(0,200,120,0.07)', border: '1px solid rgba(0,200,120,0.2)' }}>
-            <svg className="w-4 h-4 text-bull shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><polyline points="20 6 9 17 4 12"/></svg>
-            <p className="text-xs text-bull">Document verified successfully.</p>
+          <div style={{ display: 'flex', gap: 10, padding: 13, borderRadius: 11, background: 'var(--t-bull-s)', border: `1px solid ${S.bull}33` }}>
+            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke={S.bull} strokeWidth={2.4} style={{ flexShrink: 0, marginTop: 1 }}><polyline points="20 6 9 17 4 12"/></svg>
+            <p style={{ fontSize: 12, color: S.bull, margin: 0, fontWeight: 600 }}>Document verified successfully.</p>
           </div>
         )}
       </div>
@@ -231,105 +208,47 @@ function DocSection({
   )
 }
 
-// ─── Main Page ────────────────────────────────────────────────────────────────
+// ── Document catalogues ─────────────────────────────────────────────────────────
 const ID_TYPES = [
-  {
-    value: 'passport',
-    label: 'Passport',
-    icon: (
-      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-        <rect x="3" y="2" width="18" height="20" rx="2" />
-        <circle cx="12" cy="10" r="3" />
-        <path d="M6 20c0-3.3 2.7-6 6-6s6 2.7 6 6" />
-      </svg>
-    ),
-  },
-  {
-    value: 'national_id',
-    label: 'National ID',
-    icon: (
-      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-        <rect x="2" y="5" width="20" height="14" rx="2" />
-        <circle cx="8" cy="12" r="2" />
-        <path d="M13 9h5M13 12h3M13 15h4" />
-      </svg>
-    ),
-  },
-  {
-    value: 'drivers_license',
-    label: "Driver's License",
-    icon: (
-      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-        <rect x="2" y="5" width="20" height="14" rx="2" />
-        <circle cx="8" cy="11" r="2" />
-        <path d="M13 9h4M13 12h3M5 17h14" />
-      </svg>
-    ),
-  },
+  { value: 'passport', label: 'Passport', icon: <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><rect x="3" y="2" width="18" height="20" rx="2"/><circle cx="12" cy="10" r="3"/><path d="M6 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg> },
+  { value: 'national_id', label: 'National ID', icon: <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="8" cy="12" r="2"/><path d="M13 9h5M13 12h3M13 15h4"/></svg> },
+  { value: 'drivers_license', label: "Driver's License", icon: <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="8" cy="11" r="2"/><path d="M13 9h4M13 12h3M5 17h14"/></svg> },
 ]
-
 const POA_TYPES = [
-  {
-    value: 'utility_bill',
-    label: 'Utility Bill',
-    icon: (
-      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
-        <polyline points="14 2 14 8 20 8" />
-        <line x1="8" y1="13" x2="16" y2="13" />
-        <line x1="8" y1="17" x2="12" y2="17" />
-      </svg>
-    ),
-  },
-  {
-    value: 'bank_statement',
-    label: 'Bank Statement',
-    icon: (
-      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-        <path d="M3 10h18M3 10V6l9-3 9 3v4M3 10v8a1 1 0 001 1h16a1 1 0 001-1v-8" />
-      </svg>
-    ),
-  },
-  {
-    value: 'government_letter',
-    label: 'Gov. Letter',
-    icon: (
-      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-        <polyline points="22,6 12,13 2,6" />
-      </svg>
-    ),
-  },
+  { value: 'utility_bill', label: 'Utility Bill', icon: <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="12" y2="17"/></svg> },
+  { value: 'bank_statement', label: 'Bank Statement', icon: <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path d="M3 10h18M3 10V6l9-3 9 3v4M3 10v8a1 1 0 001 1h16a1 1 0 001-1v-8"/></svg> },
+  { value: 'government_letter', label: 'Gov. Letter', icon: <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg> },
 ]
-
 const ID_REQUIREMENTS = [
-  'Document must be valid and not expired',
-  'All four corners of the document must be visible',
-  'Your full name and date of birth must be clearly readable',
-  'Photo must be in colour - black & white not accepted',
-  'File must be JPG, PNG or PDF - maximum 10 MB',
+  'Valid and not expired',
+  'All four corners visible',
+  'Full name & date of birth readable',
+  'In colour — black & white not accepted',
 ]
-
 const POA_REQUIREMENTS = [
-  'Document must be issued within the last 3 months',
-  'Your full name and current residential address must be visible',
-  'Document must not be cropped or edited in any way',
-  'Bank statements must show the bank logo or official letterhead',
-  'File must be JPG, PNG or PDF - maximum 10 MB',
+  'Issued within the last 3 months',
+  'Full name & residential address visible',
+  'Not cropped or edited in any way',
+  'Bank logo / official letterhead shown',
 ]
 
-const OVERALL_STEPS: { key: string; label: string; done: (idS: DocStatus, poaS: DocStatus) => boolean }[] = [
-  { key: 'id',  label: 'Identity Document', done: (idS) => idS === 'verified' || idS === 'pending' },
-  { key: 'poa', label: 'Proof of Address',  done: (_idS, poaS) => poaS === 'verified' || poaS === 'pending' },
-  { key: 'review', label: 'Under Review',   done: (idS, poaS) => idS === 'verified' && poaS === 'verified' },
+const BENEFITS = [
+  { title: 'Unlimited withdrawals', desc: 'Remove the unverified withdrawal cap', icon: <svg width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg> },
+  { title: 'Higher leverage tiers', desc: 'Access the platform\'s maximum leverage', icon: <svg width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg> },
+  { title: 'Priority support', desc: 'A dedicated account manager', icon: <svg width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> },
 ]
 
+const STEPS: { key: string; label: string; done: (i: DocStatus, p: DocStatus) => boolean }[] = [
+  { key: 'id',     label: 'Identity', done: (i, _p) => i === 'verified' || i === 'pending' },
+  { key: 'poa',    label: 'Address',  done: (_i, p) => p === 'verified' || p === 'pending' },
+  { key: 'review', label: 'Verified', done: (i, p)  => i === 'verified' && p === 'verified' },
+]
+
+// ── Page ─────────────────────────────────────────────────────────────────────
 export default function KYCPage() {
   const navigate = useNavigate()
   const { record, load, submit } = useKYCStore()
 
-  // Local (ephemeral) document selections. File previews stay client-side in this
-  // simulator — only the document type + filename are sent to the backend.
   const [idType,  setIdType]  = useState('')
   const [idFile,  setIdFile]  = useState<DocFile | null>(null)
   const [poaType, setPoaType] = useState('')
@@ -337,8 +256,6 @@ export default function KYCPage() {
   const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => { load() }, [load])
-
-  // Prefill the type pickers from any saved submission
   useEffect(() => {
     if (record.id_type)  setIdType(record.id_type)
     if (record.poa_type) setPoaType(record.poa_type)
@@ -346,12 +263,8 @@ export default function KYCPage() {
 
   const idServer  = record.id_status
   const poaServer = record.poa_status
-
-  // Display status: a server decision wins; a locally-picked-but-unsent file = "uploaded".
   const idDisplay:  DocStatus = idServer  !== 'empty' ? idServer  : (idFile  ? 'uploaded' : 'empty')
   const poaDisplay: DocStatus = poaServer !== 'empty' ? poaServer : (poaFile ? 'uploaded' : 'empty')
-
-  // For submitted docs with no local preview, synthesize a placeholder from the filename.
   const idFileShown  = idFile  ?? (record.id_doc_name  ? { name: record.id_doc_name,  size: 0, dataUrl: '' } : null)
   const poaFileShown = poaFile ?? (record.poa_doc_name ? { name: record.poa_doc_name, size: 0, dataUrl: '' } : null)
 
@@ -359,183 +272,166 @@ export default function KYCPage() {
   const canSubmitPoa = !!poaType && !!poaFile && poaServer !== 'pending' && poaServer !== 'verified'
   const canSubmitAll = canSubmitId || canSubmitPoa
 
-  const overallStatus = record.status
+  const overall  = record.status
+  const stepsDone = STEPS.filter(s => s.done(idServer, poaServer)).length
+  const progress  = Math.round((stepsDone / STEPS.length) * 100)
+
+  const heroColor = overall === 'verified' ? S.bull : overall === 'rejected' ? S.bear : overall === 'pending' ? S.warn : S.accent
+  const heroMsg   = overall === 'verified'
+    ? 'Your identity is fully verified — all limits unlocked.'
+    : overall === 'rejected'
+    ? 'A document needs attention. Re-upload a clearer copy below.'
+    : overall === 'pending'
+    ? 'Your documents are under review. We\'ll notify you once checked.'
+    : 'Two quick documents and you\'re fully verified.'
 
   const handleSubmit = async () => {
     setSubmitting(true)
     try {
       await submit({
-        idType:     canSubmitId  ? idType        : undefined,
-        idDocName:  canSubmitId  ? idFile!.name   : undefined,
-        poaType:    canSubmitPoa ? poaType        : undefined,
-        poaDocName: canSubmitPoa ? poaFile!.name  : undefined,
+        idType:     canSubmitId  ? idType       : undefined,
+        idDocName:  canSubmitId  ? idFile!.name  : undefined,
+        poaType:    canSubmitPoa ? poaType       : undefined,
+        poaDocName: canSubmitPoa ? poaFile!.name : undefined,
       })
-    } finally {
-      setSubmitting(false)
-    }
+    } finally { setSubmitting(false) }
   }
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
+    <div className="h-full overflow-y-auto" style={{ background: 'var(--t-bg)' }}>
+      <div style={{ maxWidth: 1040, margin: '0 auto', padding: '24px 20px 100px' }}>
 
-      {/* ── Page header ──────────────────────────────────────────────────── */}
-      <div className="flex items-center gap-3">
-        <button onClick={() => navigate('/dashboard')} className="text-text-muted hover:text-text-primary transition-colors">
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><polyline points="15 18 9 12 15 6"/></svg>
-        </button>
-        <div>
-          <h1 className="text-2xl font-bold text-text-primary">Account Verification</h1>
-          <p className="text-text-muted text-sm mt-0.5">
-            Verify your identity to unlock full trading features and higher withdrawal limits.
-          </p>
-        </div>
-      </div>
-
-      {/* ── Overall progress ─────────────────────────────────────────────── */}
-      <div className="card p-5">
-        <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
-          <p className="text-xs font-bold uppercase tracking-widest text-text-muted">Verification Progress</p>
-          {overallStatus === 'verified' && <StatusBadge status="verified" />}
-          {overallStatus === 'pending'  && <StatusBadge status="pending" />}
-          {overallStatus === 'rejected' && <StatusBadge status="rejected" />}
-          {overallStatus === 'unverified' && <StatusBadge status="empty" />}
+        {/* ── Header ──────────────────────────────────────────────────────── */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
+          <button onClick={() => navigate('/dashboard')}
+            style={{ width: 38, height: 38, borderRadius: 10, flexShrink: 0, background: 'rgba(var(--ink),0.05)', border: `1px solid ${S.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: S.text2 }}>
+            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <div>
+            <h1 style={{ fontSize: 22, fontWeight: 800, color: S.text1, margin: 0, letterSpacing: '-0.01em' }}>Account Verification</h1>
+            <p style={{ fontSize: 13, color: S.text3, margin: '2px 0 0' }}>Confirm your identity to unlock the full platform.</p>
+          </div>
         </div>
 
-        {/* Step track */}
-        <div className="flex items-center gap-0 mb-4">
-          {OVERALL_STEPS.map((step, i) => {
-            const done = step.done(idServer, poaServer)
-            const isLast = i === OVERALL_STEPS.length - 1
-            return (
-              <React.Fragment key={step.key}>
-                <div className="flex flex-col items-center min-w-[80px]">
-                  <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold border-2 transition-all"
-                       style={done
-                         ? { background: 'rgba(0,200,120,0.15)', borderColor: '#00c878', color: '#00c878' }
-                         : { background: 'rgba(255,255,255,0.04)', borderColor: 'rgba(255,255,255,0.12)', color: '#6b8099' }}>
-                    {done
-                      ? <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><polyline points="20 6 9 17 4 12"/></svg>
-                      : String(i + 1)}
-                  </div>
-                  <p className="text-2xs text-text-muted mt-1 text-center leading-tight">{step.label}</p>
-                </div>
-                {!isLast && (
-                  <div className="flex-1 h-0.5 mb-4 transition-all"
-                       style={{ background: done ? 'rgba(0,200,120,0.4)' : 'rgba(255,255,255,0.06)' }} />
-                )}
-              </React.Fragment>
-            )
-          })}
-        </div>
+        {/* ── Hero ────────────────────────────────────────────────────────── */}
+        <div style={{ position: 'relative', overflow: 'hidden', borderRadius: 20, padding: 22, marginBottom: 18,
+          background: `linear-gradient(135deg, ${heroColor}1f 0%, var(--t-surface) 62%)`, border: `1px solid ${heroColor}33`, boxShadow: 'var(--t-shadow-sm)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 20, flexWrap: 'wrap' }}>
+            <ProgressRing pct={progress} color={heroColor}>
+              {overall === 'verified'
+                ? <svg width="30" height="30" fill="none" viewBox="0 0 24 24" stroke={heroColor} strokeWidth={2.4}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+                : <span style={{ fontSize: 20, fontWeight: 800, color: heroColor, fontFamily: 'ui-monospace,monospace' }}>{progress}%</span>}
+            </ProgressRing>
+            <div style={{ flex: 1, minWidth: 220 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6, flexWrap: 'wrap' }}>
+                <h2 style={{ fontSize: 18, fontWeight: 800, color: S.text1, margin: 0 }}>
+                  {overall === 'verified' ? 'You\'re verified' : overall === 'pending' ? 'Review in progress' : overall === 'rejected' ? 'Action needed' : 'Get verified'}
+                </h2>
+                <StatusPill big status={overall === 'unverified' ? 'empty' : overall as DocStatus} />
+              </div>
+              <p style={{ fontSize: 13, color: S.text2, margin: 0, lineHeight: 1.5 }}>{heroMsg}</p>
 
-        {/* Why verify */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {[
-            { label: 'Unlimited Withdrawals', icon: '💸', desc: 'Remove all withdrawal restrictions' },
-            { label: 'Higher Leverage',        icon: '📈', desc: 'Access maximum leverage tiers' },
-            { label: 'Priority Support',       icon: '🛡', desc: 'Dedicated account manager access' },
-          ].map(b => (
-            <div key={b.label} className="rounded-xl p-3 flex gap-2.5 items-start"
-                 style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.05)' }}>
-              <span className="text-lg shrink-0">{b.icon}</span>
-              <div>
-                <p className="text-xs font-semibold text-text-primary">{b.label}</p>
-                <p className="text-2xs text-text-muted mt-0.5">{b.desc}</p>
+              {/* Stepper */}
+              <div style={{ display: 'flex', alignItems: 'center', marginTop: 16 }}>
+                {STEPS.map((s, i) => {
+                  const done = s.done(idServer, poaServer)
+                  return (
+                    <React.Fragment key={s.key}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                        <div style={{ width: 24, height: 24, borderRadius: 99, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 800,
+                          background: done ? heroColor : 'rgba(var(--ink),0.06)', color: done ? '#fff' : S.text3, border: done ? 'none' : `1px solid ${S.border}` }}>
+                          {done ? <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><polyline points="20 6 9 17 4 12"/></svg> : i + 1}
+                        </div>
+                        <span style={{ fontSize: 12, fontWeight: 700, color: done ? S.text1 : S.text3 }}>{s.label}</span>
+                      </div>
+                      {i < STEPS.length - 1 && <div style={{ flex: 1, height: 2, margin: '0 10px', borderRadius: 2, background: done ? `${heroColor}66` : 'rgba(var(--ink),0.08)', minWidth: 16 }} />}
+                    </React.Fragment>
+                  )
+                })}
               </div>
             </div>
-          ))}
+          </div>
+        </div>
+
+        {/* ── Two-column body ─────────────────────────────────────────────── */}
+        <div className="grid grid-cols-1 lg:grid-cols-3" style={{ gap: 18, alignItems: 'start' }}>
+
+          {/* Main: document cards */}
+          <div className="lg:col-span-2" style={{ display: 'flex', flexDirection: 'column', gap: 18, minWidth: 0 }}>
+            <DocCard step={1} title="Identity Document" subtitle="A government-issued photo ID" accent="#0ea5e9"
+              typeOptions={ID_TYPES} docType={idType} setDocType={setIdType} file={idFileShown} setFile={setIdFile} status={idDisplay} requirements={ID_REQUIREMENTS} />
+            <DocCard step={2} title="Proof of Address" subtitle="A recent document with your address" accent="#8b5cf6"
+              typeOptions={POA_TYPES} docType={poaType} setDocType={setPoaType} file={poaFileShown} setFile={setPoaFile} status={poaDisplay} requirements={POA_REQUIREMENTS} />
+          </div>
+
+          {/* Side rail */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 18, minWidth: 0, position: 'sticky', top: 16 }}>
+
+            {/* Submit / status card */}
+            {overall === 'verified' ? (
+              <div style={{ background: 'linear-gradient(135deg, var(--t-bull-s) 0%, var(--t-surface) 70%)', border: `1px solid ${S.bull}40`, borderRadius: 18, padding: 22, textAlign: 'center' }}>
+                <div style={{ width: 56, height: 56, borderRadius: 99, margin: '0 auto 14px', background: 'var(--t-bull-s)', border: `1px solid ${S.bull}55`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <svg width="26" height="26" fill="none" viewBox="0 0 24 24" stroke={S.bull} strokeWidth={2.5}><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <p style={{ fontSize: 16, fontWeight: 800, color: S.bull, margin: '0 0 6px' }}>Account verified</p>
+                <p style={{ fontSize: 12.5, color: S.text2, margin: '0 0 16px', lineHeight: 1.5 }}>All features and withdrawal limits are unlocked. Thank you.</p>
+                <button onClick={() => navigate('/dashboard')}
+                  style={{ width: '100%', padding: '12px', borderRadius: 11, background: S.bull, border: 'none', color: '#fff', fontSize: 13.5, fontWeight: 700, cursor: 'pointer' }}>
+                  Go to Dashboard
+                </button>
+              </div>
+            ) : overall === 'pending' ? (
+              <div style={{ background: S.surface, border: `1px solid ${S.warn}33`, borderRadius: 18, padding: 20 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 11, marginBottom: 10 }}>
+                  <div style={{ width: 40, height: 40, borderRadius: 11, flexShrink: 0, background: 'var(--t-warn-s)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <svg width="19" height="19" fill="none" viewBox="0 0 24 24" stroke={S.warn} strokeWidth={2}><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  </div>
+                  <p style={{ fontSize: 14.5, fontWeight: 800, color: S.text1, margin: 0 }}>Under review</p>
+                </div>
+                <p style={{ fontSize: 12.5, color: S.text2, margin: 0, lineHeight: 1.5 }}>
+                  Submitted {record.submitted_at ? new Date(record.submitted_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric' }) : 'recently'}. Our team typically reviews documents within <strong style={{ color: S.text1 }}>1–2 business days</strong> — you'll get a notification when it's done.
+                </p>
+              </div>
+            ) : (
+              <div style={{ background: S.surface, border: `1px solid ${S.border}`, borderRadius: 18, padding: 20 }}>
+                <p style={{ fontSize: 14.5, fontWeight: 800, color: S.text1, margin: '0 0 4px' }}>{canSubmitAll ? 'Ready to submit' : 'Add your documents'}</p>
+                <p style={{ fontSize: 12.5, color: S.text3, margin: '0 0 16px', lineHeight: 1.5 }}>
+                  {canSubmitAll ? 'Submit for review — you\'ll be notified once verified.' : 'Pick a document type and upload a file for each step to continue.'}
+                </p>
+                <button onClick={handleSubmit} disabled={!canSubmitAll || submitting}
+                  style={{ width: '100%', padding: 13, borderRadius: 11, border: 'none', fontSize: 13.5, fontWeight: 700, cursor: (!canSubmitAll || submitting) ? 'not-allowed' : 'pointer',
+                    background: (!canSubmitAll || submitting) ? 'var(--t-accent-s)' : S.accent, color: (!canSubmitAll || submitting) ? S.text3 : '#fff' }}>
+                  {submitting ? 'Submitting…' : 'Submit for Verification'}
+                </button>
+              </div>
+            )}
+
+            {/* Benefits */}
+            <div style={{ background: S.surface, border: `1px solid ${S.border}`, borderRadius: 18, padding: 20 }}>
+              <p style={{ fontSize: 13, fontWeight: 800, color: S.text1, margin: '0 0 14px' }}>Why verify?</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                {BENEFITS.map(b => (
+                  <div key={b.title} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                    <div style={{ width: 34, height: 34, borderRadius: 10, flexShrink: 0, background: 'var(--t-accent-s)', color: S.accent, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{b.icon}</div>
+                    <div>
+                      <p style={{ fontSize: 12.5, fontWeight: 700, color: S.text1, margin: 0 }}>{b.title}</p>
+                      <p style={{ fontSize: 11.5, color: S.text3, margin: '2px 0 0', lineHeight: 1.4 }}>{b.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Security note */}
+            <div style={{ display: 'flex', gap: 10, padding: '14px 16px', borderRadius: 14, background: 'rgba(var(--ink),0.02)', border: `1px solid ${S.border}` }}>
+              <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke={S.text3} strokeWidth={1.8} style={{ flexShrink: 0, marginTop: 1 }}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              <p style={{ fontSize: 11, color: S.text3, margin: 0, lineHeight: 1.5 }}>
+                Your data is encrypted and used solely for identity verification, in line with our Privacy Policy and applicable regulations.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
-
-      {/* ── Step 1: Identity ─────────────────────────────────────────────── */}
-      <DocSection
-        step={1}
-        title="Identity Document"
-        subtitle="A government-issued photo ID confirming who you are"
-        accent="#0ea5e9"
-        typeLabel="Select Document Type"
-        typeOptions={ID_TYPES}
-        docType={idType}
-        setDocType={setIdType}
-        file={idFileShown}
-        setFile={setIdFile}
-        status={idDisplay}
-        requirements={ID_REQUIREMENTS}
-      />
-
-      {/* ── Step 2: Proof of Address ─────────────────────────────────────── */}
-      <DocSection
-        step={2}
-        title="Proof of Address"
-        subtitle="A recent document confirming your residential address"
-        accent="#8b5cf6"
-        typeLabel="Select Document Type"
-        typeOptions={POA_TYPES}
-        docType={poaType}
-        setDocType={setPoaType}
-        file={poaFileShown}
-        setFile={setPoaFile}
-        status={poaDisplay}
-        requirements={POA_REQUIREMENTS}
-      />
-
-      {/* ── Submit button ─────────────────────────────────────────────────── */}
-      {canSubmitAll && (
-        <div className="card p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div>
-            <p className="text-sm font-semibold text-text-primary">Ready to submit?</p>
-            <p className="text-xs text-text-muted mt-0.5">
-              Submit your documents for review. You'll be notified within 1–2 business days.
-            </p>
-          </div>
-          <button onClick={handleSubmit} disabled={submitting}
-            className="btn-primary px-6 py-2.5 text-sm shrink-0 disabled:opacity-50">
-            {submitting ? 'Submitting…' : 'Submit for Verification'}
-          </button>
-        </div>
-      )}
-
-      {overallStatus === 'pending' && (
-        <div className="card p-5 flex items-center gap-4">
-          <div className="w-10 h-10 rounded-full shrink-0 flex items-center justify-center"
-               style={{ background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.25)' }}>
-            <svg className="w-5 h-5" style={{ color: '#fbbf24' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          </div>
-          <div>
-            <p className="text-sm font-semibold text-text-primary">Verification in progress</p>
-            <p className="text-xs text-text-muted mt-0.5">
-              Submitted {record.submitted_at ? new Date(record.submitted_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : 'recently'} ·
-              Our compliance team typically reviews documents within <strong className="text-text-primary">1–2 business days</strong>.
-            </p>
-          </div>
-        </div>
-      )}
-
-      {overallStatus === 'verified' && (
-        <div className="card p-5 flex items-center gap-4">
-          <div className="w-10 h-10 rounded-full shrink-0 flex items-center justify-center"
-               style={{ background: 'rgba(0,200,120,0.12)', border: '1px solid rgba(0,200,120,0.3)' }}>
-            <svg className="w-5 h-5 text-bull" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><polyline points="20 6 9 17 4 12"/></svg>
-          </div>
-          <div>
-            <p className="text-sm font-semibold text-bull">Account Fully Verified</p>
-            <p className="text-xs text-text-muted mt-0.5">All features and limits are now unlocked. Thank you for completing verification.</p>
-          </div>
-          <button onClick={() => navigate('/dashboard')} className="ml-auto btn-primary px-4 py-2 text-sm shrink-0">
-            Go to Dashboard
-          </button>
-        </div>
-      )}
-
-      {/* Privacy note */}
-      <div className="flex items-start gap-2.5 px-1">
-        <svg className="w-4 h-4 shrink-0 mt-0.5 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-        <p className="text-xs text-text-muted leading-relaxed">
-          Your personal data is handled in accordance with our Privacy Policy and applicable data protection regulations.
-          Documents are encrypted, stored securely, and used solely for identity verification purposes.
-        </p>
-      </div>
-
     </div>
   )
 }

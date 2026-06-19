@@ -314,7 +314,7 @@ export default function Sidebar({ mobileOpen, onClose, onOpenMarkets }: SidebarP
               { label: 'Account',          path: '/dashboard/profile?tab=account',  icon: CreditCard },
               { label: 'Security',         path: '/dashboard/profile?tab=security', icon: Shield     },
               { label: 'Settings',         path: '/dashboard/profile?tab=settings', icon: Settings2  },
-              { label: 'KYC Verification', path: '/dashboard/kyc',                  icon: BadgeCheck },
+              { label: 'KYC Verification', path: '/dashboard/verify',               icon: BadgeCheck },
             ].map(item => {
               const Icon = item.icon
               return (
