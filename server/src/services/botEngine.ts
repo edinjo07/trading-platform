@@ -616,8 +616,9 @@ async function tick(botId: string) {
         currency:   state.currency,
       })
 
-      // Use position ID directly from the order result — no race condition
-      state.positionId   = result.id
+      // Use the POSITION id from the order result (result.id is the order id) so
+      // the bot closes the right row. Mixing these up orphans every bot trade.
+      state.positionId   = result.positionId
       state.positionSide = signal === 'buy' ? 'long' : 'short'
       state.entryPrice   = result.fillPrice
       state.currentSL    = sl
@@ -803,4 +804,32 @@ export async function stopBotEngine(botId: string, userId: string): Promise<void
     status:     'stopped',
     stopped_at: new Date().toISOString(),
   })
+}
+
+/**
+ * Re-arm every bot the DB still believes is active after a server restart.
+ * The `running` map lives in process memory, so a redeploy silently orphans all
+ * bots (status stays 'running'/'warming_up' in the DB but no interval ticks).
+ * Called once on boot so bots keep trading across deploys.
+ */
+export async function resumeRunningBots(): Promise<void> {
+  try {
+    const { data, error } = await supabase
+      .from('bots')
+      .select('id, user_id, currency')
+      .in('status', ['running', 'warming_up'])
+    if (error || !data?.length) return
+    let resumed = 0
+    for (const b of data as { id: string; user_id: string; currency?: string }[]) {
+      try {
+        await startBotEngine(b.id, b.user_id, b.currency ?? 'USD')
+        resumed++
+      } catch (err) {
+        console.warn(`[Bots] resume failed for ${b.id}:`, err instanceof Error ? err.message : err)
+      }
+    }
+    if (resumed) console.log(`[Bots] resumed ${resumed} bot(s) after restart`)
+  } catch (err) {
+    console.warn('[Bots] resume scan failed:', err instanceof Error ? err.message : err)
+  }
 }

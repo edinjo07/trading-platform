@@ -96,6 +96,7 @@ export interface Portfolio {
 
 export interface PlaceOrderResult {
   id:         string
+  positionId: string
   symbol:     string
   side:       OrderSide
   quantity:   number

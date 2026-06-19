@@ -8,6 +8,7 @@ import { startSLMonitor } from './services/slMonitor'
 import { startLimitMonitor } from './services/limitOrderMonitor'
 import { startMarginMonitor } from './services/marginMonitor'
 import { startKycMonitor } from './services/kycService'
+import { resumeRunningBots } from './services/botEngine'
 
 const sslKeyPath  = process.env.SSL_KEY_FILE
 const sslCertPath = process.env.SSL_CERT_FILE
@@ -33,6 +34,9 @@ startSLMonitor()
 startLimitMonitor()
 startMarginMonitor()
 startKycMonitor()
+// Re-arm bots the DB still marks active (survive redeploys). Slight delay so the
+// price simulation/feeds are warm before bots seed history and tick.
+setTimeout(() => { resumeRunningBots().catch(console.error) }, 4000)
 
 server.listen(config.port, () => {
   const proto   = sslKeyPath && sslCertPath ? 'https' : 'http'

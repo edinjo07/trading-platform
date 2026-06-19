@@ -125,7 +125,7 @@ export async function placeMarketOrder(
 
   // Each order creates its own independent position ticket (IC Markets style).
   // Positions are closed individually by positionId — no averaging/merging.
-  const { error: insErr } = await supabase
+  const { data: posRow, error: insErr } = await supabase
     .from('positions')
     .insert({
       user_id:     userId,
@@ -141,7 +141,9 @@ export async function placeMarketOrder(
       opened_at:   now,
       updated_at:  now,
     })
-  if (insErr) throw new Error(`Position insert failed: ${insErr.message}`)
+    .select('id')
+    .single()
+  if (insErr || !posRow) throw new Error(`Position insert failed: ${insErr?.message ?? 'no row returned'}`)
 
   // ── Deduct cost from cash (guarded by gte to prevent race-condition overdraft) ──
   const newBalance = parseFloat((account.cash_balance - totalCost).toFixed(2))
@@ -178,7 +180,7 @@ export async function placeMarketOrder(
   })
 
   return {
-    id: orderId, symbol, side, quantity,
+    id: orderId, positionId: posRow.id as string, symbol, side, quantity,
     fillPrice, leverage,
     margin:     marginLocal,
     commission: commissionLocal,
