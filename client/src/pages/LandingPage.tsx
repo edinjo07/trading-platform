@@ -87,8 +87,8 @@ const MARKETS = [
   { sym: 'ETHUSD',   name: 'Ethereum',          price: '3,512.80',  chg: '+1.83', up: true,  cat: 'Crypto', logo: 'https://assets.coingecko.com/coins/images/279/small/ethereum.png' },
   { sym: 'EURUSD',   name: 'Euro / US Dollar',  price: '1.08420',   chg: '+0.12', up: true,  cat: 'Forex',  logo: 'https://flagcdn.com/w40/eu.png' },
   { sym: 'GBPUSD',   name: 'Pound / US Dollar', price: '1.26350',   chg: '-0.08', up: false, cat: 'Forex',  logo: 'https://flagcdn.com/w40/gb.png' },
-  { sym: 'AAPL',      name: 'Apple Inc.',        price: '189.24',    chg: '-0.61', up: false, cat: 'Stocks', logo: 'https://logo.clearbit.com/apple.com' },
-  { sym: 'NVDA',      name: 'NVIDIA Corp.',      price: '875.40',    chg: '+3.14', up: true,  cat: 'Stocks', logo: 'https://logo.clearbit.com/nvidia.com' },
+  { sym: 'AAPL',      name: 'Apple Inc.',        price: '189.24',    chg: '-0.61', up: false, cat: 'Stocks', logo: 'https://icons.duckduckgo.com/ip3/apple.com.ico' },
+  { sym: 'NVDA',      name: 'NVIDIA Corp.',      price: '875.40',    chg: '+3.14', up: true,  cat: 'Stocks', logo: 'https://icons.duckduckgo.com/ip3/nvidia.com.ico' },
   { sym: 'XAUUSD',   name: 'Gold Spot',         price: '2,334.10',  chg: '+0.34', up: true,  cat: 'Commod', logo: 'https://assets.coingecko.com/coins/images/14/small/xrp-symbol-white-128.png' },
   { sym: 'SOLUSD',   name: 'Solana',            price: '143.20',    chg: '+4.22', up: true,  cat: 'Crypto', logo: 'https://assets.coingecko.com/coins/images/4128/small/solana.png' },
 ]

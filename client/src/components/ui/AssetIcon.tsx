@@ -18,7 +18,7 @@ const CRYPTO_ID: Record<string, string> = {
   FILUSD: 'fil',
 }
 
-// ─── Stocks: Clearbit logo domains ───────────────────────────────────────────
+// ─── Stocks: brand-logo domains (served via DuckDuckGo's icon proxy) ──────────
 const STOCK_DOMAIN: Record<string, string> = {
   AAPL:  'apple.com',               TSLA:  'tesla.com',
   NVDA:  'nvidia.com',              MSFT:  'microsoft.com',
@@ -237,8 +237,9 @@ export default function AssetIcon({ symbol, assetClass, baseAsset, quoteAsset, s
     if (domain && !imgErr) {
       return (
         <img
-          src={`https://logo.clearbit.com/${domain}`}
+          src={`https://icons.duckduckgo.com/ip3/${domain}.ico`}
           alt={symbol}
+          loading="lazy"
           onError={() => setImgErr(true)}
           style={{ width: size, height: size, borderRadius: '50%', objectFit: 'contain', flexShrink: 0, background: '#fff' }}
         />
