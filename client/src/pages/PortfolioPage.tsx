@@ -418,7 +418,7 @@ export default function PortfolioPage() {
   ]
 
   return (
-    <div className="h-full overflow-y-auto" style={{ background: 'var(--t-bg)' }}>
+    <div className="h-full overflow-y-auto" style={{ background: 'transparent' }}>
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '24px 20px 100px' }}>
 
         {/* ── Header ──────────────────────────────────────────────────────── */}

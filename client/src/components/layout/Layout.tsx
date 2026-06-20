@@ -76,7 +76,7 @@ export default function Layout() {
       {/* ── Main column ── */}
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
         <Header onMenuClick={() => setMobileOpen(o => !o)} />
-        <main className="flex-1 overflow-auto" style={{ background: 'var(--t-bg)', paddingBottom: 'calc(env(safe-area-inset-bottom) + 64px)' }}>
+        <main className="flex-1 overflow-auto" style={{ backgroundColor: 'var(--t-bg)', backgroundImage: 'var(--t-bg-glow)', backgroundAttachment: 'fixed', backgroundRepeat: 'no-repeat', paddingBottom: 'calc(env(safe-area-inset-bottom) + 64px)' }}>
           <div className="p-3 sm:p-5 lg:pb-4 min-h-full">
             <Outlet />
           </div>

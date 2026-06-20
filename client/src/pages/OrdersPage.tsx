@@ -107,7 +107,7 @@ export default function OrdersPage() {
   }, [orders, status, side, query])
 
   return (
-    <div className="h-full overflow-y-auto" style={{ background: 'var(--t-bg)' }}>
+    <div className="h-full overflow-y-auto" style={{ background: 'transparent' }}>
       <div style={{ maxWidth: 1240, margin: '0 auto', padding: '24px 20px 100px' }}>
 
         {/* ── Header ──────────────────────────────────────────────────────── */}

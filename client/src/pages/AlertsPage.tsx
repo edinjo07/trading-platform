@@ -276,7 +276,7 @@ export default function AlertsPage() {
   const filtered = filter === 'all' ? alerts : alerts.filter(a => a.status === filter)
 
   return (
-    <div className="h-full overflow-y-auto" style={{ background: 'var(--t-bg)' }}>
+    <div className="h-full overflow-y-auto" style={{ background: 'transparent' }}>
       <div style={{ maxWidth: 1100, margin: '0 auto', padding: '24px 20px 100px' }}>
 
         {/* ── Header ──────────────────────────────────────────────────────── */}
