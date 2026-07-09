@@ -5,21 +5,24 @@ import { formatPrice } from '../utils/formatters'
 import { fetchMacroNews, MacroNews } from '../api/news'
 
 // ─── Design tokens (match TradePilot / Analytics) ─────────────────────────────
+// Backgrounds / borders / text map to theme tokens (calm slate). Accent/bull/
+// bear/warn stay hex (alpha-concat safe). Root is wrapped in .theme-dark-scope
+// so these resolve to the calm-dark palette consistently.
 const C = {
-  bg:        '#07090f',
-  surface:   '#0c1018',
-  surface2:  '#0f1623',
-  border:    'rgba(255,255,255,0.07)',
-  border2:   'rgba(255,255,255,0.12)',
-  text1:     '#e2e8f0',
-  text2:     '#64748b',
-  text3:     '#334155',
-  blue:      '#0ea5e9',
-  blueText:  '#38bdf8',
-  blueGlow:  'rgba(14,165,233,0.18)',
-  green:     '#10b981',
-  red:       '#ef4444',
-  amber:     '#f59e0b',
+  bg:        'var(--t-bg)',
+  surface:   'var(--t-surface)',
+  surface2:  'var(--t-surface-2)',
+  border:    'var(--t-border)',
+  border2:   'var(--t-border-hover)',
+  text1:     'var(--t-text-1)',
+  text2:     'var(--t-text-2)',
+  text3:     'var(--t-text-3)',
+  blue:      '#4f8cff',
+  blueText:  '#7aa7ff',
+  blueGlow:  'rgba(79,140,255,0.18)',
+  green:     '#18c98a',
+  red:       '#ff5a72',
+  amber:     '#f6b24a',
   violet:    '#8b5cf6',
 }
 const SENT: Record<string, string> = { bullish: '#10b981', bearish: '#ef4444', neutral: '#f59e0b' }
@@ -117,7 +120,7 @@ function MoverCard({ row, rank, onClick }: { row: Row; rank: number; onClick: ()
   return (
     <button onClick={onClick} style={{
       flexShrink:0, width:'calc(52vw - 16px)', maxWidth:220, minWidth:160,
-      borderRadius:14, background:'#0c1018', border:`1px solid rgba(255,255,255,0.06)`,
+      borderRadius:14, background:'var(--t-surface)', border:`1px solid rgba(255,255,255,0.06)`,
       borderLeft:`4px solid ${color}`, padding:'13px 12px',
       textAlign:'left', cursor:'pointer', display:'flex', flexDirection:'column', gap:8,
     }}>
@@ -154,12 +157,12 @@ function InstrumentCard({ row, signals, onClick }: { row: Row; signals: Signal[]
 
   return (
     <button onClick={onClick} style={{
-      width:'100%', borderRadius:14, background:'#0c1018', border:`1px solid rgba(255,255,255,0.06)`,
+      width:'100%', borderRadius:14, background:'var(--t-surface)', border:`1px solid rgba(255,255,255,0.06)`,
       borderLeft:`4px solid ${color}`, padding:'13px 14px', textAlign:'left', cursor:'pointer', marginBottom:5,
       display:'flex', alignItems:'center', gap:12, transition:'background 0.12s',
     }}
-      onMouseEnter={e => (e.currentTarget.style.background = '#0f1623')}
-      onMouseLeave={e => (e.currentTarget.style.background = '#0c1018')}
+      onMouseEnter={e => (e.currentTarget.style.background = 'var(--t-surface-2)')}
+      onMouseLeave={e => (e.currentTarget.style.background = 'var(--t-surface)')}
     >
       {/* Left: symbol */}
       <div style={{ flex:'0 0 auto', minWidth:100 }}>
@@ -175,7 +178,7 @@ function InstrumentCard({ row, signals, onClick }: { row: Row; signals: Signal[]
         {/* 24h range bar */}
         <div style={{ marginTop:6, display:'flex', alignItems:'center', gap:4 }}>
           <span style={{ fontSize:8, color:'#334155', fontFamily:'monospace' }}>{formatPrice(row.low24h, row.symbol)}</span>
-          <div style={{ flex:1, height:3, borderRadius:2, background:'#0f1623', position:'relative', overflow:'hidden' }}>
+          <div style={{ flex:1, height:3, borderRadius:2, background:'var(--t-surface-2)', position:'relative', overflow:'hidden' }}>
             <div style={{ position:'absolute', left:0, top:0, height:'100%', width:`${pos * 100}%`, background:color, borderRadius:2, transition:'width 0.3s' }}/>
           </div>
           <span style={{ fontSize:8, color:'#334155', fontFamily:'monospace' }}>{formatPrice(row.high24h, row.symbol)}</span>
@@ -205,7 +208,7 @@ function TableRow({ row, signals, rank, onClick }: { row: Row; signals: Signal[]
 
   return (
     <tr onClick={onClick} style={{ borderBottom:'1px solid rgba(255,255,255,0.07)', cursor:'pointer', transition:'background 0.1s' }}
-        onMouseEnter={e => (e.currentTarget.style.background = '#0a0e16')}
+        onMouseEnter={e => (e.currentTarget.style.background = 'var(--t-bg)')}
         onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
       {/* Rank */}
       <td style={{ padding:'10px 10px 10px 14px', fontSize:10, color:'#334155', fontFamily:'monospace', width:32 }}>#{rank}</td>
@@ -233,7 +236,7 @@ function TableRow({ row, signals, rank, onClick }: { row: Row; signals: Signal[]
       <td style={{ padding:'10px 8px', minWidth:110 }}>
         <div style={{ display:'flex', alignItems:'center', gap:4 }}>
           <span style={{ fontSize:8, color:'#334155', fontFamily:'monospace', flexShrink:0 }}>{formatPrice(row.low24h, row.symbol)}</span>
-          <div style={{ flex:1, height:3, borderRadius:2, background:'#0f1623', position:'relative', minWidth:36 }}>
+          <div style={{ flex:1, height:3, borderRadius:2, background:'var(--t-surface-2)', position:'relative', minWidth:36 }}>
             <div style={{ position:'absolute', left:0, top:0, height:'100%', width:`${pos*100}%`, background:color, borderRadius:2 }}/>
           </div>
           <span style={{ fontSize:8, color:'#334155', fontFamily:'monospace', flexShrink:0 }}>{formatPrice(row.high24h, row.symbol)}</span>
@@ -283,7 +286,7 @@ function ScreenerSheet({ filters, onChange, onClose }: {
       {opts.map(o => (
         <button key={o.value} onClick={() => set(o.value)} style={{
           padding:'6px 12px', borderRadius:20, fontSize:11, fontWeight:700, cursor:'pointer', transition:'all 0.12s',
-          background: current === o.value ? 'rgba(14,165,233,0.15)' : '#0f1623',
+          background: current === o.value ? 'rgba(14,165,233,0.15)' : 'var(--t-surface-2)',
           color:      current === o.value ? '#38bdf8' : '#64748b',
           border:     current === o.value ? '1px solid rgba(14,165,233,0.35)' : '1px solid transparent',
         }}>{o.label}</button>
@@ -294,7 +297,7 @@ function ScreenerSheet({ filters, onChange, onClose }: {
   return (
     <div style={{ position:'fixed', inset:0, zIndex:300, display:'flex', alignItems:'flex-end', background:'rgba(0,0,0,0.8)' }} onClick={onClose}>
       <div onClick={e => e.stopPropagation()}
-           style={{ width:'100%', maxHeight:'85dvh', background:'#0c1018', borderRadius:'20px 20px 0 0', overflow:'hidden', display:'flex', flexDirection:'column', animation:'sc-slideUp 0.25s ease-out' }}>
+           style={{ width:'100%', maxHeight:'85dvh', background:'var(--t-surface)', borderRadius:'20px 20px 0 0', overflow:'hidden', display:'flex', flexDirection:'column', animation:'sc-slideUp 0.25s ease-out' }}>
         {/* Handle */}
         <div style={{ display:'flex', justifyContent:'center', paddingTop:10, flexShrink:0 }}>
           <div style={{ width:36, height:4, borderRadius:2, background:'#1c2433' }}/>
@@ -504,7 +507,7 @@ export default function ScannerPage() {
   )
 
   return (
-    <div style={{ background:'#07090f', minHeight:'100%', display:'flex', flexDirection:'column' }}>
+    <div className="theme-dark-scope" style={{ background:'var(--t-bg)', minHeight:'100%', display:'flex', flexDirection:'column' }}>
       <style>{`
         @keyframes sc-pulse   { 0%,100%{opacity:1} 50%{opacity:0.4} }
         @keyframes sc-slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
@@ -538,14 +541,14 @@ export default function ScannerPage() {
 
         {/* Search + view + screener */}
         <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:10 }}>
-          <div style={{ flex:1, display:'flex', alignItems:'center', gap:8, background:'#0f1623', borderRadius:12, padding:'9px 12px', border:'1px solid rgba(255,255,255,0.07)' }}>
+          <div style={{ flex:1, display:'flex', alignItems:'center', gap:8, background:'var(--t-surface-2)', borderRadius:12, padding:'9px 12px', border:'1px solid rgba(255,255,255,0.07)' }}>
             <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#64748b" strokeWidth={2}><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
             <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search symbol or name..."
                    style={{ flex:1, background:'none', border:'none', outline:'none', color:'#e2e8f0', fontSize:13 }}/>
             {search && <button onClick={() => setSearch('')} style={{ background:'none', border:'none', color:'#334155', cursor:'pointer', fontSize:14, lineHeight:1 }}>✕</button>}
           </div>
           {/* View toggle */}
-          <div style={{ display:'flex', background:'#0f1623', borderRadius:10, padding:3, border:'1px solid rgba(255,255,255,0.07)', flexShrink:0 }}>
+          <div style={{ display:'flex', background:'var(--t-surface-2)', borderRadius:10, padding:3, border:'1px solid rgba(255,255,255,0.07)', flexShrink:0 }}>
             {(['cards','table'] as ViewMode[]).map(v => (
               <button key={v} onClick={() => setViewMode(v)} style={{
                 padding:'5px 10px', borderRadius:8, border:'none', cursor:'pointer', fontSize:10, fontWeight:700, transition:'all 0.12s',
@@ -559,7 +562,7 @@ export default function ScannerPage() {
           {/* Screener */}
           <button onClick={() => setShowScreener(true)} style={{
             display:'flex', alignItems:'center', gap:5, padding:'8px 12px', borderRadius:10, cursor:'pointer', transition:'all 0.12s', flexShrink:0,
-            background: activeFilters > 0 ? 'rgba(14,165,233,0.15)' : '#0f1623',
+            background: activeFilters > 0 ? 'rgba(14,165,233,0.15)' : 'var(--t-surface-2)',
             color:      activeFilters > 0 ? '#38bdf8' : '#64748b',
             border:     activeFilters > 0 ? '1px solid rgba(14,165,233,0.35)' : '1px solid transparent',
             fontSize:11, fontWeight:800,
@@ -576,7 +579,7 @@ export default function ScannerPage() {
             return (
               <button key={tab.key} onClick={() => setAssetFilter(tab.key)} style={{
                 flexShrink:0, padding:'6px 14px', borderRadius:20, fontSize:12, fontWeight:700, cursor:'pointer', transition:'all 0.15s',
-                background: isActive ? 'rgba(14,165,233,0.15)' : '#0f1623',
+                background: isActive ? 'rgba(14,165,233,0.15)' : 'var(--t-surface-2)',
                 color:      isActive ? '#38bdf8' : '#64748b',
                 border:     isActive ? '1px solid rgba(14,165,233,0.35)' : '1px solid transparent',
               }}>{tab.label}</button>
@@ -639,7 +642,7 @@ export default function ScannerPage() {
             </span>
             {/* Sort pill (compact, mobile) */}
             <select value={sortKey} onChange={e => { setSortKey(e.target.value as SortKey); setSortDir('desc') }}
-                    style={{ background:'#0f1623', border:'1px solid rgba(255,255,255,0.07)', color:'#64748b', fontSize:10, fontWeight:700, borderRadius:8, padding:'4px 8px', cursor:'pointer', outline:'none' }}>
+                    style={{ background:'var(--t-surface-2)', border:'1px solid rgba(255,255,255,0.07)', color:'#64748b', fontSize:10, fontWeight:700, borderRadius:8, padding:'4px 8px', cursor:'pointer', outline:'none' }}>
               <option value="changePercent">Sort: Change %</option>
               <option value="volume24h">Sort: Volume</option>
               <option value="price">Sort: Price</option>
@@ -653,7 +656,7 @@ export default function ScannerPage() {
               <svg width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="#334155" strokeWidth={1.3} style={{ display:'block' }}><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
               <p style={{ fontSize:13, color:'#64748b', margin:0 }}>No instruments match your filters</p>
               <button onClick={() => { setScreenerFilters({changeMode:'any',volumeMode:'any',signal:'any'}); setSearch(''); setAssetFilter('all') }}
-                      style={{ fontSize:11, fontWeight:700, color:'#64748b', background:'#0f1623', border:'1px solid rgba(255,255,255,0.07)', borderRadius:8, padding:'6px 14px', cursor:'pointer' }}>
+                      style={{ fontSize:11, fontWeight:700, color:'#64748b', background:'var(--t-surface-2)', border:'1px solid rgba(255,255,255,0.07)', borderRadius:8, padding:'6px 14px', cursor:'pointer' }}>
                 Clear filters
               </button>
             </div>
@@ -665,10 +668,10 @@ export default function ScannerPage() {
             </div>
           ) : (
             /* Desktop table */
-            <div style={{ borderRadius:14, overflow:'hidden', border:'1px solid rgba(255,255,255,0.06)', background:'#0c1018' }}>
+            <div style={{ borderRadius:14, overflow:'hidden', border:'1px solid rgba(255,255,255,0.06)', background:'var(--t-surface)' }}>
               <table style={{ width:'100%', borderCollapse:'collapse' }}>
                 <thead>
-                  <tr style={{ background:'#0a0e16', borderBottom:'1px solid rgba(255,255,255,0.07)' }}>
+                  <tr style={{ background:'var(--t-bg)', borderBottom:'1px solid rgba(255,255,255,0.07)' }}>
                     <th style={{ padding:'9px 10px 9px 14px', textAlign:'left', fontSize:9, color:'#334155', fontWeight:800, textTransform:'uppercase', letterSpacing:'0.07em', width:32 }}>#</th>
                     <th style={{ padding:'9px 8px', textAlign:'left', fontSize:9, color:'#334155', fontWeight:800, textTransform:'uppercase', letterSpacing:'0.07em' }}>Symbol</th>
                     <th style={{ padding:'9px 8px', textAlign:'left', fontSize:9, color:'#334155', fontWeight:800, textTransform:'uppercase', letterSpacing:'0.07em' }}>Type</th>

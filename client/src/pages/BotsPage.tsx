@@ -8,21 +8,26 @@ import {
 
 // ─── Design tokens ────────────────────────────────────────────────────────────
 
+// Backgrounds / borders / text map to theme tokens (calm slate). Accent/bull/
+// bear/warn stay as hex matching the tokens because they're alpha-concatenated
+// (`${c}33`), which is invalid with var(). The page root is wrapped in
+// .theme-dark-scope so these resolve to the calm-dark palette consistently
+// (console-style, like the TradingPage).
 const C = {
-  bg:        '#07090f',
-  surface:   '#0c1018',
-  surface2:  '#111927',
-  border:    'rgba(var(--ink),0.07)',
-  border2:   'rgba(var(--ink),0.12)',
-  text1:     '#e2e8f0',
-  text2:     '#64748b',
-  text3:     '#334155',
-  blue:      '#0ea5e9',
-  blueGlow:  'rgba(14,165,233,0.18)',
-  green:     '#10b981',
-  red:       '#ef4444',
-  amber:     '#f59e0b',
-  cyan:      '#06b6d4',
+  bg:        'var(--t-bg)',
+  surface:   'var(--t-surface)',
+  surface2:  'var(--t-surface-2)',
+  border:    'var(--t-border)',
+  border2:   'var(--t-border-hover)',
+  text1:     'var(--t-text-1)',
+  text2:     'var(--t-text-2)',
+  text3:     'var(--t-text-3)',
+  blue:      '#4f8cff',
+  blueGlow:  'rgba(79,140,255,0.18)',
+  green:     '#18c98a',
+  red:       '#ff5a72',
+  amber:     '#f6b24a',
+  cyan:      '#22b8cf',
   violet:    '#8b5cf6',
 }
 
@@ -1289,7 +1294,7 @@ export default function BotsPage() {
   ]
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden', background: C.bg }}>
+    <div className="theme-dark-scope" style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden', background: C.bg }}>
 
       {/* Pulse animation */}
       <style>{`
