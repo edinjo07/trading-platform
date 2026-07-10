@@ -188,7 +188,7 @@ export default function DepositPage() {
             <button onClick={() => setStep('form')} disabled={submitting} className="flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all disabled:opacity-50" style={{ background: 'rgba(var(--ink),0.06)', color: 'var(--t-text-1)', border: '1px solid rgba(var(--ink),0.1)' }}>
               Back
             </button>
-            <button onClick={handleSubmit} disabled={submitting} className="btn-primary flex-1 py-2.5 disabled:opacity-60 disabled:cursor-not-allowed">
+            <button onClick={handleSubmit} disabled={submitting} className="btn-gold flex-1 py-2.5 disabled:opacity-60 disabled:cursor-not-allowed">
               {submitting ? 'Processing…' : 'Confirm Deposit'}
             </button>
           </div>
@@ -355,7 +355,7 @@ export default function DepositPage() {
       <button
         disabled={!isValid}
         onClick={handleSubmit}
-        className="btn-primary w-full py-3.5 text-base disabled:opacity-40 disabled:cursor-not-allowed">
+        className="btn-gold w-full py-3.5 text-base disabled:opacity-40 disabled:cursor-not-allowed">
         {method === 'crypto' ? 'I Have Sent the Funds' : 'Continue'}
       </button>
 

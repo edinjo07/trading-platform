@@ -158,12 +158,13 @@ function QuickAction({ label, icon, onClick, primary }: { label: string; icon: R
     <button onClick={onClick}
       style={{
         flex: 1, minWidth: 92, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 7, padding: '13px 10px', borderRadius: 13, cursor: 'pointer',
-        background: primary ? S.accent : 'rgba(var(--ink),0.05)',
-        border: `1px solid ${primary ? S.accent : S.border}`,
-        color: primary ? '#fff' : S.text1,
+        background: primary ? 'linear-gradient(120deg, #f9d98c 0%, #f2b84b 45%, #dd9c2f 100%)' : 'rgba(var(--ink),0.05)',
+        border: primary ? 'none' : `1px solid ${S.border}`,
+        color: primary ? '#221503' : S.text1,
+        boxShadow: primary ? '0 6px 22px rgba(242,184,75,0.28), inset 0 1px 0 rgba(255,255,255,0.35)' : 'none',
       }}>
       <span style={{ display: 'flex' }}>{icon}</span>
-      <span style={{ fontSize: 12, fontWeight: 700 }}>{label}</span>
+      <span style={{ fontSize: 12, fontWeight: primary ? 800 : 700 }}>{label}</span>
     </button>
   )
 }

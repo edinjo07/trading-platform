@@ -550,10 +550,11 @@ function RiskDisclosureModal({ onAccept, onClose }: { onAccept: () => void; onCl
           <div style={{ display: 'flex', gap: 8 }}>
             <button onClick={onClose} style={{ flex: 1, padding: '11px 0', borderRadius: 10, background: C.surface2, border: `1px solid ${C.border}`, color: C.text2, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
             <button onClick={onAccept} disabled={!checked} style={{
-              flex: 1, padding: '11px 0', borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: checked ? 'pointer' : 'not-allowed', transition: 'all 0.15s',
-              background: checked ? 'rgba(16,185,129,0.15)' : C.surface2,
-              border: `1px solid ${checked ? 'rgba(16,185,129,0.35)' : C.border}`,
-              color: checked ? C.green : C.text3,
+              flex: 1, padding: '11px 0', borderRadius: 10, fontSize: 13, fontWeight: 800, cursor: checked ? 'pointer' : 'not-allowed', transition: 'all 0.15s',
+              background: checked ? 'linear-gradient(120deg, #f9d98c 0%, #f2b84b 45%, #dd9c2f 100%)' : C.surface2,
+              border: checked ? 'none' : `1px solid ${C.border}`,
+              color: checked ? '#221503' : C.text3, letterSpacing: '-0.01em',
+              boxShadow: checked ? '0 6px 22px rgba(242,184,75,0.3), inset 0 1px 0 rgba(255,255,255,0.35)' : 'none',
             }}>Accept &amp; Start</button>
           </div>
         </div>
@@ -915,10 +916,11 @@ function CreateBotModal({ onClose, onCreate }: { onClose: () => void; onCreate: 
               <button type="button" onClick={onClose} style={{ flex: 1, padding: '12px 0', borderRadius: 12, background: C.bg, border: `1px solid ${C.border}`, color: C.text2, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
               <button type="submit" disabled={loading} style={{
                 flex: 1, padding: '12px 0', borderRadius: 12, fontSize: 13, fontWeight: 800, cursor: loading ? 'not-allowed' : 'pointer', transition: 'all 0.15s',
-                background: loading ? C.surface2 : `${C.blue}18`,
-                border: `1px solid ${C.blue}40`, color: C.blue,
+                background: loading ? 'rgba(242,184,75,0.3)' : 'linear-gradient(120deg, #f9d98c 0%, #f2b84b 45%, #dd9c2f 100%)',
+                border: 'none', color: '#221503', letterSpacing: '-0.01em',
+                boxShadow: loading ? 'none' : '0 6px 22px rgba(242,184,75,0.3), inset 0 1px 0 rgba(255,255,255,0.35)',
               }}>
-                {loading ? 'Deploying…' : 'Deploy Bot →'}
+                {loading ? 'Deploying…' : 'Deploy Bot'}
               </button>
             </div>
           </div>
@@ -1022,10 +1024,11 @@ export default function BotsPage() {
           <p style={{ fontSize: 10, color: C.text3, margin: '2px 0 0' }}>{bots.length} deployed · {activeCount} active</p>
         </div>
         <button onClick={() => setShowModal(true)} style={{
-          display: 'flex', alignItems: 'center', gap: 5, padding: '7px 12px', borderRadius: 10, fontSize: 11, fontWeight: 700, cursor: 'pointer',
-          background: `${C.blue}12`, border: `1px solid ${C.blue}30`, color: C.blue,
+          display: 'flex', alignItems: 'center', gap: 5, padding: '7px 13px', borderRadius: 10, fontSize: 11, fontWeight: 800, cursor: 'pointer',
+          background: 'linear-gradient(120deg, #f9d98c 0%, #f2b84b 45%, #dd9c2f 100%)', border: 'none', color: '#221503', letterSpacing: '-0.01em',
+          boxShadow: '0 4px 14px rgba(242,184,75,0.26), inset 0 1px 0 rgba(255,255,255,0.35)',
         }}>
-          <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path d="M12 5v14M5 12h14"/></svg>
+          <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.8}><path d="M12 5v14M5 12h14"/></svg>
           New
         </button>
       </div>
@@ -1044,8 +1047,8 @@ export default function BotsPage() {
             </div>
             <p style={{ fontSize: 13, fontWeight: 700, color: C.text1, margin: '0 0 4px' }}>No bots deployed</p>
             <p style={{ fontSize: 11, color: C.text3, margin: '0 0 14px' }}>Deploy your first automated strategy</p>
-            <button onClick={() => setShowModal(true)} style={{ padding: '8px 18px', borderRadius: 10, fontSize: 11, fontWeight: 700, cursor: 'pointer', background: `${C.blue}12`, border: `1px solid ${C.blue}30`, color: C.blue }}>
-              + Deploy Bot
+            <button onClick={() => setShowModal(true)} style={{ padding: '9px 20px', borderRadius: 10, fontSize: 11.5, fontWeight: 800, cursor: 'pointer', background: 'linear-gradient(120deg, #f9d98c 0%, #f2b84b 45%, #dd9c2f 100%)', border: 'none', color: '#221503', letterSpacing: '-0.01em', boxShadow: '0 5px 18px rgba(242,184,75,0.28), inset 0 1px 0 rgba(255,255,255,0.35)' }}>
+              Deploy your first bot
             </button>
           </div>
         )}
