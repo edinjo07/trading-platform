@@ -2,74 +2,93 @@
 
 ## Motto
 
-> **Trade the signal. Not the noise.**
+> **Engineered to win.**
 
 ## The story
 
-Most traders don't lose to the market. They lose to noise — hype, clutter,
-fear, a hundred flashing numbers demanding attention at once.
+An F1 car is not fast by accident. It is fast because hundreds of the best
+engineers built every part of it for one purpose — and because nothing on it
+is decoration. It exists to race, and it races to win.
 
-TradeX is built on one conviction: everything decisive in a market happens at
-a **crossing**. Two moving averages cross, and a trend is born. Price crosses
-a level, and a decision exists. Signal crosses noise, and — for one clear
-moment — you can tell them apart.
+TradeX is built with the same conviction. The homepage opens on the car
+because the car **is** the brief:
 
-**The X in TradeX is that crossing.** The logomark draws it literally: a
-rising *signal line* in Signal Blue crossing a falling *noise line* in muted
-slate, meeting at a single bright point. That point is where the platform
-lives.
+- **Fast** — orders fill in milliseconds on live market data. No requotes,
+  no lag. Pure pace.
+- **Built by engineers** — the platform is a set of engineered systems, not
+  features: an execution engine, a risk safety-cell, an automation pit wall,
+  a telemetry deck.
+- **Aimed at winning** — everything measurable, everything accountable.
+  Every lap is timed. Every trade has a number.
 
-The motto is not decoration — it is how the product is engineered:
+### The X is the apex
 
-- **TradePilot** bots refuse trades without confluence, and veto entries that
-  fight a confident news read. They act on signal; they wait out noise.
-- **Risk guards** — margin closeout, daily loss limits, confirmation bars —
-  silence the loudest noise of all: emotion.
-- **The interface** is deep water: one calm dark-blue surface, one accent,
-  tabular numbers that don't jitter, no pictograph clutter, nothing shouting.
+In racing, everything is decided at the **apex** — the one point in a corner
+where the racing line touches the geometry of the track, where maximum speed
+meets total control. Get it right and you carry speed down the whole straight.
+Get it wrong and no engine can save you.
+
+The X in TradeX is that point. The logomark draws it literally: the **racing
+line** sweeps through in Signal Blue, the **track's geometric line** cuts
+across in slate, and the point where they meet — the apex — is marked in
+**Victory Gold**.
+
+## The language of the team
+
+Racing vocabulary maps onto the product, used with restraint:
+
+| Racing | TradeX |
+|---|---|
+| The engine | Execution engine — millisecond fills |
+| The pit wall | TradePilot — bots that read telemetry (confluence, news) and refuse to gamble |
+| The safety cell | Risk engineering — SL/TP, margin protection, daily loss limits |
+| Telemetry | Analytics — live equity, drawdown, attribution |
+| Practice laps | The $100,000 demo account |
+| Lights out | Going live |
 
 ## Voice
 
-Calm, precise, honest. Short sentences. Real numbers. No hype, no exclamation
-marks, no emojis. When something is risky, say so plainly. When data is
-simulated, label it. The platform never sounds excited — the user brings the
-excitement; we bring the clarity.
+An engineer's voice, not a gambler's: calm, precise, confident. Short
+sentences. Real numbers. Speed is stated as a measurement, never as hype.
+No exclamation marks, no pictograph emojis. When something is risky, say so
+plainly — a good pit wall never lies to its driver.
 
 ## Visual language
 
 | Token | Value | Name | Role |
 |---|---|---|---|
-| `--t-bg` | `#0b0f1a` | **Deep Water** | The background. Calm under pressure. |
-| `--t-accent` | `#4f8cff` | **Signal Blue** | The single accent. Decisions, actions, focus. |
-| `--t-bull` | `#18c98a` | **Verdant** | Gains. Softened — confident, not neon. |
+| `--t-bg` | `#0b0f1a` | **Midnight Tarmac** | The background — a circuit at night. |
+| `--t-accent` | `#4f8cff` | **Signal Blue** | The single accent. The racing line: actions, focus, decisions. |
+| accent 2 | `#f6c453` | **Victory Gold** | Used sparingly — the apex, telemetry numbers, P1 moments. |
+| `--t-bull` | `#18c98a` | **Verdant** | Gains. Confident, not neon. |
 | `--t-bear` | `#ff5a72` | **Coral** | Losses. Serious, never alarmist. |
-| `--t-text-1` | `#e9eef8` | **Ink** | Primary text — cool off-white, not clinical. |
-| ambient | `--t-bg-glow` | **Undercurrent** | Faint blue/emerald/violet radial washes behind the UI. Alive, never loud. |
+| `--t-text-1` | `#e9eef8` | **Ink** | Primary text. |
+| ambient | `--t-bg-glow` | **Undercurrent** | Faint radial washes behind the UI. Alive, never loud. |
 
-Rules of the language:
+Rules:
 
-1. **One accent.** Signal Blue marks the interactive and the decisive. Nothing
-   else competes with it.
-2. **Numbers are typography.** Monospace, tabular, aligned. A price ticking
-   must never make the layout twitch.
-3. **No pictograph emojis.** Iconography is drawn — 2px-stroke SVG, geometric,
-   quiet. A rank is a metallic disc, not a medal emoji.
-4. **Depth by light, not lines.** Surfaces separate by subtle tint and ambient
-   glow, not heavy borders.
-5. **State speaks in color-temperature.** Verdant/Coral for P&L only. Amber
-   for caution. Signal Blue for action. Grey for everything at rest.
+1. **Nothing is decoration.** Every element earns its place, like a part on
+   the car. If it doesn't inform or act, it's removed.
+2. **Gold means victory.** Victory Gold appears only where performance is
+   measured or won: telemetry values, the apex dot, rank badges, key CTA
+   accents. Never as wallpaper.
+3. **One racing line.** Signal Blue is the only interactive accent.
+4. **Numbers are telemetry.** Monospace, tabular, aligned — they must read
+   like a pit-wall screen, and never jitter.
+5. **Iconography is drawn.** 2px-stroke SVG, geometric. No pictograph emojis.
 
 ## The mark
 
-- `BrandMark` — the tile: crossing signal/noise lines with a bright crossing
-  point. Works from 16px (favicon) to any size.
+- `BrandMark` — deep tile: speed trails, the slate geometric line, the Signal
+  Blue racing line, the Victory Gold apex dot. Legible from 16px.
 - `BrandLogo` — mark + wordmark `TradeX` (X in Signal Blue) + optional
-  tagline line.
+  "ENGINEERED TO WIN" tagline.
 - Source of truth: `client/src/components/ui/BrandMark.tsx` and
   `client/public/logo.svg`.
 
 ## Usage
 
-- Auth screens: mark + wordmark + motto, centered above the form.
-- Sidebar: mark + wordmark, compact.
-- Browser tab: `TradeX Pro — Trade the signal. Not the noise.`
+- Homepage hero: the car, treated cinematically; headline "Engineered to win."
+- Auth: mark + wordmark + motto above the form.
+- Browser tab: `TradeX Pro — Engineered to win.`
+- Sign-off line (footers, docs): *The X is the apex.*

@@ -1,15 +1,18 @@
 import React from 'react'
 
 /**
- * TradeX brand mark — "The X is the crossing."
+ * TradeX brand mark — "The X is the apex."
  *
- * Two chart lines cross to form the X:
- *   - the SIGNAL line rises in Signal Blue (#4f8cff)
- *   - the NOISE line falls in muted slate
- * Everything decisive in a market happens at a crossing — two moving averages,
- * price and a level, signal and noise. The mark is that moment.
+ * An F1 car is fast, built by the best engineers, and exists to win.
+ * In racing, everything is decided at the apex — the one point in a corner
+ * where the racing line touches the geometry and maximum speed meets total
+ * control. The X in TradeX is that moment:
  *
- * Motto: "Trade the signal. Not the noise."
+ *   - the RACING LINE sweeps through in Signal Blue (the driver's line)
+ *   - the GEOMETRIC LINE cuts across in slate (the track, the market)
+ *   - the APEX POINT where they meet is marked in Victory Gold
+ *
+ * Motto: "Engineered to win."
  */
 
 export function BrandMark({ size = 32, radius }: { size?: number; radius?: number }) {
@@ -25,13 +28,15 @@ export function BrandMark({ size = 32, radius }: { size?: number; radius?: numbe
         display: 'flex', alignItems: 'center', justifyContent: 'center',
       }}
     >
-      <svg width={size * 0.62} height={size * 0.62} viewBox="0 0 24 24" fill="none">
-        {/* noise line — falling, muted */}
-        <path d="M3 5l5.5 6.5L12 12l4.5 4L21 19" stroke="#5f6d85" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round" />
-        {/* signal line — rising, Signal Blue */}
-        <path d="M3 19l5-4.5L12 12l4-4.5L21 5" stroke="#4f8cff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
-        {/* the crossing */}
-        <circle cx="12" cy="12" r="2.1" fill="#e9eef8" />
+      <svg width={size * 0.66} height={size * 0.66} viewBox="0 0 24 24" fill="none">
+        {/* speed trails */}
+        <path d="M1.5 7.5h3.2M1 12h2.6M1.5 16.5h3.2" stroke="#5f6d85" strokeWidth="1.5" strokeLinecap="round" opacity="0.55" />
+        {/* geometric line — the track, falling */}
+        <path d="M8.5 5.5L21 18.5" stroke="#5f6d85" strokeWidth="2.1" strokeLinecap="round" />
+        {/* racing line — the driver's line, sweeping up through the apex */}
+        <path d="M8.5 18.5C12 16.5 13.5 13.5 15 11S18.5 6.5 21 5.5" stroke="#4f8cff" strokeWidth="2.4" strokeLinecap="round" />
+        {/* the apex — victory gold */}
+        <circle cx="14.6" cy="12" r="2" fill="#f6c453" />
       </svg>
     </div>
   )
@@ -51,8 +56,8 @@ export function BrandLogo({
             {pro && <span style={{ color: 'var(--t-text-3, #5f6d85)', fontWeight: 700 }}> Pro</span>}
           </div>
           {tagline && (
-            <div style={{ fontSize: Math.max(10, size * 0.28), color: 'var(--t-text-3, #5f6d85)', letterSpacing: '0.01em', marginTop: 2, whiteSpace: 'nowrap' }}>
-              Trade the signal. Not the noise.
+            <div style={{ fontSize: Math.max(10, size * 0.28), color: 'var(--t-text-3, #5f6d85)', letterSpacing: '0.04em', marginTop: 2, whiteSpace: 'nowrap', textTransform: 'uppercase', fontWeight: 600 }}>
+              Engineered to win
             </div>
           )}
         </div>

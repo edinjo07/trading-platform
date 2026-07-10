@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <!-- TradeX — "The X is the crossing." Signal line rises, noise line falls. -->
+  <!-- TradeX — "The X is the apex." Racing line crosses the track; the apex is gold. -->
   <defs>
     <linearGradient id="tile" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#16203a"/>
@@ -7,7 +7,12 @@
     </linearGradient>
   </defs>
   <rect width="32" height="32" rx="9" fill="url(#tile)" stroke="rgba(122,167,255,0.35)" stroke-width="1"/>
-  <path d="M7 8.5l6.5 7L16 16l5 4.5 4 3" stroke="#5f6d85" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-  <path d="M7 23.5l5.5-5L16 16l4.5-5L25 8.5" stroke="#4f8cff" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-  <circle cx="16" cy="16" r="2.4" fill="#e9eef8"/>
+  <!-- speed trails -->
+  <path d="M3 10.5h4M2.5 16h3.2M3 21.5h4" stroke="#5f6d85" stroke-width="1.8" stroke-linecap="round" opacity="0.55" fill="none"/>
+  <!-- geometric line -->
+  <path d="M11.5 8L27 24" stroke="#5f6d85" stroke-width="2.6" stroke-linecap="round" fill="none"/>
+  <!-- racing line -->
+  <path d="M11.5 24C15.5 21.5 17.5 18 19.5 15S24 9.2 27 8" stroke="#4f8cff" stroke-width="3" stroke-linecap="round" fill="none"/>
+  <!-- the apex -->
+  <circle cx="19" cy="16" r="2.6" fill="#f6c453"/>
 </svg>

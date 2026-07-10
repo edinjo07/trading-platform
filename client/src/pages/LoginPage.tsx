@@ -67,8 +67,8 @@ export default function LoginPage() {
         {/* Brand */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14, marginBottom: 28 }}>
           <BrandLogo size={44} tagline={false} />
-          <p style={{ fontSize: 13, color: 'var(--t-text-3)', margin: 0, letterSpacing: '0.01em' }}>
-            Trade the signal. <span style={{ color: 'var(--t-text-2)' }}>Not the noise.</span>
+          <p style={{ fontSize: 12, color: 'var(--t-text-3)', margin: 0, letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 700 }}>
+            Engineered to <span style={{ color: '#f6c453' }}>win</span>
           </p>
         </div>
 
