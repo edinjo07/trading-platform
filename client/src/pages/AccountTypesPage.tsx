@@ -135,7 +135,7 @@ export default function AccountTypesPage() {
 
       {/* ── Hero ── */}
       <div style={{ background: 'linear-gradient(180deg,rgba(79,140,255,0.06) 0%,#000 60%)', borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '72px 24px 56px', textAlign: 'center' }}>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '4px 14px', borderRadius: 99, background: 'rgba(79,140,255,0.1)', border: '1px solid rgba(79,140,255,0.22)', color: '#7aa7ff', fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 20 }}>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '4px 14px', borderRadius: 99, background: 'rgba(79,140,255,0.1)', border: '1px solid rgba(79,140,255,0.22)', color: '#7aa7ff', fontSize: 12, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 20 }}>
           <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#7aa7ff', display: 'inline-block' }} />
           FCA &amp; CySEC Regulated
         </div>
@@ -155,8 +155,8 @@ export default function AccountTypesPage() {
             <div key={r.code} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 16px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.09)', borderRadius: 8 }}>
               <img src={r.flagSrc} alt={r.code} style={{ width: 22, height: 15, borderRadius: 2, objectFit: 'cover' }} />
               <div>
-                <div style={{ fontSize: 11, fontWeight: 700, color: '#c8d6e5' }}>{r.code}</div>
-                <div style={{ fontSize: 9.5, color: '#3a5060' }}>{r.reg}</div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#c8d6e5' }}>{r.code}</div>
+                <div style={{ fontSize: 10.5, color: '#3a5060' }}>{r.reg}</div>
               </div>
             </div>
           ))}
@@ -172,24 +172,24 @@ export default function AccountTypesPage() {
                 <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: `linear-gradient(90deg, transparent, ${acc.color}, transparent)` }} />
               )}
               {acc.popular && (
-                <div style={{ position: 'absolute', top: 16, right: 16, background: acc.color, color: '#000', fontSize: 10, fontWeight: 800, letterSpacing: '0.06em', padding: '3px 10px', borderRadius: 99, textTransform: 'uppercase' }}>
+                <div style={{ position: 'absolute', top: 16, right: 16, background: acc.color, color: '#000', fontSize: 10.5, fontWeight: 800, letterSpacing: '0.06em', padding: '3px 10px', borderRadius: 99, textTransform: 'uppercase' }}>
                   Most Popular
                 </div>
               )}
 
               {/* Card header */}
               <div style={{ padding: '28px 28px 20px' }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: acc.color, letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 6 }}>{acc.tagline}</div>
-                <h2 style={{ fontSize: 26, fontWeight: 800, color: '#fff', marginBottom: 4 }}>{acc.name}</h2>
+                <div style={{ fontSize: 12, fontWeight: 700, color: acc.color, letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 6 }}>{acc.tagline}</div>
+                <h2 style={{ fontSize: 28, fontWeight: 800, color: '#fff', marginBottom: 4 }}>{acc.name}</h2>
                 <div style={{ display: 'flex', gap: 20, marginTop: 16 }}>
                   <div>
-                    <div style={{ fontSize: 10, color: '#3a5060', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>Spread</div>
+                    <div style={{ fontSize: 10.5, color: '#3a5060', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>Spread</div>
                     <div style={{ fontSize: 18, fontWeight: 800, color: acc.color, fontFamily: 'monospace' }}>{acc.spread}</div>
                   </div>
                   <div>
-                    <div style={{ fontSize: 10, color: '#3a5060', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>Commission</div>
+                    <div style={{ fontSize: 10.5, color: '#3a5060', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>Commission</div>
                     <div style={{ fontSize: 18, fontWeight: 800, color: '#fff', fontFamily: 'monospace' }}>{acc.commission}</div>
-                    <div style={{ fontSize: 10, color: '#3a5060' }}>{acc.commissionNote}</div>
+                    <div style={{ fontSize: 10.5, color: '#3a5060' }}>{acc.commissionNote}</div>
                   </div>
                 </div>
               </div>
@@ -207,7 +207,7 @@ export default function AccountTypesPage() {
                   { label: 'Stop Out', value: acc.stopOut },
                 ].map(s => (
                   <div key={s.label}>
-                    <div style={{ fontSize: 10, color: '#3a5060', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 3 }}>{s.label}</div>
+                    <div style={{ fontSize: 10.5, color: '#3a5060', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 3 }}>{s.label}</div>
                     <div style={{ fontSize: 13, fontWeight: 700, color: '#c8d6e5' }}>{s.value}</div>
                   </div>
                 ))}
@@ -217,7 +217,7 @@ export default function AccountTypesPage() {
 
               {/* Features */}
               <div style={{ padding: '20px 28px', flex: 1 }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: '#3a5060', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 12 }}>Includes</div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#3a5060', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 12 }}>Includes</div>
                 <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 9 }}>
                   {acc.features.map(f => (
                     <li key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: 9, fontSize: 13, color: 'var(--t-text-2)', lineHeight: 1.5 }}>
@@ -237,7 +237,7 @@ export default function AccountTypesPage() {
                   style={{ width: '100%', padding: '13px 0', borderRadius: 12, fontWeight: 700, fontSize: 14, cursor: 'pointer', transition: 'opacity 0.2s', ...acc.ctaStyle }}>
                   {acc.cta}
                 </button>
-                <p style={{ textAlign: 'center', fontSize: 11, color: '#3a5060', marginTop: 10 }}>No minimum trading requirement · Instant approval</p>
+                <p style={{ textAlign: 'center', fontSize: 12, color: '#3a5060', marginTop: 10 }}>No minimum trading requirement · Instant approval</p>
               </div>
             </div>
           ))}
@@ -254,7 +254,7 @@ export default function AccountTypesPage() {
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
             <thead>
               <tr style={{ background: 'rgba(255,255,255,0.04)' }}>
-                <th style={{ padding: '14px 24px', textAlign: 'left', color: '#3a5060', fontWeight: 700, fontSize: 11, letterSpacing: '0.06em', textTransform: 'uppercase', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>Feature</th>
+                <th style={{ padding: '14px 24px', textAlign: 'left', color: '#3a5060', fontWeight: 700, fontSize: 12, letterSpacing: '0.06em', textTransform: 'uppercase', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>Feature</th>
                 {['Standard', 'Raw Spread', 'cTrader Raw'].map((h, i) => (
                   <th key={h} style={{ padding: '14px 24px', textAlign: 'center', color: [ACCOUNTS[0].color, ACCOUNTS[1].color, ACCOUNTS[2].color][i], fontWeight: 700, fontSize: 13, borderBottom: '1px solid rgba(255,255,255,0.07)', borderLeft: '1px solid rgba(255,255,255,0.05)' }}>{h}</th>
                 ))}
@@ -293,18 +293,18 @@ export default function AccountTypesPage() {
       {/* ── CTA Strip ── */}
       <div style={{ maxWidth: 1100, margin: '48px auto 0', padding: '0 24px 80px' }}>
         <div style={{ borderRadius: 20, background: 'rgba(79,140,255,0.06)', border: '1px solid rgba(79,140,255,0.15)', padding: '48px 40px', textAlign: 'center' }}>
-          <h2 style={{ fontSize: 30, fontWeight: 800, color: '#fff', marginBottom: 10 }}>Ready to Open Your Account?</h2>
-          <p style={{ color: 'var(--t-text-2)', fontSize: 15, marginBottom: 28, maxWidth: 480, margin: '0 auto 28px' }}>
+          <h2 style={{ fontSize: 28, fontWeight: 800, color: '#fff', marginBottom: 10 }}>Ready to Open Your Account?</h2>
+          <p style={{ color: 'var(--t-text-2)', fontSize: 16, marginBottom: 28, maxWidth: 480, margin: '0 auto 28px' }}>
             Complete KYC in minutes. Deposit from $200. Start trading real markets same day.
           </p>
           <div style={{ display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap' }}>
             <button onClick={() => navigate('/login')}
-              style={{ padding: '13px 32px', borderRadius: 12, background: 'linear-gradient(135deg,#4f8cff,#3b78f0)', color: '#fff', fontWeight: 700, fontSize: 15, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
+              style={{ padding: '13px 32px', borderRadius: 12, background: 'linear-gradient(135deg,#4f8cff,#3b78f0)', color: '#fff', fontWeight: 700, fontSize: 16, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
               Open Live Account
               <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             </button>
             <button onClick={() => navigate('/login')}
-              style={{ padding: '13px 32px', borderRadius: 12, background: 'rgba(255,255,255,0.05)', color: '#c8d6e5', fontWeight: 600, fontSize: 15, border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer' }}>
+              style={{ padding: '13px 32px', borderRadius: 12, background: 'rgba(255,255,255,0.05)', color: '#c8d6e5', fontWeight: 600, fontSize: 16, border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer' }}>
               Try Demo Account
             </button>
           </div>

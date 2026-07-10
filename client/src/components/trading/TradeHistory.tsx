@@ -12,10 +12,10 @@ export default function TradeHistory() {
   }, [recentTrades.length])
 
   return (
-    <div className="flex flex-col h-full font-mono text-xs" style={{ background: '#080e1a' }}>
+    <div className="flex flex-col h-full font-mono text-xs" style={{ background: '#16131d' }}>
       {/* Column headers */}
       <div className="flex justify-between px-3 py-1.5 text-text-muted text-2xs uppercase tracking-wider shrink-0"
-           style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
+           style={{ borderBottom: '1px solid rgba(176,168,190,0.06)' }}>
         <span>Price</span>
         <span>Size</span>
         <span>Time</span>

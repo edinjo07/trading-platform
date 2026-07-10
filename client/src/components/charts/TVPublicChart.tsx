@@ -312,15 +312,15 @@ export default function TVPublicChart({ symbol, interval = '1h' }: Props) {
   }, [symbol, interval])
 
   return (
-    <div style={{ position: 'relative', width: '100%', height: '100%', minHeight: '400px', background: '#06090f' }}>
+    <div style={{ position: 'relative', width: '100%', height: '100%', minHeight: '400px', background: '#0f0d14' }}>
       {/* Loading overlay */}
       {status === 'loading' && (
         <div style={{
           position: 'absolute', inset: 0, display: 'flex',
           alignItems: 'center', justifyContent: 'center',
-          background: '#06090f', zIndex: 1,
+          background: '#0f0d14', zIndex: 1,
         }}>
-          <span style={{ color: '#4b6070', fontSize: '13px', fontFamily: 'monospace' }}>Loading chart…</span>
+          <span style={{ color: 'var(--t-text-3)', fontSize: '13px', fontFamily: 'monospace' }}>Loading chart…</span>
         </div>
       )}
       {/* Error state */}
@@ -328,10 +328,10 @@ export default function TVPublicChart({ symbol, interval = '1h' }: Props) {
         <div style={{
           position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column',
           alignItems: 'center', justifyContent: 'center', gap: '8px',
-          background: '#06090f', zIndex: 1,
+          background: '#0f0d14', zIndex: 1,
         }}>
           <span style={{ color: '#ff5a72', fontSize: '13px', fontFamily: 'monospace' }}>Chart failed to load</span>
-          <span style={{ color: '#4b6070', fontSize: '11px' }}>Please refresh the page or check your connection</span>
+          <span style={{ color: 'var(--t-text-3)', fontSize: '12px' }}>Please refresh the page or check your connection</span>
         </div>
       )}
       <div

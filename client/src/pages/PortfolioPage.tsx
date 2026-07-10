@@ -61,7 +61,7 @@ function MarginGauge({ level }: { level: number | null }) {
     <div>
       <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 4 }}>
         <p style={{ fontSize: 10.5, color: S.text3, margin: 0, textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 600 }}>Margin Level</p>
-        <span style={{ fontSize: 10, fontWeight: 700, color }}>{label}</span>
+        <span style={{ fontSize: 10.5, fontWeight: 700, color }}>{label}</span>
       </div>
       <p style={{ fontSize: 16, fontWeight: 700, color, margin: '0 0 6px', fontFamily: 'ui-monospace,monospace', fontVariantNumeric: 'tabular-nums' }}>
         {level >= 1000 ? `${Math.round(level)}%` : `${level.toFixed(1)}%`}
@@ -102,7 +102,7 @@ function ExposureCard({ positions, currency }: { positions: Position[]; currency
     <div style={{ background: S.surface, border: `1px solid ${S.border}`, borderRadius: 16, padding: 18, boxShadow: 'var(--t-shadow-sm)' }}>
       <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 14 }}>
         <p style={{ fontSize: 12, fontWeight: 700, color: S.text1, margin: 0 }}>Exposure by instrument</p>
-        <span style={{ fontSize: 11, color: S.text3, fontFamily: 'ui-monospace,monospace' }}>
+        <span style={{ fontSize: 12, color: S.text3, fontFamily: 'ui-monospace,monospace' }}>
           {formatCurrency(items.total, 2, currency)} notional
         </span>
       </div>
@@ -119,10 +119,10 @@ function ExposureCard({ positions, currency }: { positions: Position[]; currency
           <div key={r.symbol} style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
             <span style={{ width: 9, height: 9, borderRadius: 3, background: r.hue, flexShrink: 0 }} />
             <span style={{ fontSize: 12, fontWeight: 600, color: S.text1 }}>{r.symbol}</span>
-            <span style={{ fontSize: 10, fontWeight: 700, padding: '1px 6px', borderRadius: 6, color: r.side === 'long' ? S.bull : S.bear, background: r.side === 'long' ? 'var(--t-bull-s)' : 'var(--t-bear-s)' }}>
+            <span style={{ fontSize: 10.5, fontWeight: 700, padding: '1px 6px', borderRadius: 6, color: r.side === 'long' ? S.bull : S.bear, background: r.side === 'long' ? 'var(--t-bull-s)' : 'var(--t-bear-s)' }}>
               {r.side === 'long' ? 'LONG' : 'SHORT'}
             </span>
-            <span style={{ fontSize: 11, color: S.text3, fontFamily: 'ui-monospace,monospace' }}>{r.pct.toFixed(1)}%</span>
+            <span style={{ fontSize: 12, color: S.text3, fontFamily: 'ui-monospace,monospace' }}>{r.pct.toFixed(1)}%</span>
           </div>
         ))}
       </div>
@@ -180,8 +180,8 @@ function SltpEditor({ pos, currency, onDone }: { pos: Position; currency: string
     return (
       <div style={{ flex: 1, minWidth: 200 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 5 }}>
-          <span style={{ fontSize: 11, fontWeight: 700, color: accent }}>{label}</span>
-          <span style={{ fontSize: 10, color: S.text3 }}>{hint}</span>
+          <span style={{ fontSize: 12, fontWeight: 700, color: accent }}>{label}</span>
+          <span style={{ fontSize: 10.5, color: S.text3 }}>{hint}</span>
         </div>
         <div style={{ display: 'flex', gap: 5 }}>
           <input type="number" value={val} onChange={e => set(e.target.value)} placeholder="—"
@@ -216,7 +216,7 @@ function SltpEditor({ pos, currency, onDone }: { pos: Position; currency: string
         {field(tpVal, setTpVal, tpError, estTpPnl, S.bull, 'Take Profit', isLong ? 'above market' : 'below market')}
       </div>
       {saveError && (
-        <p style={{ fontSize: 11, color: S.bear, margin: '0 0 10px', padding: '6px 10px', background: 'var(--t-bear-s)', borderRadius: 6 }}>{saveError}</p>
+        <p style={{ fontSize: 12, color: S.bear, margin: '0 0 10px', padding: '6px 10px', background: 'var(--t-bear-s)', borderRadius: 6 }}>{saveError}</p>
       )}
       <div style={{ display: 'flex', gap: 8 }}>
         <button onClick={handleSave} disabled={!canSave}
@@ -272,10 +272,10 @@ function PositionsTable({ positions, currency, onClose, closingId }: {
                   <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
                     <span style={{ width: 3, height: 26, borderRadius: 99, background: isLong ? S.bull : S.bear, flexShrink: 0 }} />
                     <div style={{ minWidth: 0 }}>
-                      <div style={{ fontSize: 13.5, fontWeight: 800, color: S.text1 }}>{pos.symbol}</div>
+                      <div style={{ fontSize: 14, fontWeight: 800, color: S.text1 }}>{pos.symbol}</div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginTop: 1 }}>
-                        <span style={{ fontSize: 10, fontWeight: 800, color: isLong ? S.bull : S.bear }}>{isLong ? 'BUY' : 'SELL'}</span>
-                        {pos.leverage > 1 && <span style={{ fontSize: 10, fontWeight: 700, color: S.text3 }}>· {pos.leverage}x</span>}
+                        <span style={{ fontSize: 10.5, fontWeight: 800, color: isLong ? S.bull : S.bear }}>{isLong ? 'BUY' : 'SELL'}</span>
+                        {pos.leverage > 1 && <span style={{ fontSize: 10.5, fontWeight: 700, color: S.text3 }}>· {pos.leverage}x</span>}
                       </div>
                     </div>
                   </div>
@@ -290,15 +290,15 @@ function PositionsTable({ positions, currency, onClose, closingId }: {
                     {pos.take_profit != null && (
                       <span style={{ fontSize: 10.5, fontWeight: 600, padding: '2px 7px', borderRadius: 7, background: 'var(--t-bull-s)', color: S.bull, fontFamily: 'ui-monospace,monospace' }}>TP {formatPrice(pos.take_profit, pos.symbol)}</span>
                     )}
-                    {pos.stop_loss == null && pos.take_profit == null && <span style={{ fontSize: 11, color: S.text3 }}>—</span>}
+                    {pos.stop_loss == null && pos.take_profit == null && <span style={{ fontSize: 12, color: S.text3 }}>—</span>}
                   </div>
                   <span style={{ ...cell, justifyContent: 'flex-end', color: S.text2 }}>{formatCurrency(pos.margin, 2, currency)}</span>
                   {/* P&L */}
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-                    <span style={{ fontSize: 13.5, fontWeight: 700, color: pnlCol(pos.unrealizedPnl), fontFamily: 'ui-monospace,monospace', fontVariantNumeric: 'tabular-nums' }}>
+                    <span style={{ fontSize: 14, fontWeight: 700, color: pnlCol(pos.unrealizedPnl), fontFamily: 'ui-monospace,monospace', fontVariantNumeric: 'tabular-nums' }}>
                       {sign(pos.unrealizedPnl)}{formatCurrency(pos.unrealizedPnl, 2, currency)}
                     </span>
-                    <span style={{ fontSize: 11, fontWeight: 600, color: pnlCol(pos.unrealizedPnl), fontFamily: 'ui-monospace,monospace' }}>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: pnlCol(pos.unrealizedPnl), fontFamily: 'ui-monospace,monospace' }}>
                       {sign(pos.unrealizedPnlPct)}{pos.unrealizedPnlPct.toFixed(2)}%
                     </span>
                   </div>
@@ -336,17 +336,17 @@ function OrderRow({ order, last }: { order: Order; last: boolean }) {
   const filled = order.status === 'filled'
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '13px 18px', borderBottom: last ? 'none' : '1px solid rgba(174,166,186,0.08)' }}>
-      <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 38, height: 38, borderRadius: 10, flexShrink: 0, background: isBuy ? 'var(--t-bull-s)' : 'var(--t-bear-s)', color: isBuy ? S.bull : S.bear, fontSize: 10, fontWeight: 800 }}>
+      <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 38, height: 38, borderRadius: 10, flexShrink: 0, background: isBuy ? 'var(--t-bull-s)' : 'var(--t-bear-s)', color: isBuy ? S.bull : S.bear, fontSize: 10.5, fontWeight: 800 }}>
         {order.side.toUpperCase()}
       </span>
       <div style={{ flex: 1, minWidth: 0 }}>
         <p style={{ fontSize: 13, fontWeight: 700, color: S.text1, margin: 0 }}>{order.symbol}</p>
-        <p style={{ fontSize: 11, color: S.text3, margin: '2px 0 0', fontFamily: 'ui-monospace,monospace' }}>
+        <p style={{ fontSize: 12, color: S.text3, margin: '2px 0 0', fontFamily: 'ui-monospace,monospace' }}>
           {order.quantity} units · {order.fill_price ? formatPrice(order.fill_price, order.symbol) : 'market'}
         </p>
       </div>
       <div style={{ textAlign: 'right' }}>
-        <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 8, background: filled ? 'var(--t-bull-s)' : 'var(--t-bear-s)', color: filled ? S.bull : S.bear, textTransform: 'capitalize' }}>{order.status}</span>
+        <span style={{ fontSize: 10.5, fontWeight: 700, padding: '2px 8px', borderRadius: 8, background: filled ? 'var(--t-bull-s)' : 'var(--t-bear-s)', color: filled ? S.bull : S.bear, textTransform: 'capitalize' }}>{order.status}</span>
         <p style={{ fontSize: 10.5, color: S.text3, margin: '5px 0 0', whiteSpace: 'nowrap' }}>
           {new Date(order.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}{' '}
           {new Date(order.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -454,7 +454,7 @@ export default function PortfolioPage() {
         <div style={{ background: S.surface, border: `1px solid ${S.border}`, borderRadius: 18, padding: 22, marginBottom: 16, boxShadow: 'var(--t-shadow-sm)' }}>
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
             <div>
-              <p style={{ fontSize: 11, color: S.text3, margin: '0 0 6px', textTransform: 'uppercase', letterSpacing: '0.07em', fontWeight: 600 }}>Total Equity</p>
+              <p style={{ fontSize: 12, color: S.text3, margin: '0 0 6px', textTransform: 'uppercase', letterSpacing: '0.07em', fontWeight: 600 }}>Total Equity</p>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, flexWrap: 'wrap' }}>
                 <span style={{ fontSize: 34, fontWeight: 800, color: S.text1, fontFamily: 'ui-monospace,monospace', fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.02em' }}>
                   {formatCurrency(equity, 2, currency)}
@@ -469,8 +469,8 @@ export default function PortfolioPage() {
             </div>
             {(upnl !== 0 || positions.length > 0) && (
               <div style={{ textAlign: 'right' }}>
-                <p style={{ fontSize: 11, color: S.text3, margin: '0 0 4px', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 600 }}>Open P&amp;L · {positions.length} pos</p>
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 20, fontWeight: 800, color: pnlCol(upnl), fontFamily: 'ui-monospace,monospace', fontVariantNumeric: 'tabular-nums' }}>
+                <p style={{ fontSize: 12, color: S.text3, margin: '0 0 4px', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 600 }}>Open P&amp;L · {positions.length} pos</p>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 22, fontWeight: 800, color: pnlCol(upnl), fontFamily: 'ui-monospace,monospace', fontVariantNumeric: 'tabular-nums' }}>
                   <span style={{ width: 7, height: 7, borderRadius: 99, background: pnlCol(upnl) }} className="animate-pulse2" />
                   {sign(upnl)}{formatCurrency(upnl, 2, currency)}
                 </span>

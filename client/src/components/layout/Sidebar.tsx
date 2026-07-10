@@ -139,7 +139,7 @@ export default function Sidebar({ mobileOpen, onClose, onOpenMarkets }: SidebarP
             </span>
           )}
           {!collapsed && kycStatus !== 'verified' && (
-            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded shrink-0"
+            <span className="text-[10.5px] font-bold px-1.5 py-0.5 rounded shrink-0"
                   style={{ background: kycStatus === 'pending' ? 'rgba(79,140,255,0.2)' : 'rgba(246,178,74,0.22)', color: kycStatus === 'pending' ? '#7aa7ff' : '#f6b24a' }}>
               {kycStatus === 'pending' ? 'PENDING' : '!'}
             </span>
@@ -157,7 +157,7 @@ export default function Sidebar({ mobileOpen, onClose, onOpenMarkets }: SidebarP
               <div style={{ height: 1, background: 'rgba(255,255,255,0.05)', margin: '8px 4px 10px' }} />
             )}
             {group.label && !collapsed && (
-              <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', color: 'rgba(255,255,255,0.22)', textTransform: 'uppercase', paddingLeft: 10, marginBottom: 4 }}>
+              <p style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '0.1em', color: 'rgba(255,255,255,0.22)', textTransform: 'uppercase', paddingLeft: 10, marginBottom: 4 }}>
                 {group.label}
               </p>
             )}
@@ -303,7 +303,7 @@ export default function Sidebar({ mobileOpen, onClose, onOpenMarkets }: SidebarP
               </div>
               <div className="min-w-0">
                 <p style={{ fontSize: 13, fontWeight: 600, color: '#f0f0f0', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.username}</p>
-                <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.38)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.email}</p>
+                <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.38)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.email}</p>
               </div>
             </div>
 
@@ -332,7 +332,7 @@ export default function Sidebar({ mobileOpen, onClose, onOpenMarkets }: SidebarP
 
             {/* Mode switcher */}
             <div className="px-4 py-3" style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}>
-              <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', marginBottom: 8 }}>Account Mode</p>
+              <p style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '0.1em', color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', marginBottom: 8 }}>Account Mode</p>
               <div className="flex gap-2">
                 {(['demo', 'real'] as const).map(m => (
                   <button key={m} onClick={() => { setAccountMode(m); setProfileOpen(false) }}
@@ -374,7 +374,7 @@ export default function Sidebar({ mobileOpen, onClose, onOpenMarkets }: SidebarP
               <p style={{ fontSize: 12, fontWeight: 600, color: '#f0f0f0', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.username}</p>
               <div className="flex items-center gap-1.5 mt-0.5">
                 <span className="w-1.5 h-1.5 rounded-full" style={{ background: user?.accountMode === 'real' ? '#18c98a' : '#f6b24a' }} />
-                <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.38)' }}>{user?.accountMode === 'real' ? 'Live' : 'Demo'}</span>
+                <span style={{ fontSize: 10.5, color: 'rgba(255,255,255,0.38)' }}>{user?.accountMode === 'real' ? 'Live' : 'Demo'}</span>
               </div>
             </div>
             <ChevronDown size={12} strokeWidth={2.5} color="rgba(255,255,255,0.28)"

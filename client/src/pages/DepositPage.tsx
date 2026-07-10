@@ -356,7 +356,11 @@ export default function DepositPage() {
         disabled={!isValid}
         onClick={handleSubmit}
         className="btn-gold w-full py-3.5 text-base disabled:opacity-40 disabled:cursor-not-allowed">
-        {method === 'crypto' ? 'I Have Sent the Funds' : 'Continue'}
+        {method === 'crypto'
+          ? 'I Have Sent the Funds'
+          : isValid
+            ? `Deposit ${formatCurrency(totalDebit, 2, currency)}`
+            : 'Enter an amount to deposit'}
       </button>
 
     </div>

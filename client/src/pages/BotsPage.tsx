@@ -211,18 +211,18 @@ function LogLine({ log }: { log: BotLog }) {
       borderLeft: `3px solid ${cfg.border}`,
       paddingLeft: 10,
     }}>
-      <span style={{ fontSize: 10, color: C.text3, fontFamily: 'monospace', flexShrink: 0, minWidth: 68, paddingTop: 1 }}>
+      <span style={{ fontSize: 10.5, color: C.text3, fontFamily: 'monospace', flexShrink: 0, minWidth: 68, paddingTop: 1 }}>
         {fmtTime(log.ts)}
       </span>
       <span style={{
-        fontSize: 9, fontWeight: 800, letterSpacing: '0.06em',
+        fontSize: 10.5, fontWeight: 800, letterSpacing: '0.06em',
         color: cfg.color, flexShrink: 0, minWidth: 46,
         padding: '2px 5px', borderRadius: 4, background: `${cfg.border}44`,
         paddingTop: 2,
       }}>
         {cfg.label}
       </span>
-      <span style={{ fontSize: 11, color: cfg.color, fontFamily: 'monospace', lineHeight: 1.5, wordBreak: 'break-all', opacity: 0.9 }}>
+      <span style={{ fontSize: 12, color: cfg.color, fontFamily: 'monospace', lineHeight: 1.5, wordBreak: 'break-all', opacity: 0.9 }}>
         {log.message}
       </span>
     </div>
@@ -253,7 +253,7 @@ function WinRing({ pct, size = 36 }: { pct: number; size?: number }) {
                 strokeDasharray={circ} strokeDashoffset={circ * (1 - Math.min(100, Math.max(0, pct)) / 100)}
                 style={{ transition: 'stroke-dashoffset 0.6s ease' }}/>
       </svg>
-      <span style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 800, color }}>
+      <span style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10.5, fontWeight: 800, color }}>
         {pct}%
       </span>
     </div>
@@ -342,11 +342,11 @@ function BotCard({ bot, selected, onClick }: { bot: Bot; selected: boolean; onCl
               <StatusBadge status={bot.status} compact/>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-              <span style={{ fontSize: 10, fontWeight: 600, color: C.text2 }}>{bot.symbol}</span>
+              <span style={{ fontSize: 10.5, fontWeight: 600, color: C.text2 }}>{bot.symbol}</span>
               <span style={{ width: 3, height: 3, borderRadius: '50%', background: C.text3 }}/>
-              <span style={{ fontSize: 10, fontWeight: 700, color: meta.color }}>{meta.label}</span>
+              <span style={{ fontSize: 10.5, fontWeight: 700, color: meta.color }}>{meta.label}</span>
               <span style={{
-                fontSize: 9, fontWeight: 800, padding: '1px 5px', borderRadius: 5, letterSpacing: '0.04em',
+                fontSize: 10.5, fontWeight: 800, padding: '1px 5px', borderRadius: 5, letterSpacing: '0.04em',
                 background: bot.mode === 'real' ? 'rgba(255,90,114,0.12)' : 'rgba(79,140,255,0.08)',
                 color: bot.mode === 'real' ? C.red : C.blue,
                 border: `1px solid ${bot.mode === 'real' ? 'rgba(255,90,114,0.2)' : 'rgba(79,140,255,0.2)'}`,
@@ -373,23 +373,23 @@ function BotCard({ bot, selected, onClick }: { bot: Bot; selected: boolean; onCl
             boxShadow: alive ? `0 0 5px ${actColor}` : 'none',
             animation: alive ? 'pulse 1.8s ease-in-out infinite' : 'none',
           }}/>
-          <span style={{ fontSize: 10, color: C.text2, fontFamily: 'monospace', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', flex: 1 }}>
+          <span style={{ fontSize: 10.5, color: C.text2, fontFamily: 'monospace', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', flex: 1 }}>
             {activity}
           </span>
-          {lastLog && <span style={{ fontSize: 9, color: C.text3, fontFamily: 'monospace', flexShrink: 0 }}>{relTime(lastLog.ts)}</span>}
+          {lastLog && <span style={{ fontSize: 10.5, color: C.text3, fontFamily: 'monospace', flexShrink: 0 }}>{relTime(lastLog.ts)}</span>}
         </div>
 
         {/* Stats row */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <div>
-            <p style={{ fontSize: 8, color: C.text3, margin: '0 0 1px', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 700 }}>P&amp;L</p>
+            <p style={{ fontSize: 10.5, color: C.text3, margin: '0 0 1px', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 700 }}>P&amp;L</p>
             <span style={{ fontSize: 14, fontWeight: 800, fontFamily: 'monospace', color: pnlPos ? C.green : C.red }}>
               {fmtPnl(bot.pnl)}
             </span>
           </div>
           <div style={{ width: 1, height: 22, background: C.border }}/>
           <div>
-            <p style={{ fontSize: 8, color: C.text3, margin: '0 0 1px', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 700 }}>Trades</p>
+            <p style={{ fontSize: 10.5, color: C.text3, margin: '0 0 1px', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 700 }}>Trades</p>
             <span style={{ fontSize: 14, fontWeight: 800, fontFamily: 'monospace', color: C.text1 }}>{bot.trades}</span>
           </div>
           <div style={{ flex: 1 }}/>
@@ -407,9 +407,9 @@ function BotCard({ bot, selected, onClick }: { bot: Bot; selected: boolean; onCl
 function MetricCard({ label, value, color, sub }: { label: string; value: string; color: string; sub?: string }) {
   return (
     <div style={{ background: C.bg, padding: '10px 14px' }}>
-      <p style={{ fontSize: 9, color: C.text3, textTransform: 'uppercase', letterSpacing: '0.07em', margin: '0 0 4px', fontWeight: 700 }}>{label}</p>
-      <p style={{ fontSize: 15, fontWeight: 800, fontFamily: 'monospace', color, margin: 0, lineHeight: 1 }}>{value}</p>
-      {sub && <p style={{ fontSize: 9, color: C.text3, margin: '3px 0 0' }}>{sub}</p>}
+      <p style={{ fontSize: 10.5, color: C.text3, textTransform: 'uppercase', letterSpacing: '0.07em', margin: '0 0 4px', fontWeight: 700 }}>{label}</p>
+      <p style={{ fontSize: 16, fontWeight: 800, fontFamily: 'monospace', color, margin: 0, lineHeight: 1 }}>{value}</p>
+      {sub && <p style={{ fontSize: 10.5, color: C.text3, margin: '3px 0 0' }}>{sub}</p>}
     </div>
   )
 }
@@ -444,9 +444,9 @@ function NewsSentimentPanel({ symbol }: { symbol: string }) {
     <div style={{ borderRadius: 10, border: `1px solid ${C.border}`, background: C.surface, overflow: 'hidden' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 12px', borderBottom: `1px solid ${C.border}` }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: C.blue }}>News Sentiment</span>
+          <span style={{ fontSize: 10.5, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: C.blue }}>News Sentiment</span>
           {data && (
-            <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 10, background: `${SENT_COLOR[label]}15`, color: SENT_COLOR[label], border: `1px solid ${SENT_COLOR[label]}30` }}>
+            <span style={{ fontSize: 10.5, fontWeight: 700, padding: '2px 7px', borderRadius: 10, background: `${SENT_COLOR[label]}15`, color: SENT_COLOR[label], border: `1px solid ${SENT_COLOR[label]}30` }}>
               {label.charAt(0).toUpperCase() + label.slice(1)} {score !== 0 ? `(${score >= 0 ? '+' : ''}${score.toFixed(2)})` : ''}
             </span>
           )}
@@ -454,18 +454,18 @@ function NewsSentimentPanel({ symbol }: { symbol: string }) {
         <button onClick={load} style={{ fontSize: 12, padding: '2px 8px', borderRadius: 6, color: C.blue, background: `${C.blue}10`, border: `1px solid ${C.blue}20`, cursor: 'pointer' }}>↻</button>
       </div>
       <div style={{ padding: '10px 12px' }}>
-        {loading && <p style={{ fontSize: 11, color: C.text3, margin: 0 }}>Loading…</p>}
-        {err     && <p style={{ fontSize: 11, color: C.red,   margin: 0 }}>{err}</p>}
+        {loading && <p style={{ fontSize: 12, color: C.text3, margin: 0 }}>Loading…</p>}
+        {err     && <p style={{ fontSize: 12, color: C.red,   margin: 0 }}>{err}</p>}
 
         {/* ── Trade Impact (causal, instrument-specific) ── */}
         {impact && !loading && (
           <div style={{ marginBottom: 10, padding: '8px 10px', borderRadius: 8, background: `${impColor}0d`, border: `1px solid ${impColor}26` }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-              <span style={{ fontSize: 9, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', color: C.text2 }}>Trade Impact</span>
-              <span style={{ fontSize: 10, fontWeight: 800, padding: '1px 7px', borderRadius: 10, background: `${impColor}1f`, color: impColor }}>
+              <span style={{ fontSize: 10.5, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', color: C.text2 }}>Trade Impact</span>
+              <span style={{ fontSize: 10.5, fontWeight: 800, padding: '1px 7px', borderRadius: 10, background: `${impColor}1f`, color: impColor }}>
                 {impact.direction.toUpperCase()} {Math.round(impact.confidence * 100)}%
               </span>
-              <span style={{ fontSize: 8, fontWeight: 700, color: C.text3, marginLeft: 'auto' }}>{impact.source === 'claude' ? 'AI' : 'RULES'}</span>
+              <span style={{ fontSize: 10.5, fontWeight: 700, color: C.text3, marginLeft: 'auto' }}>{impact.source === 'claude' ? 'AI' : 'RULES'}</span>
             </div>
             <p style={{ fontSize: 10.5, color: C.text2, margin: 0, lineHeight: 1.45 }}>{impact.rationale}</p>
           </div>
@@ -474,7 +474,7 @@ function NewsSentimentPanel({ symbol }: { symbol: string }) {
         {data && !loading && (
           <>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-              <span style={{ fontSize: 10, color: C.red }}>Bear</span>
+              <span style={{ fontSize: 10.5, color: C.red }}>Bear</span>
               <div style={{ flex: 1, height: 4, borderRadius: 2, background: C.surface2, position: 'relative', overflow: 'hidden' }}>
                 <div style={{
                   position: 'absolute', height: '100%', borderRadius: 2,
@@ -485,13 +485,13 @@ function NewsSentimentPanel({ symbol }: { symbol: string }) {
                 }}/>
                 <div style={{ position: 'absolute', left: '50%', top: 0, width: 1, height: '100%', background: C.text3 }}/>
               </div>
-              <span style={{ fontSize: 10, color: C.green }}>Bull</span>
+              <span style={{ fontSize: 10.5, color: C.green }}>Bull</span>
             </div>
             {data.headlines.slice(0, 3).map((h, i) => (
               <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 6, marginBottom: 4 }}>
-                <span style={{ color: SENT_COLOR[h.label], fontSize: 9, flexShrink: 0, paddingTop: 2 }}>●</span>
+                <span style={{ color: SENT_COLOR[h.label], fontSize: 10.5, flexShrink: 0, paddingTop: 2 }}>●</span>
                 <a href={h.url} target="_blank" rel="noopener noreferrer"
-                   style={{ fontSize: 10, color: C.text2, textDecoration: 'none', lineHeight: 1.4 }}>
+                   style={{ fontSize: 10.5, color: C.text2, textDecoration: 'none', lineHeight: 1.4 }}>
                   {h.title}
                 </a>
               </div>
@@ -526,7 +526,7 @@ function RiskDisclosureModal({ onAccept, onClose }: { onAccept: () => void; onCl
           </div>
           <div>
             <h2 style={{ fontSize: 14, fontWeight: 800, color: C.text1, margin: 0 }}>Risk Disclosure</h2>
-            <p style={{ fontSize: 11, color: C.red, margin: 0 }}>Read carefully before activating</p>
+            <p style={{ fontSize: 12, color: C.red, margin: 0 }}>Read carefully before activating</p>
           </div>
         </div>
         <div style={{ padding: '16px 20px 20px' }}>
@@ -535,15 +535,15 @@ function RiskDisclosureModal({ onAccept, onClose }: { onAccept: () => void; onCl
               <div key={r.title} style={{ display: 'flex', gap: 12, padding: '10px 12px', borderRadius: 10, background: C.bg, border: `1px solid ${C.border}` }}>
                 <span style={{ width: 28, height: 28, borderRadius: 8, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: `${r.color}14`, border: `1px solid ${r.color}2e`, color: r.color }}>{r.icon}</span>
                 <div>
-                  <p style={{ fontSize: 11, fontWeight: 700, color: r.color, margin: '0 0 2px' }}>{r.title}</p>
-                  <p style={{ fontSize: 10, color: C.text2, margin: 0, lineHeight: 1.5 }}>{r.body}</p>
+                  <p style={{ fontSize: 12, fontWeight: 700, color: r.color, margin: '0 0 2px' }}>{r.title}</p>
+                  <p style={{ fontSize: 10.5, color: C.text2, margin: 0, lineHeight: 1.5 }}>{r.body}</p>
                 </div>
               </div>
             ))}
           </div>
           <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '10px 12px', borderRadius: 10, cursor: 'pointer', background: checked ? 'rgba(24,201,138,0.07)' : C.bg, border: `1px solid ${checked ? 'rgba(24,201,138,0.25)' : C.border}`, marginBottom: 14, transition: 'all 0.15s' }}>
             <input type="checkbox" checked={checked} onChange={e => setChecked(e.target.checked)} style={{ marginTop: 2, width: 14, height: 14, flexShrink: 0, cursor: 'pointer' }}/>
-            <span style={{ fontSize: 11, color: checked ? C.green : C.text2, lineHeight: 1.5 }}>
+            <span style={{ fontSize: 12, color: checked ? C.green : C.text2, lineHeight: 1.5 }}>
               I have read and fully understood the risks. I accept sole responsibility for any losses.
             </span>
           </label>
@@ -635,12 +635,12 @@ function StrategyPreview({ strategy }: { strategy: BotStrategy }) {
     <div style={{ borderRadius: 10, border: `1px solid ${C.border}`, background: C.bg, padding: 10 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
         <span style={{ color: col, display: 'flex' }}>{STRAT_ICONS[strategy]}</span>
-        <span style={{ fontSize: 11, fontWeight: 800, color: C.text1 }}>{m.label} — how it trades</span>
+        <span style={{ fontSize: 12, fontWeight: 800, color: C.text1 }}>{m.label} — how it trades</span>
       </div>
       <svg width="100%" height={H} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" style={{ display: 'block' }}>
         {body}
       </svg>
-      <p style={{ fontSize: 10, color: C.text2, margin: '8px 0 0', lineHeight: 1.45 }}>{STRAT_HOWTO[strategy]}</p>
+      <p style={{ fontSize: 10.5, color: C.text2, margin: '8px 0 0', lineHeight: 1.45 }}>{STRAT_HOWTO[strategy]}</p>
     </div>
   )
 }
@@ -675,7 +675,7 @@ function CreateBotModal({ onClose, onCreate }: { onClose: () => void; onCreate: 
     color: C.text1, fontSize: 13, padding: '9px 12px', outline: 'none', fontFamily: 'monospace',
     boxSizing: 'border-box',
   }
-  const labelSty: React.CSSProperties = { fontSize: 10, fontWeight: 700, color: C.text2, textTransform: 'uppercase', letterSpacing: '0.07em', display: 'block', marginBottom: 6 }
+  const labelSty: React.CSSProperties = { fontSize: 10.5, fontWeight: 700, color: C.text2, textTransform: 'uppercase', letterSpacing: '0.07em', display: 'block', marginBottom: 6 }
 
   async function submit(e: React.FormEvent) {
     e.preventDefault()
@@ -722,7 +722,7 @@ function CreateBotModal({ onClose, onCreate }: { onClose: () => void; onCreate: 
             </div>
             <div>
               <h2 style={{ fontSize: 14, fontWeight: 800, color: C.text1, margin: 0 }}>Deploy New Bot</h2>
-              <p style={{ fontSize: 10, color: C.text2, margin: 0 }}>Configure strategy &amp; risk controls</p>
+              <p style={{ fontSize: 10.5, color: C.text2, margin: 0 }}>Configure strategy &amp; risk controls</p>
             </div>
           </div>
           <button onClick={onClose} style={{ width: 30, height: 30, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', background: C.bg, border: `1px solid ${C.border}`, cursor: 'pointer' }}>
@@ -736,7 +736,7 @@ function CreateBotModal({ onClose, onCreate }: { onClose: () => void; onCreate: 
             <button key={t} type="button" onClick={() => setTab(t)} style={{
               flex: 1, padding: '10px 0', background: 'none', border: 'none', cursor: 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-              fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em',
+              fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em',
               color: tab === t ? C.blue : C.text3,
               borderBottom: `2px solid ${tab === t ? C.blue : 'transparent'}`,
               transition: 'all 0.15s',
@@ -784,9 +784,9 @@ function CreateBotModal({ onClose, onCreate }: { onClose: () => void; onCreate: 
                       }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4, color: strategy === key ? m.color : C.text2 }}>
                           {STRAT_ICONS[key]}
-                          <span style={{ fontSize: 11, fontWeight: 700 }}>{m.label}</span>
+                          <span style={{ fontSize: 12, fontWeight: 700 }}>{m.label}</span>
                         </div>
-                        <p style={{ fontSize: 10, color: C.text2, margin: 0, lineHeight: 1.4 }}>{STRAT_DESC[key]}</p>
+                        <p style={{ fontSize: 10.5, color: C.text2, margin: 0, lineHeight: 1.4 }}>{STRAT_DESC[key]}</p>
                       </button>
                     ))}
                   </div>
@@ -827,7 +827,7 @@ function CreateBotModal({ onClose, onCreate }: { onClose: () => void; onCreate: 
 
             {tab === 'risk' && (
               <>
-                <p style={{ fontSize: 11, color: C.text2, padding: '8px 10px', background: C.bg, borderRadius: 8, border: `1px solid ${C.border}`, margin: 0 }}>
+                <p style={{ fontSize: 12, color: C.text2, padding: '8px 10px', background: C.bg, borderRadius: 8, border: `1px solid ${C.border}`, margin: 0 }}>
                   Leave blank to disable a limit. All guards are checked on every price tick.
                 </p>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
@@ -835,14 +835,14 @@ function CreateBotModal({ onClose, onCreate }: { onClose: () => void; onCreate: 
                     <label style={labelSty}>Stop Loss %</label>
                     <div style={{ position: 'relative' }}>
                       <input style={{ ...inSty, paddingRight: 28 }} type="number" min={0.1} step={0.1} placeholder="2.0" value={slPct} onChange={e => setSlPct(e.target.value)}/>
-                      <span style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', fontSize: 11, color: C.text2 }}>%</span>
+                      <span style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', fontSize: 12, color: C.text2 }}>%</span>
                     </div>
                   </div>
                   <div>
                     <label style={labelSty}>Take Profit %</label>
                     <div style={{ position: 'relative' }}>
                       <input style={{ ...inSty, paddingRight: 28 }} type="number" min={0.1} step={0.1} placeholder="4.0" value={tpPct} onChange={e => setTpPct(e.target.value)}/>
-                      <span style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', fontSize: 11, color: C.text2 }}>%</span>
+                      <span style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', fontSize: 12, color: C.text2 }}>%</span>
                     </div>
                   </div>
                   <div>
@@ -862,14 +862,14 @@ function CreateBotModal({ onClose, onCreate }: { onClose: () => void; onCreate: 
                   <input type="checkbox" checked={useNews} onChange={e => setUseNews(e.target.checked)} style={{ marginTop: 2, width: 14, height: 14, flexShrink: 0, cursor: 'pointer' }}/>
                   <div>
                     <p style={{ fontSize: 12, fontWeight: 700, color: useNews ? C.blue : C.text2, margin: '0 0 2px' }}>News Event Filter</p>
-                    <p style={{ fontSize: 10, color: C.text3, margin: 0, lineHeight: 1.4 }}>Reads the causal price impact of news on {symbol}: vetoes trades that fight a confident opposing read and boosts trades the news agrees with. Refreshed every 15 min.</p>
+                    <p style={{ fontSize: 10.5, color: C.text3, margin: 0, lineHeight: 1.4 }}>Reads the causal price impact of news on {symbol}: vetoes trades that fight a confident opposing read and boosts trades the news agrees with. Refreshed every 15 min.</p>
                   </div>
                 </label>
 
                 {useNews && (
                   <div style={{ padding: '10px 12px', borderRadius: 10, background: C.bg, border: `1px solid ${C.border}` }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-                      <label style={{ fontSize: 10, fontWeight: 700, color: C.text2, textTransform: 'uppercase', letterSpacing: '0.07em' }}>News Confidence Threshold</label>
+                      <label style={{ fontSize: 10.5, fontWeight: 700, color: C.text2, textTransform: 'uppercase', letterSpacing: '0.07em' }}>News Confidence Threshold</label>
                       <span style={{ fontSize: 12, fontWeight: 800, fontFamily: 'monospace', color: C.blue }}>{newsConf}%</span>
                     </div>
                     <input
@@ -877,14 +877,14 @@ function CreateBotModal({ onClose, onCreate }: { onClose: () => void; onCreate: 
                       onChange={e => setNewsConf(+e.target.value)}
                       style={{ width: '100%', accentColor: C.blue, cursor: 'pointer' }}
                     />
-                    <p style={{ fontSize: 10, color: C.text3, margin: '6px 0 0', lineHeight: 1.4 }}>
+                    <p style={{ fontSize: 10.5, color: C.text3, margin: '6px 0 0', lineHeight: 1.4 }}>
                       Only act on news at or above this confidence. Lower = react to more news (more sensitive); higher = only strong, clear events.
                     </p>
                   </div>
                 )}
                 {(slPct || tpPct || maxDL || maxDT || confirmB > 1 || useNews) && (
                   <div style={{ padding: '10px 12px', borderRadius: 10, background: `${C.blue}08`, border: `1px solid ${C.blue}18` }}>
-                    <p style={{ fontSize: 10, fontWeight: 800, color: C.blue, margin: '0 0 6px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Active guards</p>
+                    <p style={{ fontSize: 10.5, fontWeight: 800, color: C.blue, margin: '0 0 6px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Active guards</p>
                     {([
                       slPct        && { dot: C.red,   node: <>SL at <b style={{ color: C.text1 }}>{slPct}%</b> below entry (ATR-adjusted)</> },
                       tpPct        && { dot: C.green, node: <>TP at <b style={{ color: C.text1 }}>{tpPct}%</b> above entry (ATR-adjusted)</> },
@@ -893,7 +893,7 @@ function CreateBotModal({ onClose, onCreate }: { onClose: () => void; onCreate: 
                       confirmB > 1 && { dot: C.violet, node: <>Require <b style={{ color: C.text1 }}>{confirmB}</b> consecutive signals</> },
                       useNews      && { dot: C.blue,  node: <>News event filter — veto &amp; boost at <b style={{ color: C.text1 }}>{newsConf}%</b> confidence</> },
                     ].filter(Boolean) as { dot: string; node: React.ReactNode }[]).map((g, i) => (
-                      <p key={i} style={{ fontSize: 11, color: C.text2, margin: '0 0 3px', display: 'flex', alignItems: 'center', gap: 7 }}>
+                      <p key={i} style={{ fontSize: 12, color: C.text2, margin: '0 0 3px', display: 'flex', alignItems: 'center', gap: 7 }}>
                         <span style={{ width: 6, height: 6, borderRadius: 99, background: g.dot, flexShrink: 0 }}/>
                         <span>{g.node}</span>
                       </p>
@@ -909,7 +909,7 @@ function CreateBotModal({ onClose, onCreate }: { onClose: () => void; onCreate: 
             {err && (
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', borderRadius: 8, background: 'rgba(255,90,114,0.08)', border: '1px solid rgba(255,90,114,0.2)', marginBottom: 10 }}>
                 <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke={C.red} strokeWidth={2}><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                <p style={{ fontSize: 11, color: '#fca5a5', margin: 0 }}>{err}</p>
+                <p style={{ fontSize: 12, color: '#fca5a5', margin: 0 }}>{err}</p>
               </div>
             )}
             <div style={{ display: 'flex', gap: 8 }}>
@@ -1021,10 +1021,10 @@ export default function BotsPage() {
       <div style={{ padding: '14px 14px 10px', borderBottom: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
         <div>
           <p style={{ fontSize: 13, fontWeight: 800, color: C.text1, margin: 0 }}>My Bots</p>
-          <p style={{ fontSize: 10, color: C.text3, margin: '2px 0 0' }}>{bots.length} deployed · {activeCount} active</p>
+          <p style={{ fontSize: 10.5, color: C.text3, margin: '2px 0 0' }}>{bots.length} deployed · {activeCount} active</p>
         </div>
         <button onClick={() => setShowModal(true)} style={{
-          display: 'flex', alignItems: 'center', gap: 5, padding: '7px 13px', borderRadius: 10, fontSize: 11, fontWeight: 800, cursor: 'pointer',
+          display: 'flex', alignItems: 'center', gap: 5, padding: '7px 13px', borderRadius: 10, fontSize: 12, fontWeight: 800, cursor: 'pointer',
           background: 'linear-gradient(120deg, #f9d98c 0%, #f2b84b 45%, #dd9c2f 100%)', border: 'none', color: '#221503', letterSpacing: '-0.01em',
           boxShadow: '0 4px 14px rgba(242,184,75,0.26), inset 0 1px 0 rgba(255,255,255,0.35)',
         }}>
@@ -1046,8 +1046,8 @@ export default function BotsPage() {
               <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke={C.blue} strokeWidth={1.5}><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
             </div>
             <p style={{ fontSize: 13, fontWeight: 700, color: C.text1, margin: '0 0 4px' }}>No bots deployed</p>
-            <p style={{ fontSize: 11, color: C.text3, margin: '0 0 14px' }}>Deploy your first automated strategy</p>
-            <button onClick={() => setShowModal(true)} style={{ padding: '9px 20px', borderRadius: 10, fontSize: 11.5, fontWeight: 800, cursor: 'pointer', background: 'linear-gradient(120deg, #f9d98c 0%, #f2b84b 45%, #dd9c2f 100%)', border: 'none', color: '#221503', letterSpacing: '-0.01em', boxShadow: '0 5px 18px rgba(242,184,75,0.28), inset 0 1px 0 rgba(255,255,255,0.35)' }}>
+            <p style={{ fontSize: 12, color: C.text3, margin: '0 0 14px' }}>Deploy your first automated strategy</p>
+            <button onClick={() => setShowModal(true)} style={{ padding: '9px 20px', borderRadius: 10, fontSize: 12, fontWeight: 800, cursor: 'pointer', background: 'linear-gradient(120deg, #f9d98c 0%, #f2b84b 45%, #dd9c2f 100%)', border: 'none', color: '#221503', letterSpacing: '-0.01em', boxShadow: '0 5px 18px rgba(242,184,75,0.28), inset 0 1px 0 rgba(255,255,255,0.35)' }}>
               Deploy your first bot
             </button>
           </div>
@@ -1073,7 +1073,7 @@ export default function BotsPage() {
       }}>
         {/* Mobile back — hidden on desktop */}
         <button onClick={() => setMobileView('list')} className="bots-back-btn"
-                style={{ alignItems: 'center', gap: 5, marginBottom: 10, fontSize: 11, fontWeight: 700, color: C.blue, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+                style={{ alignItems: 'center', gap: 5, marginBottom: 10, fontSize: 12, fontWeight: 700, color: C.blue, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
           <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
           All bots
         </button>
@@ -1087,7 +1087,7 @@ export default function BotsPage() {
                 <StatusBadge status={selected.status}/>
                 <span style={{
                   display: 'inline-flex', alignItems: 'center', gap: 5,
-                  fontSize: 9, fontWeight: 800, padding: '2px 7px', borderRadius: 5, letterSpacing: '0.06em',
+                  fontSize: 10.5, fontWeight: 800, padding: '2px 7px', borderRadius: 5, letterSpacing: '0.06em',
                   background: selected.mode === 'real' ? `${C.red}1f` : `${C.blue}10`,
                   color: selected.mode === 'real' ? C.red : C.blue,
                   border: `1px solid ${selected.mode === 'real' ? C.red + '33' : C.blue + '25'}`,
@@ -1097,19 +1097,19 @@ export default function BotsPage() {
                 </span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                <span style={{ fontSize: 11, color: C.text2 }}>{selected.symbol}</span>
+                <span style={{ fontSize: 12, color: C.text2 }}>{selected.symbol}</span>
                 <span style={{ width: 3, height: 3, borderRadius: '50%', background: C.text3 }}/>
-                <span style={{ fontSize: 11, fontWeight: 700, color: STRAT[selected.strategy].color }}>{STRAT[selected.strategy].label}</span>
+                <span style={{ fontSize: 12, fontWeight: 700, color: STRAT[selected.strategy].color }}>{STRAT[selected.strategy].label}</span>
                 {selected.status === 'running' && selected.startedAt && (
                   <>
                     <span style={{ width: 3, height: 3, borderRadius: '50%', background: C.text3 }}/>
-                    <span style={{ fontSize: 10, fontWeight: 700, color: C.green }}>● {relTime(selected.startedAt)} live</span>
+                    <span style={{ fontSize: 10.5, fontWeight: 700, color: C.green }}>● {relTime(selected.startedAt)} live</span>
                   </>
                 )}
                 {selected.startedAt && selected.status !== 'running' && (
                   <>
                     <span style={{ width: 3, height: 3, borderRadius: '50%', background: C.text3 }}/>
-                    <span style={{ fontSize: 10, color: C.text3 }}>Started {fmtDate(selected.startedAt)}</span>
+                    <span style={{ fontSize: 10.5, color: C.text3 }}>Started {fmtDate(selected.startedAt)}</span>
                   </>
                 )}
               </div>
@@ -1120,7 +1120,7 @@ export default function BotsPage() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
             {canStart ? (
               <button onClick={() => handleStart(selected)} disabled={!!actionId} style={{
-                display: 'flex', alignItems: 'center', gap: 5, padding: '7px 12px', borderRadius: 9, fontSize: 11, fontWeight: 700, cursor: actionId ? 'not-allowed' : 'pointer',
+                display: 'flex', alignItems: 'center', gap: 5, padding: '7px 12px', borderRadius: 9, fontSize: 12, fontWeight: 700, cursor: actionId ? 'not-allowed' : 'pointer',
                 background: 'rgba(24,201,138,0.1)', border: '1px solid rgba(24,201,138,0.28)', color: C.green,
               }}>
                 <svg width="11" height="11" fill="currentColor" viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
@@ -1128,7 +1128,7 @@ export default function BotsPage() {
               </button>
             ) : (
               <button onClick={() => handleStop(selected)} disabled={!!actionId} style={{
-                display: 'flex', alignItems: 'center', gap: 5, padding: '7px 12px', borderRadius: 9, fontSize: 11, fontWeight: 700, cursor: actionId ? 'not-allowed' : 'pointer',
+                display: 'flex', alignItems: 'center', gap: 5, padding: '7px 12px', borderRadius: 9, fontSize: 12, fontWeight: 700, cursor: actionId ? 'not-allowed' : 'pointer',
                 background: 'rgba(246,178,74,0.1)', border: '1px solid rgba(246,178,74,0.28)', color: C.amber,
               }}>
                 <svg width="11" height="11" fill="currentColor" viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
@@ -1136,7 +1136,7 @@ export default function BotsPage() {
               </button>
             )}
             <button onClick={() => handleDelete(selected)} disabled={!!actionId} style={{
-              display: 'flex', alignItems: 'center', gap: 5, padding: '7px 12px', borderRadius: 9, fontSize: 11, fontWeight: 700, cursor: actionId ? 'not-allowed' : 'pointer',
+              display: 'flex', alignItems: 'center', gap: 5, padding: '7px 12px', borderRadius: 9, fontSize: 12, fontWeight: 700, cursor: actionId ? 'not-allowed' : 'pointer',
               background: 'rgba(255,90,114,0.08)', border: '1px solid rgba(255,90,114,0.2)', color: C.red,
             }}>
               <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
@@ -1154,9 +1154,9 @@ export default function BotsPage() {
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '7px 18px', borderBottom: `1px solid ${C.border}`, background: C.surface, flexShrink: 0 }}>
             <span style={{ width: 7, height: 7, borderRadius: '50%', flexShrink: 0, background: c, boxShadow: live ? `0 0 6px ${c}` : 'none', animation: live ? 'pulse 1.8s ease-in-out infinite' : 'none' }}/>
-            <span style={{ fontSize: 9, fontWeight: 800, color: c, letterSpacing: '0.05em', flexShrink: 0 }}>{LOG_CFG[last.level]?.label ?? 'INFO'}</span>
-            <span style={{ fontSize: 11, color: C.text2, fontFamily: 'monospace', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', flex: 1 }}>{last.message}</span>
-            <span style={{ fontSize: 9, color: C.text3, fontFamily: 'monospace', flexShrink: 0 }}>{relTime(last.ts)} ago</span>
+            <span style={{ fontSize: 10.5, fontWeight: 800, color: c, letterSpacing: '0.05em', flexShrink: 0 }}>{LOG_CFG[last.level]?.label ?? 'INFO'}</span>
+            <span style={{ fontSize: 12, color: C.text2, fontFamily: 'monospace', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', flex: 1 }}>{last.message}</span>
+            <span style={{ fontSize: 10.5, color: C.text3, fontFamily: 'monospace', flexShrink: 0 }}>{relTime(last.ts)} ago</span>
           </div>
         )
       })()}
@@ -1164,7 +1164,7 @@ export default function BotsPage() {
       {/* Warmup bar */}
       {selected.status === 'warming_up' && (
         <div style={{ padding: '8px 18px', borderBottom: `1px solid ${C.border}`, background: `${C.blue}06`, flexShrink: 0 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: C.blue, marginBottom: 4 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10.5, color: C.blue, marginBottom: 4 }}>
             <span>Collecting price bars for indicator warmup…</span>
             <span style={{ fontFamily: 'monospace', fontWeight: 700 }}>{selected.warmupBarsCurrent}/{selected.warmupBarsNeeded}</span>
           </div>
@@ -1188,17 +1188,17 @@ export default function BotsPage() {
                 {selected.position === 'long' ? '▲ LONG' : '▼ SHORT'}
               </span>
               {selected.currentQty != null && (
-                <span style={{ fontSize: 10, color: C.text2, fontFamily: 'monospace' }}>{selected.currentQty} units</span>
+                <span style={{ fontSize: 10.5, color: C.text2, fontFamily: 'monospace' }}>{selected.currentQty} units</span>
               )}
             </div>
             {selected.currentPnl != null && (
               <div style={{ marginLeft: 'auto', textAlign: 'right' }}>
-                <span style={{ fontSize: 8, color: C.text3, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginRight: 6 }}>Unrealised</span>
+                <span style={{ fontSize: 10.5, color: C.text3, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginRight: 6 }}>Unrealised</span>
                 <span style={{ fontSize: 16, fontWeight: 800, fontFamily: 'monospace', color: selected.currentPnl >= 0 ? C.green : C.red }}>
                   {fmtPnl(selected.currentPnl)}
                 </span>
                 {selected.currentPnlPct != null && (
-                  <span style={{ fontSize: 10, fontWeight: 700, marginLeft: 6, color: selected.currentPnl >= 0 ? C.green : C.red }}>
+                  <span style={{ fontSize: 10.5, fontWeight: 700, marginLeft: 6, color: selected.currentPnl >= 0 ? C.green : C.red }}>
                     {selected.currentPnlPct >= 0 ? '+' : ''}{selected.currentPnlPct.toFixed(2)}%
                   </span>
                 )}
@@ -1213,7 +1213,7 @@ export default function BotsPage() {
               selected.currentTP         != null && { l: 'Target',  v: selected.currentTP,         c: C.amber },
             ].filter(Boolean) as { l: string; v: number; c: string }[]).map(f => (
               <div key={f.l}>
-                <p style={{ fontSize: 8, color: C.text3, margin: '0 0 1px', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 700 }}>{f.l}</p>
+                <p style={{ fontSize: 10.5, color: C.text3, margin: '0 0 1px', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 700 }}>{f.l}</p>
                 <span style={{ fontSize: 12, fontWeight: 700, fontFamily: 'monospace', color: f.c }}>{f.v.toFixed(4)}</span>
               </div>
             ))}
@@ -1235,13 +1235,13 @@ export default function BotsPage() {
       <div style={{ padding: '12px 18px 10px', borderBottom: `1px solid ${C.border}`, flexShrink: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span style={{ fontSize: 10, fontWeight: 700, color: C.text2, textTransform: 'uppercase', letterSpacing: '0.07em' }}>Equity Curve</span>
+            <span style={{ fontSize: 10.5, fontWeight: 700, color: C.text2, textTransform: 'uppercase', letterSpacing: '0.07em' }}>Equity Curve</span>
             <span style={{ fontSize: 12, fontFamily: 'monospace', fontWeight: 800, color: selected.pnl >= 0 ? C.green : C.red }}>{fmtPnl(selected.pnl)}</span>
           </div>
           <div style={{ display: 'flex', gap: 6 }}>
-            {selected.params.stopLossPercent && <span style={{ fontSize: 10, padding: '2px 7px', borderRadius: 20, background: 'rgba(255,90,114,0.08)', color: C.red, border: '1px solid rgba(255,90,114,0.18)' }}>SL {selected.params.stopLossPercent}% (ATR-adj)</span>}
-            {selected.params.takeProfitPercent && <span style={{ fontSize: 10, padding: '2px 7px', borderRadius: 20, background: 'rgba(246,178,74,0.08)', color: C.amber, border: '1px solid rgba(246,178,74,0.18)' }}>TP {selected.params.takeProfitPercent}% (ATR-adj)</span>}
-            {selected.params.tradeSize && <span style={{ fontSize: 10, padding: '2px 7px', borderRadius: 20, background: C.surface2, color: C.text2, border: `1px solid ${C.border}` }}>Size {selected.params.tradeSize}</span>}
+            {selected.params.stopLossPercent && <span style={{ fontSize: 10.5, padding: '2px 7px', borderRadius: 20, background: 'rgba(255,90,114,0.08)', color: C.red, border: '1px solid rgba(255,90,114,0.18)' }}>SL {selected.params.stopLossPercent}% (ATR-adj)</span>}
+            {selected.params.takeProfitPercent && <span style={{ fontSize: 10.5, padding: '2px 7px', borderRadius: 20, background: 'rgba(246,178,74,0.08)', color: C.amber, border: '1px solid rgba(246,178,74,0.18)' }}>TP {selected.params.takeProfitPercent}% (ATR-adj)</span>}
+            {selected.params.tradeSize && <span style={{ fontSize: 10.5, padding: '2px 7px', borderRadius: 20, background: C.surface2, color: C.text2, border: `1px solid ${C.border}` }}>Size {selected.params.tradeSize}</span>}
           </div>
         </div>
         <div style={{ borderRadius: 10, overflow: 'hidden', background: C.surface, border: `1px solid ${C.border}` }}>
@@ -1253,7 +1253,7 @@ export default function BotsPage() {
       <div style={{ padding: '8px 18px', borderBottom: `1px solid ${C.border}`, flexShrink: 0 }}>
         <button onClick={() => setShowNews(n => !n)} style={{
           display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%',
-          fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: C.text2, background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+          fontSize: 10.5, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: C.text2, background: 'none', border: 'none', cursor: 'pointer', padding: 0,
         }}>
           <span>News Sentiment · {selected.symbol}</span>
           <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5} style={{ transform: showNews ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>
@@ -1267,15 +1267,15 @@ export default function BotsPage() {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 18px', borderBottom: `1px solid ${C.border}`, flexShrink: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span style={{ fontSize: 10, fontWeight: 700, color: C.text2, textTransform: 'uppercase', letterSpacing: '0.07em' }}>Activity Log</span>
-            <span style={{ fontSize: 9, fontFamily: 'monospace', padding: '1px 6px', borderRadius: 4, background: C.surface, color: C.text3, border: `1px solid ${C.border}` }}>
+            <span style={{ fontSize: 10.5, fontWeight: 700, color: C.text2, textTransform: 'uppercase', letterSpacing: '0.07em' }}>Activity Log</span>
+            <span style={{ fontSize: 10.5, fontFamily: 'monospace', padding: '1px 6px', borderRadius: 4, background: C.surface, color: C.text3, border: `1px solid ${C.border}` }}>
               {filteredLogs.length}
             </span>
           </div>
           <div style={{ display: 'flex', gap: 4 }}>
             {['all', 'trade', 'signal', 'risk', 'error'].map(lvl => (
               <button key={lvl} onClick={() => setLogFilter(lvl)} style={{
-                padding: '2px 8px', borderRadius: 6, fontSize: 9, fontWeight: 700, cursor: 'pointer', textTransform: 'capitalize', transition: 'all 0.12s',
+                padding: '2px 8px', borderRadius: 6, fontSize: 10.5, fontWeight: 700, cursor: 'pointer', textTransform: 'capitalize', transition: 'all 0.12s',
                 background: logFilter === lvl ? `${C.blue}15` : 'transparent',
                 color: logFilter === lvl ? C.blue : C.text3,
                 border: `1px solid ${logFilter === lvl ? C.blue + '35' : 'transparent'}`,
@@ -1287,7 +1287,7 @@ export default function BotsPage() {
           {filteredLogs.length === 0 && (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', gap: 8, color: C.text3 }}>
               <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.3}><path d="M8 9h8M8 13h6M20 21H4a2 2 0 01-2-2V5a2 2 0 012-2h16a2 2 0 012 2v14a2 2 0 01-2 2z"/></svg>
-              <p style={{ fontSize: 11, margin: 0 }}>No log entries yet</p>
+              <p style={{ fontSize: 12, margin: 0 }}>No log entries yet</p>
             </div>
           )}
           {[...filteredLogs].reverse().map((log, i) => <LogLine key={i} log={log}/>)}
@@ -1300,7 +1300,7 @@ export default function BotsPage() {
         <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke={C.blue} strokeWidth={1.4} style={{ opacity: 0.5 }}><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
       </div>
       <p style={{ fontSize: 13, fontWeight: 700, color: C.text2, margin: 0 }}>Select a bot to inspect</p>
-      <p style={{ fontSize: 11, margin: 0 }}>Equity, logs &amp; controls</p>
+      <p style={{ fontSize: 12, margin: 0 }}>Equity, logs &amp; controls</p>
     </div>
   )
 
@@ -1379,8 +1379,8 @@ export default function BotsPage() {
             <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke={C.blue} strokeWidth={2}><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
           </div>
           <div>
-            <h1 style={{ fontSize: 15, fontWeight: 800, color: C.text1, margin: 0, lineHeight: 1.2 }}>TradePilot</h1>
-            <p style={{ fontSize: 10, color: C.text3, margin: 0 }}>MA · RSI · MACD · Momentum · ATR SL/TP · Long &amp; Short</p>
+            <h1 style={{ fontSize: 16, fontWeight: 800, color: C.text1, margin: 0, lineHeight: 1.2 }}>TradePilot</h1>
+            <p style={{ fontSize: 10.5, color: C.text3, margin: 0 }}>MA · RSI · MACD · Momentum · ATR SL/TP · Long &amp; Short</p>
           </div>
         </div>
 
@@ -1389,8 +1389,8 @@ export default function BotsPage() {
           <div className="bots-desk-pills" style={{ gap: 6 }}>
             {summaryItems.map(s => (
               <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '5px 10px', borderRadius: 8, background: C.surface2, border: `1px solid ${C.border}` }}>
-                <span style={{ fontSize: 10, color: C.text3 }}>{s.label}</span>
-                <span style={{ fontSize: 11, fontWeight: 800, fontFamily: 'monospace', color: s.color }}>{s.value}</span>
+                <span style={{ fontSize: 10.5, color: C.text3 }}>{s.label}</span>
+                <span style={{ fontSize: 12, fontWeight: 800, fontFamily: 'monospace', color: s.color }}>{s.value}</span>
               </div>
             ))}
           </div>
@@ -1408,7 +1408,7 @@ export default function BotsPage() {
       <div className="bots-mob-strip" style={{ borderBottom: `1px solid ${C.border}`, flexShrink: 0, background: C.surface }}>
         {summaryItems.map((s, i) => (
           <div key={s.label} style={{ flex: 1, padding: '8px 0', textAlign: 'center', borderRight: i < summaryItems.length - 1 ? `1px solid ${C.border}` : 'none' }}>
-            <p style={{ fontSize: 9, color: C.text3, margin: '0 0 2px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{s.label}</p>
+            <p style={{ fontSize: 10.5, color: C.text3, margin: '0 0 2px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{s.label}</p>
             <p style={{ fontSize: 12, fontWeight: 800, fontFamily: 'monospace', color: s.color, margin: 0 }}>{s.value}</p>
           </div>
         ))}

@@ -76,7 +76,7 @@ export default function PricingPlanPage() {
             }}
           >
             {plan.popular && (
-              <div className="absolute top-3 right-3 text-2xs font-bold px-2 py-0.5 rounded-full" style={{ background: plan.color + '20', color: plan.color, fontSize: '10px' }}>
+              <div className="absolute top-3 right-3 text-2xs font-bold px-2 py-0.5 rounded-full" style={{ background: plan.color + '20', color: plan.color, fontSize: '10.5px' }}>
                 POPULAR
               </div>
             )}

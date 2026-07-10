@@ -184,14 +184,14 @@ export default function LeaderboardPage() {
             <table className="w-full text-xs">
               <thead>
                 <tr style={{ borderBottom: '1px solid rgba(var(--ink),0.05)', background: 'rgba(var(--ink),0.02)' }}>
-                  <th className="py-3 px-4 text-left text-[10px] font-semibold uppercase tracking-wider text-text-muted w-12">#</th>
-                  <th className="py-3 px-4 text-left text-[10px] font-semibold uppercase tracking-wider text-text-muted">Trader</th>
-                  <th className="py-3 px-4 text-right text-[10px] font-semibold uppercase tracking-wider text-text-muted">Return</th>
-                  <th className="py-3 px-4 text-right text-[10px] font-semibold uppercase tracking-wider text-text-muted">Net P&L</th>
-                  <th className="py-3 px-4 text-right text-[10px] font-semibold uppercase tracking-wider text-text-muted">Win Rate</th>
-                  <th className="py-3 px-4 text-right text-[10px] font-semibold uppercase tracking-wider text-text-muted">Sharpe</th>
-                  <th className="py-3 px-4 text-right text-[10px] font-semibold uppercase tracking-wider text-text-muted">Trades</th>
-                  <th className="py-3 px-4 text-right text-[10px] font-semibold uppercase tracking-wider text-text-muted">Streak</th>
+                  <th className="py-3 px-4 text-left text-[10.5px] font-semibold uppercase tracking-wider text-text-muted w-12">#</th>
+                  <th className="py-3 px-4 text-left text-[10.5px] font-semibold uppercase tracking-wider text-text-muted">Trader</th>
+                  <th className="py-3 px-4 text-right text-[10.5px] font-semibold uppercase tracking-wider text-text-muted">Return</th>
+                  <th className="py-3 px-4 text-right text-[10.5px] font-semibold uppercase tracking-wider text-text-muted">Net P&L</th>
+                  <th className="py-3 px-4 text-right text-[10.5px] font-semibold uppercase tracking-wider text-text-muted">Win Rate</th>
+                  <th className="py-3 px-4 text-right text-[10.5px] font-semibold uppercase tracking-wider text-text-muted">Sharpe</th>
+                  <th className="py-3 px-4 text-right text-[10.5px] font-semibold uppercase tracking-wider text-text-muted">Trades</th>
+                  <th className="py-3 px-4 text-right text-[10.5px] font-semibold uppercase tracking-wider text-text-muted">Streak</th>
                 </tr>
               </thead>
               <tbody>
@@ -217,9 +217,9 @@ export default function LeaderboardPage() {
                         <div>
                           <div className="font-semibold text-text-primary text-sm flex items-center gap-2">
                             {entry.username}
-                            {isMe && <span className="text-[9px] font-bold px-1.5 py-0.5 rounded" style={{ background: 'var(--t-accent-s)', color: 'var(--t-accent)' }}>YOU</span>}
+                            {isMe && <span className="text-[10.5px] font-bold px-1.5 py-0.5 rounded" style={{ background: 'var(--t-accent-s)', color: 'var(--t-accent)' }}>YOU</span>}
                           </div>
-                          <div className="text-text-muted text-[11px] font-mono">Equity ${entry.equity.toLocaleString()}</div>
+                          <div className="text-text-muted text-[12px] font-mono">Equity ${entry.equity.toLocaleString()}</div>
                         </div>
                       </div>
                     </td>
@@ -256,7 +256,7 @@ export default function LeaderboardPage() {
                     {/* Streak */}
                     <td className="px-4 py-3.5 text-right">
                       {entry.streak > 0 && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold"
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10.5px] font-bold"
                               style={{ background: 'var(--t-bull-s)', color: 'var(--t-bull)' }}>
                           <StreakFlame /> {entry.streak}W
                         </span>

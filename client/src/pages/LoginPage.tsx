@@ -48,11 +48,11 @@ export default function LoginPage() {
 
   const inputStyle: React.CSSProperties = {
     width: '100%', padding: '12px 14px', border: '1px solid var(--t-border)',
-    borderRadius: 10, fontSize: 14.5, color: 'var(--t-text-1)', background: 'var(--t-surface-2)',
+    borderRadius: 10, fontSize: 14, color: 'var(--t-text-1)', background: 'var(--t-surface-2)',
     outline: 'none', boxSizing: 'border-box', transition: 'border-color 0.15s, box-shadow 0.15s',
   }
   const labelStyle: React.CSSProperties = {
-    display: 'block', fontSize: 12.5, fontWeight: 600, color: 'var(--t-text-2)', marginBottom: 7,
+    display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--t-text-2)', marginBottom: 7,
   }
 
   return (
@@ -69,7 +69,7 @@ export default function LoginPage() {
         {/* Brand */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14, marginBottom: 28 }}>
           <BrandLogo size={44} tagline={false} />
-          <p style={{ fontSize: 11.5, color: 'var(--t-text-3)', margin: 0, letterSpacing: '0.16em', textTransform: 'uppercase', fontWeight: 700 }}>
+          <p style={{ fontSize: 12, color: 'var(--t-text-3)', margin: 0, letterSpacing: '0.16em', textTransform: 'uppercase', fontWeight: 700 }}>
             Engineered to win · <span style={{ color: '#f6c453' }}>Driven by you</span>
           </p>
         </div>
@@ -80,7 +80,7 @@ export default function LoginPage() {
           background: 'var(--t-surface)', border: '1px solid var(--t-border)',
           borderRadius: 18, padding: '32px 30px 28px', boxShadow: 'var(--t-shadow-md)',
         }}>
-          <h1 style={{ fontSize: 17, fontWeight: 800, color: 'var(--t-text-1)', margin: '0 0 22px', letterSpacing: '-0.01em' }}>
+          <h1 style={{ fontSize: 18, fontWeight: 800, color: 'var(--t-text-1)', margin: '0 0 22px', letterSpacing: '-0.01em' }}>
             {mode === 'login' ? 'Sign in' : 'Create your account'}
           </h1>
 
@@ -111,11 +111,11 @@ export default function LoginPage() {
             {/* Account defaults summary — one glance, one optional decision */}
             {mode === 'register' && !customizeAccount && (
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '11px 14px', borderRadius: 10, background: 'var(--t-surface-2)', border: '1px solid var(--t-border)' }}>
-                <span style={{ fontSize: 12.5, color: 'var(--t-text-2)' }}>
+                <span style={{ fontSize: 13, color: 'var(--t-text-2)' }}>
                   Raw Spread plan · USD account
                 </span>
                 <button type="button" onClick={() => setCustomizeAccount(true)}
-                  style={{ background: 'none', border: 'none', color: ACCENT, fontSize: 12.5, fontWeight: 600, cursor: 'pointer', padding: 0, flexShrink: 0 }}>
+                  style={{ background: 'none', border: 'none', color: ACCENT, fontSize: 13, fontWeight: 600, cursor: 'pointer', padding: 0, flexShrink: 0 }}>
                   Change
                 </button>
               </div>
@@ -139,8 +139,8 @@ export default function LoginPage() {
                           border: `1px solid ${on ? 'rgba(79,140,255,0.5)' : 'var(--t-border)'}`,
                           background: on ? 'var(--t-accent-s)' : 'var(--t-surface-2)',
                         }}>
-                        <div style={{ fontSize: 11.5, fontWeight: 700, color: on ? ACCENT : 'var(--t-text-2)' }}>{a.label}</div>
-                        <div style={{ fontSize: 10, color: 'var(--t-text-3)', marginTop: 2 }}>{a.sub}</div>
+                        <div style={{ fontSize: 12, fontWeight: 700, color: on ? ACCENT : 'var(--t-text-2)' }}>{a.label}</div>
+                        <div style={{ fontSize: 10.5, color: 'var(--t-text-3)', marginTop: 2 }}>{a.sub}</div>
                       </button>
                     )
                   })}
@@ -195,7 +195,7 @@ export default function LoginPage() {
 
             {/* Error */}
             {err && (
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, padding: '10px 13px', background: 'var(--t-bear-s)', border: '1px solid rgba(255,90,114,0.3)', borderRadius: 10, fontSize: 12.5, color: 'var(--t-bear)' }}>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, padding: '10px 13px', background: 'var(--t-bear-s)', border: '1px solid rgba(255,90,114,0.3)', borderRadius: 10, fontSize: 13, color: 'var(--t-bear)' }}>
                 <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} style={{ flexShrink: 0, marginTop: 1 }}><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                 <span>{err}</span>
               </div>
@@ -209,7 +209,7 @@ export default function LoginPage() {
                   ? 'rgba(242,184,75,0.35)'
                   : 'linear-gradient(120deg, #f9d98c 0%, #f2b84b 45%, #dd9c2f 100%)',
                 color: '#221503', border: 'none', borderRadius: 11,
-                fontSize: 14.5, fontWeight: 800, letterSpacing: '-0.01em',
+                fontSize: 14, fontWeight: 800, letterSpacing: '-0.01em',
                 cursor: loading ? 'not-allowed' : 'pointer',
                 boxShadow: loading ? 'none' : '0 6px 24px rgba(242,184,75,0.3), inset 0 1px 0 rgba(255,255,255,0.35)',
               }}>
@@ -238,7 +238,7 @@ export default function LoginPage() {
 
       {/* ── Risk warning ── */}
       <div style={{ padding: '14px 24px', borderTop: '1px solid var(--t-border)' }}>
-        <p style={{ fontSize: 11, color: 'var(--t-text-3)', lineHeight: 1.65, margin: '0 auto', maxWidth: 640, textAlign: 'center' }}>
+        <p style={{ fontSize: 12, color: 'var(--t-text-3)', lineHeight: 1.65, margin: '0 auto', maxWidth: 640, textAlign: 'center' }}>
           <strong style={{ color: 'var(--t-text-2)' }}>Risk warning:</strong>{' '}
           Trading derivatives carries a high risk of losing capital — only trade with money you can afford to lose.
           Derivatives may not be suitable for all investors; make sure you fully understand the risks involved.

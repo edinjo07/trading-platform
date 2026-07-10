@@ -97,7 +97,7 @@ function MemBar({ used, total, color }: { used: number; total: number; color: st
       <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.05)' }}>
         <div className="h-full rounded-full" style={{ width: `${pct}%`, background: color }} />
       </div>
-      <div className="flex justify-between font-mono" style={{ fontSize: '10px', color: 'rgba(174,166,186,0.6)' }}>
+      <div className="flex justify-between font-mono" style={{ fontSize: '10.5px', color: 'rgba(174,166,186,0.6)' }}>
         <span>{formatBytes(used)}</span><span>{formatBytes(total)}</span>
       </div>
     </div>
@@ -120,7 +120,7 @@ function QuickAction({ label, sub, icon, accent, onClick }: {
         </div>
         <div className="min-w-0">
           <p className="text-xs font-semibold text-text-primary truncate">{label}</p>
-          <p className="text-text-secondary truncate" style={{ fontSize: '10px' }}>{sub}</p>
+          <p className="text-text-secondary truncate" style={{ fontSize: '10.5px' }}>{sub}</p>
         </div>
       </div>
     </button>
@@ -177,18 +177,18 @@ function TradeEngagement() {
           })}
         </svg>
         {/* X-axis labels */}
-        <div className="flex justify-between" style={{ fontSize: '9px', color: '#4a6478' }}>
+        <div className="flex justify-between" style={{ fontSize: '10.5px', color: '#4a6478' }}>
           <span>30d ago</span><span>15d ago</span><span>Today</span>
         </div>
         {/* Summary pills */}
         <div className="grid grid-cols-2 gap-2">
           <div className="rounded-lg p-3" style={{ background: 'rgba(24,201,138,0.07)', border: '1px solid rgba(24,201,138,0.13)' }}>
             <p className="text-sm font-bold font-mono text-bull">{profitable}</p>
-            <p className="text-text-secondary mt-0.5" style={{ fontSize: '10px' }}>Profitable Days</p>
+            <p className="text-text-secondary mt-0.5" style={{ fontSize: '10.5px' }}>Profitable Days</p>
           </div>
           <div className="rounded-lg p-3" style={{ background: 'rgba(255,90,114,0.07)', border: '1px solid rgba(255,90,114,0.13)' }}>
             <p className="text-sm font-bold font-mono text-bear">{30 - profitable}</p>
-            <p className="text-text-secondary mt-0.5" style={{ fontSize: '10px' }}>Loss Days</p>
+            <p className="text-text-secondary mt-0.5" style={{ fontSize: '10.5px' }}>Loss Days</p>
           </div>
         </div>
       </div>
@@ -342,7 +342,7 @@ export default function AdminDashboardPage() {
             />
           </div>
           {lastFetch && (
-            <span className="font-mono text-text-muted" style={{ fontSize: '10px' }}>
+            <span className="font-mono text-text-muted" style={{ fontSize: '10.5px' }}>
               Updated {lastFetch.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
             </span>
           )}
@@ -386,7 +386,7 @@ export default function AdminDashboardPage() {
 
       {/* Quick Actions */}
       <div>
-        <p className="text-text-muted font-semibold uppercase tracking-wider mb-3" style={{ fontSize: '10px' }}>Quick Actions</p>
+        <p className="text-text-muted font-semibold uppercase tracking-wider mb-3" style={{ fontSize: '10.5px' }}>Quick Actions</p>
         <div className="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-8 gap-3">
           {QUICK_ACTIONS.map(a => (
             <QuickAction key={a.label} label={a.label} sub={a.sub} icon={a.icon} accent={a.accent} onClick={() => navigate(a.to)} />
@@ -409,7 +409,7 @@ export default function AdminDashboardPage() {
               <thead>
                 <tr style={{ borderBottom: '1px solid rgba(56,189,248,0.06)' }}>
                   {['Trade ID', 'User', 'Symbol', 'Side', 'Lots', 'P&L', 'Status', 'Date'].map(h => (
-                    <th key={h} className="text-left px-4 py-2.5 font-medium whitespace-nowrap" style={{ color: 'var(--t-text-2)', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{h}</th>
+                    <th key={h} className="text-left px-4 py-2.5 font-medium whitespace-nowrap" style={{ color: 'var(--t-text-2)', fontSize: '10.5px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -498,7 +498,7 @@ export default function AdminDashboardPage() {
                   ].map(s => (
                     <div key={s.l} className="rounded-lg px-3 py-2" style={{ background: 'rgba(79,140,255,0.04)', border: '1px solid rgba(56,189,248,0.07)' }}>
                       <p className="font-mono font-semibold text-xs" style={{ color: s.c }}>{s.v}</p>
-                      <p className="text-text-muted mt-0.5" style={{ fontSize: '10px' }}>{s.l}</p>
+                      <p className="text-text-muted mt-0.5" style={{ fontSize: '10.5px' }}>{s.l}</p>
                     </div>
                   ))}
                 </div>

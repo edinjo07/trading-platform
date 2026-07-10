@@ -360,7 +360,7 @@ export default function TradingPilotPage() {
                       <div className="flex items-start justify-between gap-3">
                         <p className="text-xs leading-relaxed" style={{ color: 'rgba(255,255,255,0.7)' }}>{n.headline}</p>
                         <span className="text-2xs font-bold px-2 py-0.5 rounded-full shrink-0"
-                              style={{ background: `${n.color}18`, color: n.color, border: `1px solid ${n.color}30`, fontSize: 10 }}>
+                              style={{ background: `${n.color}18`, color: n.color, border: `1px solid ${n.color}30`, fontSize: 10.5 }}>
                           {n.sentiment}
                         </span>
                       </div>

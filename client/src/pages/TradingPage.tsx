@@ -11,7 +11,7 @@ import { ErrorBoundary } from '../components/ui/ErrorBoundary'
 type ChartView = 'candles' | 'depth'
 type RightTab = 'book' | 'trades'
 
-const CHART_BG = '#060a10'
+const CHART_BG = '#0f0d14'
 
 export default function TradingPage() {
   const {
@@ -34,7 +34,7 @@ export default function TradingPage() {
       <div className="h-[58vh] shrink-0 lg:h-auto lg:flex-1 lg:min-w-0 flex flex-col overflow-hidden">
         {/* Sub-header: symbol + price strip */}
         <div className="flex items-center gap-2 px-3 py-2 shrink-0"
-             style={{ background: '#080e1a', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+             style={{ background: '#16131d', borderBottom: '1px solid rgba(176,168,190,0.09)' }}>
           <div className="flex items-center gap-2 min-w-0 overflow-x-auto">
             <span className="font-mono font-bold text-text-primary text-sm shrink-0">{selectedSymbol}</span>
             {ticker && (
@@ -66,10 +66,10 @@ export default function TradingPage() {
                 <button
                   key={iv}
                   onClick={() => setChartInterval(iv)}
-                  className="px-2 py-1 rounded text-[11px] font-semibold transition-all"
+                  className="px-2 py-1 rounded text-[12px] font-semibold transition-all"
                   style={chartInterval === iv
                     ? { background: 'rgba(79,140,255,0.18)', color: '#7aa7ff' }
-                    : { color: 'rgba(255,255,255,0.35)' }
+                    : { color: 'var(--t-text-3)' }
                   }
                 >
                   {iv.toUpperCase()}
@@ -79,7 +79,7 @@ export default function TradingPage() {
           )}
 
           {/* Chart / Depth toggle */}
-          <div className="ml-auto shrink-0 flex gap-px p-0.5 rounded-lg" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
+          <div className="ml-auto shrink-0 flex gap-px p-0.5 rounded-lg" style={{ background: 'rgba(176,168,190,0.07)', border: '1px solid rgba(176,168,190,0.10)' }}>
             {(['candles', 'depth'] as ChartView[]).map(v => (
               <button key={v} onClick={() => setChartView(v)}
                 className="px-2.5 py-1 rounded text-xs font-semibold transition-all inline-flex items-center gap-1.5"
@@ -111,14 +111,14 @@ export default function TradingPage() {
 
           {/* Right panel: Book + Trades — hidden on mobile */}
           <div className="hidden lg:flex w-[220px] shrink-0 flex-col overflow-hidden"
-               style={{ borderLeft: '1px solid rgba(255,255,255,0.05)', background: '#080e1a' }}>
-            <div className="flex shrink-0" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+               style={{ borderLeft: '1px solid rgba(176,168,190,0.09)', background: '#16131d' }}>
+            <div className="flex shrink-0" style={{ borderBottom: '1px solid rgba(176,168,190,0.09)' }}>
               {(['book', 'trades'] as RightTab[]).map(t => (
                 <button key={t} onClick={() => setRightTab(t)}
                   className="flex-1 py-2.5 text-xs font-semibold transition-all uppercase tracking-wide"
                   style={rightTab === t
                     ? { color: '#7aa7ff', borderBottom: '2px solid #4f8cff' }
-                    : { color: '#4b6070', borderBottom: '2px solid transparent' }
+                    : { color: 'var(--t-text-3)', borderBottom: '2px solid transparent' }
                   }>
                   {t === 'book' ? 'Order Book' : 'Trades'}
                 </button>
@@ -135,7 +135,7 @@ export default function TradingPage() {
 
       {/* ── Order form — full width below chart on mobile, fixed right on desktop ── */}
       <div className="flex-1 overflow-y-auto lg:flex-none lg:w-[300px] lg:overflow-hidden shrink-0 flex flex-col border-t lg:border-t-0 lg:border-l"
-           style={{ borderColor: 'rgba(255,255,255,0.05)', background: '#060a10' }}>
+           style={{ borderColor: 'rgba(176,168,190,0.09)', background: '#0f0d14' }}>
         <OrderForm />
       </div>
     </div>

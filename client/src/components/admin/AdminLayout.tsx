@@ -37,7 +37,7 @@ export default function AdminLayout() {
             {/* Live indicator */}
             <div className="flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-bull animate-pulse" />
-              <span className="text-2xs text-text-secondary font-mono" style={{ fontSize: '10px' }}>LIVE</span>
+              <span className="text-2xs text-text-secondary font-mono" style={{ fontSize: '10.5px' }}>LIVE</span>
             </div>
 
             {/* Back to App button */}

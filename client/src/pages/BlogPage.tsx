@@ -144,7 +144,7 @@ function NewsSection({ title, articles, onRead }: { title: string; articles: Mac
             {/* Category dot + label */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <div style={{ width: 6, height: 6, borderRadius: '50%', background: CAT_COLORS[art.category] ?? 'var(--t-text-3)', flexShrink: 0 }}/>
-              <span style={{ fontSize: 10, fontWeight: 700, color: CAT_COLORS[art.category] ?? 'var(--t-text-3)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              <span style={{ fontSize: 10.5, fontWeight: 700, color: CAT_COLORS[art.category] ?? 'var(--t-text-3)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                 {art.category.replace('-', ' ')}
               </span>
             </div>
@@ -155,9 +155,9 @@ function NewsSection({ title, articles, onRead }: { title: string; articles: Mac
             {/* Meta */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 'auto' }}>
               <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="#4b5563" strokeWidth={2}><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-              <span style={{ fontSize: 11, color: '#4b5563' }}>{timeAgo(art.publishedAt)}</span>
-              <span style={{ fontSize: 11, color: '#374151' }}>·</span>
-              <span style={{ fontSize: 11, color: '#4b5563' }}>{SOURCE_LABELS[art.source] ?? art.source}</span>
+              <span style={{ fontSize: 12, color: '#4b5563' }}>{timeAgo(art.publishedAt)}</span>
+              <span style={{ fontSize: 12, color: '#374151' }}>·</span>
+              <span style={{ fontSize: 12, color: '#4b5563' }}>{SOURCE_LABELS[art.source] ?? art.source}</span>
             </div>
           </button>
         ))}
@@ -197,21 +197,21 @@ function ArticleSheet({ article, onClose }: { article: MacroNews; onClose: () =>
           <div style={{ padding: '16px 16px 8px' }}>
             {/* Category + source */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-              <span style={{ fontSize: 10, fontWeight: 800, padding: '3px 8px', borderRadius: 6, background: `${catColor}18`, color: catColor, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+              <span style={{ fontSize: 10.5, fontWeight: 800, padding: '3px 8px', borderRadius: 6, background: `${catColor}18`, color: catColor, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                 {article.category.replace('-', ' ')}
               </span>
-              <span style={{ fontSize: 11, color: '#4b5563' }}>{SOURCE_LABELS[article.source] ?? article.source}</span>
-              <span style={{ fontSize: 11, color: '#374151' }}>·</span>
-              <span style={{ fontSize: 11, color: '#4b5563' }}>{timeAgo(article.publishedAt)}</span>
+              <span style={{ fontSize: 12, color: '#4b5563' }}>{SOURCE_LABELS[article.source] ?? article.source}</span>
+              <span style={{ fontSize: 12, color: '#374151' }}>·</span>
+              <span style={{ fontSize: 12, color: '#4b5563' }}>{timeAgo(article.publishedAt)}</span>
             </div>
 
             {/* Headline */}
-            <h2 style={{ fontSize: 20, fontWeight: 800, color: '#fff', margin: '0 0 14px', lineHeight: 1.35 }}>{article.title}</h2>
+            <h2 style={{ fontSize: 22, fontWeight: 800, color: '#fff', margin: '0 0 14px', lineHeight: 1.35 }}>{article.title}</h2>
 
             {/* Sentiment bar */}
             <div style={{ background: '#1a1a1a', borderRadius: 12, padding: '12px 14px', marginBottom: 16 }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                <span style={{ fontSize: 11, fontWeight: 700, color: '#4b5563', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Market Sentiment</span>
+                <span style={{ fontSize: 12, fontWeight: 700, color: '#4b5563', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Market Sentiment</span>
                 <span style={{ fontSize: 12, fontWeight: 800, color: sentColor }}>
                   {article.label === 'bullish' ? '↑ Bullish' : article.label === 'bearish' ? '↓ Bearish' : '→ Neutral'}
                 </span>
@@ -231,7 +231,7 @@ function ArticleSheet({ article, onClose }: { article: MacroNews; onClose: () =>
         {/* CTA */}
         <div style={{ padding: '12px 16px 24px', borderTop: '1px solid #1f1f1f', flexShrink: 0, background: '#111' }}>
           <a href={safeUrl(article.url)} target="_blank" rel="noopener noreferrer"
-             style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '14px 0', borderRadius: 14, background: '#fff', color: '#000', fontSize: 15, fontWeight: 800, textDecoration: 'none' }}>
+             style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '14px 0', borderRadius: 14, background: '#fff', color: '#000', fontSize: 16, fontWeight: 800, textDecoration: 'none' }}>
             Read Full Article
             <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/></svg>
           </a>
@@ -298,7 +298,7 @@ export default function BlogPage() {
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search news..."
                  style={{ flex: 1, background: 'none', border: 'none', outline: 'none', color: '#fff', fontSize: 14 }}/>
           {loading && <div style={{ width: 14, height: 14, borderRadius: '50%', border: '2px solid #374151', borderTopColor: '#9ca3af', animation: 'blog-spin 0.7s linear infinite', flexShrink: 0 }}/>}
-          {lastUpd && !loading && <span style={{ fontSize: 10, color: '#374151', flexShrink: 0 }}>{lastUpd.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</span>}
+          {lastUpd && !loading && <span style={{ fontSize: 10.5, color: '#374151', flexShrink: 0 }}>{lastUpd.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</span>}
         </div>
 
         {/* Category pills */}
@@ -342,7 +342,7 @@ export default function BlogPage() {
             {/* Source attribution */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 0', borderTop: '1px solid #111' }}>
               <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#18c98a', animation: 'blog-spin 0s' }}/>
-              <span style={{ fontSize: 11, color: '#374151' }}>Reuters · Yahoo Finance · CNBC · MarketWatch · Bloomberg · refreshes every 10 min</span>
+              <span style={{ fontSize: 12, color: '#374151' }}>Reuters · Yahoo Finance · CNBC · MarketWatch · Bloomberg · refreshes every 10 min</span>
             </div>
           </>
         )}

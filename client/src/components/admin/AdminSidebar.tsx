@@ -225,7 +225,7 @@ export default function AdminSidebar() {
         {!collapsed && (
           <div className="min-w-0">
             <p className="text-xs font-bold text-text-primary tracking-wider uppercase">TradeX</p>
-            <p className="text-2xs font-semibold" style={{ color: '#4f8cff', fontSize: '10px' }}>ADMIN PANEL</p>
+            <p className="text-2xs font-semibold" style={{ color: '#4f8cff', fontSize: '10.5px' }}>ADMIN PANEL</p>
           </div>
         )}
         <button
@@ -259,7 +259,7 @@ export default function AdminSidebar() {
 
       {/* Divider */}
       {!collapsed && (
-        <p className="text-2xs font-semibold uppercase tracking-widest px-4 pb-1.5" style={{ color: '#3b5070', fontSize: '9px' }}>
+        <p className="text-2xs font-semibold uppercase tracking-widest px-4 pb-1.5" style={{ color: '#3b5070', fontSize: '10.5px' }}>
           Management
         </p>
       )}
@@ -282,7 +282,7 @@ export default function AdminSidebar() {
             </div>
             <div className="min-w-0">
               <p className="text-xs font-semibold text-text-primary truncate">{user?.username ?? 'Admin'}</p>
-              <p className="text-2xs text-text-secondary truncate" style={{ fontSize: '10px' }}>{user?.email ?? 'admin@tradex.io'}</p>
+              <p className="text-2xs text-text-secondary truncate" style={{ fontSize: '10.5px' }}>{user?.email ?? 'admin@tradex.io'}</p>
             </div>
           </div>
         )}

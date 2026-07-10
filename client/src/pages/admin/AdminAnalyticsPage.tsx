@@ -49,7 +49,7 @@ function TradeEngagementChart({ data }: { data: TradeEngagement[] }) {
                 }}
               />
             </div>
-            <span className="text-text-secondary" style={{ fontSize: '10px' }}>{d.label}</span>
+            <span className="text-text-secondary" style={{ fontSize: '10.5px' }}>{d.label}</span>
           </div>
         )
       })}
@@ -82,7 +82,7 @@ function VolumeCard({ label, value, sub, color }: { label: string; value: string
       <div>
         <p className="text-lg font-bold font-mono text-text-primary">{value}</p>
         <p className="text-xs font-medium text-text-secondary mt-0.5">{label}</p>
-        {sub && <p className="text-text-muted mt-0.5" style={{ fontSize: '10px' }}>{sub}</p>}
+        {sub && <p className="text-text-muted mt-0.5" style={{ fontSize: '10.5px' }}>{sub}</p>}
         <span
           className="inline-flex items-center gap-0.5 text-xs font-semibold mt-1"
           style={{ color: up ? '#18c98a' : '#ff5a72' }}
@@ -140,7 +140,7 @@ export default function AdminAnalyticsPage() {
         >
           <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid rgba(56,189,248,0.07)' }}>
             <h2 className="text-sm font-semibold text-text-primary">Trade Engagement</h2>
-            <span className="font-semibold text-text-muted uppercase tracking-wide" style={{ fontSize: '10px' }}>This Week</span>
+            <span className="font-semibold text-text-muted uppercase tracking-wide" style={{ fontSize: '10.5px' }}>This Week</span>
           </div>
           <div className="px-5 py-5">
             <TradeEngagementChart data={engagement} />
@@ -150,8 +150,8 @@ export default function AdminAnalyticsPage() {
             >
               {engagement.map(d => (
                 <div key={d.label}>
-                  <p className="font-mono text-text-primary font-semibold" style={{ fontSize: '11px' }}>{d.trades.toLocaleString()}</p>
-                  <p className="text-text-muted" style={{ fontSize: '10px' }}>{d.label}</p>
+                  <p className="font-mono text-text-primary font-semibold" style={{ fontSize: '12px' }}>{d.trades.toLocaleString()}</p>
+                  <p className="text-text-muted" style={{ fontSize: '10.5px' }}>{d.label}</p>
                 </div>
               ))}
             </div>
@@ -162,7 +162,7 @@ export default function AdminAnalyticsPage() {
         <div className="rounded-xl" style={{ background: '#0c1220', border: '1px solid rgba(56,189,248,0.08)' }}>
           <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid rgba(56,189,248,0.07)' }}>
             <h2 className="text-sm font-semibold text-text-primary">Asset Breakdown</h2>
-            <span className="font-semibold text-text-muted uppercase tracking-wide" style={{ fontSize: '10px' }}>By Volume</span>
+            <span className="font-semibold text-text-muted uppercase tracking-wide" style={{ fontSize: '10.5px' }}>By Volume</span>
           </div>
           <div className="px-5 py-5 space-y-4">
             {[
@@ -208,14 +208,14 @@ export default function AdminAnalyticsPage() {
       <div className="rounded-xl overflow-hidden" style={{ background: '#0c1220', border: '1px solid rgba(56,189,248,0.08)' }}>
         <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid rgba(56,189,248,0.07)' }}>
           <h2 className="text-sm font-semibold text-text-primary">Daily Breakdown</h2>
-          <span className="font-semibold text-text-muted uppercase tracking-wide" style={{ fontSize: '10px' }}>This Week</span>
+          <span className="font-semibold text-text-muted uppercase tracking-wide" style={{ fontSize: '10.5px' }}>This Week</span>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
             <thead>
               <tr style={{ borderBottom: '1px solid rgba(56,189,248,0.06)' }}>
                 {['Day', 'Trades', 'Volume', 'Avg Trade', 'New Users', 'Revenue'].map(h => (
-                  <th key={h} className="text-left px-5 py-3 font-semibold uppercase tracking-wider text-text-muted" style={{ fontSize: '10px' }}>{h}</th>
+                  <th key={h} className="text-left px-5 py-3 font-semibold uppercase tracking-wider text-text-muted" style={{ fontSize: '10.5px' }}>{h}</th>
                 ))}
               </tr>
             </thead>
@@ -234,7 +234,7 @@ export default function AdminAnalyticsPage() {
                     }}
                   >
                     <td className="px-5 py-3 font-semibold" style={{ color: isToday ? '#7aa7ff' : undefined }}>
-                      {d.label}{isToday && <span className="ml-2 text-brand-300" style={{ fontSize: '10px' }}>today</span>}
+                      {d.label}{isToday && <span className="ml-2 text-brand-300" style={{ fontSize: '10.5px' }}>today</span>}
                     </td>
                     <td className="px-5 py-3 font-mono text-text-primary">{d.trades.toLocaleString()}</td>
                     <td className="px-5 py-3 font-mono font-semibold text-text-primary">${(d.volume / 1e6).toFixed(2)}M</td>

@@ -47,7 +47,7 @@ function Kpi({ label, value, color }: { label: string; value: string; color?: st
   return (
     <div style={{ background: S.surface, border: `1px solid ${S.border}`, borderRadius: 14, padding: '13px 15px', boxShadow: 'var(--t-shadow-sm)' }}>
       <p style={{ fontSize: 10.5, color: S.text3, margin: '0 0 5px', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 600 }}>{label}</p>
-      <p style={{ fontSize: 19, fontWeight: 800, color: color ?? S.text1, margin: 0, fontFamily: 'ui-monospace,monospace' }}>{value}</p>
+      <p style={{ fontSize: 18, fontWeight: 800, color: color ?? S.text1, margin: 0, fontFamily: 'ui-monospace,monospace' }}>{value}</p>
     </div>
   )
 }
@@ -92,7 +92,7 @@ function CreateSheet({ onClose }: { onClose: () => void }) {
         <div style={{ padding: '16px 20px 40px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
             <div>
-              <h3 style={{ fontSize: 19, fontWeight: 800, color: S.text1, margin: 0 }}>Create Alert</h3>
+              <h3 style={{ fontSize: 18, fontWeight: 800, color: S.text1, margin: 0 }}>Create Alert</h3>
               <p style={{ fontSize: 12, color: S.text3, margin: '3px 0 0' }}>Get notified when price hits your target</p>
             </div>
             <button onClick={onClose} style={{ width: 34, height: 34, borderRadius: 10, background: S.surface2, border: `1px solid ${S.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: S.text2 }}>
@@ -117,7 +117,7 @@ function CreateSheet({ onClose }: { onClose: () => void }) {
                         <AssetIcon symbol={s.symbol} assetClass={s.assetClass} size={28} />
                         <div style={{ flex: 1 }}>
                           <span style={{ fontSize: 13, fontWeight: 700, color: S.text1, display: 'block' }}>{s.symbol}</span>
-                          <span style={{ fontSize: 11, color: S.text3 }}>{s.name}</span>
+                          <span style={{ fontSize: 12, color: S.text3 }}>{s.name}</span>
                         </div>
                         {tickers[s.symbol] && <span style={{ fontSize: 12, fontFamily: 'ui-monospace,monospace', color: S.text2 }}>{formatPrice(tickers[s.symbol].price, s.symbol)}</span>}
                       </button>
@@ -159,7 +159,7 @@ function CreateSheet({ onClose }: { onClose: () => void }) {
                 <label style={{ fontSize: 12, fontWeight: 600, color: S.text2 }}>Target Price</label>
                 {currentPrice && (
                   <button type="button" onClick={() => setTargetPrice(String(currentPrice))}
-                    style={{ fontSize: 11, fontWeight: 600, color: S.accent, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+                    style={{ fontSize: 12, fontWeight: 600, color: S.accent, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
                     Use current · {formatPrice(currentPrice, selected?.symbol)}
                   </button>
                 )}
@@ -177,7 +177,7 @@ function CreateSheet({ onClose }: { onClose: () => void }) {
             </div>
 
             <button type="submit" disabled={!selected || !targetPrice}
-              style={{ width: '100%', padding: 16, borderRadius: 14, background: (!selected || !targetPrice) ? 'var(--t-accent-s)' : S.accent, color: (!selected || !targetPrice) ? S.text3 : '#fff', fontSize: 15, fontWeight: 800, border: 'none', cursor: (!selected || !targetPrice) ? 'not-allowed' : 'pointer', marginTop: 4 }}>
+              style={{ width: '100%', padding: 16, borderRadius: 14, background: (!selected || !targetPrice) ? 'var(--t-accent-s)' : S.accent, color: (!selected || !targetPrice) ? S.text3 : '#fff', fontSize: 16, fontWeight: 800, border: 'none', cursor: (!selected || !targetPrice) ? 'not-allowed' : 'pointer', marginTop: 4 }}>
               Set Alert
             </button>
           </form>
@@ -215,14 +215,14 @@ function AlertCard({ alert, onDelete, onDismiss }: { alert: PriceAlert; onDelete
           </span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-          {current !== undefined && <span style={{ fontSize: 11, color: S.text2, fontFamily: 'ui-monospace,monospace' }}>Now {formatPrice(current, alert.symbol)}</span>}
+          {current !== undefined && <span style={{ fontSize: 12, color: S.text2, fontFamily: 'ui-monospace,monospace' }}>Now {formatPrice(current, alert.symbol)}</span>}
           {distPct !== null && (
-            <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 8, background: S.surface2, color: S.text2 }}>
+            <span style={{ fontSize: 10.5, fontWeight: 700, padding: '2px 6px', borderRadius: 8, background: S.surface2, color: S.text2 }}>
               {distPct > 0 ? '+' : ''}{distPct.toFixed(2)}% to target
             </span>
           )}
-          {alert.note && <span style={{ fontSize: 10, color: S.text3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 120 }}>{alert.note}</span>}
-          {alert.triggeredAt && <span style={{ fontSize: 10, color: S.bull }}>Triggered {new Date(alert.triggeredAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>}
+          {alert.note && <span style={{ fontSize: 10.5, color: S.text3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 120 }}>{alert.note}</span>}
+          {alert.triggeredAt && <span style={{ fontSize: 10.5, color: S.bull }}>Triggered {new Date(alert.triggeredAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>}
         </div>
         {/* Live proximity bar */}
         {distPct !== null && alert.status === 'active' && (() => {
@@ -237,7 +237,7 @@ function AlertCard({ alert, onDelete, onDismiss }: { alert: PriceAlert; onDelete
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
-        <span style={{ fontSize: 10, fontWeight: 700, padding: '3px 9px', borderRadius: 99, background: `${sc.color}22`, color: sc.color, whiteSpace: 'nowrap' }}>{sc.label}</span>
+        <span style={{ fontSize: 10.5, fontWeight: 700, padding: '3px 9px', borderRadius: 99, background: `${sc.color}22`, color: sc.color, whiteSpace: 'nowrap' }}>{sc.label}</span>
         {alert.status === 'triggered' && (
           <button onClick={() => onDismiss(alert.id)} title="Dismiss"
             style={{ width: 30, height: 30, borderRadius: 8, background: 'var(--t-accent-s)', border: `1px solid ${S.accent}33`, color: S.accent, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -284,7 +284,7 @@ export default function AlertsPage() {
           <div>
             <h1 style={{ fontSize: 22, fontWeight: 800, color: S.text1, margin: 0, letterSpacing: '-0.01em' }}>Price Alerts</h1>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', margin: '6px 0 0' }}>
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 11, fontWeight: 700, color: S.bull }}>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 12, fontWeight: 700, color: S.bull }}>
                 <span className="animate-pulse2" style={{ width: 6, height: 6, borderRadius: '50%', background: S.bull }} />
                 Live monitoring
               </span>
@@ -326,7 +326,7 @@ export default function AlertsPage() {
                   style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 7, fontSize: 12, fontWeight: 700, textTransform: 'capitalize', cursor: 'pointer', border: 'none', whiteSpace: 'nowrap',
                     background: on ? S.surface : 'transparent', color: on ? S.text1 : S.text3, boxShadow: on ? 'var(--t-shadow-sm)' : 'none' }}>
                   {s}
-                  <span style={{ fontSize: 10, fontWeight: 700, padding: '1px 6px', borderRadius: 99, background: on ? S.accent : 'rgba(var(--ink),0.1)', color: on ? '#fff' : S.text3 }}>{count}</span>
+                  <span style={{ fontSize: 10.5, fontWeight: 700, padding: '1px 6px', borderRadius: 99, background: on ? S.accent : 'rgba(var(--ink),0.1)', color: on ? '#fff' : S.text3 }}>{count}</span>
                 </button>
               )
             })}

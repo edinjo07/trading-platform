@@ -20,7 +20,7 @@ function GaugeBar({ label, value, max, color }: { label: string; value: number; 
       <div className="w-full h-2 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.05)' }}>
         <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: color }} />
       </div>
-      <div className="flex justify-between text-2xs text-text-muted font-mono" style={{ fontSize: '10px' }}>
+      <div className="flex justify-between text-2xs text-text-muted font-mono" style={{ fontSize: '10.5px' }}>
         <span>{value} {label === 'CPU' ? 'cores used' : 'GB used'}</span>
         <span>{max} {label === 'CPU' ? 'cores total' : 'GB total'}</span>
       </div>

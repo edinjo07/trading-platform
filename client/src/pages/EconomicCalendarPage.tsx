@@ -141,12 +141,12 @@ function MarketMovers({ events, onTap }: { events: EconomicEvent[]; onTap: (e: E
                   <Flag currency={ev.currency} size={24}/>
                   <div>
                     <div style={{ fontSize:12, fontWeight:800, color:'#fff' }}>{ev.currency}</div>
-                    <div style={{ fontSize:10, color:'#4b5563' }}>{ev.time} EST</div>
+                    <div style={{ fontSize:10.5, color:'#4b5563' }}>{ev.time} EST</div>
                   </div>
                 </div>
                 <div style={{ display:'flex', alignItems:'center', gap:5, padding:'3px 8px', borderRadius:6, background:IMPACT_BG[ev.impact] }}>
                   <Bars impact={ev.impact} size={11}/>
-                  <span style={{ fontSize:9, fontWeight:800, color:color }}>HIGH</span>
+                  <span style={{ fontSize:10.5, fontWeight:800, color:color }}>HIGH</span>
                 </div>
               </div>
               {/* Event name */}
@@ -157,13 +157,13 @@ function MarketMovers({ events, onTap }: { events: EconomicEvent[]; onTap: (e: E
               <div style={{ display:'flex', gap:12 }}>
                 {[{l:'Forecast', v:ev.forecast}, {l:'Previous', v:ev.previous}].map(d => (
                   <div key={d.l}>
-                    <div style={{ fontSize:9, color:'#374151', fontWeight:700, marginBottom:2 }}>{d.l}</div>
+                    <div style={{ fontSize:10.5, color:'#374151', fontWeight:700, marginBottom:2 }}>{d.l}</div>
                     <div style={{ fontSize:13, fontFamily:'monospace', fontWeight:800, color: d.l === 'Forecast' ? '#fff' : '#6b7280' }}>{d.v}</div>
                   </div>
                 ))}
                 {ev.actual && (
                   <div style={{ marginLeft:'auto' }}>
-                    <div style={{ fontSize:9, color:'#374151', fontWeight:700, marginBottom:2 }}>Actual</div>
+                    <div style={{ fontSize:10.5, color:'#374151', fontWeight:700, marginBottom:2 }}>Actual</div>
                     <div style={{ fontSize:13, fontFamily:'monospace', fontWeight:900, color: (parseNum(ev.actual) ?? 0) >= (parseNum(ev.forecast) ?? 0) ? '#18c98a' : '#ff5a72' }}>{ev.actual}</div>
                   </div>
                 )}
@@ -202,7 +202,7 @@ function EventTimeline({ events, onTap }: { events: EconomicEvent[]; onTap: (e: 
         <div key={time}>
           {/* Time divider */}
           <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:8 }}>
-            <span style={{ fontSize:11, fontFamily:'monospace', fontWeight:800, color:'#374151', flexShrink:0 }}>{time} <span style={{ fontSize:9, color:'#1f2937' }}>EST</span></span>
+            <span style={{ fontSize:12, fontFamily:'monospace', fontWeight:800, color:'#374151', flexShrink:0 }}>{time} <span style={{ fontSize:10.5, color:'#1f2937' }}>EST</span></span>
             <div style={{ flex:1, height:1, background:'#111' }}/>
           </div>
 
@@ -233,10 +233,10 @@ function EventTimeline({ events, onTap }: { events: EconomicEvent[]; onTap: (e: 
                     {ev.title}
                   </div>
                   <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-                    <span style={{ fontSize:10, fontWeight:700, color:'#4b5563' }}>{ev.currency}</span>
-                    <span style={{ fontSize:10, color:'#1f2937' }}>·</span>
-                    {ev.forecast !== '—' && <span style={{ fontSize:10, color:'#374151' }}>Fcst: <span style={{ color:'#6b7280', fontFamily:'monospace' }}>{ev.forecast}</span></span>}
-                    {ev.previous !== '—' && <span style={{ fontSize:10, color:'#374151' }}>Prev: <span style={{ color:'#4b5563', fontFamily:'monospace' }}>{ev.previous}</span></span>}
+                    <span style={{ fontSize:10.5, fontWeight:700, color:'#4b5563' }}>{ev.currency}</span>
+                    <span style={{ fontSize:10.5, color:'#1f2937' }}>·</span>
+                    {ev.forecast !== '—' && <span style={{ fontSize:10.5, color:'#374151' }}>Fcst: <span style={{ color:'#6b7280', fontFamily:'monospace' }}>{ev.forecast}</span></span>}
+                    {ev.previous !== '—' && <span style={{ fontSize:10.5, color:'#374151' }}>Prev: <span style={{ color:'#4b5563', fontFamily:'monospace' }}>{ev.previous}</span></span>}
                   </div>
                 </div>
 
@@ -248,10 +248,10 @@ function EventTimeline({ events, onTap }: { events: EconomicEvent[]; onTap: (e: 
                   {ev.actual ? (
                     <div style={{ textAlign:'right' }}>
                       <div style={{ fontSize:12, fontFamily:'monospace', fontWeight:900, color: isBeat ? '#18c98a' : isMiss ? '#ff5a72' : '#fff', lineHeight:1 }}>{ev.actual}</div>
-                      {(isBeat || isMiss) && <div style={{ fontSize:8, fontWeight:800, color: isBeat ? '#18c98a' : '#ff5a72' }}>{isBeat ? '▲BEAT' : '▼MISS'}</div>}
+                      {(isBeat || isMiss) && <div style={{ fontSize:10.5, fontWeight:800, color: isBeat ? '#18c98a' : '#ff5a72' }}>{isBeat ? '▲BEAT' : '▼MISS'}</div>}
                     </div>
                   ) : (
-                    <span style={{ fontSize:9, color:'#1f2937', fontStyle:'italic' }}>—</span>
+                    <span style={{ fontSize:10.5, color:'#1f2937', fontStyle:'italic' }}>—</span>
                   )}
                 </div>
 
@@ -296,14 +296,14 @@ function EventSheet({ event, relatedNews, onClose }: { event: EconomicEvent; rel
               <Flag currency={event.currency} size={26}/>
               <div>
                 <div style={{ fontSize:13, fontWeight:800, color:'#fff' }}>{event.currency}</div>
-                <div style={{ fontSize:10, color:'#4b5563', fontFamily:'monospace' }}>{event.time} EST</div>
+                <div style={{ fontSize:10.5, color:'#4b5563', fontFamily:'monospace' }}>{event.time} EST</div>
               </div>
               <div style={{ marginLeft:'auto', display:'flex', alignItems:'center', gap:5, padding:'4px 9px', borderRadius:8, background:IMPACT_BG[event.impact] }}>
                 <Bars impact={event.impact} size={12}/>
-                <span style={{ fontSize:10, fontWeight:800, color }}>{event.impact.toUpperCase()}</span>
+                <span style={{ fontSize:10.5, fontWeight:800, color }}>{event.impact.toUpperCase()}</span>
               </div>
             </div>
-            <h2 style={{ fontSize:20, fontWeight:800, color:'#fff', margin:0, lineHeight:1.3 }}>{event.title}</h2>
+            <h2 style={{ fontSize:22, fontWeight:800, color:'#fff', margin:0, lineHeight:1.3 }}>{event.title}</h2>
           </div>
 
           <div style={{ padding:'16px 18px' }}>
@@ -315,10 +315,10 @@ function EventSheet({ event, relatedNews, onClose }: { event: EconomicEvent; rel
                 { l:'Actual',   v:event.actual ?? 'Pending', c: event.actual ? (isBeat ? '#18c98a' : isMiss ? '#ff5a72' : '#fff') : '#374151' },
               ].map(col => (
                 <div key={col.l} style={{ background:'#1a1a1a', borderRadius:12, padding:'10px 12px', textAlign:'center' }}>
-                  <div style={{ fontSize:9, color:'#374151', fontWeight:700, textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:4 }}>{col.l}</div>
+                  <div style={{ fontSize:10.5, color:'#374151', fontWeight:700, textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:4 }}>{col.l}</div>
                   <div style={{ fontSize:16, fontFamily:'monospace', fontWeight:900, color:col.c, lineHeight:1 }}>{col.v}</div>
                   {col.l === 'Actual' && (isBeat || isMiss) && event.actual && (
-                    <div style={{ fontSize:9, fontWeight:800, color: isBeat ? '#18c98a' : '#ff5a72', marginTop:3 }}>{isBeat ? '▲ BEAT' : '▼ MISS'}</div>
+                    <div style={{ fontSize:10.5, fontWeight:800, color: isBeat ? '#18c98a' : '#ff5a72', marginTop:3 }}>{isBeat ? '▲ BEAT' : '▼ MISS'}</div>
                   )}
                 </div>
               ))}
@@ -327,7 +327,7 @@ function EventSheet({ event, relatedNews, onClose }: { event: EconomicEvent; rel
             {/* Description */}
             {event.description && (
               <div style={{ marginBottom:16 }}>
-                <div style={{ fontSize:10, color:'#374151', fontWeight:700, textTransform:'uppercase', letterSpacing:'0.07em', marginBottom:6 }}>About This Release</div>
+                <div style={{ fontSize:10.5, color:'#374151', fontWeight:700, textTransform:'uppercase', letterSpacing:'0.07em', marginBottom:6 }}>About This Release</div>
                 <p style={{ fontSize:13, color:'#6b7280', lineHeight:1.65, margin:0 }}>{event.description}</p>
               </div>
             )}
@@ -335,7 +335,7 @@ function EventSheet({ event, relatedNews, onClose }: { event: EconomicEvent; rel
             {/* Related news */}
             {relatedNews.length > 0 && (
               <div style={{ marginBottom:16 }}>
-                <div style={{ fontSize:10, color:'#374151', fontWeight:700, textTransform:'uppercase', letterSpacing:'0.07em', marginBottom:8 }}>Related News</div>
+                <div style={{ fontSize:10.5, color:'#374151', fontWeight:700, textTransform:'uppercase', letterSpacing:'0.07em', marginBottom:8 }}>Related News</div>
                 {relatedNews.map(n => (
                   <a key={n.id} href={n.url} target="_blank" rel="noopener noreferrer" style={{
                     display:'flex', alignItems:'flex-start', gap:10, padding:'10px 12px',
@@ -344,9 +344,9 @@ function EventSheet({ event, relatedNews, onClose }: { event: EconomicEvent; rel
                     <div style={{ flex:1, minWidth:0 }}>
                       <p style={{ fontSize:12, fontWeight:600, color:'#fff', margin:'0 0 4px', lineHeight:1.4 }}>{n.title}</p>
                       <div style={{ display:'flex', alignItems:'center', gap:6 }}>
-                        <span style={{ fontSize:10, color:'#374151' }}>{n.source}</span>
-                        <span style={{ fontSize:10, color:'#1f2937' }}>·</span>
-                        <span style={{ fontSize:10, color:'#374151' }}>{timeAgo(n.publishedAt)}</span>
+                        <span style={{ fontSize:10.5, color:'#374151' }}>{n.source}</span>
+                        <span style={{ fontSize:10.5, color:'#1f2937' }}>·</span>
+                        <span style={{ fontSize:10.5, color:'#374151' }}>{timeAgo(n.publishedAt)}</span>
                       </div>
                     </div>
                     <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="#374151" strokeWidth={2.5} style={{ flexShrink:0, marginTop:3 }}><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/></svg>
@@ -463,8 +463,8 @@ export default function EconomicCalendarPage() {
         <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:10 }}>
           <div style={{ display:'flex', alignItems:'center', gap:8 }}>
             <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#fff" strokeWidth={2}><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-            <span style={{ fontSize:17, fontWeight:900, color:'#fff', letterSpacing:'-0.02em' }}>Economic Calendar</span>
-            {cached && <span style={{ fontSize:9, fontWeight:700, padding:'2px 6px', borderRadius:4, background:'rgba(246,178,74,0.12)', color:'#f6b24a', border:'1px solid rgba(246,178,74,0.2)' }}>CACHED</span>}
+            <span style={{ fontSize:18, fontWeight:900, color:'#fff', letterSpacing:'-0.02em' }}>Economic Calendar</span>
+            {cached && <span style={{ fontSize:10.5, fontWeight:700, padding:'2px 6px', borderRadius:4, background:'rgba(246,178,74,0.12)', color:'#f6b24a', border:'1px solid rgba(246,178,74,0.2)' }}>CACHED</span>}
           </div>
           <div style={{ display:'flex', alignItems:'center', gap:8 }}>
             <LiveClock/>
@@ -480,7 +480,7 @@ export default function EconomicCalendarPage() {
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search events..."
                  style={{ flex:1, background:'none', border:'none', outline:'none', color:'#fff', fontSize:14 }}/>
           {loading && <div style={{ width:14, height:14, borderRadius:'50%', border:'2px solid #2d2d2d', borderTopColor:'#6b7280', animation:'ec2-spin 0.7s linear infinite', flexShrink:0 }}/>}
-          {lastUpd && !loading && <span style={{ fontSize:9, color:'#2d2d2d', flexShrink:0 }}>{lastUpd.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</span>}
+          {lastUpd && !loading && <span style={{ fontSize:10.5, color:'#2d2d2d', flexShrink:0 }}>{lastUpd.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</span>}
         </div>
 
         {/* Day pills */}
@@ -497,7 +497,7 @@ export default function EconomicCalendarPage() {
                 position:'relative',
               }}>
                 {DAY_LABELS[k]}
-                <span style={{ marginLeft:4, fontSize:10, color: isActive ? '#374151' : '#374151' }}>·{cnt}</span>
+                <span style={{ marginLeft:4, fontSize:10.5, color: isActive ? '#374151' : '#374151' }}>·{cnt}</span>
                 {isToday && !isActive && <div style={{ position:'absolute', top:4, right:4, width:5, height:5, borderRadius:'50%', background:'#4f8cff' }}/>}
               </button>
             )
@@ -521,7 +521,7 @@ export default function EconomicCalendarPage() {
               }}>
                 {label !== 'All' && <div style={{ width:6, height:6, borderRadius:'50%', background: isActive ? activeColor : '#374151' }}/>}
                 <span style={{ fontSize:12, fontWeight:700 }}>{label}</span>
-                <span style={{ fontSize:11, color: isActive ? (label==='All' ? '#374151' : activeColor) : '#374151' }}>{cnt}</span>
+                <span style={{ fontSize:12, color: isActive ? (label==='All' ? '#374151' : activeColor) : '#374151' }}>{cnt}</span>
               </button>
             )
           })}
@@ -536,7 +536,7 @@ export default function EconomicCalendarPage() {
                 flexShrink:0, display:'flex', alignItems:'center', gap:4, padding:'5px 10px', borderRadius:18, cursor:'pointer', border:'none', transition:'all 0.15s',
                 background: isActive ? '#fff' : '#1a1a1a',
                 color:      isActive ? '#000' : '#6b7280',
-                fontSize:11, fontWeight:700,
+                fontSize:12, fontWeight:700,
               }}>
                 {cur !== 'All' && <Flag currency={cur} size={13}/>}
                 {cur}
@@ -564,7 +564,7 @@ export default function EconomicCalendarPage() {
             {/* Date label */}
             <div style={{ display:'flex', alignItems:'center', gap:8, paddingTop:4, borderTop:'1px solid #111' }}>
               <div style={{ width:6, height:6, borderRadius:'50%', background:'#18c98a', animation:'ec2-pulse 2s infinite' }}/>
-              <span style={{ fontSize:10, color:'#1f2937' }}>
+              <span style={{ fontSize:10.5, color:'#1f2937' }}>
                 {weekDates[activeDay].toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' })} · Events from Forex Factory · Refreshes every 5 min
               </span>
             </div>

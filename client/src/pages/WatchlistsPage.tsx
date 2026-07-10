@@ -56,11 +56,11 @@ function AssetCard({ symbol, name, assetClass, baseAsset, quoteAsset }: {
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
           <p style={{ fontSize: 13, fontWeight: 700, color: '#fff', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{name}</p>
-          <p style={{ fontSize: 10, color: 'rgba(var(--ink),0.4)', margin: 0 }}>{symbol}</p>
+          <p style={{ fontSize: 10.5, color: 'rgba(var(--ink),0.4)', margin: 0 }}>{symbol}</p>
         </div>
         {t ? (
           <span style={{
-            fontSize: 11, fontWeight: 700, padding: '2px 7px', borderRadius: 20,
+            fontSize: 12, fontWeight: 700, padding: '2px 7px', borderRadius: 20,
             background: up ? 'rgba(24,201,138,0.12)' : 'rgba(255,90,114,0.12)',
             color: up ? '#18c98a' : '#ff5a72', flexShrink: 0,
           }}>
@@ -73,7 +73,7 @@ function AssetCard({ symbol, name, assetClass, baseAsset, quoteAsset }: {
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr' }}>
         <button onClick={go} style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', padding: '6px 14px 10px', background: 'rgba(255,90,114,0.08)', border: 'none', cursor: 'pointer', borderTop: '1px solid rgba(255,90,114,0.15)', borderBottomLeftRadius: 14 }}>
-          <span style={{ fontSize: 10, fontWeight: 700, color: '#ff5a72', marginBottom: 2 }}>SELL</span>
+          <span style={{ fontSize: 10.5, fontWeight: 700, color: '#ff5a72', marginBottom: 2 }}>SELL</span>
           <span style={{ fontSize: 14, fontWeight: 700, fontFamily: 'monospace', color: '#ff5a72' }}>{fmt(bid)}</span>
         </button>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px', borderTop: '1px solid rgba(var(--ink),0.05)' }}>
@@ -82,7 +82,7 @@ function AssetCard({ symbol, name, assetClass, baseAsset, quoteAsset }: {
           </svg>
         </div>
         <button onClick={go} style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', padding: '6px 14px 10px', background: 'rgba(79,140,255,0.08)', border: 'none', cursor: 'pointer', borderTop: '1px solid rgba(79,140,255,0.15)', borderBottomRightRadius: 14 }}>
-          <span style={{ fontSize: 10, fontWeight: 700, color: '#7aa7ff', marginBottom: 2 }}>BUY</span>
+          <span style={{ fontSize: 10.5, fontWeight: 700, color: '#7aa7ff', marginBottom: 2 }}>BUY</span>
           <span style={{ fontSize: 14, fontWeight: 700, fontFamily: 'monospace', color: '#7aa7ff' }}>{fmt(ask)}</span>
         </button>
       </div>
@@ -304,12 +304,12 @@ export default function WatchlistsPage() {
 
       {/* ── Instrument count ── */}
       {!search && (
-        <div style={{ padding: '8px 14px 2px', fontSize: 11, color: 'rgba(var(--ink),0.3)' }}>
+        <div style={{ padding: '8px 14px 2px', fontSize: 12, color: 'rgba(var(--ink),0.3)' }}>
           {sorted.length} instrument{sorted.length !== 1 ? 's' : ''}
         </div>
       )}
       {search && (
-        <div style={{ padding: '8px 14px 2px', fontSize: 11, color: 'rgba(var(--ink),0.3)' }}>
+        <div style={{ padding: '8px 14px 2px', fontSize: 12, color: 'rgba(var(--ink),0.3)' }}>
           {sorted.length} result{sorted.length !== 1 ? 's' : ''} for "{search}"
         </div>
       )}

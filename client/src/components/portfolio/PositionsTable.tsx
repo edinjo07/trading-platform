@@ -40,7 +40,7 @@ export default function PositionsTable() {
         <thead>
           <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', background: 'rgba(255,255,255,0.02)' }}>
             {['Symbol', 'Side/Lev', 'Qty', 'Avg Price', 'Mark Price', 'Notional', 'Unreal. P&L', 'P&L %', 'Liq. Price', ''].map((h, i) => (
-              <th key={i} className={`py-3 px-4 text-[10px] font-semibold uppercase tracking-wider text-text-muted ${i > 1 && i < 9 ? 'text-right' : 'text-left'}`}>
+              <th key={i} className={`py-3 px-4 text-[10.5px] font-semibold uppercase tracking-wider text-text-muted ${i > 1 && i < 9 ? 'text-right' : 'text-left'}`}>
                 {h}
               </th>
             ))}
@@ -63,14 +63,14 @@ export default function PositionsTable() {
                 <td className="px-4 py-3 font-bold text-text-primary">{pos.symbol}</td>
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-1.5">
-                    <span className="px-2 py-0.5 rounded text-[10px] font-bold"
+                    <span className="px-2 py-0.5 rounded text-[10.5px] font-bold"
                       style={pos.side === 'long'
                         ? { background: 'rgba(24,201,138,0.15)', color: '#18c98a' }
                         : { background: 'rgba(255,90,114,0.15)', color: '#ff5a72' }}>
                       {pos.side.toUpperCase()}
                     </span>
                     {pos.leverage > 1 && (
-                      <span className="px-1.5 py-0.5 rounded text-[10px] font-bold"
+                      <span className="px-1.5 py-0.5 rounded text-[10.5px] font-bold"
                         style={{
                           background: 'rgba(246,178,74,0.15)',
                           color: pos.leverage >= 25 ? '#ff5a72' : pos.leverage >= 10 ? '#f6b24a' : '#7aa7ff',
@@ -87,7 +87,7 @@ export default function PositionsTable() {
                   <div className="flex flex-col items-end gap-0.5">
                     <span>{formatCurrency(pos.notionalValue)}</span>
                     {pos.leverage > 1 && (
-                      <span className="text-[9px]" style={{ color: '#4b6080' }}>
+                      <span className="text-[10.5px]" style={{ color: 'var(--t-text-3)' }}>
                         margin: {formatCurrency(pos.margin)}
                       </span>
                     )}
@@ -101,17 +101,17 @@ export default function PositionsTable() {
                 </td>
                 <td className="px-4 py-3 text-right tabular">
                   {pos.leverage > 1
-                    ? <span className="font-mono text-[10px] font-semibold" style={{ color: '#ff5a72' }}>
+                    ? <span className="font-mono text-[10.5px] font-semibold" style={{ color: '#ff5a72' }}>
                         {formatPrice(pos.liquidationPrice, pos.symbol)}
                       </span>
-                    : <span style={{ color: '#2d4460' }}>-</span>
+                    : <span style={{ color: 'var(--t-text-3)' }}>-</span>
                   }
                 </td>
                 <td className="px-4 py-3 text-right">
                   <button
                     disabled={isClosing}
                     onClick={(e) => handleClose(e, pos.id, pos.symbol)}
-                    className="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wide transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="px-2.5 py-1 rounded-md text-[10.5px] font-bold uppercase tracking-wide transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                     style={{ background: 'rgba(255,90,114,0.12)', color: '#ff5a72', border: '1px solid rgba(255,90,114,0.25)' }}
                     onMouseEnter={e => { if (!isClosing) (e.currentTarget as HTMLElement).style.background = 'rgba(255,90,114,0.25)' }}
                     onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,90,114,0.12)' }}>

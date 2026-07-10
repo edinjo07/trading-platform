@@ -107,7 +107,7 @@ function Pagination({
       >
         ›
       </button>
-      <span className="ml-auto text-2xs text-text-muted font-mono" style={{ fontSize: '10px' }}>
+      <span className="ml-auto text-2xs text-text-muted font-mono" style={{ fontSize: '10.5px' }}>
         {total.toLocaleString()} total records
       </span>
     </div>
@@ -220,7 +220,7 @@ export default function AdminListPage<T extends object>({
                   <th
                     key={String(col.key)}
                     className="text-left px-5 py-3 font-semibold uppercase tracking-wider cursor-pointer select-none transition-colors hover:text-text-primary text-text-muted"
-                    style={{ fontSize: '10px', width: col.width }}
+                    style={{ fontSize: '10.5px', width: col.width }}
                     onClick={() => handleSort(String(col.key))}
                   >
                     <span className="flex items-center gap-1">
@@ -231,7 +231,7 @@ export default function AdminListPage<T extends object>({
                     </span>
                   </th>
                 ))}
-                <th className="px-5 py-3 text-right text-text-muted font-semibold uppercase tracking-wider" style={{ fontSize: '10px' }}>
+                <th className="px-5 py-3 text-right text-text-muted font-semibold uppercase tracking-wider" style={{ fontSize: '10.5px' }}>
                   Actions
                 </th>
               </tr>

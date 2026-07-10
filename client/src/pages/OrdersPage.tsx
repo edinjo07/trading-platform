@@ -38,7 +38,7 @@ function Kpi({ label, value, color }: { label: string; value: string; color?: st
   return (
     <div style={{ background: S.surface, border: `1px solid ${S.border}`, borderRadius: 14, padding: '13px 15px', boxShadow: 'var(--t-shadow-sm)' }}>
       <p style={{ fontSize: 10.5, color: S.text3, margin: '0 0 5px', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 600 }}>{label}</p>
-      <p style={{ fontSize: 19, fontWeight: 800, color: color ?? S.text1, margin: 0, fontFamily: 'ui-monospace,monospace', fontVariantNumeric: 'tabular-nums' }}>{value}</p>
+      <p style={{ fontSize: 18, fontWeight: 800, color: color ?? S.text1, margin: 0, fontFamily: 'ui-monospace,monospace', fontVariantNumeric: 'tabular-nums' }}>{value}</p>
     </div>
   )
 }
@@ -56,7 +56,7 @@ function Segment<T extends string>({ options, value, onChange }: { options: { ke
               boxShadow: active ? 'var(--t-shadow-sm)' : 'none' }}>
             {o.label}
             {o.count != null && (
-              <span style={{ fontSize: 10, fontWeight: 700, padding: '1px 6px', borderRadius: 99, background: active ? S.accent : 'rgba(var(--ink),0.1)', color: active ? '#fff' : S.text3 }}>{o.count}</span>
+              <span style={{ fontSize: 10.5, fontWeight: 700, padding: '1px 6px', borderRadius: 99, background: active ? S.accent : 'rgba(var(--ink),0.1)', color: active ? '#fff' : S.text3 }}>{o.count}</span>
             )}
           </button>
         )
@@ -198,8 +198,8 @@ export default function OrdersPage() {
                       <div style={{ display: 'flex', alignItems: 'center', gap: 9, minWidth: 0 }}>
                         <span style={{ width: 3, height: 26, borderRadius: 99, background: buy ? S.bull : S.bear, flexShrink: 0 }} />
                         <div style={{ minWidth: 0 }}>
-                          <div style={{ fontSize: 13.5, fontWeight: 800, color: S.text1 }}>{o.symbol}</div>
-                          <div style={{ fontSize: 10, fontWeight: 600, color: S.text3, textTransform: 'capitalize' }}>{o.type}{o.leverage > 1 ? ` · ${o.leverage}x` : ''}</div>
+                          <div style={{ fontSize: 14, fontWeight: 800, color: S.text1 }}>{o.symbol}</div>
+                          <div style={{ fontSize: 10.5, fontWeight: 600, color: S.text3, textTransform: 'capitalize' }}>{o.type}{o.leverage > 1 ? ` · ${o.leverage}x` : ''}</div>
                         </div>
                       </div>
                       {/* Side */}
@@ -212,9 +212,9 @@ export default function OrdersPage() {
                       <span style={{ ...cellR, color: S.text3 }}>{o.commission ? formatCurrency(o.commission) : '—'}</span>
                       {/* SL / TP */}
                       <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', alignItems: 'center' }}>
-                        {o.stop_loss != null && <span style={{ fontSize: 10, fontWeight: 600, padding: '2px 6px', borderRadius: 6, background: 'var(--t-bear-s)', color: S.bear, fontFamily: 'ui-monospace,monospace' }}>SL</span>}
-                        {o.take_profit != null && <span style={{ fontSize: 10, fontWeight: 600, padding: '2px 6px', borderRadius: 6, background: 'var(--t-bull-s)', color: S.bull, fontFamily: 'ui-monospace,monospace' }}>TP</span>}
-                        {o.stop_loss == null && o.take_profit == null && <span style={{ fontSize: 11, color: S.text3 }}>—</span>}
+                        {o.stop_loss != null && <span style={{ fontSize: 10.5, fontWeight: 600, padding: '2px 6px', borderRadius: 6, background: 'var(--t-bear-s)', color: S.bear, fontFamily: 'ui-monospace,monospace' }}>SL</span>}
+                        {o.take_profit != null && <span style={{ fontSize: 10.5, fontWeight: 600, padding: '2px 6px', borderRadius: 6, background: 'var(--t-bull-s)', color: S.bull, fontFamily: 'ui-monospace,monospace' }}>TP</span>}
+                        {o.stop_loss == null && o.take_profit == null && <span style={{ fontSize: 12, color: S.text3 }}>—</span>}
                       </div>
                       {/* Status */}
                       <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -223,7 +223,7 @@ export default function OrdersPage() {
                           {o.status}
                         </span>
                       </div>
-                      <span style={{ ...cellR, color: S.text3, fontSize: 11.5, textAlign: 'right' }}>{formatDate(o.created_at)}</span>
+                      <span style={{ ...cellR, color: S.text3, fontSize: 12, textAlign: 'right' }}>{formatDate(o.created_at)}</span>
                     </div>
                   )
                 })}

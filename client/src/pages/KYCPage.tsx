@@ -85,8 +85,8 @@ function UploadZone({ file, onFile, disabled, accent }: { file: DocFile | null; 
             </div>
           )}
           <div style={{ flex: 1, minWidth: 0 }}>
-            <p style={{ fontSize: 13.5, fontWeight: 700, color: S.text1, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{file.name}</p>
-            <p style={{ fontSize: 11.5, color: S.text3, margin: '2px 0 0' }}>{file.size > 0 ? fmtSize(file.size) : 'On file'}</p>
+            <p style={{ fontSize: 14, fontWeight: 700, color: S.text1, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{file.name}</p>
+            <p style={{ fontSize: 12, color: S.text3, margin: '2px 0 0' }}>{file.size > 0 ? fmtSize(file.size) : 'On file'}</p>
           </div>
           {!disabled && (
             <button onClick={() => inputRef.current?.click()}
@@ -107,8 +107,8 @@ function UploadZone({ file, onFile, disabled, accent }: { file: DocFile | null; 
           <div style={{ width: 40, height: 40, borderRadius: 99, display: 'flex', alignItems: 'center', justifyContent: 'center', background: `${accent}14`, color: accent, marginBottom: 2 }}>
             <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
           </div>
-          <p style={{ fontSize: 13.5, fontWeight: 700, color: S.text1, margin: 0 }}>Click or drag &amp; drop</p>
-          <p style={{ fontSize: 11.5, color: S.text3, margin: 0 }}>JPG, PNG or PDF · max 10 MB</p>
+          <p style={{ fontSize: 14, fontWeight: 700, color: S.text1, margin: 0 }}>Click or drag &amp; drop</p>
+          <p style={{ fontSize: 12, color: S.text3, margin: 0 }}>JPG, PNG or PDF · max 10 MB</p>
         </button>
       )}
     </div>
@@ -131,13 +131,13 @@ function DocCard({ step, title, subtitle, accent, typeOptions, docType, setDocTy
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: '16px 20px', borderBottom: `1px solid ${S.border}`, background: `${accent}08` }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 13 }}>
-          <div style={{ width: 36, height: 36, borderRadius: 11, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, fontWeight: 800,
+          <div style={{ width: 36, height: 36, borderRadius: 11, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 800,
             background: done ? 'var(--t-bull-s)' : `${accent}1f`, border: `1px solid ${done ? `${S.bull}55` : `${accent}40`}`, color: done ? S.bull : accent }}>
             {done ? <svg width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.6}><polyline points="20 6 9 17 4 12"/></svg> : step}
           </div>
           <div>
-            <p style={{ fontSize: 14.5, fontWeight: 800, color: S.text1, margin: 0 }}>{title}</p>
-            <p style={{ fontSize: 11.5, color: S.text3, margin: '2px 0 0' }}>{subtitle}</p>
+            <p style={{ fontSize: 14, fontWeight: 800, color: S.text1, margin: 0 }}>{title}</p>
+            <p style={{ fontSize: 12, color: S.text3, margin: '2px 0 0' }}>{subtitle}</p>
           </div>
         </div>
         <StatusPill status={status} />
@@ -146,7 +146,7 @@ function DocCard({ step, title, subtitle, accent, typeOptions, docType, setDocTy
       <div style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 18 }}>
         {/* Type picker */}
         <div>
-          <p style={{ fontSize: 11, fontWeight: 700, color: S.text3, textTransform: 'uppercase', letterSpacing: '0.07em', margin: '0 0 10px' }}>Document type</p>
+          <p style={{ fontSize: 12, fontWeight: 700, color: S.text3, textTransform: 'uppercase', letterSpacing: '0.07em', margin: '0 0 10px' }}>Document type</p>
           <div className="grid grid-cols-1 sm:grid-cols-3" style={{ gap: 8 }}>
             {typeOptions.map(opt => {
               const on = docType === opt.value
@@ -155,7 +155,7 @@ function DocCard({ step, title, subtitle, accent, typeOptions, docType, setDocTy
                   style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '11px 13px', borderRadius: 12, cursor: locked ? 'not-allowed' : 'pointer', opacity: locked && !on ? 0.5 : 1, textAlign: 'left',
                     background: on ? `${accent}16` : 'rgba(var(--ink),0.025)', border: `1px solid ${on ? `${accent}55` : S.border}`, color: on ? accent : S.text2 }}>
                   <span style={{ flexShrink: 0, display: 'flex' }}>{opt.icon}</span>
-                  <span style={{ fontSize: 12.5, fontWeight: 700, color: on ? accent : S.text1, flex: 1 }}>{opt.label}</span>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: on ? accent : S.text1, flex: 1 }}>{opt.label}</span>
                   {on && <span style={{ width: 16, height: 16, borderRadius: 99, flexShrink: 0, background: accent, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="#fff" strokeWidth={3.5}><polyline points="20 6 9 17 4 12"/></svg>
                   </span>}
@@ -167,13 +167,13 @@ function DocCard({ step, title, subtitle, accent, typeOptions, docType, setDocTy
 
         {/* Upload */}
         <div>
-          <p style={{ fontSize: 11, fontWeight: 700, color: S.text3, textTransform: 'uppercase', letterSpacing: '0.07em', margin: '0 0 10px' }}>Upload document</p>
+          <p style={{ fontSize: 12, fontWeight: 700, color: S.text3, textTransform: 'uppercase', letterSpacing: '0.07em', margin: '0 0 10px' }}>Upload document</p>
           <UploadZone file={file} onFile={setFile} disabled={locked || !docType} accent={accent} />
         </div>
 
         {/* Requirements */}
         <div style={{ borderRadius: 12, padding: 14, background: 'rgba(var(--ink),0.02)', border: `1px solid ${S.border}` }}>
-          <p style={{ fontSize: 11, fontWeight: 700, color: S.text3, textTransform: 'uppercase', letterSpacing: '0.07em', margin: '0 0 8px' }}>Requirements</p>
+          <p style={{ fontSize: 12, fontWeight: 700, color: S.text3, textTransform: 'uppercase', letterSpacing: '0.07em', margin: '0 0 8px' }}>Requirements</p>
           <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 7 }}>
             {requirements.map(r => (
               <li key={r} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 12, color: S.text2, lineHeight: 1.4 }}>
@@ -320,7 +320,7 @@ export default function KYCPage() {
             <ProgressRing pct={progress} color={heroColor}>
               {overall === 'verified'
                 ? <svg width="30" height="30" fill="none" viewBox="0 0 24 24" stroke={heroColor} strokeWidth={2.4}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
-                : <span style={{ fontSize: 20, fontWeight: 800, color: heroColor, fontFamily: 'ui-monospace,monospace' }}>{progress}%</span>}
+                : <span style={{ fontSize: 22, fontWeight: 800, color: heroColor, fontFamily: 'ui-monospace,monospace' }}>{progress}%</span>}
             </ProgressRing>
             <div style={{ flex: 1, minWidth: 220 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6, flexWrap: 'wrap' }}>
@@ -338,7 +338,7 @@ export default function KYCPage() {
                   return (
                     <React.Fragment key={s.key}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-                        <div style={{ width: 24, height: 24, borderRadius: 99, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 800,
+                        <div style={{ width: 24, height: 24, borderRadius: 99, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800,
                           background: done ? heroColor : 'rgba(var(--ink),0.06)', color: done ? '#fff' : S.text3, border: done ? 'none' : `1px solid ${S.border}` }}>
                           {done ? <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><polyline points="20 6 9 17 4 12"/></svg> : i + 1}
                         </div>
@@ -374,9 +374,9 @@ export default function KYCPage() {
                   <svg width="26" height="26" fill="none" viewBox="0 0 24 24" stroke={S.bull} strokeWidth={2.5}><polyline points="20 6 9 17 4 12"/></svg>
                 </div>
                 <p style={{ fontSize: 16, fontWeight: 800, color: S.bull, margin: '0 0 6px' }}>Account verified</p>
-                <p style={{ fontSize: 12.5, color: S.text2, margin: '0 0 16px', lineHeight: 1.5 }}>All features and withdrawal limits are unlocked. Thank you.</p>
+                <p style={{ fontSize: 13, color: S.text2, margin: '0 0 16px', lineHeight: 1.5 }}>All features and withdrawal limits are unlocked. Thank you.</p>
                 <button onClick={() => navigate('/dashboard')}
-                  style={{ width: '100%', padding: '12px', borderRadius: 11, background: S.bull, border: 'none', color: '#fff', fontSize: 13.5, fontWeight: 700, cursor: 'pointer' }}>
+                  style={{ width: '100%', padding: '12px', borderRadius: 11, background: S.bull, border: 'none', color: '#fff', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>
                   Go to Dashboard
                 </button>
               </div>
@@ -386,20 +386,20 @@ export default function KYCPage() {
                   <div style={{ width: 40, height: 40, borderRadius: 11, flexShrink: 0, background: 'var(--t-warn-s)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <svg width="19" height="19" fill="none" viewBox="0 0 24 24" stroke={S.warn} strokeWidth={2}><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                   </div>
-                  <p style={{ fontSize: 14.5, fontWeight: 800, color: S.text1, margin: 0 }}>Under review</p>
+                  <p style={{ fontSize: 14, fontWeight: 800, color: S.text1, margin: 0 }}>Under review</p>
                 </div>
-                <p style={{ fontSize: 12.5, color: S.text2, margin: 0, lineHeight: 1.5 }}>
+                <p style={{ fontSize: 13, color: S.text2, margin: 0, lineHeight: 1.5 }}>
                   Submitted {record.submitted_at ? new Date(record.submitted_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric' }) : 'recently'}. Our team typically reviews documents within <strong style={{ color: S.text1 }}>1–2 business days</strong> — you'll get a notification when it's done.
                 </p>
               </div>
             ) : (
               <div style={{ background: S.surface, border: `1px solid ${S.border}`, borderRadius: 18, padding: 20 }}>
-                <p style={{ fontSize: 14.5, fontWeight: 800, color: S.text1, margin: '0 0 4px' }}>{canSubmitAll ? 'Ready to submit' : 'Add your documents'}</p>
-                <p style={{ fontSize: 12.5, color: S.text3, margin: '0 0 16px', lineHeight: 1.5 }}>
+                <p style={{ fontSize: 14, fontWeight: 800, color: S.text1, margin: '0 0 4px' }}>{canSubmitAll ? 'Ready to submit' : 'Add your documents'}</p>
+                <p style={{ fontSize: 13, color: S.text3, margin: '0 0 16px', lineHeight: 1.5 }}>
                   {canSubmitAll ? 'Submit for review — you\'ll be notified once verified.' : 'Pick a document type and upload a file for each step to continue.'}
                 </p>
                 <button onClick={handleSubmit} disabled={!canSubmitAll || submitting}
-                  style={{ width: '100%', padding: 13, borderRadius: 11, border: 'none', fontSize: 13.5, fontWeight: 700, cursor: (!canSubmitAll || submitting) ? 'not-allowed' : 'pointer',
+                  style={{ width: '100%', padding: 13, borderRadius: 11, border: 'none', fontSize: 14, fontWeight: 700, cursor: (!canSubmitAll || submitting) ? 'not-allowed' : 'pointer',
                     background: (!canSubmitAll || submitting) ? 'var(--t-accent-s)' : S.accent, color: (!canSubmitAll || submitting) ? S.text3 : '#fff' }}>
                   {submitting ? 'Submitting…' : 'Submit for Verification'}
                 </button>
@@ -414,8 +414,8 @@ export default function KYCPage() {
                   <div key={b.title} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
                     <div style={{ width: 34, height: 34, borderRadius: 10, flexShrink: 0, background: 'var(--t-accent-s)', color: S.accent, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{b.icon}</div>
                     <div>
-                      <p style={{ fontSize: 12.5, fontWeight: 700, color: S.text1, margin: 0 }}>{b.title}</p>
-                      <p style={{ fontSize: 11.5, color: S.text3, margin: '2px 0 0', lineHeight: 1.4 }}>{b.desc}</p>
+                      <p style={{ fontSize: 13, fontWeight: 700, color: S.text1, margin: 0 }}>{b.title}</p>
+                      <p style={{ fontSize: 12, color: S.text3, margin: '2px 0 0', lineHeight: 1.4 }}>{b.desc}</p>
                     </div>
                   </div>
                 ))}
@@ -425,7 +425,7 @@ export default function KYCPage() {
             {/* Security note */}
             <div style={{ display: 'flex', gap: 10, padding: '14px 16px', borderRadius: 14, background: 'rgba(var(--ink),0.02)', border: `1px solid ${S.border}` }}>
               <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke={S.text3} strokeWidth={1.8} style={{ flexShrink: 0, marginTop: 1 }}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-              <p style={{ fontSize: 11, color: S.text3, margin: 0, lineHeight: 1.5 }}>
+              <p style={{ fontSize: 12, color: S.text3, margin: 0, lineHeight: 1.5 }}>
                 Your data is encrypted and used solely for identity verification, in line with our Privacy Policy and applicable regulations.
               </p>
             </div>

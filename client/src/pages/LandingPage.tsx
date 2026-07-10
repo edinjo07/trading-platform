@@ -229,7 +229,7 @@ export default function LandingPage() {
             style={{ borderTop: '1px solid rgba(166,150,120,0.1)' }}>
             {NAV_LINKS.map(l => (
               <button key={l.id} onClick={() => scrollTo(l.id)}
-                className="text-left text-[15px] font-medium py-3 px-2 rounded-lg"
+                className="text-left text-[16px] font-medium py-3 px-2 rounded-lg"
                 style={{ color: IVORY, background: 'none', border: 'none', cursor: 'pointer' }}>
                 {l.label}
               </button>
@@ -275,7 +275,7 @@ export default function LandingPage() {
 
         <div className="relative flex-1 flex flex-col justify-center max-w-6xl mx-auto px-5 sm:px-6 w-full" style={{ paddingTop: 96, paddingBottom: 32 }}>
           {/* Eyebrow */}
-          <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full text-[10.5px] sm:text-[11px] font-bold self-start mb-7"
+          <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full text-[10.5px] sm:text-[12px] font-bold self-start mb-7"
             style={{ background: 'rgba(20,18,26,0.62)', border: '1px solid rgba(246,196,83,0.3)', color: GOLD, letterSpacing: '0.12em', backdropFilter: 'blur(8px)' }}>
             <span style={{ width: 6, height: 6, borderRadius: 99, background: '#18c98a', animation: 'lp-pulse 1.8s ease-in-out infinite' }} />
             FCA · CYSEC · CURAÇAO REGULATED — LIVE EXECUTION
@@ -302,7 +302,7 @@ export default function LandingPage() {
           <div className="flex flex-col sm:flex-row gap-3 mt-10">
             <GoldCTA onClick={goToRegister}>Take the seat — it's free</GoldCTA>
             <button onClick={() => scrollTo('engine')}
-              className="inline-flex items-center justify-center gap-2 px-7 py-4 rounded-xl text-[15px] font-semibold"
+              className="inline-flex items-center justify-center gap-2 px-7 py-4 rounded-xl text-[16px] font-semibold"
               style={{ background: 'rgba(20,18,26,0.55)', color: IVORY, border: '1px solid rgba(166,150,120,0.32)', cursor: 'pointer', backdropFilter: 'blur(8px)' }}>
               Open the engine cover
             </button>
@@ -318,7 +318,7 @@ export default function LandingPage() {
                 <div className="font-mono font-extrabold text-xl sm:text-2xl" style={{ color: GOLD, letterSpacing: '-0.02em' }}>
                   {s.val}<span className="text-xs sm:text-sm font-bold" style={{ color: 'rgba(246,196,83,0.55)' }}>{s.unit && ` ${s.unit}`}</span>
                 </div>
-                <div className="text-[10px] sm:text-2xs font-bold uppercase mt-1" style={{ color: DIM, letterSpacing: '0.14em' }}>{s.label}</div>
+                <div className="text-[10.5px] sm:text-2xs font-bold uppercase mt-1" style={{ color: DIM, letterSpacing: '0.14em' }}>{s.label}</div>
               </div>
             ))}
           </div>
@@ -347,7 +347,7 @@ export default function LandingPage() {
               One engine.
               <br />Two power units.
             </h2>
-            <p className="text-sm sm:text-[15px] leading-relaxed" style={{ color: BODY, maxWidth: 400 }}>
+            <p className="text-sm sm:text-[16px] leading-relaxed" style={{ color: BODY, maxWidth: 400 }}>
               Every great car is defined by its engine. Ours has two power units
               working as one — the relentless one, and the one with your hands
               on the wheel.
@@ -371,7 +371,7 @@ export default function LandingPage() {
                   <div className="text-xs font-semibold" style={{ color: BLUE2 }}>The relentless one</div>
                 </div>
               </div>
-              <p className="text-[13.5px] leading-relaxed mb-5" style={{ color: BODY }}>
+              <p className="text-[14px] leading-relaxed mb-5" style={{ color: BODY }}>
                 Automation that never blinks, never tires, never revenge-trades.
                 Four race-tested strategies read confluence and breaking news the
                 way engineers read telemetry — and refuse entries that fight the
@@ -379,7 +379,7 @@ export default function LandingPage() {
               </p>
               <ul className="flex flex-col gap-2">
                 {['Demands confluence before every entry', 'News-aware: vetoes trades that fight confident reads', 'Hard stops, daily loss caps — team orders, always obeyed'].map(t => (
-                  <li key={t} className="flex items-center gap-2.5 text-[12.5px]" style={{ color: BODY }}>
+                  <li key={t} className="flex items-center gap-2.5 text-[13px]" style={{ color: BODY }}>
                     <span style={{ width: 5, height: 5, borderRadius: 99, background: BLUE, flexShrink: 0 }} />{t}
                   </li>
                 ))}
@@ -403,14 +403,14 @@ export default function LandingPage() {
                   <div className="text-xs font-semibold" style={{ color: GOLD }}>Your hands on the wheel</div>
                 </div>
               </div>
-              <p className="text-[13.5px] leading-relaxed mb-5" style={{ color: BODY }}>
+              <p className="text-[14px] leading-relaxed mb-5" style={{ color: BODY }}>
                 A full trading cockpit with millisecond fills — charts, depth, one-tap
                 tickets, SL/TP on every order. When you see the gap the machines can't,
                 nothing gets between your instinct and the market.
               </p>
               <ul className="flex flex-col gap-2">
                 {['Millisecond market execution, no requotes', '250+ instruments across five asset classes', 'Price alerts, scanner and news at your fingertips'].map(t => (
-                  <li key={t} className="flex items-center gap-2.5 text-[12.5px]" style={{ color: BODY }}>
+                  <li key={t} className="flex items-center gap-2.5 text-[13px]" style={{ color: BODY }}>
                     <span style={{ width: 5, height: 5, borderRadius: 99, background: GOLD, flexShrink: 0 }} />{t}
                   </li>
                 ))}
@@ -428,7 +428,7 @@ export default function LandingPage() {
                   {s.icon}
                 </div>
                 <div>
-                  <h3 className="font-bold text-[15px] mb-1" style={{ color: IVORY }}>{s.title}</h3>
+                  <h3 className="font-bold text-[16px] mb-1" style={{ color: IVORY }}>{s.title}</h3>
                   <p className="text-[13px] leading-relaxed" style={{ color: BODY }}>{s.body}</p>
                 </div>
               </div>
@@ -449,12 +449,12 @@ export default function LandingPage() {
             The missing piece
             <br />isn't in the garage.
           </h2>
-          <p className="text-[15px] sm:text-lg leading-relaxed mx-auto mb-5" style={{ color: BODY, maxWidth: 560 }}>
+          <p className="text-[16px] sm:text-lg leading-relaxed mx-auto mb-5" style={{ color: BODY, maxWidth: 560 }}>
             We can engineer the pace. We can engineer the guards, the telemetry,
             the discipline. What we can't engineer is the nerve to take the corner —
             the feel for the moment the market opens a door.
           </p>
-          <p className="text-[15px] sm:text-lg leading-relaxed mx-auto mb-11" style={{ color: IVORY, maxWidth: 560, fontWeight: 600 }}>
+          <p className="text-[16px] sm:text-lg leading-relaxed mx-auto mb-11" style={{ color: IVORY, maxWidth: 560, fontWeight: 600 }}>
             The car wins races. <Gold>The driver wins titles.</Gold>
             <br />The seat is open.
           </p>
@@ -470,7 +470,7 @@ export default function LandingPage() {
           <h2 className="font-extrabold" style={{ color: IVORY, fontSize: 'clamp(1.8rem, 4.5vw, 2.8rem)', letterSpacing: '-0.025em', lineHeight: 1.1 }}>
             Every track. One car.
           </h2>
-          <p className="text-sm sm:text-[15px]" style={{ color: BODY, maxWidth: 360 }}>
+          <p className="text-sm sm:text-[16px]" style={{ color: BODY, maxWidth: 360 }}>
             Crypto, forex, stocks, indices and commodities — 250+ instruments on the same engine.
           </p>
         </div>
@@ -484,12 +484,12 @@ export default function LandingPage() {
                   <AssetIcon symbol={m.sym} assetClass={m.cls} size={26} />
                   <span className="font-mono text-sm font-extrabold" style={{ color: IVORY }}>{m.sym}</span>
                 </div>
-                <span className="text-[9px] font-bold uppercase px-2 py-0.5 rounded-full hidden sm:inline"
+                <span className="text-[10.5px] font-bold uppercase px-2 py-0.5 rounded-full hidden sm:inline"
                   style={{ color: DIM, background: 'rgba(174,166,186,0.09)', letterSpacing: '0.08em' }}>{m.cat}</span>
               </div>
               <div className="text-[12px] mb-2" style={{ color: DIM }}>{m.name}</div>
               <div className="flex items-baseline justify-between gap-2 flex-wrap">
-                <span className="font-mono text-[15px] font-bold" style={{ color: IVORY }}>{m.price}</span>
+                <span className="font-mono text-[16px] font-bold" style={{ color: IVORY }}>{m.price}</span>
                 <span className="font-mono text-xs font-bold" style={{ color: m.up ? '#18c98a' : '#ff5a72' }}>{m.chg}</span>
               </div>
             </button>
@@ -543,7 +543,7 @@ export default function LandingPage() {
                 The engine is running.
                 <br /><Gold>It's waiting for you.</Gold>
               </h2>
-              <p className="text-[15px] mx-auto mb-10" style={{ color: BODY, maxWidth: 430 }}>
+              <p className="text-[16px] mx-auto mb-10" style={{ color: BODY, maxWidth: 430 }}>
                 Sixty seconds to your seat fitting. A $100,000 practice balance is on the grid, warmed up and ready.
               </p>
               <GoldCTA onClick={goToRegister} big>Take the seat</GoldCTA>
@@ -613,15 +613,15 @@ export default function LandingPage() {
 
           {/* Risk + copyright */}
           <div style={{ borderTop: '1px solid rgba(166,150,120,0.1)', paddingTop: 24 }}>
-            <p className="text-[11px] leading-relaxed mb-4" style={{ color: DIM }}>
+            <p className="text-[12px] leading-relaxed mb-4" style={{ color: DIM }}>
               <strong style={{ color: BODY }}>Risk warning:</strong>{' '}
               Trading derivatives carries a high risk of losing capital and is not suitable for all investors.
               You should only trade with money you can afford to lose and ensure you fully understand the risks involved.
               Past performance is not a reliable indicator of future results.
             </p>
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-              <p className="text-[11px]" style={{ color: DIM }}>© {new Date().getFullYear()} TradeX Pro. All rights reserved.</p>
-              <p className="text-[11px] font-mono" style={{ color: 'rgba(246,196,83,0.55)' }}>The X is the apex.</p>
+              <p className="text-[12px]" style={{ color: DIM }}>© {new Date().getFullYear()} TradeX Pro. All rights reserved.</p>
+              <p className="text-[12px] font-mono" style={{ color: 'rgba(246,196,83,0.55)' }}>The X is the apex.</p>
             </div>
           </div>
         </div>

@@ -127,7 +127,7 @@ export default function WithdrawPage() {
             <button onClick={handleSubmit} disabled={submitting}
               className="flex-1 py-2.5 rounded-lg text-sm font-bold transition-all disabled:opacity-60 disabled:cursor-not-allowed"
               style={{ background: 'linear-gradient(135deg,#f97316,#ea580c)', color: 'white' }}>
-              {submitting ? 'Processing…' : 'Submit Withdrawal'}
+              {submitting ? 'Processing…' : `Withdraw ${formatCurrency(parsedAmount)}`}
             </button>
           </div>
         </div>

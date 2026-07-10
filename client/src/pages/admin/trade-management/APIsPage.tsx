@@ -55,7 +55,7 @@ export default function APIsPage() {
             <thead>
               <tr style={{ borderBottom: '1px solid rgba(56,189,248,0.06)' }}>
                 {['ID', 'Name', 'Provider', 'Type', 'Endpoint', 'Latency', 'Status', 'Last Check', 'Actions'].map(h => (
-                  <th key={h} className="text-left px-5 py-3 font-semibold uppercase tracking-wider text-text-muted" style={{ fontSize: '10px' }}>{h}</th>
+                  <th key={h} className="text-left px-5 py-3 font-semibold uppercase tracking-wider text-text-muted" style={{ fontSize: '10.5px' }}>{h}</th>
                 ))}
               </tr>
             </thead>

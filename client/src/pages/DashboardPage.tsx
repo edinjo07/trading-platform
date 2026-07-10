@@ -53,7 +53,7 @@ function Card({ children, pad = 20, style }: { children: React.ReactNode; pad?: 
 function SectionHeader({ title, onMore, moreLabel }: { title: string; onMore?: () => void; moreLabel?: string }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-      <h2 style={{ fontSize: 15, fontWeight: 800, color: S.text1, margin: 0, letterSpacing: '-0.01em' }}>{title}</h2>
+      <h2 style={{ fontSize: 16, fontWeight: 800, color: S.text1, margin: 0, letterSpacing: '-0.01em' }}>{title}</h2>
       {onMore && (
         <button onClick={onMore}
           style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: S.accent, fontSize: 12, fontWeight: 700 }}>
@@ -74,10 +74,10 @@ function PositionCard({ pos, onClose, closing }: { pos: Position; onClose: () =>
         <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
           <span style={{ width: 3, height: 22, borderRadius: 99, background: isLong ? S.bull : S.bear }} />
           <span style={{ fontSize: 14, fontWeight: 800, color: S.text1 }}>{pos.symbol}</span>
-          <span style={{ fontSize: 10, fontWeight: 800, color: isLong ? S.bull : S.bear }}>{isLong ? 'BUY' : 'SELL'}</span>
-          {pos.leverage > 1 && <span style={{ fontSize: 10, fontWeight: 700, color: S.text3 }}>· {pos.leverage}x</span>}
+          <span style={{ fontSize: 10.5, fontWeight: 800, color: isLong ? S.bull : S.bear }}>{isLong ? 'BUY' : 'SELL'}</span>
+          {pos.leverage > 1 && <span style={{ fontSize: 10.5, fontWeight: 700, color: S.text3 }}>· {pos.leverage}x</span>}
         </div>
-        <span style={{ fontSize: 13.5, fontWeight: 700, color: pnlCol(pos.unrealizedPnl), fontFamily: 'ui-monospace,monospace' }}>
+        <span style={{ fontSize: 14, fontWeight: 700, color: pnlCol(pos.unrealizedPnl), fontFamily: 'ui-monospace,monospace' }}>
           {sign(pos.unrealizedPnl)}{formatCurrency(pos.unrealizedPnl)}
         </span>
       </div>
@@ -89,15 +89,15 @@ function PositionCard({ pos, onClose, closing }: { pos: Position; onClose: () =>
           { l: 'P&L %',   v: `${sign(pos.unrealizedPnlPct)}${pos.unrealizedPnlPct.toFixed(2)}%` },
         ].map(({ l, v }, i) => (
           <div key={l}>
-            <p style={{ fontSize: 10, color: S.text3, margin: '0 0 2px' }}>{l}</p>
+            <p style={{ fontSize: 10.5, color: S.text3, margin: '0 0 2px' }}>{l}</p>
             <p style={{ fontSize: 12, fontWeight: 600, color: i === 3 ? pnlCol(pos.unrealizedPnl) : S.text1, margin: 0, fontFamily: 'ui-monospace,monospace' }}>{v}</p>
           </div>
         ))}
       </div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <p style={{ fontSize: 10, color: S.text3, margin: '0 0 1px' }}>Margin</p>
-          <p style={{ fontSize: 11.5, fontWeight: 600, color: S.text2, margin: 0, fontFamily: 'ui-monospace,monospace' }}>{formatCurrency(pos.margin)}</p>
+          <p style={{ fontSize: 10.5, color: S.text3, margin: '0 0 1px' }}>Margin</p>
+          <p style={{ fontSize: 12, fontWeight: 600, color: S.text2, margin: 0, fontFamily: 'ui-monospace,monospace' }}>{formatCurrency(pos.margin)}</p>
         </div>
         <button onClick={onClose} disabled={closing}
           style={{ padding: '7px 18px', borderRadius: 9, fontSize: 12, fontWeight: 700, background: 'var(--t-bear-s)', color: S.bear, border: `1px solid ${S.bear}`, cursor: closing ? 'not-allowed' : 'pointer', opacity: closing ? 0.5 : 1 }}>
@@ -127,7 +127,7 @@ function MoverRow({ symbol, name, assetClass, onClick, last }: { symbol: string;
       </svg>
       <div style={{ textAlign: 'right', minWidth: 70 }}>
         <p style={{ fontSize: 13, fontWeight: 700, color: S.text1, margin: 0, fontFamily: 'ui-monospace,monospace' }}>{t ? formatPrice(t.price, symbol) : '—'}</p>
-        <p style={{ fontSize: 11, fontWeight: 600, color: up ? S.bull : S.bear, margin: 0, fontFamily: 'ui-monospace,monospace' }}>
+        <p style={{ fontSize: 12, fontWeight: 600, color: up ? S.bull : S.bear, margin: 0, fontFamily: 'ui-monospace,monospace' }}>
           {t ? (up ? '+' : '') + t.changePercent.toFixed(2) + '%' : '—'}
         </p>
       </div>
@@ -144,8 +144,8 @@ function TradedTile({ symbol, name, assetClass, onClick }: { symbol: string; nam
     <button onClick={onClick}
       style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, padding: '14px 8px', borderRadius: 14, background: S.surface2, border: `1px solid ${S.border}`, cursor: 'pointer' }}>
       <AssetIcon symbol={symbol} assetClass={assetClass ?? 'stock'} size={42} />
-      <p style={{ fontSize: 11, fontWeight: 700, color: S.text1, margin: 0, textAlign: 'center', lineHeight: 1.2 }}>{name.split('/')[0]}</p>
-      <p style={{ fontSize: 10, fontWeight: 700, color: up ? S.bull : S.bear, margin: 0, fontFamily: 'ui-monospace,monospace' }}>
+      <p style={{ fontSize: 12, fontWeight: 700, color: S.text1, margin: 0, textAlign: 'center', lineHeight: 1.2 }}>{name.split('/')[0]}</p>
+      <p style={{ fontSize: 10.5, fontWeight: 700, color: up ? S.bull : S.bear, margin: 0, fontFamily: 'ui-monospace,monospace' }}>
         {t ? (up ? '+' : '') + t.changePercent.toFixed(2) + '%' : '—'}
       </p>
     </button>
@@ -349,10 +349,10 @@ export default function DashboardPage() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 11px', borderRadius: 99, background: isLive ? 'var(--t-bull-s)' : 'var(--t-warn-s)', border: `1px solid ${isLive ? S.bull : S.warn}44` }}>
                     <span style={{ width: 6, height: 6, borderRadius: 99, background: isLive ? S.bull : S.warn }} />
-                    <span style={{ fontSize: 11, fontWeight: 700, color: isLive ? S.bull : S.warn }}>{isLive ? 'Live' : 'Demo'} · {currency}</span>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: isLive ? S.bull : S.warn }}>{isLive ? 'Live' : 'Demo'} · {currency}</span>
                   </div>
                   {portfolio?.accountNumber ? (
-                    <span style={{ fontSize: 11, fontWeight: 600, color: S.text3, fontFamily: 'ui-monospace,monospace' }}>#{portfolio.accountNumber}</span>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: S.text3, fontFamily: 'ui-monospace,monospace' }}>#{portfolio.accountNumber}</span>
                   ) : null}
                 </div>
                 <button onClick={openSwitcher}
@@ -362,7 +362,7 @@ export default function DashboardPage() {
                 </button>
               </div>
 
-              <p style={{ fontSize: 11, color: S.text3, margin: '0 0 5px', textTransform: 'uppercase', letterSpacing: '0.07em', fontWeight: 600 }}>Account Equity</p>
+              <p style={{ fontSize: 12, color: S.text3, margin: '0 0 5px', textTransform: 'uppercase', letterSpacing: '0.07em', fontWeight: 600 }}>Account Equity</p>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, flexWrap: 'wrap', marginBottom: 16 }}>
                 <span style={{ fontSize: 34, fontWeight: 800, color: S.text1, fontFamily: 'ui-monospace,monospace', letterSpacing: '-0.02em' }}>
                   {formatCurrency(equity, 2, currency)}
@@ -376,7 +376,7 @@ export default function DashboardPage() {
               </div>
 
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '11px 14px', borderRadius: 11, background: 'rgba(var(--ink),0.04)', marginBottom: 16 }}>
-                <span style={{ fontSize: 12.5, color: S.text2 }}>Available to trade</span>
+                <span style={{ fontSize: 13, color: S.text2 }}>Available to trade</span>
                 <span style={{ fontSize: 14, fontWeight: 700, color: S.text1, fontFamily: 'ui-monospace,monospace' }}>{formatCurrency(cash, 2, currency)}</span>
               </div>
 
@@ -401,7 +401,7 @@ export default function DashboardPage() {
                   <div style={{ width: 52, height: 52, borderRadius: '50%', background: 'rgba(var(--ink),0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: S.text3 }}>
                     <svg width="26" height="26" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.3}><circle cx="11" cy="11" r="8"/><circle cx="11" cy="11" r="4"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                   </div>
-                  <p style={{ fontSize: 15, fontWeight: 700, color: S.text1, margin: 0 }}>No open trades</p>
+                  <p style={{ fontSize: 16, fontWeight: 700, color: S.text1, margin: 0 }}>No open trades</p>
                   <p style={{ fontSize: 13, color: S.text3, margin: 0, textAlign: 'center' }}>Explore the markets and place your first trade.</p>
                   <button onClick={() => navigate('/dashboard/trade')}
                     style={{ marginTop: 4, padding: '9px 22px', borderRadius: 10, background: S.accent, border: 'none', color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
@@ -420,11 +420,11 @@ export default function DashboardPage() {
             {/* Biggest movers */}
             <Card>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-                <h2 style={{ fontSize: 15, fontWeight: 800, color: S.text1, margin: 0 }}>Biggest movers</h2>
+                <h2 style={{ fontSize: 16, fontWeight: 800, color: S.text1, margin: 0 }}>Biggest movers</h2>
                 <div style={{ display: 'flex', gap: 4, padding: 3, borderRadius: 10, background: 'rgba(var(--ink),0.04)', border: `1px solid ${S.border}` }}>
                   {(['risers', 'fallers'] as const).map(t => (
                     <button key={t} onClick={() => setMoversTab(t)}
-                      style={{ padding: '5px 12px', borderRadius: 7, fontSize: 11.5, fontWeight: 700, border: 'none', cursor: 'pointer',
+                      style={{ padding: '5px 12px', borderRadius: 7, fontSize: 12, fontWeight: 700, border: 'none', cursor: 'pointer',
                         background: moversTab === t ? S.surface : 'transparent', color: moversTab === t ? S.text1 : S.text3 }}>
                       {t === 'risers' ? '↑ Risers' : '↓ Fallers'}
                     </button>
@@ -474,10 +474,10 @@ export default function DashboardPage() {
                       </div>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
-                          <span style={{ fontSize: 12.5, fontWeight: 700, color: S.text1 }}>{live ? 'Live' : 'Demo'} · {acct.currency}</span>
-                          {isActive && <span style={{ fontSize: 9, fontWeight: 800, padding: '1px 6px', borderRadius: 99, background: S.accent, color: '#fff' }}>ACTIVE</span>}
+                          <span style={{ fontSize: 13, fontWeight: 700, color: S.text1 }}>{live ? 'Live' : 'Demo'} · {acct.currency}</span>
+                          {isActive && <span style={{ fontSize: 10.5, fontWeight: 800, padding: '1px 6px', borderRadius: 99, background: S.accent, color: '#fff' }}>ACTIVE</span>}
                         </div>
-                        <div style={{ fontSize: 15, fontWeight: 800, color: S.text1, fontFamily: 'ui-monospace,monospace' }}>{formatCurrency(balance, 2, acct.currency)}</div>
+                        <div style={{ fontSize: 16, fontWeight: 800, color: S.text1, fontFamily: 'ui-monospace,monospace' }}>{formatCurrency(balance, 2, acct.currency)}</div>
                       </div>
                       {canDeposit && (
                         <button onClick={() => { setDepositCurrency(acct.currency); setDepositError(''); setShowDeposit(true) }}
@@ -489,7 +489,7 @@ export default function DashboardPage() {
                   )
                 })}
                 <button onClick={openSwitcher}
-                  style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7, padding: 11, borderRadius: 11, background: 'var(--t-accent-s)', border: `1px dashed ${S.accent}55`, color: S.accent, fontSize: 12.5, fontWeight: 700, cursor: 'pointer' }}>
+                  style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7, padding: 11, borderRadius: 11, background: 'var(--t-accent-s)', border: `1px dashed ${S.accent}55`, color: S.accent, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
                   <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                   New account
                 </button>
@@ -535,9 +535,9 @@ export default function DashboardPage() {
                         </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ fontSize: 13, fontWeight: 700, color: S.text1 }}>{a.symbol}</div>
-                          <div style={{ fontSize: 11, color: S.text3, fontFamily: 'ui-monospace,monospace' }}>{isAbove ? '↑ Above' : '↓ Below'} {formatPrice(a.targetPrice, a.symbol)}</div>
+                          <div style={{ fontSize: 12, color: S.text3, fontFamily: 'ui-monospace,monospace' }}>{isAbove ? '↑ Above' : '↓ Below'} {formatPrice(a.targetPrice, a.symbol)}</div>
                         </div>
-                        <span style={{ fontSize: 10, fontWeight: 700, padding: '3px 8px', borderRadius: 99, background: `${statusColor}22`, color: statusColor }}>{statusLabel}</span>
+                        <span style={{ fontSize: 10.5, fontWeight: 700, padding: '3px 8px', borderRadius: 99, background: `${statusColor}22`, color: statusColor }}>{statusLabel}</span>
                       </button>
                     )
                   })}
@@ -554,9 +554,9 @@ export default function DashboardPage() {
                     const buy = o.side === 'buy'
                     return (
                       <div key={o.id} style={{ display: 'flex', alignItems: 'center', gap: 11, padding: '10px 0', borderBottom: i === arr.length - 1 ? 'none' : `1px solid ${S.border}` }}>
-                        <span style={{ width: 30, height: 30, borderRadius: 8, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 800, background: buy ? 'var(--t-bull-s)' : 'var(--t-bear-s)', color: buy ? S.bull : S.bear }}>{o.side.toUpperCase()}</span>
+                        <span style={{ width: 30, height: 30, borderRadius: 8, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10.5, fontWeight: 800, background: buy ? 'var(--t-bull-s)' : 'var(--t-bear-s)', color: buy ? S.bull : S.bear }}>{o.side.toUpperCase()}</span>
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <p style={{ fontSize: 12.5, fontWeight: 700, color: S.text1, margin: 0 }}>{o.symbol}</p>
+                          <p style={{ fontSize: 13, fontWeight: 700, color: S.text1, margin: 0 }}>{o.symbol}</p>
                           <p style={{ fontSize: 10.5, color: S.text3, margin: '1px 0 0', fontFamily: 'ui-monospace,monospace' }}>{o.quantity} units · {o.fill_price ? formatPrice(o.fill_price, o.symbol) : 'market'}</p>
                         </div>
                         <span style={{ fontSize: 10.5, color: S.text3, whiteSpace: 'nowrap' }}>{new Date(o.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
@@ -583,7 +583,7 @@ export default function DashboardPage() {
                 <div style={{ position: 'absolute', right: 10, top: 10, opacity: 0.9 }}>{cat.img}</div>
                 <span style={{ fontSize: 14, fontWeight: 800, color: '#fff', textAlign: 'left', lineHeight: 1.3, zIndex: 1 }}>{cat.label}</span>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 4, zIndex: 1 }}>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: cat.accent }}>Explore</span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: cat.accent }}>Explore</span>
                   <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke={cat.accent} strokeWidth={2.5}><polyline points="9 18 15 12 9 6"/></svg>
                 </div>
               </button>
@@ -616,7 +616,7 @@ export default function DashboardPage() {
             <div style={{ width: 36, height: 4, borderRadius: 2, background: 'rgba(var(--ink),0.18)', margin: '0 auto 20px' }} />
 
             {switcherPage === 'list' && (<>
-              <h3 style={{ fontSize: 17, fontWeight: 700, color: 'rgb(var(--ink))', marginBottom: 4, textAlign: 'center' }}>Switch Account</h3>
+              <h3 style={{ fontSize: 18, fontWeight: 700, color: 'rgb(var(--ink))', marginBottom: 4, textAlign: 'center' }}>Switch Account</h3>
               <p style={{ fontSize: 12, color: 'rgba(var(--ink),0.4)', textAlign: 'center', marginBottom: 20 }}>Select the account you want to trade with</p>
               {visibleAccounts.map(acct => {
                 const isActive = user?.accountMode === acct.mode && (user?.currency ?? 'USD') === acct.currency
@@ -634,7 +634,7 @@ export default function DashboardPage() {
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: 14, fontWeight: 700, color: 'rgb(var(--ink))', marginBottom: 2 }}>{acct.label}</div>
                       <div style={{ fontSize: 12, color: 'rgba(var(--ink),0.45)' }}>{acct.sub}</div>
-                      {row?.account_number ? <div style={{ fontSize: 10, fontFamily: 'monospace', color: 'rgba(var(--ink),0.28)', marginTop: 2 }}>#{row.account_number}</div> : null}
+                      {row?.account_number ? <div style={{ fontSize: 10.5, fontFamily: 'monospace', color: 'rgba(var(--ink),0.28)', marginTop: 2 }}>#{row.account_number}</div> : null}
                     </div>
                     {isActive && (
                       <div style={{ width: 22, height: 22, borderRadius: '50%', background: '#4f8cff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -658,8 +658,8 @@ export default function DashboardPage() {
                   <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ color: 'rgba(var(--ink),0.7)' }} strokeWidth={2.2}><polyline points="15 18 9 12 15 6"/></svg>
                 </button>
                 <div>
-                  <div style={{ fontSize: 17, fontWeight: 700, color: 'rgb(var(--ink))' }}>Create Account</div>
-                  <div style={{ fontSize: 11, color: 'rgba(var(--ink),0.4)' }}>Each account has a unique account number</div>
+                  <div style={{ fontSize: 18, fontWeight: 700, color: 'rgb(var(--ink))' }}>Create Account</div>
+                  <div style={{ fontSize: 12, color: 'rgba(var(--ink),0.4)' }}>Each account has a unique account number</div>
                 </div>
               </div>
               {createdNumber ? (
@@ -669,7 +669,7 @@ export default function DashboardPage() {
                   </div>
                   <div style={{ fontSize: 16, fontWeight: 700, color: 'rgb(var(--ink))', marginBottom: 6 }}>Account Created</div>
                   <div style={{ fontSize: 13, color: 'rgba(var(--ink),0.5)', marginBottom: 12 }}>Your account number is</div>
-                  <div style={{ fontSize: 26, fontWeight: 800, color: 'rgb(var(--ink))', fontFamily: 'monospace', letterSpacing: 1 }}>#{createdNumber}</div>
+                  <div style={{ fontSize: 28, fontWeight: 800, color: 'rgb(var(--ink))', fontFamily: 'monospace', letterSpacing: 1 }}>#{createdNumber}</div>
                 </div>
               ) : (<>
                 <div style={{ marginBottom: 20 }}>
@@ -694,8 +694,8 @@ export default function DashboardPage() {
                         style={{ flex: 1, padding: '12px 8px', borderRadius: 12, cursor: 'pointer', textAlign: 'center',
                           background: createCurrency === c.key ? 'rgba(79,140,255,0.1)' : 'rgba(var(--ink),0.04)', border: `1px solid ${createCurrency === c.key ? 'rgba(79,140,255,0.35)' : 'rgba(var(--ink),0.08)'}` }}>
                         <div style={{ fontSize: 18, fontWeight: 800, color: createCurrency === c.key ? '#7aa7ff' : 'rgba(var(--ink),0.4)', marginBottom: 2 }}>{c.symbol}</div>
-                        <div style={{ fontSize: 11, fontWeight: 700, color: createCurrency === c.key ? 'rgb(var(--ink))' : 'rgba(var(--ink),0.5)' }}>{c.key}</div>
-                        <div style={{ fontSize: 9, color: 'rgba(var(--ink),0.3)', marginTop: 1 }}>{c.name}</div>
+                        <div style={{ fontSize: 12, fontWeight: 700, color: createCurrency === c.key ? 'rgb(var(--ink))' : 'rgba(var(--ink),0.5)' }}>{c.key}</div>
+                        <div style={{ fontSize: 10.5, color: 'rgba(var(--ink),0.3)', marginTop: 1 }}>{c.name}</div>
                       </button>
                     ))}
                   </div>
@@ -711,9 +711,9 @@ export default function DashboardPage() {
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                             <span style={{ fontSize: 13, fontWeight: 700, color: 'rgb(var(--ink))' }}>{t.label}</span>
-                            {t.popular && <span style={{ fontSize: 9, fontWeight: 800, padding: '1px 5px', borderRadius: 4, background: 'rgba(79,140,255,0.18)', color: '#7aa7ff' }}>POPULAR</span>}
+                            {t.popular && <span style={{ fontSize: 10.5, fontWeight: 800, padding: '1px 5px', borderRadius: 4, background: 'rgba(79,140,255,0.18)', color: '#7aa7ff' }}>POPULAR</span>}
                           </div>
-                          <div style={{ fontSize: 11, color: 'rgba(var(--ink),0.4)', marginTop: 2 }}>{t.sub}</div>
+                          <div style={{ fontSize: 12, color: 'rgba(var(--ink),0.4)', marginTop: 2 }}>{t.sub}</div>
                         </div>
                       </button>
                     ))}
@@ -721,7 +721,7 @@ export default function DashboardPage() {
                 </div>
                 <div style={{ background: 'rgba(var(--ink),0.04)', borderRadius: 10, padding: '10px 14px', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
                   <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ color: 'rgba(var(--ink),0.4)' }} strokeWidth={1.8}><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                  <span style={{ fontSize: 11, color: 'rgba(var(--ink),0.4)' }}>{createMode === 'demo' ? 'Demo accounts start with $100,000 practice balance' : 'Real accounts require a deposit after creation'}</span>
+                  <span style={{ fontSize: 12, color: 'rgba(var(--ink),0.4)' }}>{createMode === 'demo' ? 'Demo accounts start with $100,000 practice balance' : 'Real accounts require a deposit after creation'}</span>
                 </div>
                 {createError && <div style={{ background: 'rgba(220,56,38,0.1)', border: '1px solid rgba(220,56,38,0.25)', borderRadius: 10, padding: '10px 14px', marginBottom: 12, fontSize: 12, color: '#ff6b6b' }}>{createError}</div>}
                 <button onClick={handleCreateAccount} disabled={creating}
@@ -739,14 +739,14 @@ export default function DashboardPage() {
         <div onClick={() => setShowDeposit(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.72)', zIndex: 1000, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
           <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: 480, background: 'var(--sheet)', borderRadius: '22px 22px 0 0', padding: '16px 16px 48px', maxHeight: '75vh', overflowY: 'auto' }}>
             <div style={{ width: 36, height: 4, borderRadius: 2, background: 'rgba(var(--ink),0.18)', margin: '0 auto 20px' }} />
-            <h3 style={{ fontSize: 17, fontWeight: 700, color: 'rgb(var(--ink))', marginBottom: 4, textAlign: 'center' }}>Deposit Funds</h3>
+            <h3 style={{ fontSize: 18, fontWeight: 700, color: 'rgb(var(--ink))', marginBottom: 4, textAlign: 'center' }}>Deposit Funds</h3>
             <p style={{ fontSize: 12, color: 'rgba(var(--ink),0.4)', textAlign: 'center', marginBottom: 24 }}>Demo account · {depositCurrency}</p>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 10, marginBottom: 12 }}>
               {[5000, 10000, 25000, 50000].map(amt => (
                 <button key={amt} onClick={() => handleDeposit(amt)} disabled={depositing}
                   style={{ padding: '16px 12px', borderRadius: 14, background: 'rgba(24,201,138,0.08)', border: '1px solid rgba(24,201,138,0.2)', cursor: depositing ? 'not-allowed' : 'pointer', textAlign: 'center' }}>
-                  <div style={{ fontSize: 17, fontWeight: 800, color: '#18c98a', fontFamily: 'monospace' }}>{currencySymbol(depositCurrency)}{amt.toLocaleString()}</div>
-                  <div style={{ fontSize: 11, color: 'rgba(var(--ink),0.35)', marginTop: 3 }}>+{amt.toLocaleString()} {depositCurrency}</div>
+                  <div style={{ fontSize: 18, fontWeight: 800, color: '#18c98a', fontFamily: 'monospace' }}>{currencySymbol(depositCurrency)}{amt.toLocaleString()}</div>
+                  <div style={{ fontSize: 12, color: 'rgba(var(--ink),0.35)', marginTop: 3 }}>+{amt.toLocaleString()} {depositCurrency}</div>
                 </button>
               ))}
             </div>

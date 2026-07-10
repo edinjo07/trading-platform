@@ -81,9 +81,9 @@ function StatBox({ label, value, sub, color, icon }: {
         </div>
       )}
       <div>
-        <div className="text-[10px] text-text-muted uppercase tracking-widest mb-1">{label}</div>
+        <div className="text-[10.5px] text-text-muted uppercase tracking-widest mb-1">{label}</div>
         <div className={`text-lg font-bold font-mono ${color ?? 'text-text-primary'}`}>{value}</div>
-        {sub && <div className="text-[10px] text-text-muted mt-0.5">{sub}</div>}
+        {sub && <div className="text-[10.5px] text-text-muted mt-0.5">{sub}</div>}
       </div>
     </div>
   )
@@ -113,7 +113,7 @@ function Field({
           cursor: readOnly ? 'default' : undefined,
         }}
       />
-      {hint && <div className="text-[10px] text-text-muted mt-1">{hint}</div>}
+      {hint && <div className="text-[10.5px] text-text-muted mt-1">{hint}</div>}
     </div>
   )
 }
@@ -383,7 +383,7 @@ export default function ProfilePage() {
 
           {/* Equity pill */}
           <div className="shrink-0 text-right">
-            <div className="text-[10px] text-text-muted mb-1 uppercase tracking-widest">Total Equity</div>
+            <div className="text-[10.5px] text-text-muted mb-1 uppercase tracking-widest">Total Equity</div>
             <div className="text-3xl font-bold font-mono text-text-primary">{formatCurrency(equity, 2, user?.currency ?? 'USD')}</div>
             <div className="flex items-center justify-end gap-2 mt-1">
               <span className="text-xs font-semibold px-2 py-0.5 rounded-full"
@@ -458,7 +458,7 @@ export default function ProfilePage() {
                 className="w-full rounded-lg px-3 py-2.5 text-sm text-text-primary resize-none focus:outline-none"
                 style={{ background: 'rgba(var(--ink),0.05)', border: '1px solid rgba(var(--ink),0.08)' }}
               />
-              <div className="text-[10px] text-text-muted text-right mt-0.5">{bio.length}/200</div>
+              <div className="text-[10.5px] text-text-muted text-right mt-0.5">{bio.length}/200</div>
             </div>
           </Card>
 
@@ -528,7 +528,7 @@ export default function ProfilePage() {
                 <div key={s.label} className="rounded-lg p-3 text-center"
                   style={{ background: 'rgba(var(--ink),0.025)' }}>
                   <div className="text-lg font-bold text-text-primary">{s.value}</div>
-                  <div className="text-[10px] text-text-muted mt-0.5">{s.label}</div>
+                  <div className="text-[10.5px] text-text-muted mt-0.5">{s.label}</div>
                 </div>
               ))}
             </div>
@@ -839,7 +839,7 @@ export default function ProfilePage() {
                       : <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M14.5 2v6.5L19 16a2 2 0 01-1.75 3H6.75A2 2 0 015 16l4.5-7.5V2M8.5 2h7"/></svg>}
                     {m === 'real' ? 'Real Account' : 'Demo Account'}
                   </span>
-                  {user?.accountMode === m && <span className="block text-[10px] mt-1 opacity-60">Active</span>}
+                  {user?.accountMode === m && <span className="block text-[10.5px] mt-1 opacity-60">Active</span>}
                 </button>
               ))}
             </div>

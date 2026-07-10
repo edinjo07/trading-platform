@@ -109,7 +109,7 @@ export default function Layout() {
                 <span style={{ color: isActive ? '#fff' : 'rgba(255,255,255,0.38)' }}>
                   {item.icon(isActive)}
                 </span>
-                <span className="text-[10px] font-medium" style={{ color: isActive ? '#fff' : 'rgba(255,255,255,0.38)' }}>
+                <span className="text-[10.5px] font-medium" style={{ color: isActive ? '#fff' : 'rgba(255,255,255,0.38)' }}>
                   {item.label}
                 </span>
               </>
@@ -153,7 +153,7 @@ export default function Layout() {
                 <span style={{ color: isActive ? '#fff' : 'rgba(255,255,255,0.38)' }}>
                   {item.icon(isActive)}
                 </span>
-                <span className="text-[10px] font-medium" style={{ color: isActive ? '#fff' : 'rgba(255,255,255,0.38)' }}>
+                <span className="text-[10.5px] font-medium" style={{ color: isActive ? '#fff' : 'rgba(255,255,255,0.38)' }}>
                   {item.label}
                 </span>
               </>

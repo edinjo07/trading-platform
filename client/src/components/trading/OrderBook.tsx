@@ -31,9 +31,9 @@ export default function OrderBook() {
   const bidPct = totalBidDepth / (totalBidDepth + totalAskDepth + 0.001) * 100
 
   return (
-    <div className="flex flex-col h-full text-xs font-mono select-none" style={{ background: '#080e1a' }}>
+    <div className="flex flex-col h-full text-xs font-mono select-none" style={{ background: '#16131d' }}>
       {/* Depth bar */}
-      <div className="shrink-0 px-3 py-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+      <div className="shrink-0 px-3 py-2" style={{ borderBottom: '1px solid rgba(176,168,190,0.07)' }}>
         <div className="flex h-1.5 rounded-full overflow-hidden">
           <div className="transition-all" style={{ width: `${bidPct}%`, background: '#18c98a' }} />
           <div className="flex-1" style={{ background: '#ff5a72' }} />
@@ -46,7 +46,7 @@ export default function OrderBook() {
 
       {/* Column headers */}
       <div className="flex justify-between px-3 py-1 text-text-muted text-2xs uppercase tracking-wider shrink-0"
-           style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
+           style={{ borderBottom: '1px solid rgba(176,168,190,0.06)' }}>
         <span>Price</span>
         <span>Size</span>
         <span>Total</span>

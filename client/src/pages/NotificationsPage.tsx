@@ -52,10 +52,10 @@ function Row({ n, onRead, onRemove }: { n: AppNotification; onRead: (id: string)
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           {!n.read && <span style={{ width: 6, height: 6, borderRadius: '50%', background: C.blue, flexShrink: 0 }} />}
-          <span style={{ fontSize: 13.5, fontWeight: 700, color: C.text1, flex: 1, minWidth: 0 }}>{n.title}</span>
+          <span style={{ fontSize: 14, fontWeight: 700, color: C.text1, flex: 1, minWidth: 0 }}>{n.title}</span>
           <span style={{ fontSize: 10.5, color: C.text3, flexShrink: 0 }}>{timeAgo(n.created_at)}</span>
         </div>
-        <p style={{ fontSize: 12.5, color: C.text2, margin: '4px 0 0', lineHeight: 1.5 }}>{n.message}</p>
+        <p style={{ fontSize: 13, color: C.text2, margin: '4px 0 0', lineHeight: 1.5 }}>{n.message}</p>
       </div>
       <button onClick={e => { e.stopPropagation(); onRemove(n.id) }} title="Dismiss"
         style={{ alignSelf: 'flex-start', width: 24, height: 24, borderRadius: 7, background: 'rgba(var(--ink),0.05)', border: 'none', color: C.text3, cursor: 'pointer', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -82,7 +82,7 @@ export default function NotificationsPage() {
         <div>
           <h1 style={{ fontSize: 22, fontWeight: 800, color: C.text1, margin: 0 }}>Notifications</h1>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6 }}>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 11, fontWeight: 700, color: C.green }}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 12, fontWeight: 700, color: C.green }}>
               <span className="animate-pulse2" style={{ width: 6, height: 6, borderRadius: '50%', background: C.green }} /> Live
             </span>
             <span style={{ fontSize: 12, color: C.text3 }}>· {unread} unread · {notifications.length} total</span>
@@ -116,7 +116,7 @@ export default function NotificationsPage() {
               <div key={cat.key} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '11px 14px', borderBottom: `1px solid ${C.border}` }}>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <p style={{ fontSize: 13, fontWeight: 700, color: C.text1, margin: 0 }}>{cat.label}</p>
-                  <p style={{ fontSize: 11, color: C.text3, margin: '2px 0 0' }}>{cat.desc}</p>
+                  <p style={{ fontSize: 12, color: C.text3, margin: '2px 0 0' }}>{cat.desc}</p>
                 </div>
                 <button onClick={() => toggleCategory(cat.key)} role="switch" aria-checked={!muted} title={muted ? 'Muted' : 'On'}
                   style={{ width: 42, height: 23, borderRadius: 12, border: 'none', cursor: 'pointer', position: 'relative', flexShrink: 0, transition: 'background 0.15s', background: muted ? 'rgba(var(--ink),0.15)' : C.green }}>
@@ -152,8 +152,8 @@ export default function NotificationsPage() {
           <div style={{ width: 56, height: 56, borderRadius: '50%', margin: '0 auto 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(79,140,255,0.07)', border: '1px solid rgba(79,140,255,0.15)', color: C.blue }}>
             <svg width="26" height="26" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0" /></svg>
           </div>
-          <p style={{ fontSize: 15, fontWeight: 700, color: C.text1, margin: '0 0 6px' }}>{filter === 'unread' ? 'No unread notifications' : 'No notifications yet'}</p>
-          <p style={{ fontSize: 12.5, color: C.text3, margin: 0 }}>Margin alerts, closed positions, fills and account events appear here.</p>
+          <p style={{ fontSize: 16, fontWeight: 700, color: C.text1, margin: '0 0 6px' }}>{filter === 'unread' ? 'No unread notifications' : 'No notifications yet'}</p>
+          <p style={{ fontSize: 13, color: C.text3, margin: 0 }}>Margin alerts, closed positions, fills and account events appear here.</p>
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
