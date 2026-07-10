@@ -116,7 +116,7 @@ function MoverRow({ symbol, name, assetClass, onClick, last }: { symbol: string;
   const pts = useMemo(() => seedSparkline(symbol, up), [symbol, up])
   return (
     <button onClick={onClick}
-      style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '11px 0', background: 'none', border: 'none', cursor: 'pointer', width: '100%', borderBottom: last ? 'none' : `1px solid ${S.border}` }}>
+      style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '11px 0', background: 'none', border: 'none', cursor: 'pointer', width: '100%', borderBottom: last ? 'none' : '1px solid rgba(148,163,184,0.08)' }}>
       <AssetIcon symbol={symbol} assetClass={assetClass ?? 'stock'} size={38} />
       <div style={{ flex: 1, textAlign: 'left', minWidth: 0 }}>
         <p style={{ fontSize: 13, fontWeight: 700, color: S.text1, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{name}</p>

@@ -36,7 +36,7 @@ function exportOrdersToCSV(orders: Order[]) {
 // ── KPI tile ──────────────────────────────────────────────────────────────────
 function Kpi({ label, value, color }: { label: string; value: string; color?: string }) {
   return (
-    <div style={{ background: S.surface, border: `1px solid ${S.border}`, borderRadius: 14, padding: '13px 15px' }}>
+    <div style={{ background: S.surface, border: `1px solid ${S.border}`, borderRadius: 14, padding: '13px 15px', boxShadow: 'var(--t-shadow-sm)' }}>
       <p style={{ fontSize: 10.5, color: S.text3, margin: '0 0 5px', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 600 }}>{label}</p>
       <p style={{ fontSize: 19, fontWeight: 800, color: color ?? S.text1, margin: 0, fontFamily: 'ui-monospace,monospace', fontVariantNumeric: 'tabular-nums' }}>{value}</p>
     </div>
@@ -108,7 +108,7 @@ export default function OrdersPage() {
 
   return (
     <div className="h-full overflow-y-auto" style={{ background: 'transparent' }}>
-      <div style={{ maxWidth: 1240, margin: '0 auto', padding: '24px 20px 100px' }}>
+      <div style={{ maxWidth: 1240, margin: '0 auto', padding: '28px 20px 110px' }}>
 
         {/* ── Header ──────────────────────────────────────────────────────── */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', marginBottom: 20 }}>
@@ -177,7 +177,7 @@ export default function OrdersPage() {
             </p>
           </div>
         ) : (
-          <div style={{ background: S.surface, border: `1px solid ${S.border}`, borderRadius: 16, overflow: 'hidden' }}>
+          <div style={{ background: S.surface, border: `1px solid ${S.border}`, borderRadius: 16, overflow: 'hidden', boxShadow: 'var(--t-shadow-sm)' }}>
             <div style={{ overflowX: 'auto' }}>
               <div style={{ minWidth: 920 }}>
                 {/* Header */}
@@ -193,7 +193,7 @@ export default function OrdersPage() {
                   const value = o.quantity * (o.fill_price || 0)
                   const cellR: React.CSSProperties = { fontSize: 13, color: S.text1, fontFamily: 'ui-monospace,monospace', fontVariantNumeric: 'tabular-nums', display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }
                   return (
-                    <div key={o.id} style={{ display: 'grid', gridTemplateColumns: COLS, gap: 14, padding: '13px 18px', alignItems: 'center', borderBottom: idx === filtered.length - 1 ? 'none' : `1px solid ${S.border}` }}>
+                    <div key={o.id} style={{ display: 'grid', gridTemplateColumns: COLS, gap: 14, padding: '13px 18px', alignItems: 'center', borderBottom: idx === filtered.length - 1 ? 'none' : '1px solid rgba(148,163,184,0.08)' }}>
                       {/* Instrument */}
                       <div style={{ display: 'flex', alignItems: 'center', gap: 9, minWidth: 0 }}>
                         <span style={{ width: 3, height: 26, borderRadius: 99, background: buy ? S.bull : S.bear, flexShrink: 0 }} />

@@ -99,7 +99,7 @@ function ExposureCard({ positions, currency }: { positions: Position[]; currency
   if (!items) return null
 
   return (
-    <div style={{ background: S.surface, border: `1px solid ${S.border}`, borderRadius: 16, padding: 18 }}>
+    <div style={{ background: S.surface, border: `1px solid ${S.border}`, borderRadius: 16, padding: 18, boxShadow: 'var(--t-shadow-sm)' }}>
       <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 14 }}>
         <p style={{ fontSize: 12, fontWeight: 700, color: S.text1, margin: 0 }}>Exposure by instrument</p>
         <span style={{ fontSize: 11, color: S.text3, fontFamily: 'ui-monospace,monospace' }}>
@@ -251,7 +251,7 @@ function PositionsTable({ positions, currency, onClose, closingId }: {
   const cell: React.CSSProperties = { fontSize: 13, color: S.text1, fontFamily: 'ui-monospace,monospace', fontVariantNumeric: 'tabular-nums', display: 'flex', alignItems: 'center' }
 
   return (
-    <div style={{ background: S.surface, border: `1px solid ${S.border}`, borderRadius: 16, overflow: 'hidden' }}>
+    <div style={{ background: S.surface, border: `1px solid ${S.border}`, borderRadius: 16, overflow: 'hidden', boxShadow: 'var(--t-shadow-sm)' }}>
       <div style={{ overflowX: 'auto' }}>
         <div style={{ minWidth: 820 }}>
           {/* Header */}
@@ -266,7 +266,7 @@ function PositionsTable({ positions, currency, onClose, closingId }: {
             const closing = closingId === pos.id
             const editing = editingId === pos.id
             return (
-              <div key={pos.id} style={{ borderBottom: idx === positions.length - 1 ? 'none' : `1px solid ${S.border}` }}>
+              <div key={pos.id} style={{ borderBottom: idx === positions.length - 1 ? 'none' : '1px solid rgba(148,163,184,0.08)' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: COLS, gap: 14, padding: '13px 18px', alignItems: 'center' }}>
                   {/* Instrument */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
@@ -335,7 +335,7 @@ function OrderRow({ order, last }: { order: Order; last: boolean }) {
   const isBuy = order.side === 'buy'
   const filled = order.status === 'filled'
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '13px 18px', borderBottom: last ? 'none' : `1px solid ${S.border}` }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '13px 18px', borderBottom: last ? 'none' : '1px solid rgba(148,163,184,0.08)' }}>
       <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 38, height: 38, borderRadius: 10, flexShrink: 0, background: isBuy ? 'var(--t-bull-s)' : 'var(--t-bear-s)', color: isBuy ? S.bull : S.bear, fontSize: 10, fontWeight: 800 }}>
         {order.side.toUpperCase()}
       </span>
@@ -421,7 +421,7 @@ export default function PortfolioPage() {
 
   return (
     <div className="h-full overflow-y-auto" style={{ background: 'transparent' }}>
-      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '24px 20px 100px' }}>
+      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '28px 20px 110px' }}>
 
         {/* ── Header ──────────────────────────────────────────────────────── */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', marginBottom: 20 }}>
@@ -533,7 +533,7 @@ export default function PortfolioPage() {
                 icon={<svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.3}><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>}
                 title="No orders yet"
                 desc="Your executed and pending orders will appear here." />
-            : <div style={{ background: S.surface, border: `1px solid ${S.border}`, borderRadius: 16, overflow: 'hidden' }}>
+            : <div style={{ background: S.surface, border: `1px solid ${S.border}`, borderRadius: 16, overflow: 'hidden', boxShadow: 'var(--t-shadow-sm)' }}>
                 {orders.slice(0, 50).map((o: Order, i, arr) => (
                   <OrderRow key={o.id} order={o} last={i === arr.length - 1} />
                 ))}

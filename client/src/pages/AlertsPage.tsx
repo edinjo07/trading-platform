@@ -45,7 +45,7 @@ const STATUS = {
 // ── KPI tile ──────────────────────────────────────────────────────────────────
 function Kpi({ label, value, color }: { label: string; value: string; color?: string }) {
   return (
-    <div style={{ background: S.surface, border: `1px solid ${S.border}`, borderRadius: 14, padding: '13px 15px' }}>
+    <div style={{ background: S.surface, border: `1px solid ${S.border}`, borderRadius: 14, padding: '13px 15px', boxShadow: 'var(--t-shadow-sm)' }}>
       <p style={{ fontSize: 10.5, color: S.text3, margin: '0 0 5px', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 600 }}>{label}</p>
       <p style={{ fontSize: 19, fontWeight: 800, color: color ?? S.text1, margin: 0, fontFamily: 'ui-monospace,monospace' }}>{value}</p>
     </div>
@@ -277,7 +277,7 @@ export default function AlertsPage() {
 
   return (
     <div className="h-full overflow-y-auto" style={{ background: 'transparent' }}>
-      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '24px 20px 100px' }}>
+      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '28px 20px 110px' }}>
 
         {/* ── Header ──────────────────────────────────────────────────────── */}
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 20, gap: 12, flexWrap: 'wrap' }}>

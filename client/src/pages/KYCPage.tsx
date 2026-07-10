@@ -299,7 +299,7 @@ export default function KYCPage() {
 
   return (
     <div className="h-full overflow-y-auto" style={{ background: 'transparent' }}>
-      <div style={{ maxWidth: 1040, margin: '0 auto', padding: '24px 20px 100px' }}>
+      <div style={{ maxWidth: 1040, margin: '0 auto', padding: '28px 20px 110px' }}>
 
         {/* ── Header ──────────────────────────────────────────────────────── */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>

@@ -1034,7 +1034,7 @@ export default function BotsPage() {
       </div>
 
       {/* Bot list */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '10px' }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '12px' }}>
         {loading && (
           <div style={{ display: 'flex', justifyContent: 'center', padding: '40px 0' }}>
             <div style={{ width: 24, height: 24, borderRadius: '50%', border: `2px solid ${C.blue}30`, borderTopColor: C.blue, animation: 'spin 0.7s linear infinite' }}/>
