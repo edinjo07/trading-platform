@@ -2,8 +2,10 @@
 
 The working checklist every screen is audited against. Distilled from
 *Refactoring UI* (Wathan/Schoger), *The Design of Everyday Things* (Norman),
-*Don't Make Me Think* (Krug), *Laws of UX*, and classic color theory
-(Albers, Adams) — bound to our tokens and to `BRAND.md`.
+*Don't Make Me Think* (Krug), *Interaction of Color* (Albers, read in full),
+*Designing Interfaces 3rd ed.* (Tidwell/Brewer/Valencia), *Color Design
+Workbook* (Adams/Stone), *UI Design Principles* (Filipiuk), and *Laws of UX*
+— bound to our tokens and to `BRAND.md`.
 
 > Nothing is decoration. If an element doesn't inform or act, remove it.
 
@@ -61,7 +63,30 @@ The working checklist every screen is audited against. Distilled from
 - Contrast: 4.5:1 body text, 3:1 large text. Flip contrast (dark text on
   light tint) rather than shouting.
 
-## 5. Depth *(Refactoring UI ch. 6)*
+## 4b. Color interaction *(Albers: Interaction of Color)*
+
+- **"We almost never see a color as it physically is."** Every token was
+  tuned in situ, on its real ground — never approve a color from a swatch.
+  Judge `--t-text-2` on `--t-surface`, P&L green inside a row, gold on tarmac.
+- **The ground subtracts its own hue and its own light** from what sits on
+  it. Our dusk-plum surfaces pull warmth out of foreground colors — that's
+  why brand colors were re-tuned (not reused) when the background warmed.
+- **Boundaries define depth**: soft boundary = nearness/connection, hard
+  boundary = separation. That's the token version — related things share a
+  surface with no line; separated things change surface, not add borders.
+- **Vibrating boundaries are a defect**: contrasting hues at near-equal
+  lightness (e.g. saturated red text on saturated blue) shimmer and feel
+  aggressive. Keep hue contrast paired with lightness contrast.
+- **Weber–Fechner**: perception of steps is logarithmic — an even-feeling
+  ladder (our surface 1→2→3, shadow sm→md→lg) needs geometric, not equal,
+  physical increments.
+- **Quantity is a quality**: any two colors "go together" if proportions
+  are right — dominant / subordinate / accent (gold is *only* ever accent).
+  Changing amounts changes the mood without changing the cast.
+- Visual memory is poor: never ask users to remember a color's meaning
+  across screens — encode meaning redundantly (sign, icon, position).
+
+## 5. Depth *(Refactoring UI ch. 6, Filipiuk)*
 
 - **Light comes from above.** Raised = lighter top edge + shadow below;
   inset = shadow above.
@@ -88,6 +113,14 @@ The working checklist every screen is audited against. Distilled from
   ("Take the seat", "Deploy bot"), never "Submit".
 - Empty states are the first impression of every feature: drawn icon,
   one honest sentence, one CTA.
+- **Forms** (Filipiuk): single column; labels stay visible (placeholders
+  vanish); field width hints expected input; semantic groups separated by
+  space; "(optional)" beats asterisks; validate in real time, never wipe
+  entries on error. Buttons 40–60px tall, 44px minimum tap area, primary
+  action on the right of a pair, consistent radius everywhere.
+- **VIBs** (Very Important Buttons): when a click takes something from the
+  user — real money, an open position — the label says exactly what happens
+  ("Close position", "Withdraw $500"), never "Continue".
 
 ## 8. Images & icons *(Refactoring UI ch. 7)*
 
@@ -97,6 +130,47 @@ The working checklist every screen is audited against. Distilled from
   drawn 2px-stroke SVG for everything else. **No emoji, ever.**
 - Text over images requires engineered contrast (overlay/gradient),
   designed once, verified against the busiest crop.
+
+## 9. Behavior patterns *(Tidwell ch. 1 — how traders actually act)*
+
+- **Safe Exploration**: trying things must never hurt — back out of any
+  screen cleanly, no dead ends, demo account is the sandbox; confirmations
+  reserved for real loss (closing positions, withdrawing).
+- **Instant Gratification**: the first thing a new user does must be
+  stunningly easy — value before demands (never gate charts behind KYC;
+  registration asks the minimum, "customize" is deferred).
+- **Satisficing**: users click the first plausible thing. Labels are short
+  verbs whose first guess is correct; layout communicates before words do.
+- **Habituation**: identical gestures do identical things everywhere —
+  buy is always right/gold-or-bull, cancel always left; never swap. Routine
+  confirm dialogs train blind OK-clicking, so use them rarely.
+- **Deferred Choices**: few required fields, good defaults, always
+  editable later ("Raw Spread · USD — Change").
+- **Spatial Memory**: people find things by *where they were* — don't
+  rearrange navigation or reorder menus between visits; tops and bottoms of
+  lists get noticed most.
+- **Prospective Memory**: half-finished forms keep their values; alerts,
+  watchlists and pinned symbols are the user's self-made reminders — never
+  "helpfully" clean them up.
+- **Streamlined Repetition**: traders repeat orders all day — one-click
+  re-order, remembered size/leverage, keyboard-first order entry.
+
+## 10. Data displays *(Tidwell ch. 9 — charts, tables, tickers)*
+
+- **Preattentive variables win**: color, size, weight and alignment are
+  read before conscious attention — a P&L table needs no scanning if sign
+  is encoded in color *and* the eye-catching values differ in weight.
+  Monotonous same-size text forces linear reading; that's a defect.
+- **Layering**: color similarity makes related data float as one layer
+  (all bull-green reads as one system across chart, book, and blotter).
+- **Focus plus context**: zoom and detail must keep the big picture in
+  reach (chart crosshair + visible axis; drill-downs return cleanly).
+- **Let users rearrange**: sortable columns reveal stories alphabetical
+  order hides; extremes (top/bottom of a sorted list) are what people read.
+- **Datatips over labels**: hover/tap detail keeps dense canvases clean;
+  show precise values on demand, qualitative shape by default.
+- Text in graphics obeys type rules: tabular numbers, aligned, no boxed
+  borders, nothing obscuring data.
 
 ## Audit ritual
 
