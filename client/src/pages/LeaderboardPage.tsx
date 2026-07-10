@@ -158,7 +158,7 @@ export default function LeaderboardPage() {
                   <div className="text-xs text-text-muted">${entry.netPnl.toLocaleString()} P&L</div>
                   {/* Podium bar */}
                   <div className={`w-full mt-4 rounded-t-lg ${heights[ri]}`}
-                       style={{ background: `linear-gradient(180deg,${ri===0?'rgba(251,191,36,0.25)':ri===1?'rgba(148,163,184,0.15)':'rgba(249,115,22,0.18)'},transparent)`, borderTop: `2px solid ${ri===0?'rgba(251,191,36,0.5)':ri===1?'rgba(148,163,184,0.35)':'rgba(249,115,22,0.4)'}` }} />
+                       style={{ background: `linear-gradient(180deg,${ri===0?'rgba(251,191,36,0.25)':ri===1?'rgba(174,166,186,0.15)':'rgba(249,115,22,0.18)'},transparent)`, borderTop: `2px solid ${ri===0?'rgba(251,191,36,0.5)':ri===1?'rgba(174,166,186,0.35)':'rgba(249,115,22,0.4)'}` }} />
                 </div>
               )
             })}

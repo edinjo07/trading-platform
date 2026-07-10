@@ -52,7 +52,7 @@ mechanical darkness lit by warm human light.
 
 | Value | Name | Role |
 |---|---|---|
-| `#0c0f18` | **Midnight Tarmac** | The circuit at night. Base of everything. |
+| `#14121a` | **Midnight Tarmac** | Warm dusk over the circuit — dark, never cold. |
 | `#4f8cff` | **Signal Blue** | The machine: engine sections, automation, interactive accents in-app. Cool, precise. |
 | `#f6c453` / gradient `#f9d98c → #dd9c2f` | **Victory Gold** | The human: the driver, the win, the apex, every primary CTA. Warm, alive. |
 | `#f4f1e8` | **Ivory** | Headlines — warm white, a human light, never clinical. |

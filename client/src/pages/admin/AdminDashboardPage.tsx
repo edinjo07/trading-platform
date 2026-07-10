@@ -97,7 +97,7 @@ function MemBar({ used, total, color }: { used: number; total: number; color: st
       <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.05)' }}>
         <div className="h-full rounded-full" style={{ width: `${pct}%`, background: color }} />
       </div>
-      <div className="flex justify-between font-mono" style={{ fontSize: '10px', color: 'rgba(148,163,184,0.6)' }}>
+      <div className="flex justify-between font-mono" style={{ fontSize: '10px', color: 'rgba(174,166,186,0.6)' }}>
         <span>{formatBytes(used)}</span><span>{formatBytes(total)}</span>
       </div>
     </div>

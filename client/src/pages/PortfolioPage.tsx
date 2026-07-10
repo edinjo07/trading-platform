@@ -266,7 +266,7 @@ function PositionsTable({ positions, currency, onClose, closingId }: {
             const closing = closingId === pos.id
             const editing = editingId === pos.id
             return (
-              <div key={pos.id} style={{ borderBottom: idx === positions.length - 1 ? 'none' : '1px solid rgba(148,163,184,0.08)' }}>
+              <div key={pos.id} style={{ borderBottom: idx === positions.length - 1 ? 'none' : '1px solid rgba(174,166,186,0.08)' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: COLS, gap: 14, padding: '13px 18px', alignItems: 'center' }}>
                   {/* Instrument */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
@@ -335,7 +335,7 @@ function OrderRow({ order, last }: { order: Order; last: boolean }) {
   const isBuy = order.side === 'buy'
   const filled = order.status === 'filled'
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '13px 18px', borderBottom: last ? 'none' : '1px solid rgba(148,163,184,0.08)' }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '13px 18px', borderBottom: last ? 'none' : '1px solid rgba(174,166,186,0.08)' }}>
       <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 38, height: 38, borderRadius: 10, flexShrink: 0, background: isBuy ? 'var(--t-bull-s)' : 'var(--t-bear-s)', color: isBuy ? S.bull : S.bear, fontSize: 10, fontWeight: 800 }}>
         {order.side.toUpperCase()}
       </span>

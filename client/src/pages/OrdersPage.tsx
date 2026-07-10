@@ -193,7 +193,7 @@ export default function OrdersPage() {
                   const value = o.quantity * (o.fill_price || 0)
                   const cellR: React.CSSProperties = { fontSize: 13, color: S.text1, fontFamily: 'ui-monospace,monospace', fontVariantNumeric: 'tabular-nums', display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }
                   return (
-                    <div key={o.id} style={{ display: 'grid', gridTemplateColumns: COLS, gap: 14, padding: '13px 18px', alignItems: 'center', borderBottom: idx === filtered.length - 1 ? 'none' : '1px solid rgba(148,163,184,0.08)' }}>
+                    <div key={o.id} style={{ display: 'grid', gridTemplateColumns: COLS, gap: 14, padding: '13px 18px', alignItems: 'center', borderBottom: idx === filtered.length - 1 ? 'none' : '1px solid rgba(174,166,186,0.08)' }}>
                       {/* Instrument */}
                       <div style={{ display: 'flex', alignItems: 'center', gap: 9, minWidth: 0 }}>
                         <span style={{ width: 3, height: 26, borderRadius: 99, background: buy ? S.bull : S.bear, flexShrink: 0 }} />

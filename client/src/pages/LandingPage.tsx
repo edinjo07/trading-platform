@@ -19,8 +19,8 @@ const BLUE2  = '#7aa7ff'
 const GOLD   = '#f6c453'    // Victory Gold — the human, the win
 const GOLD_G = 'linear-gradient(120deg, #f9d98c 0%, #f2b84b 45%, #dd9c2f 100%)'
 const IVORY  = '#f4f1e8'    // warm headline white — a human light
-const BODY   = '#a8aebc'    // body text
-const DIM    = '#69718a'    // quiet labels
+const BODY   = '#aba5b6'    // body text
+const DIM    = '#746d84'    // quiet labels
 
 /* ── Static display data ──────────────────────────────────────────────────── */
 
@@ -161,7 +161,7 @@ export default function LandingPage() {
   ]
 
   return (
-    <div className="theme-dark-scope min-h-screen" style={{ background: '#0c0f18', color: BODY, fontFamily: "'Inter', system-ui, sans-serif" }}>
+    <div className="theme-dark-scope min-h-screen" style={{ background: '#14121a', color: BODY, fontFamily: "'Inter', system-ui, sans-serif" }}>
 
       {/* Local keyframes + hovers */}
       <style>{`
@@ -178,7 +178,7 @@ export default function LandingPage() {
       {/* ════════ NAV ════════ */}
       <header className="fixed top-0 inset-x-0 z-50 transition-all"
         style={{
-          background: scrolled || menuOpen ? 'rgba(12,15,24,0.9)' : 'transparent',
+          background: scrolled || menuOpen ? 'rgba(20,18,26,0.9)' : 'transparent',
           backdropFilter: scrolled || menuOpen ? 'blur(14px)' : 'none',
           borderBottom: scrolled || menuOpen ? '1px solid rgba(166,150,120,0.12)' : '1px solid transparent',
         }}>
@@ -259,8 +259,8 @@ export default function LandingPage() {
         {/* Cinematic night treatment — cool shadows, warm floodlight from below */}
         <div className="absolute inset-0" style={{
           background: `
-            linear-gradient(to bottom, rgba(12,15,24,0.82) 0%, rgba(12,15,24,0.42) 40%, rgba(13,14,20,0.75) 74%, #0c0f18 100%),
-            radial-gradient(85% 55% at 50% 44%, transparent 0%, rgba(12,15,24,0.45) 100%)
+            linear-gradient(to bottom, rgba(20,18,26,0.82) 0%, rgba(20,18,26,0.42) 40%, rgba(20,18,26,0.75) 74%, #14121a 100%),
+            radial-gradient(85% 55% at 50% 44%, transparent 0%, rgba(20,18,26,0.45) 100%)
           `,
         }} />
         {/* Warm trackside glow — the human light */}
@@ -276,7 +276,7 @@ export default function LandingPage() {
         <div className="relative flex-1 flex flex-col justify-center max-w-6xl mx-auto px-5 sm:px-6 w-full" style={{ paddingTop: 96, paddingBottom: 32 }}>
           {/* Eyebrow */}
           <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full text-[10.5px] sm:text-[11px] font-bold self-start mb-7"
-            style={{ background: 'rgba(12,15,24,0.62)', border: '1px solid rgba(246,196,83,0.3)', color: GOLD, letterSpacing: '0.12em', backdropFilter: 'blur(8px)' }}>
+            style={{ background: 'rgba(20,18,26,0.62)', border: '1px solid rgba(246,196,83,0.3)', color: GOLD, letterSpacing: '0.12em', backdropFilter: 'blur(8px)' }}>
             <span style={{ width: 6, height: 6, borderRadius: 99, background: '#18c98a', animation: 'lp-pulse 1.8s ease-in-out infinite' }} />
             FCA · CYSEC · CURAÇAO REGULATED — LIVE EXECUTION
           </div>
@@ -303,14 +303,14 @@ export default function LandingPage() {
             <GoldCTA onClick={goToRegister}>Take the seat — it's free</GoldCTA>
             <button onClick={() => scrollTo('engine')}
               className="inline-flex items-center justify-center gap-2 px-7 py-4 rounded-xl text-[15px] font-semibold"
-              style={{ background: 'rgba(12,15,24,0.55)', color: IVORY, border: '1px solid rgba(166,150,120,0.32)', cursor: 'pointer', backdropFilter: 'blur(8px)' }}>
+              style={{ background: 'rgba(20,18,26,0.55)', color: IVORY, border: '1px solid rgba(166,150,120,0.32)', cursor: 'pointer', backdropFilter: 'blur(8px)' }}>
               Open the engine cover
             </button>
           </div>
         </div>
 
         {/* Telemetry strip — pit wall */}
-        <div className="relative w-full" style={{ background: 'rgba(9,11,18,0.74)', backdropFilter: 'blur(14px)', borderTop: '1px solid rgba(246,196,83,0.24)' }}>
+        <div className="relative w-full" style={{ background: 'rgba(16,14,20,0.74)', backdropFilter: 'blur(14px)', borderTop: '1px solid rgba(246,196,83,0.24)' }}>
           <div className="max-w-6xl mx-auto px-5 sm:px-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
             {TELEMETRY.map((s, i) => (
               <div key={s.label} className="py-4 sm:py-5 px-2 sm:px-4 flex flex-col items-center text-center"
@@ -325,7 +325,7 @@ export default function LandingPage() {
         </div>
 
         {/* Live ticker marquee */}
-        <div className="relative w-full overflow-hidden" style={{ background: '#0c0f18', borderTop: '1px solid rgba(166,150,120,0.08)', padding: '10px 0' }}>
+        <div className="relative w-full overflow-hidden" style={{ background: '#14121a', borderTop: '1px solid rgba(166,150,120,0.08)', padding: '10px 0' }}>
           <div style={{ display: 'flex', width: 'max-content', animation: 'lp-marquee 38s linear infinite' }}>
             {[...TICKER, ...TICKER].map((t, i) => (
               <div key={i} className="flex items-center gap-2.5 px-6" style={{ whiteSpace: 'nowrap' }}>
@@ -339,7 +339,7 @@ export default function LandingPage() {
       </section>
 
       {/* ════════ THE ENGINE — cool blue: the machine ════════ */}
-      <section id="engine" className="relative py-20 sm:py-28" style={{ background: 'linear-gradient(180deg, #0c0f18 0%, #0d1322 55%, #0c0f18 100%)' }}>
+      <section id="engine" className="relative py-20 sm:py-28" style={{ background: 'linear-gradient(180deg, #14121a 0%, #181521 55%, #14121a 100%)' }}>
         <div className="max-w-6xl mx-auto px-5 sm:px-6">
           <SectionTag>The engine</SectionTag>
           <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-5 mb-12">
@@ -358,7 +358,7 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             {/* PU-01 TradePilot */}
             <div className="lp-card relative rounded-2xl p-7 overflow-hidden"
-              style={{ background: '#111726', border: '1px solid rgba(79,140,255,0.22)' }}>
+              style={{ background: '#1e1a28', border: '1px solid rgba(79,140,255,0.22)' }}>
               <div className="absolute top-0 right-0 pointer-events-none" style={{ width: 220, height: 220, background: 'radial-gradient(closest-side, rgba(79,140,255,0.12), transparent)' }} />
               <div className="font-mono text-[10.5px] font-bold mb-5" style={{ color: BLUE2, letterSpacing: '0.2em' }}>POWER UNIT — 01</div>
               <div className="flex items-center gap-3.5 mb-4">
@@ -388,7 +388,7 @@ export default function LandingPage() {
 
             {/* PU-02 Manual */}
             <div className="lp-card relative rounded-2xl p-7 overflow-hidden"
-              style={{ background: '#111726', border: '1px solid rgba(246,196,83,0.2)' }}>
+              style={{ background: '#1e1a28', border: '1px solid rgba(246,196,83,0.2)' }}>
               <div className="absolute top-0 right-0 pointer-events-none" style={{ width: 220, height: 220, background: 'radial-gradient(closest-side, rgba(246,196,83,0.1), transparent)' }} />
               <div className="font-mono text-[10.5px] font-bold mb-5" style={{ color: GOLD, letterSpacing: '0.2em' }}>POWER UNIT — 02</div>
               <div className="flex items-center gap-3.5 mb-4">
@@ -422,9 +422,9 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {SUPPORT_SYSTEMS.map(s => (
               <div key={s.title} className="lp-card rounded-2xl p-6 flex gap-4 items-start"
-                style={{ background: '#101522', border: '1px solid rgba(148,163,184,0.12)' }}>
+                style={{ background: '#1b1824', border: '1px solid rgba(174,166,186,0.12)' }}>
                 <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
-                  style={{ background: 'rgba(148,163,184,0.09)', border: '1px solid rgba(148,163,184,0.18)', color: BODY }}>
+                  style={{ background: 'rgba(174,166,186,0.09)', border: '1px solid rgba(174,166,186,0.18)', color: BODY }}>
                   {s.icon}
                 </div>
                 <div>
@@ -478,14 +478,14 @@ export default function LandingPage() {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           {MARKETS.map(m => (
             <button key={m.sym} onClick={goToApp} className="lp-card rounded-xl p-4 text-left"
-              style={{ background: '#101522', border: '1px solid rgba(148,163,184,0.12)', cursor: 'pointer' }}>
+              style={{ background: '#1b1824', border: '1px solid rgba(174,166,186,0.12)', cursor: 'pointer' }}>
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2.5 min-w-0">
                   <AssetIcon symbol={m.sym} assetClass={m.cls} size={26} />
                   <span className="font-mono text-sm font-extrabold" style={{ color: IVORY }}>{m.sym}</span>
                 </div>
                 <span className="text-[9px] font-bold uppercase px-2 py-0.5 rounded-full hidden sm:inline"
-                  style={{ color: DIM, background: 'rgba(148,163,184,0.09)', letterSpacing: '0.08em' }}>{m.cat}</span>
+                  style={{ color: DIM, background: 'rgba(174,166,186,0.09)', letterSpacing: '0.08em' }}>{m.cat}</span>
               </div>
               <div className="text-[12px] mb-2" style={{ color: DIM }}>{m.name}</div>
               <div className="flex items-baseline justify-between gap-2 flex-wrap">
@@ -498,7 +498,7 @@ export default function LandingPage() {
       </section>
 
       {/* ════════ START — race start ════════ */}
-      <section id="start" className="relative py-20 sm:py-28" style={{ background: 'linear-gradient(180deg, #0c0f18 0%, #0e1424 100%)' }}>
+      <section id="start" className="relative py-20 sm:py-28" style={{ background: 'linear-gradient(180deg, #14121a 0%, #191623 100%)' }}>
         <div className="max-w-6xl mx-auto px-5 sm:px-6">
           <SectionTag warm>Race start</SectionTag>
           <h2 className="font-extrabold mb-12" style={{ color: IVORY, fontSize: 'clamp(1.8rem, 4.5vw, 2.8rem)', letterSpacing: '-0.025em', lineHeight: 1.1 }}>
@@ -508,7 +508,7 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-14">
             {STEPS.map((s, i) => (
               <div key={s.n} className="lp-card relative rounded-2xl p-6 overflow-hidden"
-                style={{ background: '#111726', border: '1px solid rgba(148,163,184,0.12)' }}>
+                style={{ background: '#1e1a28', border: '1px solid rgba(174,166,186,0.12)' }}>
                 <div className="font-mono font-extrabold mb-4" style={{ fontSize: 44, lineHeight: 1, color: 'rgba(246,196,83,0.16)' }}>{s.n}</div>
                 <h3 className="font-bold text-base mb-2" style={{ color: IVORY }}>{s.title}</h3>
                 <p className="text-[13px] leading-relaxed" style={{ color: BODY }}>{s.body}</p>
@@ -516,7 +516,7 @@ export default function LandingPage() {
                   {[0, 1, 2].map(j => (
                     <span key={j} style={{
                       width: 8, height: 8, borderRadius: 99,
-                      background: j <= i ? GOLD : 'rgba(148,163,184,0.15)',
+                      background: j <= i ? GOLD : 'rgba(174,166,186,0.15)',
                       boxShadow: j <= i ? `0 0 8px ${GOLD}66` : 'none',
                     }} />
                   ))}
@@ -527,7 +527,7 @@ export default function LandingPage() {
 
           {/* Final CTA — five lights */}
           <div className="relative rounded-3xl overflow-hidden px-6 sm:px-12 py-14 sm:py-18 text-center"
-            style={{ background: 'linear-gradient(150deg, #1a1a2b 0%, #121424 45%, #191507 130%)', border: '1px solid rgba(246,196,83,0.26)' }}>
+            style={{ background: 'linear-gradient(150deg, #241f2e 0%, #1b1726 45%, #191507 130%)', border: '1px solid rgba(246,196,83,0.26)' }}>
             <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(65% 100% at 50% 110%, rgba(242,184,75,0.16) 0%, transparent 65%)' }} />
             <div className="relative">
               <div className="flex items-center justify-center gap-2.5 mb-7">
@@ -553,7 +553,7 @@ export default function LandingPage() {
       </section>
 
       {/* ════════ FOOTER ════════ */}
-      <footer style={{ borderTop: '1px solid rgba(166,150,120,0.12)', background: '#0b0d15' }}>
+      <footer style={{ borderTop: '1px solid rgba(166,150,120,0.12)', background: '#121017' }}>
         <div className="max-w-6xl mx-auto px-5 sm:px-6 py-14">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-10 mb-12">
             {/* Brand */}

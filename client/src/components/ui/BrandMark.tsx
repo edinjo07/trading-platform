@@ -22,7 +22,7 @@ export function BrandMark({ size = 32, radius }: { size?: number; radius?: numbe
       aria-hidden
       style={{
         width: size, height: size, borderRadius: r, flexShrink: 0,
-        background: 'linear-gradient(135deg, #16203a 0%, #0b0f1a 100%)',
+        background: 'linear-gradient(135deg, #2a2338 0%, #14121a 100%)',
         border: '1px solid rgba(122,167,255,0.28)',
         boxShadow: '0 0 18px rgba(79,140,255,0.22), inset 0 1px 0 rgba(233,238,248,0.07)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',

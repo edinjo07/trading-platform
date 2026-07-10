@@ -2,8 +2,8 @@
   <!-- TradeX — "The X is the apex." Racing line crosses the track; the apex is gold. -->
   <defs>
     <linearGradient id="tile" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#16203a"/>
-      <stop offset="100%" stop-color="#0b0f1a"/>
+      <stop offset="0%" stop-color="#2a2338"/>
+      <stop offset="100%" stop-color="#14121a"/>
     </linearGradient>
   </defs>
   <rect width="32" height="32" rx="9" fill="url(#tile)" stroke="rgba(122,167,255,0.35)" stroke-width="1"/>
