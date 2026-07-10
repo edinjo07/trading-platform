@@ -2,7 +2,9 @@
 
 ## Motto
 
-> **Engineered to win.**
+> **Engineered to win. Driven by you.**
+
+Sign-off line: *The X is the apex.*
 
 ## The story
 
@@ -10,85 +12,100 @@ An F1 car is not fast by accident. It is fast because hundreds of the best
 engineers built every part of it for one purpose — and because nothing on it
 is decoration. It exists to race, and it races to win.
 
-TradeX is built with the same conviction. The homepage opens on the car
-because the car **is** the brief:
+**The car is the company.** TradeX is built to run fast and take titles in
+every market — crypto, forex, stocks, indices, commodities. Same chassis,
+every circuit.
 
-- **Fast** — orders fill in milliseconds on live market data. No requotes,
-  no lag. Pure pace.
-- **Built by engineers** — the platform is a set of engineered systems, not
-  features: an execution engine, a risk safety-cell, an automation pit wall,
-  a telemetry deck.
-- **Aimed at winning** — everything measurable, everything accountable.
-  Every lap is timed. Every trade has a number.
+**The engine is the trading.** One engine, two power units working as one:
+
+- **Power Unit 01 — TradePilot.** *The relentless one.* Automation that never
+  blinks, never tires, never revenge-trades. It demands confluence before
+  every entry, reads breaking news like engineers read telemetry, and vetoes
+  trades that fight the data. It runs the plan at machine precision, all
+  night, every session.
+- **Power Unit 02 — Manual.** *Your hands on the wheel.* A full cockpit with
+  millisecond fills, charts, depth, one-tap tickets. When you see the gap the
+  machines can't, nothing gets between instinct and the market.
+
+**The driver is the missing piece.** We can engineer the pace, the guards,
+the telemetry, the discipline. We cannot engineer the nerve to take the
+corner — the feel for the moment the market opens a door.
+
+> The car wins races. The driver wins titles. The seat is open.
+
+That is the entire pitch, and every call-to-action flows from it:
+**Take the seat.**
 
 ### The X is the apex
 
-In racing, everything is decided at the **apex** — the one point in a corner
+In racing, everything is decided at the apex — the one point in a corner
 where the racing line touches the geometry of the track, where maximum speed
-meets total control. Get it right and you carry speed down the whole straight.
-Get it wrong and no engine can save you.
-
-The X in TradeX is that point. The logomark draws it literally: the **racing
-line** sweeps through in Signal Blue, the **track's geometric line** cuts
-across in slate, and the point where they meet — the apex — is marked in
+meets total control. The X in TradeX is that point. The logomark draws it:
+the **racing line** sweeps through in Signal Blue, the **track's geometric
+line** cuts across in slate, and the apex where they meet is marked in
 **Victory Gold**.
 
-## The language of the team
+## The color story — human warmth in machine cold
 
-Racing vocabulary maps onto the product, used with restraint:
+Think like a human, not a machine. The palette is a **night race**: cool
+mechanical darkness lit by warm human light.
 
-| Racing | TradeX |
-|---|---|
-| The engine | Execution engine — millisecond fills |
-| The pit wall | TradePilot — bots that read telemetry (confluence, news) and refuse to gamble |
-| The safety cell | Risk engineering — SL/TP, margin protection, daily loss limits |
-| Telemetry | Analytics — live equity, drawdown, attribution |
-| Practice laps | The $100,000 demo account |
-| Lights out | Going live |
+| Value | Name | Role |
+|---|---|---|
+| `#0c0f18` | **Midnight Tarmac** | The circuit at night. Base of everything. |
+| `#4f8cff` | **Signal Blue** | The machine: engine sections, automation, interactive accents in-app. Cool, precise. |
+| `#f6c453` / gradient `#f9d98c → #dd9c2f` | **Victory Gold** | The human: the driver, the win, the apex, every primary CTA. Warm, alive. |
+| `#f4f1e8` | **Ivory** | Headlines — warm white, a human light, never clinical. |
+| `#a8aebc` | **Paddock Grey** | Body text. |
+| `#18c98a` / `#ff5a72` | **Verdant / Coral** | P&L only. |
+
+**The temperature rule (the heart of the system):**
+
+- **Machine = cool.** Engine, automation, execution, data → Signal Blue,
+  cool surfaces.
+- **Human = warm.** The driver, the victory, the invitation → Victory Gold,
+  ivory, warm glows.
+- Every primary CTA is **gold** — because the CTA is the moment the human
+  enters the machine. "Take the seat" is always warm.
+- Hero treatment: cool night shadows above, a warm trackside floodlight glow
+  rising from below — the human light on the machine.
 
 ## Voice
 
-An engineer's voice, not a gambler's: calm, precise, confident. Short
-sentences. Real numbers. Speed is stated as a measurement, never as hype.
-No exclamation marks, no pictograph emojis. When something is risky, say so
-plainly — a good pit wall never lies to its driver.
+An engineer's voice with a racer's heart: calm, precise, but never cold.
+Short sentences. Real numbers. Racing vocabulary used with restraint and
+authenticity (seat fitting, box box, lights out, the grid). Speed is a
+measurement, never hype. When something is risky, say so plainly — a good
+pit wall never lies to its driver. No exclamation marks. No pictograph emojis.
 
-## Visual language
+## The language of the team
 
-| Token | Value | Name | Role |
-|---|---|---|---|
-| `--t-bg` | `#0b0f1a` | **Midnight Tarmac** | The background — a circuit at night. |
-| `--t-accent` | `#4f8cff` | **Signal Blue** | The single accent. The racing line: actions, focus, decisions. |
-| accent 2 | `#f6c453` | **Victory Gold** | Used sparingly — the apex, telemetry numbers, P1 moments. |
-| `--t-bull` | `#18c98a` | **Verdant** | Gains. Confident, not neon. |
-| `--t-bear` | `#ff5a72` | **Coral** | Losses. Serious, never alarmist. |
-| `--t-text-1` | `#e9eef8` | **Ink** | Primary text. |
-| ambient | `--t-bg-glow` | **Undercurrent** | Faint radial washes behind the UI. Alive, never loud. |
-
-Rules:
-
-1. **Nothing is decoration.** Every element earns its place, like a part on
-   the car. If it doesn't inform or act, it's removed.
-2. **Gold means victory.** Victory Gold appears only where performance is
-   measured or won: telemetry values, the apex dot, rank badges, key CTA
-   accents. Never as wallpaper.
-3. **One racing line.** Signal Blue is the only interactive accent.
-4. **Numbers are telemetry.** Monospace, tabular, aligned — they must read
-   like a pit-wall screen, and never jitter.
-5. **Iconography is drawn.** 2px-stroke SVG, geometric. No pictograph emojis.
+| Racing | TradeX |
+|---|---|
+| The car | The platform / the company |
+| The engine (two power units) | TradePilot (PU-01) + Manual trading (PU-02) |
+| The driver | The user — the missing piece |
+| The pit wall | Bot telemetry, analysis, news reads |
+| The safety cell | Risk engineering — SL/TP, margin protection, loss limits |
+| Telemetry | Analytics — equity, drawdown, attribution |
+| Seat fitting | Creating an account |
+| Practice laps | The $100,000 demo |
+| Lights out | Going live |
+| Take the seat | Every primary CTA |
 
 ## The mark
 
 - `BrandMark` — deep tile: speed trails, the slate geometric line, the Signal
   Blue racing line, the Victory Gold apex dot. Legible from 16px.
 - `BrandLogo` — mark + wordmark `TradeX` (X in Signal Blue) + optional
-  "ENGINEERED TO WIN" tagline.
-- Source of truth: `client/src/components/ui/BrandMark.tsx` and
+  tagline. Source of truth: `client/src/components/ui/BrandMark.tsx`,
   `client/public/logo.svg`.
 
 ## Usage
 
-- Homepage hero: the car, treated cinematically; headline "Engineered to win."
-- Auth: mark + wordmark + motto above the form.
-- Browser tab: `TradeX Pro — Engineered to win.`
-- Sign-off line (footers, docs): *The X is the apex.*
+- Homepage hero: the car at night; headline is the motto itself, "Driven by
+  you." in gradient gold.
+- Primary CTA everywhere: **Take the seat** (gold).
+- Auth: mark + wordmark + "ENGINEERED TO WIN · DRIVEN BY YOU".
+- Browser tab: `TradeX Pro — Engineered to win. Driven by you.`
+- Sign-off (footers, docs): *The X is the apex.*

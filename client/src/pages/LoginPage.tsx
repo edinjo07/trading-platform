@@ -67,8 +67,8 @@ export default function LoginPage() {
         {/* Brand */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14, marginBottom: 28 }}>
           <BrandLogo size={44} tagline={false} />
-          <p style={{ fontSize: 12, color: 'var(--t-text-3)', margin: 0, letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 700 }}>
-            Engineered to <span style={{ color: '#f6c453' }}>win</span>
+          <p style={{ fontSize: 11.5, color: 'var(--t-text-3)', margin: 0, letterSpacing: '0.16em', textTransform: 'uppercase', fontWeight: 700 }}>
+            Engineered to win · <span style={{ color: '#f6c453' }}>Driven by you</span>
           </p>
         </div>
 
@@ -190,13 +190,15 @@ export default function LoginPage() {
             <button type="submit" disabled={loading}
               style={{
                 width: '100%', padding: '13px', marginTop: 2,
-                background: loading ? 'rgba(79,140,255,0.4)' : ACCENT,
-                color: '#fff', border: 'none', borderRadius: 11,
-                fontSize: 14.5, fontWeight: 700, letterSpacing: '0.01em',
+                background: loading
+                  ? 'rgba(242,184,75,0.35)'
+                  : 'linear-gradient(120deg, #f9d98c 0%, #f2b84b 45%, #dd9c2f 100%)',
+                color: '#221503', border: 'none', borderRadius: 11,
+                fontSize: 14.5, fontWeight: 800, letterSpacing: '-0.01em',
                 cursor: loading ? 'not-allowed' : 'pointer',
-                boxShadow: loading ? 'none' : '0 4px 18px rgba(79,140,255,0.28)',
+                boxShadow: loading ? 'none' : '0 6px 24px rgba(242,184,75,0.3), inset 0 1px 0 rgba(255,255,255,0.35)',
               }}>
-              {loading ? 'Please wait…' : mode === 'login' ? 'Sign in' : 'Create account'}
+              {loading ? 'Please wait…' : mode === 'login' ? 'Sign in' : 'Take the seat'}
             </button>
           </form>
 
