@@ -68,18 +68,18 @@ export default function WithdrawPage() {
               Your withdrawal of <span className="font-semibold" style={{ color: '#fb923c' }}>{formatCurrency(parsedAmount)}</span> has been processed.
             </p>
           </div>
-          <div className="w-full rounded-xl p-4 text-sm space-y-2" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+          <div className="w-full rounded-xl p-4 text-sm space-y-2" style={{ background: 'rgba(var(--ink),0.03)', border: '1px solid rgba(var(--ink),0.06)' }}>
             <div className="flex justify-between"><span className="text-text-muted">Method</span><span className="text-text-primary font-medium">{method === 'bank' ? 'Bank Transfer' : `Crypto - ${crypto}`}</span></div>
             <div className="flex justify-between"><span className="text-text-muted">Requested</span><span className="text-text-primary font-mono font-semibold">{formatCurrency(parsedAmount)}</span></div>
             {networkFee > 0 && <div className="flex justify-between"><span className="text-text-muted">Network fee</span><span className="text-bear font-mono">−{formatCurrency(networkFee)}</span></div>}
-            <div className="h-px" style={{ background: 'rgba(255,255,255,0.06)' }} />
+            <div className="h-px" style={{ background: 'rgba(var(--ink),0.06)' }} />
             <div className="flex justify-between font-bold"><span className="text-text-primary">You receive</span><span className="font-mono text-base" style={{ color: '#fb923c' }}>{formatCurrency(willReceive)}</span></div>
             <div className="flex justify-between"><span className="text-text-muted">Status</span><span className="px-2 py-0.5 rounded text-xs font-bold" style={{ background: 'rgba(16,185,129,0.12)', color: '#10b981' }}>Processed</span></div>
           </div>
           <div className="flex gap-3 w-full">
             <button onClick={() => { setStep('form'); setAmount('') }}
               className="flex-1 py-2.5 rounded-lg text-sm font-semibold"
-              style={{ background: 'rgba(255,255,255,0.06)', color: '#e2e8f0', border: '1px solid rgba(255,255,255,0.1)' }}>
+              style={{ background: 'rgba(var(--ink),0.06)', color: 'var(--t-text-1)', border: '1px solid rgba(var(--ink),0.1)' }}>
               New Withdrawal
             </button>
             <button onClick={() => navigate('/dashboard')} className="btn-primary flex-1 py-2.5">
@@ -99,18 +99,19 @@ export default function WithdrawPage() {
             <h2 className="text-lg font-bold text-text-primary">Confirm Withdrawal</h2>
             <p className="text-text-muted text-sm mt-0.5">Please review your withdrawal request carefully.</p>
           </div>
-          <div className="rounded-xl p-4 space-y-3 text-sm" style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.05)' }}>
+          <div className="rounded-xl p-4 space-y-3 text-sm" style={{ background: 'rgba(var(--ink),0.025)', border: '1px solid rgba(var(--ink),0.05)' }}>
             <div className="flex justify-between"><span className="text-text-muted">Method</span><span className="text-text-primary font-medium">{method === 'bank' ? 'Bank Transfer' : `Crypto - ${crypto}`}</span></div>
             {method === 'bank' && bankName && <div className="flex justify-between"><span className="text-text-muted">Bank</span><span className="text-text-primary">{bankName}</span></div>}
             {method === 'bank' && iban && <div className="flex justify-between"><span className="text-text-muted">IBAN</span><span className="text-text-primary font-mono text-xs">{iban}</span></div>}
             {method === 'crypto' && walletAddress && <div className="flex justify-between gap-4"><span className="text-text-muted shrink-0">Wallet</span><span className="text-text-primary font-mono text-xs break-all text-right">{walletAddress}</span></div>}
-            <div className="h-px" style={{ background: 'rgba(255,255,255,0.06)' }} />
+            <div className="h-px" style={{ background: 'rgba(var(--ink),0.06)' }} />
             <div className="flex justify-between"><span className="text-text-muted">Withdrawal amount</span><span className="font-mono font-semibold text-text-primary">{formatCurrency(parsedAmount)}</span></div>
             {networkFee > 0 && <div className="flex justify-between"><span className="text-text-muted">Network fee</span><span className="text-bear font-mono">−{formatCurrency(networkFee)}</span></div>}
             <div className="flex justify-between font-bold"><span className="text-text-primary">You will receive</span><span className="font-mono text-base" style={{ color: '#fb923c' }}>{formatCurrency(willReceive)}</span></div>
           </div>
-          <div className="rounded-lg p-3 text-xs" style={{ background: 'rgba(251,146,60,0.08)', border: '1px solid rgba(251,146,60,0.2)', color: '#fb923c' }}>
-            ⚠ Withdrawals are reviewed by our team within 24 hours. Ensure your details are correct - funds sent to wrong addresses cannot be recovered.
+          <div className="rounded-lg p-3 text-xs flex items-start gap-2" style={{ background: 'rgba(251,146,60,0.08)', border: '1px solid rgba(251,146,60,0.2)', color: '#fb923c' }}>
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} className="shrink-0 mt-0.5"><path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+            <span>Withdrawals are reviewed by our team within 24 hours. Ensure your details are correct — funds sent to wrong addresses cannot be recovered.</span>
           </div>
           {error && (
             <div className="rounded-lg p-3 text-xs" style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', color: '#fca5a5' }}>
@@ -120,7 +121,7 @@ export default function WithdrawPage() {
           <div className="flex gap-3">
             <button onClick={() => setStep('form')} disabled={submitting}
               className="flex-1 py-2.5 rounded-lg text-sm font-semibold disabled:opacity-50"
-              style={{ background: 'rgba(255,255,255,0.06)', color: '#e2e8f0', border: '1px solid rgba(255,255,255,0.1)' }}>
+              style={{ background: 'rgba(var(--ink),0.06)', color: 'var(--t-text-1)', border: '1px solid rgba(var(--ink),0.1)' }}>
               Back
             </button>
             <button onClick={handleSubmit} disabled={submitting}
@@ -189,7 +190,7 @@ export default function WithdrawPage() {
               className="rounded-xl p-4 text-left transition-all"
               style={method === m.id
                 ? { background: 'rgba(251,146,60,0.1)', border: '1px solid rgba(251,146,60,0.35)' }
-                : { background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)' }}
+                : { background: 'rgba(var(--ink),0.025)', border: '1px solid rgba(var(--ink),0.06)' }}
             >
               <div className="mb-2" style={{ color: method === m.id ? '#fb923c' : '#94a3b8' }}>{m.icon}</div>
               <p className="font-semibold text-sm text-text-primary">{m.label}</p>
@@ -212,7 +213,7 @@ export default function WithdrawPage() {
               className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
               style={amount === String(a)
                 ? { background: 'rgba(251,146,60,0.2)', color: '#fb923c', border: '1px solid rgba(251,146,60,0.3)' }
-                : { background: 'rgba(255,255,255,0.04)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.06)' }}>
+                : { background: 'rgba(var(--ink),0.04)', color: '#94a3b8', border: '1px solid rgba(var(--ink),0.06)' }}>
               ${a.toLocaleString()}
             </button>
           ))}
@@ -220,7 +221,7 @@ export default function WithdrawPage() {
             className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
             style={amount === String(Math.floor(available))
               ? { background: 'rgba(251,146,60,0.2)', color: '#fb923c', border: '1px solid rgba(251,146,60,0.3)' }
-              : { background: 'rgba(255,255,255,0.04)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.06)' }}>
+              : { background: 'rgba(var(--ink),0.04)', color: '#94a3b8', border: '1px solid rgba(var(--ink),0.06)' }}>
             Max
           </button>
         </div>
@@ -268,7 +269,7 @@ export default function WithdrawPage() {
                 className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
                 style={crypto === c
                   ? { background: 'rgba(245,158,11,0.2)', color: '#fbbf24', border: '1px solid rgba(245,158,11,0.3)' }
-                  : { background: 'rgba(255,255,255,0.04)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.06)' }}>
+                  : { background: 'rgba(var(--ink),0.04)', color: '#94a3b8', border: '1px solid rgba(var(--ink),0.06)' }}>
                 {c}
               </button>
             ))}
@@ -276,7 +277,10 @@ export default function WithdrawPage() {
           <input value={walletAddress} onChange={e => setWalletAddress(e.target.value)}
             placeholder="Your wallet address"
             className="input w-full font-mono text-xs" />
-          <p className="text-xs text-text-muted mt-2">⚠ Double-check your wallet address. Transactions cannot be reversed.</p>
+          <p className="text-xs text-text-muted mt-2 flex items-start gap-1.5">
+            <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} className="shrink-0 mt-0.5"><path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+            Double-check your wallet address. Transactions cannot be reversed.
+          </p>
         </div>
       )}
 

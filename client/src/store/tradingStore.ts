@@ -16,7 +16,7 @@ function notifyTriggeredAlerts(triggered: PriceAlert[]) {
     const dir = a.condition === 'above' ? 'rose above' : 'fell below'
     addToast({
       variant: 'success',
-      title: `🔔 ${a.symbol} alert triggered`,
+      title: `${a.symbol} alert triggered`,
       message: `Price ${dir} ${formatPrice(a.targetPrice, a.symbol)}${a.note ? ` · ${a.note}` : ''}`,
       duration: 8000,
     })

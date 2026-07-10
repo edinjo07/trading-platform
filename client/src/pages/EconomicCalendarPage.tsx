@@ -43,7 +43,11 @@ const STATIC_EVENTS: EconomicEvent[] = [
 
 function Flag({ currency, size = 20 }: { currency: string; size?: number }) {
   const code = FLAG[currency]
-  if (!code) return <span style={{ fontSize: size * 0.7 }}>🌐</span>
+  if (!code) return (
+    <svg width={size * 0.8} height={size * 0.8} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6} style={{ opacity: 0.5, flexShrink: 0 }}>
+      <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>
+    </svg>
+  )
   return <img src={`https://flagcdn.com/${code}.svg`} width={size} height={Math.round(size * 0.67)}
               alt={currency} style={{ borderRadius: 3, objectFit: 'cover', display: 'block', flexShrink: 0 }}/>
 }

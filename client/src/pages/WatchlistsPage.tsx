@@ -47,8 +47,8 @@ function AssetCard({ symbol, name, assetClass, baseAsset, quoteAsset }: {
 
   return (
     <div style={{
-      background: 'rgba(255,255,255,0.03)', borderRadius: 14,
-      border: '1px solid rgba(255,255,255,0.07)', overflow: 'hidden', marginBottom: 2,
+      background: 'rgba(var(--ink),0.03)', borderRadius: 14,
+      border: '1px solid var(--t-border)', overflow: 'hidden', marginBottom: 2,
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px 6px' }}>
         <div style={{ flexShrink: 0 }}>
@@ -56,7 +56,7 @@ function AssetCard({ symbol, name, assetClass, baseAsset, quoteAsset }: {
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
           <p style={{ fontSize: 13, fontWeight: 700, color: '#fff', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{name}</p>
-          <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', margin: 0 }}>{symbol}</p>
+          <p style={{ fontSize: 10, color: 'rgba(var(--ink),0.4)', margin: 0 }}>{symbol}</p>
         </div>
         {t ? (
           <span style={{
@@ -67,7 +67,7 @@ function AssetCard({ symbol, name, assetClass, baseAsset, quoteAsset }: {
             {up ? '+' : ''}{t.changePercent.toFixed(2)}%
           </span>
         ) : (
-          <div style={{ width: 48, height: 18, borderRadius: 20, background: 'rgba(255,255,255,0.06)', animation: 'pulse 1.5s ease-in-out infinite' }} />
+          <div style={{ width: 48, height: 18, borderRadius: 20, background: 'rgba(var(--ink),0.06)', animation: 'pulse 1.5s ease-in-out infinite' }} />
         )}
       </div>
 
@@ -76,7 +76,7 @@ function AssetCard({ symbol, name, assetClass, baseAsset, quoteAsset }: {
           <span style={{ fontSize: 10, fontWeight: 700, color: '#ff3047', marginBottom: 2 }}>SELL</span>
           <span style={{ fontSize: 14, fontWeight: 700, fontFamily: 'monospace', color: '#ff3047' }}>{fmt(bid)}</span>
         </button>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px', borderTop: '1px solid rgba(var(--ink),0.05)' }}>
           <svg width="64" height="26" viewBox="0 0 64 26">
             <polyline points={pts} fill="none" stroke={up ? '#00c878' : '#ff3047'} strokeWidth={1.5} strokeLinejoin="round" strokeLinecap="round" />
           </svg>
@@ -187,17 +187,17 @@ export default function WatchlistsPage() {
         background: 'rgba(0,0,0,0.96)', backdropFilter: 'blur(12px)',
         WebkitBackdropFilter: 'blur(12px)',
         padding: '12px 14px 8px',
-        borderBottom: '1px solid rgba(255,255,255,0.06)',
+        borderBottom: '1px solid rgba(var(--ink),0.06)',
       }}>
         {/* Search + filter + add */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
           {/* Search input */}
           <div style={{
             flex: 1, display: 'flex', alignItems: 'center', gap: 8,
-            background: 'rgba(255,255,255,0.05)', borderRadius: 10, padding: '9px 12px',
-            border: '1px solid rgba(255,255,255,0.07)',
+            background: 'rgba(var(--ink),0.05)', borderRadius: 10, padding: '9px 12px',
+            border: '1px solid var(--t-border)',
           }}>
-            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="rgba(255,255,255,0.35)" strokeWidth={2}>
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="rgba(var(--ink),0.35)" strokeWidth={2}>
               <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
             </svg>
             <input
@@ -211,7 +211,7 @@ export default function WatchlistsPage() {
               }}
             />
             {search && (
-              <button onClick={() => setSearch('')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.35)', padding: 0, display: 'flex' }}>
+              <button onClick={() => setSearch('')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(var(--ink),0.35)', padding: 0, display: 'flex' }}>
                 <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                   <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
                 </svg>
@@ -226,11 +226,11 @@ export default function WatchlistsPage() {
               style={{
                 width: 38, height: 38, borderRadius: 10, cursor: 'pointer',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                background: showSort || sort !== 'default' ? 'rgba(14,165,233,0.15)' : 'rgba(255,255,255,0.07)',
-                border: showSort || sort !== 'default' ? '1px solid rgba(14,165,233,0.3)' : '1px solid rgba(255,255,255,0.06)',
+                background: showSort || sort !== 'default' ? 'rgba(14,165,233,0.15)' : 'var(--t-border)',
+                border: showSort || sort !== 'default' ? '1px solid rgba(14,165,233,0.3)' : '1px solid rgba(var(--ink),0.06)',
               }}
             >
-              <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke={showSort || sort !== 'default' ? '#38bdf8' : 'rgba(255,255,255,0.7)'} strokeWidth={1.8}>
+              <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke={showSort || sort !== 'default' ? '#38bdf8' : 'rgba(var(--ink),0.7)'} strokeWidth={1.8}>
                 <line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="14" y2="12"/><line x1="4" y1="18" x2="10" y2="18"/>
               </svg>
             </button>
@@ -239,7 +239,7 @@ export default function WatchlistsPage() {
               <div style={{
                 position: 'absolute', top: 'calc(100% + 6px)', right: 0,
                 width: 186, background: '#141414',
-                border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12,
+                border: '1px solid rgba(var(--ink),0.1)', borderRadius: 12,
                 overflow: 'hidden', boxShadow: '0 12px 40px rgba(0,0,0,0.7)', zIndex: 50,
               }}>
                 {SORT_OPTIONS.map(({ key, label }) => (
@@ -249,9 +249,9 @@ export default function WatchlistsPage() {
                     style={{
                       width: '100%', padding: '10px 14px', textAlign: 'left',
                       background: sort === key ? 'rgba(14,165,233,0.1)' : 'transparent',
-                      border: 'none', borderBottom: '1px solid rgba(255,255,255,0.05)',
+                      border: 'none', borderBottom: '1px solid rgba(var(--ink),0.05)',
                       cursor: 'pointer', fontSize: 13,
-                      color: sort === key ? '#38bdf8' : 'rgba(255,255,255,0.75)',
+                      color: sort === key ? '#38bdf8' : 'rgba(var(--ink),0.75)',
                       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                     }}
                   >
@@ -273,10 +273,10 @@ export default function WatchlistsPage() {
             style={{
               width: 38, height: 38, borderRadius: 10, cursor: 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.06)',
+              background: 'var(--t-border)', border: '1px solid rgba(var(--ink),0.06)',
             }}
           >
-            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="rgba(255,255,255,0.7)" strokeWidth={2}>
+            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="rgba(var(--ink),0.7)" strokeWidth={2}>
               <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
             </svg>
           </button>
@@ -291,8 +291,8 @@ export default function WatchlistsPage() {
               style={{
                 flexShrink: 0, padding: '6px 14px', borderRadius: 20,
                 fontSize: 12, fontWeight: 600, border: 'none', cursor: 'pointer',
-                background: activeTab === t.id ? '#fff' : 'rgba(255,255,255,0.07)',
-                color: activeTab === t.id ? '#000' : 'rgba(255,255,255,0.55)',
+                background: activeTab === t.id ? 'rgb(var(--ink))' : 'var(--t-border)',
+                color: activeTab === t.id ? 'rgb(var(--paper))' : 'rgba(var(--ink),0.55)',
                 transition: 'all 0.15s',
               }}
             >
@@ -304,12 +304,12 @@ export default function WatchlistsPage() {
 
       {/* ── Instrument count ── */}
       {!search && (
-        <div style={{ padding: '8px 14px 2px', fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>
+        <div style={{ padding: '8px 14px 2px', fontSize: 11, color: 'rgba(var(--ink),0.3)' }}>
           {sorted.length} instrument{sorted.length !== 1 ? 's' : ''}
         </div>
       )}
       {search && (
-        <div style={{ padding: '8px 14px 2px', fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>
+        <div style={{ padding: '8px 14px 2px', fontSize: 11, color: 'rgba(var(--ink),0.3)' }}>
           {sorted.length} result{sorted.length !== 1 ? 's' : ''} for "{search}"
         </div>
       )}
@@ -318,8 +318,10 @@ export default function WatchlistsPage() {
       <div style={{ flex: 1, padding: '6px 12px 80px' }}>
         {sorted.length === 0 ? (
           <div style={{ padding: '60px 0', textAlign: 'center' }}>
-            <div style={{ fontSize: 32, marginBottom: 12 }}>🔍</div>
-            <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.3)', margin: 0 }}>
+            <div style={{ width: 52, height: 52, borderRadius: '50%', margin: '0 auto 14px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(var(--ink),0.05)', color: 'var(--t-text-3)' }}>
+              <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+            </div>
+            <p style={{ fontSize: 14, color: 'var(--t-text-3)', margin: 0 }}>
               {search ? `No results for "${search}"` : 'No instruments in this category'}
             </p>
           </div>

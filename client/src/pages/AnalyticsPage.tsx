@@ -20,7 +20,7 @@ function fmtPct(v: number, decimals = 2) {
 }
 
 function pnlColor(v: number) {
-  return v >= 0 ? '#00c878' : '#ff3047'
+  return v >= 0 ? '#18c98a' : '#ff5a72'
 }
 
 // ---------------------------------------------------------------------------
@@ -29,12 +29,12 @@ function pnlColor(v: number) {
 function StatCard({ label, value, sub, color, icon }: { label: string; value: string; sub?: string; color?: string; icon?: React.ReactNode }) {
   return (
     <div className="rounded-xl p-4 flex flex-col gap-1.5"
-         style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
+         style={{ background: 'var(--t-surface)', border: '1px solid var(--t-border)' }}>
       <div className="flex items-center justify-between">
         <span className="text-xs font-medium text-text-muted uppercase tracking-wider">{label}</span>
         {icon && <span className="text-text-muted">{icon}</span>}
       </div>
-      <span className="text-xl font-bold font-mono tabular-nums" style={{ color: color ?? '#e2eaf0' }}>{value}</span>
+      <span className="text-xl font-bold font-mono tabular-nums" style={{ color: color ?? 'var(--t-text-1)' }}>{value}</span>
       {sub && <span className="text-xs text-text-muted">{sub}</span>}
     </div>
   )
@@ -74,9 +74,9 @@ function EquityCurve({ points, mode = 'value' }: { points: EquityPoint[]; mode?:
   const first = equities[0]
   const last = equities[equities.length - 1]
   const isUp = last >= first
-  const lineColor = isUp ? '#00c878' : '#ff3047'
+  const lineColor = isUp ? '#18c98a' : '#ff5a72'
   const gradId = isUp ? 'ecUp' : 'ecDn'
-  const gradStop = isUp ? '#00c878' : '#ff3047'
+  const gradStop = isUp ? '#18c98a' : '#ff5a72'
 
   // Y-axis ticks (4)
   const yTicks = [0, 0.33, 0.67, 1].map(t => {
@@ -105,7 +105,7 @@ function EquityCurve({ points, mode = 'value' }: { points: EquityPoint[]; mode?:
       {/* Grid lines */}
       {yTicks.map((t, i) => (
         <line key={i} x1={PAD.left} y1={t.y} x2={W - PAD.right} y2={t.y}
-          stroke="rgba(255,255,255,0.05)" strokeWidth={1} />
+          stroke="rgba(var(--ink),0.05)" strokeWidth={1} />
       ))}
       {/* Area fill */}
       <path d={areaD} fill={`url(#${gradId})`} />
@@ -114,12 +114,12 @@ function EquityCurve({ points, mode = 'value' }: { points: EquityPoint[]; mode?:
       {/* Y-axis labels */}
       {yTicks.map((t, i) => (
         <text key={i} x={PAD.left - 8} y={t.y + 4} textAnchor="end"
-          fontSize={10} fill="#4b6070" fontFamily="monospace">{t.label}</text>
+          fontSize={10} fill="var(--t-text-3)" fontFamily="monospace">{t.label}</text>
       ))}
       {/* X-axis labels */}
       {xTicks.map((t, i) => (
         <text key={i} x={t.x} y={H - 6} textAnchor="middle"
-          fontSize={10} fill="#4b6070" fontFamily="monospace">{t.label}</text>
+          fontSize={10} fill="var(--t-text-3)" fontFamily="monospace">{t.label}</text>
       ))}
       {/* Live mark-to-market pulse */}
       {isLive && (
@@ -159,7 +159,7 @@ function DrawdownChart({ points }: { points: EquityPoint[] }) {
   const lineD = xs.map((x, i) => (i === 0 ? `M${x},${ys[i]}` : `L${x},${ys[i]}`)).join(' ')
   const areaD = `M${xs[0]},${zeroY} ` + xs.map((x, i) => `L${x},${ys[i]}`).join(' ') + ` L${xs[xs.length - 1]},${zeroY} Z`
   const maxDDidx = dd.indexOf(minDD)
-  const R = '#ff3047'
+  const R = '#ff5a72'
 
   const yT = [0, 0.5, 1].map(t => ({
     y: PAD.top + t * (H - PAD.top - PAD.bottom),
@@ -175,12 +175,12 @@ function DrawdownChart({ points }: { points: EquityPoint[] }) {
         </linearGradient>
       </defs>
       {yT.map((t, i) => (
-        <line key={i} x1={PAD.left} y1={t.y} x2={W - PAD.right} y2={t.y} stroke="rgba(255,255,255,0.05)" strokeWidth={1} />
+        <line key={i} x1={PAD.left} y1={t.y} x2={W - PAD.right} y2={t.y} stroke="rgba(var(--ink),0.05)" strokeWidth={1} />
       ))}
       <path d={areaD} fill="url(#ddGrad)" />
       <path d={lineD} fill="none" stroke={R} strokeWidth={1.5} strokeLinejoin="round" />
       {yT.map((t, i) => (
-        <text key={i} x={PAD.left - 8} y={t.y + 4} textAnchor="end" fontSize={10} fill="#4b6070" fontFamily="monospace">{t.label}</text>
+        <text key={i} x={PAD.left - 8} y={t.y + 4} textAnchor="end" fontSize={10} fill="var(--t-text-3)" fontFamily="monospace">{t.label}</text>
       ))}
       {maxDDidx >= 0 && minDD < 0 && (
         <circle cx={xs[maxDDidx]} cy={ys[maxDDidx]} r={3.5} fill={R} />
@@ -260,12 +260,12 @@ function PnlCalendar({ trades }: { trades: TradeRecord[] }) {
     <div style={{
       borderRadius: 18, overflow: 'hidden',
       background: 'linear-gradient(180deg, rgba(14,165,233,0.04) 0%, rgba(0,0,0,0) 60%)',
-      border: '1px solid rgba(255,255,255,0.09)',
-      boxShadow: '0 8px 40px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.06)',
+      border: '1px solid rgba(var(--ink),0.09)',
+      boxShadow: '0 8px 40px rgba(0,0,0,0.35), inset 0 1px 0 rgba(var(--ink),0.06)',
     }}>
 
       {/* ── Top header ──────────────────────────────────────────────────────── */}
-      <div style={{ padding: '20px 22px 0', background: 'rgba(255,255,255,0.02)' }}>
+      <div style={{ padding: '20px 22px 0', background: 'rgba(var(--ink),0.02)' }}>
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 16 }}>
 
           {/* Title + icon */}
@@ -278,7 +278,7 @@ function PnlCalendar({ trades }: { trades: TradeRecord[] }) {
               boxShadow: '0 0 12px rgba(14,165,233,0.15)',
             }}>
               {/* Calendar icon */}
-              <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#38bdf8" strokeWidth={1.8}>
+              <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#7aa7ff" strokeWidth={1.8}>
                 <rect x="3" y="4" width="18" height="18" rx="2"/>
                 <line x1="16" y1="2" x2="16" y2="6"/>
                 <line x1="8" y1="2" x2="8" y2="6"/>
@@ -295,16 +295,16 @@ function PnlCalendar({ trades }: { trades: TradeRecord[] }) {
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <button onClick={() => setMonthOffset(o => o - 1)} style={{
-                width: 28, height: 28, borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)',
-                background: 'rgba(255,255,255,0.05)', color: '#64748b', cursor: 'pointer',
+                width: 28, height: 28, borderRadius: 8, border: '1px solid rgba(var(--ink),0.1)',
+                background: 'rgba(var(--ink),0.05)', color: 'var(--t-text-2)', cursor: 'pointer',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>
                 <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><polyline points="15 18 9 12 15 6"/></svg>
               </button>
               <span style={{ fontSize: 12, fontWeight: 700, color: '#94a3b8', minWidth: 130, textAlign: 'center' }}>{label}</span>
               <button onClick={() => setMonthOffset(o => Math.min(o + 1, 0))} disabled={monthOffset === 0} style={{
-                width: 28, height: 28, borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)',
-                background: 'rgba(255,255,255,0.05)', color: '#64748b', cursor: monthOffset === 0 ? 'not-allowed' : 'pointer',
+                width: 28, height: 28, borderRadius: 8, border: '1px solid rgba(var(--ink),0.1)',
+                background: 'rgba(var(--ink),0.05)', color: 'var(--t-text-2)', cursor: monthOffset === 0 ? 'not-allowed' : 'pointer',
                 display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: monthOffset === 0 ? 0.3 : 1,
               }}>
                 <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><polyline points="9 18 15 12 9 6"/></svg>
@@ -325,8 +325,8 @@ function PnlCalendar({ trades }: { trades: TradeRecord[] }) {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 16 }}>
           {[
             {
-              icon: <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#38bdf8" strokeWidth={2}><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
-              label: 'Trading Days', value: String(tradingDays), color: '#38bdf8',
+              icon: <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#7aa7ff" strokeWidth={2}><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
+              label: 'Trading Days', value: String(tradingDays), color: '#7aa7ff',
             },
             {
               icon: <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke={G} strokeWidth={2}><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>,
@@ -343,7 +343,7 @@ function PnlCalendar({ trades }: { trades: TradeRecord[] }) {
               label: 'Worst Day', value: worstDay < 0 ? fmtShort(worstDay) : '—', color: R,
             },
           ].map(s => (
-            <div key={s.label} style={{ padding: '8px 10px', borderRadius: 10, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+            <div key={s.label} style={{ padding: '8px 10px', borderRadius: 10, background: 'rgba(var(--ink),0.03)', border: '1px solid rgba(var(--ink),0.06)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 4 }}>
                 {s.icon}
                 <span style={{ fontSize: 9, fontWeight: 700, color: MUTED, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{s.label}</span>
@@ -392,7 +392,7 @@ function PnlCalendar({ trades }: { trades: TradeRecord[] }) {
                   ? data.pnl >= 0
                     ? `rgba(16,185,129,${alpha})`
                     : `rgba(239,68,68,${alpha})`
-                  : inFuture ? 'rgba(255,255,255,0.01)' : 'rgba(255,255,255,0.03)'
+                  : inFuture ? 'rgba(var(--ink),0.01)' : 'rgba(var(--ink),0.03)'
 
                 const pnlColor2 = data
                   ? data.pnl >= 0 ? G : R
@@ -402,7 +402,7 @@ function PnlCalendar({ trades }: { trades: TradeRecord[] }) {
                   ? `1px solid rgba(56,189,248,0.7)`
                   : data
                   ? `1px solid ${data.pnl >= 0 ? 'rgba(16,185,129,0.25)' : 'rgba(239,68,68,0.25)'}`
-                  : '1px solid rgba(255,255,255,0.04)'
+                  : '1px solid var(--t-surface)'
 
                 const glowShadow = isToday
                   ? '0 0 0 2px rgba(56,189,248,0.15), inset 0 0 10px rgba(56,189,248,0.05)'
@@ -442,7 +442,7 @@ function PnlCalendar({ trades }: { trades: TradeRecord[] }) {
                     {/* Day number */}
                     <span style={{
                       fontSize: 11, fontWeight: isToday ? 800 : 600, alignSelf: 'flex-start',
-                      color: isToday ? '#38bdf8' : data ? '#94a3b8' : inFuture ? '#1e293b' : '#334155',
+                      color: isToday ? '#7aa7ff' : data ? '#94a3b8' : inFuture ? '#1e293b' : '#334155',
                       lineHeight: 1,
                     }}>{day}</span>
 
@@ -480,10 +480,10 @@ function PnlCalendar({ trades }: { trades: TradeRecord[] }) {
                 alignItems: 'center', justifyContent: 'center', gap: 3,
                 background: hasWeekTrades
                   ? wPnl >= 0 ? 'rgba(16,185,129,0.07)' : 'rgba(239,68,68,0.07)'
-                  : 'rgba(255,255,255,0.02)',
+                  : 'rgba(var(--ink),0.02)',
                 border: hasWeekTrades
                   ? `1px solid ${wPnl >= 0 ? 'rgba(16,185,129,0.18)' : 'rgba(239,68,68,0.18)'}`
-                  : '1px solid rgba(255,255,255,0.04)',
+                  : '1px solid var(--t-surface)',
               }}>
                 {hasWeekTrades ? (
                   <>
@@ -513,7 +513,7 @@ function PnlCalendar({ trades }: { trades: TradeRecord[] }) {
               background: 'rgba(10,14,26,0.97)', backdropFilter: 'blur(12px)',
               border: `1px solid ${d.pnl >= 0 ? 'rgba(16,185,129,0.35)' : 'rgba(239,68,68,0.35)'}`,
               borderRadius: 12, padding: '10px 14px', minWidth: 160,
-              boxShadow: `0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04)`,
+              boxShadow: `0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px var(--t-surface)`,
             }}>
               <p style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', margin: '0 0 6px' }}>{dateLabel}</p>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 16, marginBottom: 4 }}>
@@ -536,7 +536,7 @@ function PnlCalendar({ trades }: { trades: TradeRecord[] }) {
       </div>
 
       {/* ── Legend + heatmap scale ───────────────────────────────────────── */}
-      <div style={{ padding: '12px 22px 16px', borderTop: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
+      <div style={{ padding: '12px 22px 16px', borderTop: '1px solid rgba(var(--ink),0.05)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             <div style={{ width: 10, height: 10, borderRadius: 3, background: 'rgba(16,185,129,0.6)', boxShadow: '0 0 6px rgba(16,185,129,0.4)' }}/>
@@ -547,7 +547,7 @@ function PnlCalendar({ trades }: { trades: TradeRecord[] }) {
             <span style={{ fontSize: 10, color: '#475569' }}>Loss day</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <div style={{ width: 10, height: 10, borderRadius: 3, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}/>
+            <div style={{ width: 10, height: 10, borderRadius: 3, background: 'rgba(var(--ink),0.05)', border: '1px solid rgba(var(--ink),0.08)' }}/>
             <span style={{ fontSize: 10, color: '#475569' }}>No trades</span>
           </div>
         </div>
@@ -575,13 +575,13 @@ function JournalRow({ trade, idx }: { trade: TradeRecord; idx: number }) {
   const isWin = pnl > 0
   const isClosed = !!trade.closedAt
   return (
-    <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.04)', background: idx % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.015)' }}>
+    <tr style={{ borderBottom: '1px solid var(--t-surface)', background: idx % 2 === 0 ? 'transparent' : 'rgba(var(--ink),0.015)' }}>
       <td className="px-4 py-2.5 font-bold text-text-primary text-xs font-mono">{trade.symbol}</td>
       <td className="px-4 py-2.5 text-xs">
         <span className="px-1.5 py-0.5 rounded text-[10px] font-bold uppercase"
           style={trade.side === 'long'
-            ? { background: 'rgba(0,200,120,0.12)', color: '#00c878' }
-            : { background: 'rgba(255,48,71,0.12)', color: '#ff3047' }
+            ? { background: 'rgba(0,200,120,0.12)', color: '#18c98a' }
+            : { background: 'rgba(255,48,71,0.12)', color: '#ff5a72' }
           }>{trade.side}</span>
       </td>
       <td className="px-4 py-2.5 text-xs text-right font-mono text-text-secondary tabular">{trade.quantity}</td>
@@ -603,9 +603,9 @@ function JournalRow({ trade, idx }: { trade: TradeRecord; idx: number }) {
         <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase"
           style={isClosed
             ? isWin
-              ? { background: 'rgba(0,200,120,0.12)', color: '#00c878' }
-              : { background: 'rgba(255,48,71,0.12)', color: '#ff3047' }
-            : { background: 'rgba(255,255,255,0.06)', color: '#6b8099' }
+              ? { background: 'rgba(0,200,120,0.12)', color: '#18c98a' }
+              : { background: 'rgba(255,48,71,0.12)', color: '#ff5a72' }
+            : { background: 'rgba(var(--ink),0.06)', color: '#6b8099' }
           }>{isClosed ? (isWin ? 'Win' : 'Loss') : 'Open'}</span>
       </td>
     </tr>
@@ -632,7 +632,7 @@ function AssetBreakdown({ trades }: { trades: TradeRecord[] }) {
   const classColors: Record<string, string> = { stock: '#0ea5e9', crypto: '#e879f9', forex: '#f59e0b' }
 
   return (
-    <div className="rounded-xl p-5" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
+    <div className="rounded-xl p-5" style={{ background: 'var(--t-surface)', border: '1px solid var(--t-border)' }}>
       <h3 className="text-sm font-semibold text-text-primary mb-4">Asset Class Breakdown</h3>
       <div className="flex h-3 rounded-full overflow-hidden mb-4">
         {entries.map(([ac, d]) => (
@@ -666,16 +666,16 @@ const STRAT_ATTR: Record<string, { label: string; color: string }> = {
   macd:         { label: 'MACD',     color: '#06b6d4' },
   momentum:     { label: 'Momentum', color: '#f59e0b' },
 }
-const stratMeta = (s: string) => STRAT_ATTR[s] ?? { label: s, color: '#64748b' }
+const stratMeta = (s: string) => STRAT_ATTR[s] ?? { label: s, color: 'var(--t-text-2)' }
 
 function PerformanceAttribution({ data }: { data: Attribution | null }) {
   if (!data || data.bots.length === 0) return null
   const { bots, byStrategy, totals } = data
   const maxStratAbs = Math.max(1, ...byStrategy.map(s => Math.abs(s.pnl)))
-  const G = '#00c878', R = '#ff3047'
+  const G = '#18c98a', R = '#ff5a72'
 
   return (
-    <div className="rounded-xl p-5" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
+    <div className="rounded-xl p-5" style={{ background: 'var(--t-surface)', border: '1px solid var(--t-border)' }}>
       <div className="flex items-center gap-2 mb-4">
         <h3 className="text-sm font-semibold text-text-primary">Performance Attribution</h3>
         <span className="text-2xs text-text-muted">all-time · who’s making the money</span>
@@ -684,12 +684,18 @@ function PerformanceAttribution({ data }: { data: Attribution | null }) {
       {/* Bots vs Manual */}
       <div className="grid grid-cols-2 gap-3 mb-5">
         <div className="rounded-lg p-3" style={{ background: 'rgba(14,165,233,0.06)', border: '1px solid rgba(14,165,233,0.15)' }}>
-          <p className="text-2xs uppercase tracking-wider text-text-muted mb-1">🤖 Bots</p>
+          <p className="text-2xs uppercase tracking-wider text-text-muted mb-1 flex items-center gap-1.5">
+            <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><rect x="5" y="8" width="14" height="11" rx="2"/><path d="M12 8V5M8 5h8M9 13h.01M15 13h.01M9.5 16.5h5"/></svg>
+            Bots
+          </p>
           <p className="text-xl font-bold font-mono tabular-nums" style={{ color: pnlColor(totals.botPnl) }}>{formatPnl(totals.botPnl)}</p>
           <p className="text-2xs text-text-muted mt-0.5">{totals.botTrades} trades · {bots.length} bot{bots.length === 1 ? '' : 's'}</p>
         </div>
-        <div className="rounded-lg p-3" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
-          <p className="text-2xs uppercase tracking-wider text-text-muted mb-1">✋ Manual</p>
+        <div className="rounded-lg p-3" style={{ background: 'rgba(var(--ink),0.03)', border: '1px solid var(--t-border)' }}>
+          <p className="text-2xs uppercase tracking-wider text-text-muted mb-1 flex items-center gap-1.5">
+            <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+            Manual
+          </p>
           <p className="text-xl font-bold font-mono tabular-nums" style={{ color: pnlColor(totals.manualPnl) }}>{formatPnl(totals.manualPnl)}</p>
           <p className="text-2xs text-text-muted mt-0.5">{totals.manualTrades} trades</p>
         </div>
@@ -707,7 +713,7 @@ function PerformanceAttribution({ data }: { data: Attribution | null }) {
                 <span className="w-2.5 h-2.5 rounded-sm shrink-0" style={{ background: meta.color }} />
                 <span className="text-xs font-semibold text-text-secondary truncate">{meta.label}</span>
               </div>
-              <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.05)' }}>
+              <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: 'rgba(var(--ink),0.05)' }}>
                 <div style={{ width: w + '%', height: '100%', background: s.pnl >= 0 ? G : R, borderRadius: 99, transition: 'width 0.5s' }} />
               </div>
               <span className="text-xs font-mono font-bold w-20 text-right tabular-nums" style={{ color: pnlColor(s.pnl) }}>{formatPnl(s.pnl)}</span>
@@ -723,7 +729,7 @@ function PerformanceAttribution({ data }: { data: Attribution | null }) {
         {bots.slice(0, 8).map((b, i) => {
           const meta = stratMeta(b.strategy)
           return (
-            <div key={b.id} className="flex items-center gap-3 px-3 py-2 rounded-lg" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
+            <div key={b.id} className="flex items-center gap-3 px-3 py-2 rounded-lg" style={{ background: 'rgba(var(--ink),0.02)', border: '1px solid rgba(var(--ink),0.05)' }}>
               <span className="text-2xs font-bold text-text-muted w-4 text-center shrink-0">{i + 1}</span>
               <span className="w-2 h-2 rounded-full shrink-0" style={{ background: meta.color }} />
               <div className="flex-1 min-w-0">
@@ -802,7 +808,7 @@ export default function AnalyticsPage() {
           </div>
           <button onClick={() => loadAnalytics().then(() => setLastUpdated(Date.now()))}
             className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
-            style={{ background: 'rgba(14,165,233,0.1)', border: '1px solid rgba(14,165,233,0.2)', color: '#38bdf8' }}>
+            style={{ background: 'rgba(14,165,233,0.1)', border: '1px solid rgba(14,165,233,0.2)', color: '#7aa7ff' }}>
             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
             </svg>
@@ -814,7 +820,7 @@ export default function AnalyticsPage() {
       <div className="px-6 pb-6 flex flex-col gap-5">
         {empty ? (
           <div className="flex flex-col items-center justify-center py-20 gap-4 rounded-xl"
-               style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
+               style={{ background: 'var(--t-surface)', border: '1px solid var(--t-border)' }}>
             <svg className="w-12 h-12 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
               <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
             </svg>
@@ -825,11 +831,11 @@ export default function AnalyticsPage() {
           <>
             {/* ── Live equity (mark-to-market) + timeframe filter ── */}
             <div className="rounded-xl p-4 flex items-center justify-between flex-wrap gap-3"
-                 style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                 style={{ background: 'var(--t-surface)', border: '1px solid var(--t-border)' }}>
               <div className="flex items-center gap-6 flex-wrap">
                 <div>
                   <p className="text-2xs font-medium text-text-muted uppercase tracking-wider mb-0.5">Live Equity · mark-to-market</p>
-                  <span className="text-2xl font-bold font-mono tabular-nums" style={{ color: '#e2eaf0' }}>
+                  <span className="text-2xl font-bold font-mono tabular-nums" style={{ color: 'var(--t-text-1)' }}>
                     {formatCurrency(stats?.currentEquity ?? stats?.startingBalance ?? 0)}
                   </span>
                 </div>
@@ -846,13 +852,13 @@ export default function AnalyticsPage() {
                 )}
               </div>
               {/* Timeframe segmented control */}
-              <div className="flex items-center gap-1 p-1 rounded-lg" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
+              <div className="flex items-center gap-1 p-1 rounded-lg" style={{ background: 'var(--t-surface)', border: '1px solid var(--t-border)' }}>
                 {([['7d', '7D'], ['30d', '30D'], ['all', 'All']] as const).map(([key, label]) => (
                   <button key={key} onClick={() => setRange(key)}
                     className="px-3.5 py-1.5 rounded-md text-xs font-bold transition-all"
                     style={range === key
-                      ? { background: 'rgba(14,165,233,0.15)', color: '#38bdf8', border: '1px solid rgba(14,165,233,0.35)' }
-                      : { background: 'transparent', color: '#64748b', border: '1px solid transparent' }}>
+                      ? { background: 'rgba(14,165,233,0.15)', color: '#7aa7ff', border: '1px solid rgba(14,165,233,0.35)' }
+                      : { background: 'transparent', color: 'var(--t-text-2)', border: '1px solid transparent' }}>
                     {label}
                   </button>
                 ))}
@@ -867,37 +873,37 @@ export default function AnalyticsPage() {
                 sub={stats!.totalTrades + ' total trades'}
                 icon={<svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>}/>
               <StatCard label="Win Rate" value={fmtPct(stats!.winRate, 1)}
-                color={stats!.winRate >= 0.5 ? '#00c878' : '#ff3047'}
+                color={stats!.winRate >= 0.5 ? '#18c98a' : '#ff5a72'}
                 sub={stats!.winningTrades + 'W / ' + stats!.losingTrades + 'L'}
                 icon={<svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>}/>
               <StatCard label="Profit Factor" value={stats!.grossLoss === 0 ? '∞' : (stats!.profitFactor ?? 0).toFixed(2)}
-                color={(stats!.profitFactor ?? 0) >= 1 ? '#00c878' : '#ff3047'}
+                color={(stats!.profitFactor ?? 0) >= 1 ? '#18c98a' : '#ff5a72'}
                 sub="Gross profit / loss"
                 icon={<svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/></svg>}/>
               <StatCard label="Sharpe Ratio" value={(stats!.sharpeRatio ?? 0).toFixed(2)}
-                color={(stats!.sharpeRatio ?? 0) >= 1 ? '#00c878' : (stats!.sharpeRatio ?? 0) >= 0 ? '#f59e0b' : '#ff3047'}
+                color={(stats!.sharpeRatio ?? 0) >= 1 ? '#18c98a' : (stats!.sharpeRatio ?? 0) >= 0 ? '#f59e0b' : '#ff5a72'}
                 sub="Annualised (√252)"
                 icon={<svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>}/>
               <StatCard label="Max Drawdown" value={fmtPct((stats!.maxDrawdownPercent ?? 0) / 100)}
-                color='#ff3047'
+                color='#ff5a72'
                 sub={'Peak: ' + formatCurrency(stats!.maxDrawdown ?? 0)}
                 icon={<svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"/></svg>}/>
             </div>
 
             {/* Second row KPIs */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <StatCard label="Avg Win" value={formatCurrency(stats!.avgWin)} color="#00c878" sub="Per winning trade"/>
-              <StatCard label="Avg Loss" value={formatCurrency(stats!.avgLoss)} color="#ff3047" sub="Per losing trade"/>
+              <StatCard label="Avg Win" value={formatCurrency(stats!.avgWin)} color="#18c98a" sub="Per winning trade"/>
+              <StatCard label="Avg Loss" value={formatCurrency(stats!.avgLoss)} color="#ff5a72" sub="Per losing trade"/>
               <StatCard label="Expectancy" value={formatCurrency(stats!.expectancy ?? 0)} color={pnlColor(stats!.expectancy ?? 0)} sub="Per trade expected value"/>
               <StatCard label="Avg Holding" value={fmtDuration(stats!.avgHoldingPeriodMs ?? 0)} sub={formatCurrency(stats!.totalVolume ?? 0) + ' total volume'}/>
             </div>
 
             {/* Equity curve */}
-            <div className="rounded-xl p-5" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
+            <div className="rounded-xl p-5" style={{ background: 'var(--t-surface)', border: '1px solid var(--t-border)' }}>
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <h3 className="text-sm font-semibold text-text-primary">Equity Curve</h3>
-                  <span className="text-2xs font-semibold px-1.5 py-0.5 rounded" style={{ background: 'rgba(14,165,233,0.1)', color: '#38bdf8' }}>
+                  <span className="text-2xs font-semibold px-1.5 py-0.5 rounded" style={{ background: 'rgba(14,165,233,0.1)', color: '#7aa7ff' }}>
                     {range === 'all' ? 'All time' : range.toUpperCase()}
                   </span>
                   {(stats?.openPositions ?? 0) > 0 && (
@@ -918,13 +924,13 @@ export default function AnalyticsPage() {
                     )
                   })()}
                   {/* $ / % toggle */}
-                  <div className="flex items-center gap-0.5 p-0.5 rounded-md" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                  <div className="flex items-center gap-0.5 p-0.5 rounded-md" style={{ background: 'var(--t-surface)', border: '1px solid var(--t-border)' }}>
                     {(['value', 'percent'] as const).map(mo => (
                       <button key={mo} onClick={() => setChartMode(mo)}
                         className="px-2 py-0.5 rounded text-2xs font-bold transition-all"
                         style={chartMode === mo
-                          ? { background: 'rgba(14,165,233,0.15)', color: '#38bdf8' }
-                          : { background: 'transparent', color: '#64748b' }}>
+                          ? { background: 'rgba(14,165,233,0.15)', color: '#7aa7ff' }
+                          : { background: 'transparent', color: 'var(--t-text-2)' }}>
                         {mo === 'value' ? '$' : '%'}
                       </button>
                     ))}
@@ -936,13 +942,13 @@ export default function AnalyticsPage() {
 
             {/* Drawdown underwater chart */}
             {(stats!.equityCurve ?? []).length >= 2 && (
-              <div className="rounded-xl p-5" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
+              <div className="rounded-xl p-5" style={{ background: 'var(--t-surface)', border: '1px solid var(--t-border)' }}>
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <h3 className="text-sm font-semibold text-text-primary">Drawdown</h3>
                     <span className="text-2xs text-text-muted">underwater from peak</span>
                   </div>
-                  <span className="text-xs font-mono font-semibold" style={{ color: '#ff3047' }}>
+                  <span className="text-xs font-mono font-semibold" style={{ color: '#ff5a72' }}>
                     Max {fmtPct(-(stats!.maxDrawdownPercent ?? 0) / 100)}
                   </span>
                 </div>
@@ -958,7 +964,7 @@ export default function AnalyticsPage() {
             </>) : (
               /* No closed trades yet but open positions exist - show banner above journal */
               <div className="rounded-xl p-6 flex items-center gap-4"
-                   style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                   style={{ background: 'var(--t-surface)', border: '1px solid var(--t-border)' }}>
                 <svg className="w-8 h-8 shrink-0 text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                   <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
                 </svg>
@@ -973,15 +979,15 @@ export default function AnalyticsPage() {
             <PerformanceAttribution data={attribution} />
 
             {/* Trade journal - always shown when there are any entries */}
-            <div className="rounded-xl overflow-hidden" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
-              <div className="px-5 py-4 flex items-center justify-between" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+            <div className="rounded-xl overflow-hidden" style={{ background: 'var(--t-surface)', border: '1px solid var(--t-border)' }}>
+              <div className="px-5 py-4 flex items-center justify-between" style={{ borderBottom: '1px solid rgba(var(--ink),0.06)' }}>
                 <h3 className="text-sm font-semibold text-text-primary">Trade Journal</h3>
                 <span className="text-xs text-text-muted">{trades.length} entries</span>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-xs">
                   <thead>
-                    <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', background: 'rgba(255,255,255,0.02)' }}>
+                    <tr style={{ borderBottom: '1px solid rgba(var(--ink),0.05)', background: 'rgba(var(--ink),0.02)' }}>
                       {['Symbol', 'Side', 'Qty', 'Entry', 'Exit', 'Net P&L', 'Commission', 'Duration', 'Result'].map((h, i) => (
                         <th key={h} className={`py-3 px-4 text-[10px] font-semibold uppercase tracking-wider text-text-muted ${i >= 2 && i <= 5 ? 'text-right' : i === 8 ? 'text-center' : 'text-left'}`}>{h}</th>
                       ))}

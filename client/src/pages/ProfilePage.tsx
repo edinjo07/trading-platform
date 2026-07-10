@@ -54,7 +54,7 @@ function Card({ title, description, children, action }: {
   title: string; description?: string; children: React.ReactNode; action?: React.ReactNode
 }) {
   return (
-    <div className="rounded-xl p-5 sm:p-6" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
+    <div className="rounded-xl p-5 sm:p-6" style={{ background: 'rgba(var(--ink),0.04)', border: '1px solid var(--t-border)' }}>
       <div className="flex items-start justify-between mb-5">
         <div>
           <h3 className="text-sm font-semibold text-text-primary">{title}</h3>
@@ -73,7 +73,7 @@ function StatBox({ label, value, sub, color, icon }: {
 }) {
   return (
     <div className="rounded-xl p-4 flex items-start gap-3"
-      style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.05)' }}>
+      style={{ background: 'rgba(var(--ink),0.025)', border: '1px solid rgba(var(--ink),0.05)' }}>
       {icon && (
         <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
           style={{ background: 'rgba(14,165,233,0.1)' }}>
@@ -107,8 +107,8 @@ function Field({
         onChange={e => onChange?.(e.target.value)}
         className="w-full rounded-lg px-3 py-2.5 text-sm text-text-primary transition-colors focus:outline-none"
         style={{
-          background: readOnly ? 'rgba(255,255,255,0.025)' : 'rgba(255,255,255,0.05)',
-          border: readOnly ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(255,255,255,0.08)',
+          background: readOnly ? 'rgba(var(--ink),0.025)' : 'rgba(var(--ink),0.05)',
+          border: readOnly ? '1px solid rgba(var(--ink),0.06)' : '1px solid rgba(var(--ink),0.08)',
           color: readOnly ? '#6b8099' : undefined,
           cursor: readOnly ? 'default' : undefined,
         }}
@@ -130,7 +130,7 @@ function SelectField({ label, value, onChange, options }: {
         value={value}
         onChange={e => onChange(e.target.value)}
         className="w-full rounded-lg px-3 py-2.5 text-sm text-text-primary focus:outline-none appearance-none"
-        style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
+        style={{ background: 'rgba(var(--ink),0.05)', border: '1px solid rgba(var(--ink),0.08)' }}
       >
         {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
       </select>
@@ -146,8 +146,8 @@ function Toggle({ active, onToggle }: { active: boolean; onToggle: () => void })
       className="relative shrink-0 focus:outline-none"
       style={{
         width: '40px', height: '22px', borderRadius: '11px',
-        background: active ? '#0ea5e9' : 'rgba(255,255,255,0.1)',
-        border: active ? '1px solid rgba(14,165,233,0.4)' : '1px solid rgba(255,255,255,0.1)',
+        background: active ? '#0ea5e9' : 'rgba(var(--ink),0.1)',
+        border: active ? '1px solid rgba(14,165,233,0.4)' : '1px solid rgba(var(--ink),0.1)',
         transition: 'background 0.2s',
       }}
     >
@@ -319,7 +319,7 @@ export default function ProfilePage() {
       <div
         className="rounded-2xl p-6 mb-5 relative overflow-hidden"
         style={{
-          background: 'rgba(255,255,255,0.04)',
+          background: 'rgba(var(--ink),0.04)',
           border: '1px solid rgba(14,165,233,0.18)',
         }}
       >
@@ -338,13 +338,13 @@ export default function ProfilePage() {
               {initials}
             </div>
             <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center"
-              style={{ background: '#141414', border: '1px solid rgba(255,255,255,0.1)' }}>
+              style={{ background: '#141414', border: '1px solid rgba(var(--ink),0.1)' }}>
               <svg className="w-2.5 h-2.5 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
             </div>
             {/* Avatar colour picker */}
             {showAvatarPicker && (
               <div className="absolute top-24 left-0 z-20 p-3 rounded-xl flex gap-2 shadow-xl"
-                style={{ background: '#141414', border: '1px solid rgba(255,255,255,0.1)' }}>
+                style={{ background: '#141414', border: '1px solid rgba(var(--ink),0.1)' }}>
                 {AVATAR_GRADIENTS.map((g, i) => (
                   <button key={i} onClick={() => { setAvatarIdx(i); setShowAvatarPicker(false) }}
                     className="w-7 h-7 rounded-lg shrink-0 ring-offset-1 transition-all"
@@ -401,7 +401,7 @@ export default function ProfilePage() {
 
       {/* ── Tab bar ────────────────────────────────────────────────────────── */}
       <div className="flex gap-1 mb-5 p-1 rounded-xl overflow-x-auto"
-        style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+        style={{ background: 'rgba(var(--ink),0.03)', border: '1px solid rgba(var(--ink),0.06)' }}>
         {TABS.map(t => (
           <button
             key={t.key}
@@ -456,7 +456,7 @@ export default function ProfilePage() {
                 placeholder="Tell other traders a bit about yourself…"
                 maxLength={200}
                 className="w-full rounded-lg px-3 py-2.5 text-sm text-text-primary resize-none focus:outline-none"
-                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
+                style={{ background: 'rgba(var(--ink),0.05)', border: '1px solid rgba(var(--ink),0.08)' }}
               />
               <div className="text-[10px] text-text-muted text-right mt-0.5">{bio.length}/200</div>
             </div>
@@ -472,11 +472,11 @@ export default function ProfilePage() {
               ].map(item => (
                 <div key={item.step}
                   className="flex items-center gap-4 p-4 rounded-xl"
-                  style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }}>
+                  style={{ background: 'rgba(var(--ink),0.02)', border: '1px solid rgba(var(--ink),0.04)' }}>
                   <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-xs font-bold"
                     style={item.done
                       ? { background: 'rgba(16,185,129,0.15)', color: '#10b981', border: '1px solid rgba(16,185,129,0.3)' }
-                      : { background: 'rgba(255,255,255,0.05)', color: '#6b8099', border: '1px solid rgba(255,255,255,0.08)' }
+                      : { background: 'rgba(var(--ink),0.05)', color: '#6b8099', border: '1px solid rgba(var(--ink),0.08)' }
                     }>
                     {item.done
                       ? <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><polyline points="20 6 9 17 4 12"/></svg>
@@ -504,7 +504,7 @@ export default function ProfilePage() {
               <div className="flex-1">
                 <div className="text-sm text-text-secondary mb-1">Your referral link</div>
                 <div className="font-mono text-xs text-text-muted"
-                  style={{ background: 'rgba(255,255,255,0.03)', padding: '8px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                  style={{ background: 'rgba(var(--ink),0.03)', padding: '8px 12px', borderRadius: '8px', border: '1px solid rgba(var(--ink),0.06)' }}>
                   https://tradeplatform.com/ref/{user?.id?.slice(0, 8) ?? 'xxxxxxxx'}
                 </div>
               </div>
@@ -526,7 +526,7 @@ export default function ProfilePage() {
                 { label: 'Rewards Earned', value: '$0' },
               ].map(s => (
                 <div key={s.label} className="rounded-lg p-3 text-center"
-                  style={{ background: 'rgba(255,255,255,0.025)' }}>
+                  style={{ background: 'rgba(var(--ink),0.025)' }}>
                   <div className="text-lg font-bold text-text-primary">{s.value}</div>
                   <div className="text-[10px] text-text-muted mt-0.5">{s.label}</div>
                 </div>
@@ -593,8 +593,8 @@ export default function ProfilePage() {
               ].map(item => (
                 <div key={item.level} className="p-4 rounded-xl flex flex-col gap-2"
                   style={{
-                    background: item.done ? 'rgba(16,185,129,0.05)' : 'rgba(255,255,255,0.02)',
-                    border: `1px solid ${item.done ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.05)'}`,
+                    background: item.done ? 'rgba(16,185,129,0.05)' : 'rgba(var(--ink),0.02)',
+                    border: `1px solid ${item.done ? 'rgba(16,185,129,0.2)' : 'rgba(var(--ink),0.05)'}`,
                   }}>
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-text-muted uppercase tracking-widest">{item.level}</span>
@@ -626,7 +626,7 @@ export default function ProfilePage() {
               <div className="space-y-2">
                 {notifications.slice(0, 6).map(n => (
                   <div key={n.id} className="flex items-center gap-3 py-2.5 px-3 rounded-lg"
-                    style={{ background: 'rgba(255,255,255,0.02)' }}>
+                    style={{ background: 'rgba(var(--ink),0.02)' }}>
                     <span className="w-2 h-2 rounded-full shrink-0" style={{ background: SEV_DOT[n.severity] ?? '#6b8099' }} />
                     <span className="flex-1 text-sm text-text-secondary truncate">{n.title}</span>
                     <span className="text-xs text-text-muted shrink-0">{timeAgo(n.created_at)}</span>
@@ -661,10 +661,10 @@ export default function ProfilePage() {
           <Card title="Two-Factor Authentication" description="Require a second step when signing in">
             <div className="space-y-4 max-w-md">
               <div className="flex items-center justify-between p-4 rounded-xl"
-                style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
+                style={{ background: 'rgba(var(--ink),0.02)', border: '1px solid rgba(var(--ink),0.05)' }}>
                 <div className="flex items-center gap-3">
                   <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
-                    style={{ background: twoFA ? 'rgba(16,185,129,0.1)' : 'rgba(255,255,255,0.04)' }}>
+                    style={{ background: twoFA ? 'rgba(16,185,129,0.1)' : 'rgba(var(--ink),0.04)' }}>
                     <svg className="w-4.5 h-4.5" style={{ color: twoFA ? '#10b981' : '#6b8099' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
                   </div>
                   <div>
@@ -685,10 +685,10 @@ export default function ProfilePage() {
               )}
 
               <div className="flex items-center justify-between p-4 rounded-xl"
-                style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
+                style={{ background: 'rgba(var(--ink),0.02)', border: '1px solid rgba(var(--ink),0.05)' }}>
                 <div className="flex items-center gap-3">
                   <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
-                    style={{ background: 'rgba(255,255,255,0.04)' }}>
+                    style={{ background: 'rgba(var(--ink),0.04)' }}>
                     <svg className="w-4 h-4 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
                   </div>
                   <div>
@@ -704,7 +704,7 @@ export default function ProfilePage() {
 
           <Card title="Active Session" description="The device currently signed in to your account">
             <div className="flex items-center gap-3 p-3 rounded-xl"
-              style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.05)' }}>
+              style={{ background: 'rgba(var(--ink),0.025)', border: '1px solid rgba(var(--ink),0.05)' }}>
               <div className="w-2 h-2 rounded-full shrink-0 bg-bull animate-pulse" />
               <div className="flex-1 min-w-0">
                 <div className="text-sm font-medium text-text-primary truncate">{currentDevice()}</div>
@@ -721,7 +721,7 @@ export default function ProfilePage() {
               <span className="font-semibold text-amber-400">Warning:</span> Keep your API keys secret. Never share them or commit them to public repositories.
             </div>
             <div className="flex items-center justify-between p-4 rounded-xl"
-              style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
+              style={{ background: 'rgba(var(--ink),0.02)', border: '1px solid rgba(var(--ink),0.05)' }}>
               <div>
                 <div className="text-sm font-medium text-text-primary">No active API keys</div>
                 <div className="text-xs text-text-muted">Create a key to access the trading API</div>
@@ -830,10 +830,15 @@ export default function ProfilePage() {
                   className="py-4 rounded-xl text-sm font-bold transition-all"
                   style={user?.accountMode === m
                     ? { background: m === 'real' ? 'rgba(16,185,129,0.1)' : 'rgba(245,158,11,0.1)', color: m === 'real' ? '#10b981' : '#f59e0b', border: `1px solid ${m === 'real' ? 'rgba(16,185,129,0.3)' : 'rgba(245,158,11,0.3)'}` }
-                    : { background: 'rgba(255,255,255,0.025)', color: '#6b8099', border: '1px solid rgba(255,255,255,0.07)' }
+                    : { background: 'rgba(var(--ink),0.025)', color: '#6b8099', border: '1px solid var(--t-border)' }
                   }
                 >
-                  {m === 'real' ? '💹 Real Account' : '🧪 Demo Account'}
+                  <span className="inline-flex items-center gap-2">
+                    {m === 'real'
+                      ? <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+                      : <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M14.5 2v6.5L19 16a2 2 0 01-1.75 3H6.75A2 2 0 015 16l4.5-7.5V2M8.5 2h7"/></svg>}
+                    {m === 'real' ? 'Real Account' : 'Demo Account'}
+                  </span>
                   {user?.accountMode === m && <span className="block text-[10px] mt-1 opacity-60">Active</span>}
                 </button>
               ))}
@@ -852,7 +857,7 @@ export default function ProfilePage() {
                   className="px-5 py-2.5 rounded-lg text-sm font-medium transition-all"
                   style={t.active
                     ? { background: 'rgba(14,165,233,0.1)', color: '#38bdf8', border: '1px solid rgba(14,165,233,0.2)' }
-                    : { background: 'rgba(255,255,255,0.025)', color: '#6b8099', border: '1px solid rgba(255,255,255,0.06)' }
+                    : { background: 'rgba(var(--ink),0.025)', color: '#6b8099', border: '1px solid rgba(var(--ink),0.06)' }
                   }
                   onClick={() => showToast(`${t.label} theme coming soon`, 'ok')}>
                   {t.label}

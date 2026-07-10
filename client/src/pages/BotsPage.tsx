@@ -508,10 +508,14 @@ function NewsSentimentPanel({ symbol }: { symbol: string }) {
 function RiskDisclosureModal({ onAccept, onClose }: { onAccept: () => void; onClose: () => void }) {
   const [checked, setChecked] = useState(false)
   const risks = [
-    { icon: '⚠', color: C.amber, title: 'Automated trading carries significant financial risk', body: 'Bots execute trades autonomously. Market conditions change instantly and unpredictably.' },
-    { icon: '📉', color: C.red,   title: 'You may lose all capital allocated to this bot',    body: 'Past performance does not guarantee future results. Losses can exceed expectations.' },
-    { icon: '⚖',  color: C.violet, title: 'You are solely responsible for all losses',        body: 'TradePilot accepts no liability for any trading losses incurred by automated bots.' },
-    { icon: '💹', color: C.green, title: 'Real funds are at risk on live accounts',           body: 'Only deploy capital you can afford to lose. Use demo mode to validate strategies first.' },
+    { color: C.amber,  title: 'Automated trading carries significant financial risk', body: 'Bots execute trades autonomously. Market conditions change instantly and unpredictably.',
+      icon: <svg width="15" height="15" fill="none" viewBox="0 0 24 24" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg> },
+    { color: C.red,    title: 'You may lose all capital allocated to this bot', body: 'Past performance does not guarantee future results. Losses can exceed expectations.',
+      icon: <svg width="15" height="15" fill="none" viewBox="0 0 24 24" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/><polyline points="16 17 22 17 22 11"/></svg> },
+    { color: C.violet, title: 'You are solely responsible for all losses', body: 'TradePilot accepts no liability for any trading losses incurred by automated bots.',
+      icon: <svg width="15" height="15" fill="none" viewBox="0 0 24 24" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v18M3 7l3-4 3 4M3 7a3 3 0 006 0M15 7l3-4 3 4M15 7a3 3 0 006 0M8 21h8"/></svg> },
+    { color: C.green,  title: 'Real funds are at risk on live accounts', body: 'Only deploy capital you can afford to lose. Use demo mode to validate strategies first.',
+      icon: <svg width="15" height="15" fill="none" viewBox="0 0 24 24" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg> },
   ]
   return createPortal(
     <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, background: 'rgba(0,0,0,0.88)', backdropFilter: 'blur(10px)' }}>
@@ -529,7 +533,7 @@ function RiskDisclosureModal({ onAccept, onClose }: { onAccept: () => void; onCl
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 14 }}>
             {risks.map(r => (
               <div key={r.title} style={{ display: 'flex', gap: 12, padding: '10px 12px', borderRadius: 10, background: C.bg, border: `1px solid ${C.border}` }}>
-                <span style={{ fontSize: 16, flexShrink: 0 }}>{r.icon}</span>
+                <span style={{ width: 28, height: 28, borderRadius: 8, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: `${r.color}14`, border: `1px solid ${r.color}2e`, color: r.color }}>{r.icon}</span>
                 <div>
                   <p style={{ fontSize: 11, fontWeight: 700, color: r.color, margin: '0 0 2px' }}>{r.title}</p>
                   <p style={{ fontSize: 10, color: C.text2, margin: 0, lineHeight: 1.5 }}>{r.body}</p>
@@ -730,12 +734,16 @@ function CreateBotModal({ onClose, onCreate }: { onClose: () => void; onCreate: 
           {(['strategy', 'risk'] as TabKey[]).map(t => (
             <button key={t} type="button" onClick={() => setTab(t)} style={{
               flex: 1, padding: '10px 0', background: 'none', border: 'none', cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
               fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em',
               color: tab === t ? C.blue : C.text3,
               borderBottom: `2px solid ${tab === t ? C.blue : 'transparent'}`,
               transition: 'all 0.15s',
             }}>
-              {t === 'strategy' ? '⚙ Strategy' : '🛡 Risk'}
+              {t === 'strategy'
+                ? <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+                : <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>}
+              {t === 'strategy' ? 'Strategy' : 'Risk'}
             </button>
           ))}
         </div>
@@ -876,12 +884,19 @@ function CreateBotModal({ onClose, onCreate }: { onClose: () => void; onCreate: 
                 {(slPct || tpPct || maxDL || maxDT || confirmB > 1 || useNews) && (
                   <div style={{ padding: '10px 12px', borderRadius: 10, background: `${C.blue}08`, border: `1px solid ${C.blue}18` }}>
                     <p style={{ fontSize: 10, fontWeight: 800, color: C.blue, margin: '0 0 6px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Active guards</p>
-                    {slPct && <p style={{ fontSize: 11, color: C.text2, margin: '0 0 3px' }}>🔴 SL at <b style={{ color: C.text1 }}>{slPct}%</b> below entry (ATR-adjusted)</p>}
-                    {tpPct && <p style={{ fontSize: 11, color: C.text2, margin: '0 0 3px' }}>🟡 TP at <b style={{ color: C.text1 }}>{tpPct}%</b> above entry (ATR-adjusted)</p>}
-                    {maxDL && <p style={{ fontSize: 11, color: C.text2, margin: '0 0 3px' }}>🛡 Halt after <b style={{ color: C.text1 }}>${maxDL}</b> daily loss</p>}
-                    {maxDT && <p style={{ fontSize: 11, color: C.text2, margin: '0 0 3px' }}>⏱ Cap at <b style={{ color: C.text1 }}>{maxDT}</b> trades/day</p>}
-                    {confirmB > 1 && <p style={{ fontSize: 11, color: C.text2, margin: '0 0 3px' }}>⚡ Require <b style={{ color: C.text1 }}>{confirmB}</b> consecutive signals</p>}
-                    {useNews && <p style={{ fontSize: 11, color: C.blue, margin: 0 }}>📰 News event filter — veto &amp; boost at <b style={{ color: C.text1 }}>{newsConf}%</b> confidence</p>}
+                    {([
+                      slPct        && { dot: C.red,   node: <>SL at <b style={{ color: C.text1 }}>{slPct}%</b> below entry (ATR-adjusted)</> },
+                      tpPct        && { dot: C.green, node: <>TP at <b style={{ color: C.text1 }}>{tpPct}%</b> above entry (ATR-adjusted)</> },
+                      maxDL        && { dot: C.amber, node: <>Halt after <b style={{ color: C.text1 }}>${maxDL}</b> daily loss</> },
+                      maxDT        && { dot: C.amber, node: <>Cap at <b style={{ color: C.text1 }}>{maxDT}</b> trades/day</> },
+                      confirmB > 1 && { dot: C.violet, node: <>Require <b style={{ color: C.text1 }}>{confirmB}</b> consecutive signals</> },
+                      useNews      && { dot: C.blue,  node: <>News event filter — veto &amp; boost at <b style={{ color: C.text1 }}>{newsConf}%</b> confidence</> },
+                    ].filter(Boolean) as { dot: string; node: React.ReactNode }[]).map((g, i) => (
+                      <p key={i} style={{ fontSize: 11, color: C.text2, margin: '0 0 3px', display: 'flex', alignItems: 'center', gap: 7 }}>
+                        <span style={{ width: 6, height: 6, borderRadius: 99, background: g.dot, flexShrink: 0 }}/>
+                        <span>{g.node}</span>
+                      </p>
+                    ))}
                   </div>
                 )}
               </>
@@ -1068,12 +1083,14 @@ export default function BotsPage() {
                 <h2 style={{ fontSize: 16, fontWeight: 800, color: C.text1, margin: 0 }}>{selected.name}</h2>
                 <StatusBadge status={selected.status}/>
                 <span style={{
-                  fontSize: 9, fontWeight: 800, padding: '2px 6px', borderRadius: 5, letterSpacing: '0.06em',
-                  background: selected.mode === 'real' ? 'rgba(239,68,68,0.12)' : `${C.blue}10`,
+                  display: 'inline-flex', alignItems: 'center', gap: 5,
+                  fontSize: 9, fontWeight: 800, padding: '2px 7px', borderRadius: 5, letterSpacing: '0.06em',
+                  background: selected.mode === 'real' ? `${C.red}1f` : `${C.blue}10`,
                   color: selected.mode === 'real' ? C.red : C.blue,
-                  border: `1px solid ${selected.mode === 'real' ? 'rgba(239,68,68,0.2)' : C.blue + '25'}`,
+                  border: `1px solid ${selected.mode === 'real' ? C.red + '33' : C.blue + '25'}`,
                 }}>
-                  {selected.mode === 'real' ? '🔴 REAL' : '🔵 DEMO'}
+                  <span style={{ width: 5, height: 5, borderRadius: 99, background: 'currentColor' }}/>
+                  {selected.mode === 'real' ? 'REAL' : 'DEMO'}
                 </span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>

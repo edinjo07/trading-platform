@@ -112,13 +112,13 @@ export default function DepositPage() {
               Your deposit of <span className="text-bull font-semibold">{formatCurrency(parsedAmount)}</span> has been credited to your account.
             </p>
           </div>
-          <div className="w-full rounded-xl p-4 text-sm space-y-2" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+          <div className="w-full rounded-xl p-4 text-sm space-y-2" style={{ background: 'rgba(var(--ink),0.03)', border: '1px solid rgba(var(--ink),0.06)' }}>
             <div className="flex justify-between"><span className="text-text-muted">Method</span><span className="text-text-primary font-medium">{selectedMethod.label}</span></div>
             <div className="flex justify-between"><span className="text-text-muted">Amount</span><span className="text-text-primary font-mono font-semibold">{formatCurrency(parsedAmount)}</span></div>
             <div className="flex justify-between"><span className="text-text-muted">Processing time</span><span className="text-brand-300 font-medium">{selectedMethod.time}</span></div>
           </div>
           <div className="flex gap-3 w-full">
-            <button onClick={() => { setStep('form'); setAmount('') }} className="flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all" style={{ background: 'rgba(255,255,255,0.06)', color: '#e2e8f0', border: '1px solid rgba(255,255,255,0.1)' }}>
+            <button onClick={() => { setStep('form'); setAmount('') }} className="flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all" style={{ background: 'rgba(var(--ink),0.06)', color: 'var(--t-text-1)', border: '1px solid rgba(var(--ink),0.1)' }}>
               New Deposit
             </button>
             <button onClick={() => navigate('/dashboard')} className="btn-primary flex-1 py-2.5">
@@ -138,11 +138,11 @@ export default function DepositPage() {
             <h2 className="text-lg font-bold text-text-primary">Confirm Deposit</h2>
             <p className="text-text-muted text-sm mt-0.5">Review your deposit details before proceeding.</p>
           </div>
-          <div className="rounded-xl p-4 space-y-3 text-sm" style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.05)' }}>
+          <div className="rounded-xl p-4 space-y-3 text-sm" style={{ background: 'rgba(var(--ink),0.025)', border: '1px solid rgba(var(--ink),0.05)' }}>
             <div className="flex justify-between"><span className="text-text-muted">Payment method</span><span className="text-text-primary font-medium">{selectedMethod.label}</span></div>
             <div className="flex justify-between"><span className="text-text-muted">Deposit amount</span><span className="text-text-primary font-mono font-semibold">{formatCurrency(parsedAmount)}</span></div>
             {feeAmount > 0 && <div className="flex justify-between"><span className="text-text-muted">Processing fee (2.5%)</span><span className="text-bear font-mono">{formatCurrency(feeAmount)}</span></div>}
-            <div className="h-px" style={{ background: 'rgba(255,255,255,0.06)' }} />
+            <div className="h-px" style={{ background: 'rgba(var(--ink),0.06)' }} />
             <div className="flex justify-between font-bold"><span className="text-text-primary">Total charged</span><span className="text-bull font-mono text-base">{formatCurrency(totalDebit)}</span></div>
             <div className="flex justify-between"><span className="text-text-muted">Processing time</span><span className="text-brand-300 font-medium">{selectedMethod.time}</span></div>
           </div>
@@ -152,7 +152,7 @@ export default function DepositPage() {
             </div>
           )}
           <div className="flex gap-3">
-            <button onClick={() => setStep('form')} disabled={submitting} className="flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all disabled:opacity-50" style={{ background: 'rgba(255,255,255,0.06)', color: '#e2e8f0', border: '1px solid rgba(255,255,255,0.1)' }}>
+            <button onClick={() => setStep('form')} disabled={submitting} className="flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all disabled:opacity-50" style={{ background: 'rgba(var(--ink),0.06)', color: 'var(--t-text-1)', border: '1px solid rgba(var(--ink),0.1)' }}>
               Back
             </button>
             <button onClick={handleSubmit} disabled={submitting} className="btn-primary flex-1 py-2.5 disabled:opacity-60 disabled:cursor-not-allowed">
@@ -193,9 +193,9 @@ export default function DepositPage() {
               className="rounded-xl p-4 text-left transition-all"
               style={method === m.id
                 ? { background: 'rgba(14,165,233,0.1)', border: '1px solid rgba(14,165,233,0.35)', color: '#38bdf8' }
-                : { background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)', color: '#94a3b8' }}
-              onMouseEnter={e => method !== m.id && ((e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.14)')}
-              onMouseLeave={e => method !== m.id && ((e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.06)')}
+                : { background: 'rgba(var(--ink),0.025)', border: '1px solid rgba(var(--ink),0.06)', color: '#94a3b8' }}
+              onMouseEnter={e => method !== m.id && ((e.currentTarget as HTMLElement).style.borderColor = 'rgba(var(--ink),0.14)')}
+              onMouseLeave={e => method !== m.id && ((e.currentTarget as HTMLElement).style.borderColor = 'rgba(var(--ink),0.06)')}
             >
               <div className="mb-2">{m.icon}</div>
               <p className="font-semibold text-sm text-text-primary">{m.label}</p>
@@ -218,7 +218,7 @@ export default function DepositPage() {
               className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
               style={amount === String(a)
                 ? { background: 'rgba(14,165,233,0.2)', color: '#38bdf8', border: '1px solid rgba(14,165,233,0.3)' }
-                : { background: 'rgba(255,255,255,0.04)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.06)' }}>
+                : { background: 'rgba(var(--ink),0.04)', color: '#94a3b8', border: '1px solid rgba(var(--ink),0.06)' }}>
               ${a.toLocaleString()}
             </button>
           ))}
@@ -272,7 +272,7 @@ export default function DepositPage() {
                 className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
                 style={crypto === c
                   ? { background: 'rgba(245,158,11,0.2)', color: '#fbbf24', border: '1px solid rgba(245,158,11,0.3)' }
-                  : { background: 'rgba(255,255,255,0.04)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.06)' }}>
+                  : { background: 'rgba(var(--ink),0.04)', color: '#94a3b8', border: '1px solid rgba(var(--ink),0.06)' }}>
                 {c}
               </button>
             ))}
@@ -290,7 +290,7 @@ export default function DepositPage() {
       {method === 'bank' && (
         <div className="card p-5">
           <p className="text-xs font-bold uppercase tracking-widest text-text-muted mb-3">Bank Transfer Details</p>
-          <div className="space-y-2 text-sm" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 12, padding: '16px' }}>
+          <div className="space-y-2 text-sm" style={{ background: 'rgba(var(--ink),0.02)', border: '1px solid rgba(var(--ink),0.05)', borderRadius: 12, padding: '16px' }}>
             {[
               { l: 'Bank Name',       v: 'TradeX Financial Ltd.' },
               { l: 'Account Number',  v: '1234-5678-9012' },
@@ -304,7 +304,10 @@ export default function DepositPage() {
               </div>
             ))}
           </div>
-          <p className="text-xs text-text-muted mt-3">⚠ Always include your username as the payment reference so we can credit your account.</p>
+          <p className="text-xs text-text-muted mt-3 flex items-start gap-1.5">
+            <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} className="shrink-0 mt-0.5"><path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+            Always include your username as the payment reference so we can credit your account.
+          </p>
         </div>
       )}
 

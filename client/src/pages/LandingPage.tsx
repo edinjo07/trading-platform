@@ -711,10 +711,16 @@ export default function LandingPage() {
                          borderBottom: '1px solid rgba(255,255,255,0.04)',
                          background: r.highlight ? 'rgba(245,158,11,0.06)' : 'transparent',
                        }}>
-                    <span className="text-xs font-bold font-mono shrink-0"
-                          style={{ color: r.rank === 1 ? '#f59e0b' : r.rank === 2 ? '#94a3b8' : r.rank === 3 ? '#cd7f32' : '#3a5060' }}>
-                      {r.rank === 1 ? '🥇' : r.rank === 2 ? '🥈' : r.rank === 3 ? '🥉' : `${r.rank}`}
-                    </span>
+                    {r.rank <= 3 ? (
+                      <span className="shrink-0" style={{
+                        display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                        width: 18, height: 18, borderRadius: '50%', fontSize: 9, fontWeight: 900, fontFamily: 'monospace', color: '#1a1206',
+                        background: r.rank === 1 ? 'linear-gradient(135deg,#f8d47c,#d99a26)' : r.rank === 2 ? 'linear-gradient(135deg,#d3dce8,#8593a6)' : 'linear-gradient(135deg,#e0a37a,#a75f33)',
+                        boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.45)',
+                      }}>{r.rank}</span>
+                    ) : (
+                      <span className="text-xs font-bold font-mono shrink-0" style={{ color: '#3a5060', paddingLeft: 5 }}>{r.rank}</span>
+                    )}
                     <div className="min-w-0 flex items-center gap-1.5">
                       <span style={{ fontSize: 11 }}>{r.flag}</span>
                       <span className="font-semibold truncate" style={{ fontSize: 11, color: r.highlight ? '#f8d87a' : '#c8d8e8' }}>{r.name}</span>
@@ -1522,7 +1528,10 @@ export default function LandingPage() {
             <div className="text-center mb-8">
               <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold mb-3"
                    style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', color: '#f59e0b', letterSpacing: '0.07em' }}>
-                🏆 AWARDS & RECOGNITION
+                <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M6 9H4.5a2.5 2.5 0 010-5H6M18 9h1.5a2.5 2.5 0 000-5H18M4 22h16M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22M14 14.66V17c0 .55.47.98.97 1.21 1.18.54 2.03 2.03 2.03 3.79M18 2H6v7a6 6 0 1012 0V2z"/>
+                </svg>
+                AWARDS &amp; RECOGNITION
               </div>
               <h2 className="text-2xl md:text-3xl font-bold text-white">Industry-Recognised Excellence</h2>
               <p className="text-text-muted text-sm mt-2 max-w-xl mx-auto">TradeX Pro has been independently recognised for platform quality, regulatory compliance, and client satisfaction by leading industry organisations.</p>

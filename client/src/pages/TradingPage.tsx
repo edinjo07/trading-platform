@@ -82,13 +82,15 @@ export default function TradingPage() {
           <div className="ml-auto shrink-0 flex gap-px p-0.5 rounded-lg" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
             {(['candles', 'depth'] as ChartView[]).map(v => (
               <button key={v} onClick={() => setChartView(v)}
-                className="px-2.5 py-1 rounded text-xs font-semibold transition-all"
+                className="px-2.5 py-1 rounded text-xs font-semibold transition-all inline-flex items-center gap-1.5"
                 style={chartView === v
                   ? { background: 'rgba(14,165,233,0.2)', color: '#38bdf8' }
                   : { color: '#6b8099' }
                 }>
-                {v === 'candles' ? '📈' : '📉'}
-                <span className="hidden sm:inline ml-1">{v === 'candles' ? 'Chart' : 'Depth'}</span>
+                {v === 'candles'
+                  ? <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M8 6v4m0 8v-4m0 0h-2v-4h2v4zm8-10v2m0 10v4m0-14h2v6h-2m0 0h-2v-6h2"/></svg>
+                  : <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M3 18h7M3 14h9M3 10h11M3 6h13"/><path d="M21 18l-3-3m0 6l3-3"/></svg>}
+                <span className="hidden sm:inline">{v === 'candles' ? 'Chart' : 'Depth'}</span>
               </button>
             ))}
           </div>
