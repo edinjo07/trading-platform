@@ -265,7 +265,11 @@ export default function AccountTypesPage() {
                 <tr key={row.label} style={{ background: idx % 2 === 0 ? 'rgba(255,255,255,0.025)' : 'transparent' }}>
                   <td style={{ padding: '12px 24px', color: '#94a3b8', fontWeight: 600, borderBottom: '1px solid rgba(255,255,255,0.04)' }}>{row.label}</td>
                   {[row.std, row.raw, row.ctrader].map((v, vi) => (
-                    <td key={vi} style={{ padding: '12px 24px', textAlign: 'center', color: v === '✓' ? '#00c878' : '#c8d6e5', fontWeight: 600, borderBottom: '1px solid rgba(255,255,255,0.04)', borderLeft: '1px solid rgba(255,255,255,0.04)' }}>{v}</td>
+                    <td key={vi} style={{ padding: '12px 24px', textAlign: 'center', color: '#c8d6e5', fontWeight: 600, borderBottom: '1px solid rgba(255,255,255,0.04)', borderLeft: '1px solid rgba(255,255,255,0.04)' }}>
+                      {v === '✓'
+                        ? <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="#18c98a" strokeWidth={2.6} strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline-block', verticalAlign: 'middle' }}><polyline points="20 6 9 17 4 12"/></svg>
+                        : v}
+                    </td>
                   ))}
                 </tr>
               ))}

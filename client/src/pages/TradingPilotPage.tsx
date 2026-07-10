@@ -378,7 +378,7 @@ export default function TradingPilotPage() {
                     <span className="text-sm font-black" style={{ color: '#00c878' }}>BULLISH · 0.73</span>
                   </div>
                   <div className="text-xs font-semibold" style={{ color: '#00c878' }}>
-                    ✓ Signal approved - MA crossover trade will execute
+                    Signal approved - MA crossover trade will execute
                   </div>
                 </div>
               </div>
@@ -569,10 +569,10 @@ export default function TradingPilotPage() {
                 { ts: '14:32:02', level: 'INFO',   color: '#3a5060', msg: 'News filter enabled - querying Claude AI for BTCUSD sentiment...' },
                 { ts: '14:32:03', level: 'SIGNAL', color: '#0ea5e9', msg: '▲ CROSSOVER DETECTED - fast MA crossed above slow MA' },
                 { ts: '14:32:03', level: 'SIGNAL', color: '#a78bfa', msg: 'Claude AI sentiment: BULLISH (0.81) - trade approved' },
-                { ts: '14:32:03', level: 'TRADE',  color: '#00c878', msg: '✓ BUY 0.15 BTCUSD @ 67,420.50 - SL: 65,880 | TP: 70,320' },
+                { ts: '14:32:03', level: 'TRADE',  color: '#00c878', msg: 'BUY 0.15 BTCUSD @ 67,420.50 - SL: 65,880 | TP: 70,320' },
                 { ts: '14:45:12', level: 'INFO',   color: '#3a5060', msg: 'Position monitoring - current price 67,890.20 · unrealised P&L: +$70.46' },
                 { ts: '15:02:44', level: 'RISK',   color: '#f59e0b', msg: 'Drawdown check: peak $100,070 · current $100,070 · max DD: 0.0%' },
-                { ts: '15:18:30', level: 'TRADE',  color: '#00c878', msg: '✓ TAKE-PROFIT HIT - CLOSED BTCUSD @ 70,320.00 · P&L: +$434.93' },
+                { ts: '15:18:30', level: 'TRADE',  color: '#00c878', msg: 'TAKE-PROFIT HIT - CLOSED BTCUSD @ 70,320.00 · P&L: +$434.93' },
                 { ts: '15:18:30', level: 'INFO',   color: '#0ea5e9', msg: 'Daily stats - Trades: 1 · Wins: 1 · P&L: +$434.93 · Win rate: 100%' },
               ].map((line, i) => (
                 <div key={i} className="flex items-start gap-3">

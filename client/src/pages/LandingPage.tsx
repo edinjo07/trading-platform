@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
 import { BrandMark } from '../components/ui/BrandMark'
+import AssetIcon from '../components/ui/AssetIcon'
 
 /* ════════════════════════════════════════════════════════════════════════════
    TradeX — Homepage
@@ -72,14 +73,14 @@ const STEPS = [
 ]
 
 const MARKETS = [
-  { sym: 'BTCUSD', name: 'Bitcoin',    price: '67,420.50', chg: '+2.41%', up: true,  cat: 'Crypto'      },
-  { sym: 'ETHUSD', name: 'Ethereum',   price: '3,512.80',  chg: '+1.83%', up: true,  cat: 'Crypto'      },
-  { sym: 'EURUSD', name: 'Euro / USD', price: '1.08420',   chg: '+0.12%', up: true,  cat: 'Forex'       },
-  { sym: 'XAUUSD', name: 'Gold Spot',  price: '2,334.10',  chg: '+0.34%', up: true,  cat: 'Commodities' },
-  { sym: 'NVDA',   name: 'NVIDIA',     price: '875.40',    chg: '+3.14%', up: true,  cat: 'Stocks'      },
-  { sym: 'AAPL',   name: 'Apple',      price: '189.24',    chg: '-0.61%', up: false, cat: 'Stocks'      },
-  { sym: 'US500',  name: 'US 500',     price: '5,320.4',   chg: '-0.22%', up: false, cat: 'Indices'     },
-  { sym: 'WTI',    name: 'Crude Oil',  price: '78.42',     chg: '+1.05%', up: true,  cat: 'Commodities' },
+  { sym: 'BTCUSD', name: 'Bitcoin',    price: '67,420.50', chg: '+2.41%', up: true,  cat: 'Crypto',      cls: 'crypto'    },
+  { sym: 'ETHUSD', name: 'Ethereum',   price: '3,512.80',  chg: '+1.83%', up: true,  cat: 'Crypto',      cls: 'crypto'    },
+  { sym: 'EURUSD', name: 'Euro / USD', price: '1.08420',   chg: '+0.12%', up: true,  cat: 'Forex',       cls: 'forex'     },
+  { sym: 'XAUUSD', name: 'Gold Spot',  price: '2,334.10',  chg: '+0.34%', up: true,  cat: 'Commodities', cls: 'commodity' },
+  { sym: 'NVDA',   name: 'NVIDIA',     price: '875.40',    chg: '+3.14%', up: true,  cat: 'Stocks',      cls: 'stock'     },
+  { sym: 'AAPL',   name: 'Apple',      price: '189.24',    chg: '-0.61%', up: false, cat: 'Stocks',      cls: 'stock'     },
+  { sym: 'US500',  name: 'US 500',     price: '5,320.4',   chg: '-0.22%', up: false, cat: 'Indices',     cls: 'index'     },
+  { sym: 'WTI',    name: 'Crude Oil',  price: '78.42',     chg: '+1.05%', up: true,  cat: 'Commodities', cls: 'commodity' },
 ]
 
 /* ── Small pieces ─────────────────────────────────────────────────────────── */
@@ -479,7 +480,10 @@ export default function LandingPage() {
             <button key={m.sym} onClick={goToApp} className="lp-card rounded-xl p-4 text-left"
               style={{ background: '#101522', border: '1px solid rgba(148,163,184,0.12)', cursor: 'pointer' }}>
               <div className="flex items-center justify-between mb-3">
-                <span className="font-mono text-sm font-extrabold" style={{ color: IVORY }}>{m.sym}</span>
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <AssetIcon symbol={m.sym} assetClass={m.cls} size={26} />
+                  <span className="font-mono text-sm font-extrabold" style={{ color: IVORY }}>{m.sym}</span>
+                </div>
                 <span className="text-[9px] font-bold uppercase px-2 py-0.5 rounded-full hidden sm:inline"
                   style={{ color: DIM, background: 'rgba(148,163,184,0.09)', letterSpacing: '0.08em' }}>{m.cat}</span>
               </div>

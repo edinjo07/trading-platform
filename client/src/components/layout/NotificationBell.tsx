@@ -55,8 +55,8 @@ function Row({ n, onRead, onRemove }: { n: AppNotification; onRead: (id: string)
       </div>
       {hover && (
         <button onClick={e => { e.stopPropagation(); onRemove(n.id) }} title="Dismiss"
-          style={{ position: 'absolute', top: 8, right: 8, width: 20, height: 20, borderRadius: 6, background: 'rgba(255,255,255,0.06)', border: 'none', color: '#64748b', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, lineHeight: 1 }}>
-          ✕
+          style={{ position: 'absolute', top: 8, right: 8, width: 20, height: 20, borderRadius: 6, background: 'rgba(255,255,255,0.06)', border: 'none', color: '#64748b', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1 }}>
+          <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.4}><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
       )}
     </div>

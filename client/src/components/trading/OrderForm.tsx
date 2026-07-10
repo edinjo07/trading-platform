@@ -552,8 +552,8 @@ export default function OrderForm() {
                 </div>
                 <button
                   onClick={() => removeLimitOrder(o.id)}
-                  style={{ background: 'none', border: 'none', color: '#555', fontSize: 18, cursor: 'pointer', padding: '0 4px', lineHeight: 1, flexShrink: 0 }}
-                >✕</button>
+                  style={{ background: 'none', border: 'none', color: '#555', cursor: 'pointer', padding: '0 4px', lineHeight: 1, flexShrink: 0, display: 'flex', alignItems: 'center' }}
+                ><svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
               </div>
             ))}
           </div>

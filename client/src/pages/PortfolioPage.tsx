@@ -193,7 +193,9 @@ function SltpEditor({ pos, currency, onDone }: { pos: Position; currency: string
             }} />
           {val.trim() !== '' && (
             <button onClick={() => set('')} title="Remove"
-              style={{ background: 'rgba(var(--ink),0.05)', border: `1px solid ${S.border}`, borderRadius: 7, color: S.text3, fontSize: 14, padding: '0 11px', cursor: 'pointer' }}>✕</button>
+              style={{ background: 'rgba(var(--ink),0.05)', border: `1px solid ${S.border}`, borderRadius: 7, color: S.text3, padding: '0 11px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+              <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
           )}
         </div>
         {invalid ? (

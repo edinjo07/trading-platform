@@ -8,6 +8,38 @@ import type { Currency } from '../types'
 
 type Method = 'bank' | 'card' | 'crypto'
 
+/* ── Real payment brand marks ─────────────────────────────────────────────── */
+
+/** Official simplified Mastercard mark — red/orange interlocking circles */
+export function MastercardMark({ h = 20 }: { h?: number }) {
+  const w = h * 1.6
+  return (
+    <svg width={w} height={h} viewBox="0 0 48 30" aria-label="Mastercard">
+      <circle cx="19" cy="15" r="14" fill="#EB001B" />
+      <circle cx="29" cy="15" r="14" fill="#F79E1B" />
+      <path d="M24 3.9a14 14 0 010 22.2 14 14 0 010-22.2z" fill="#FF5F00" />
+    </svg>
+  )
+}
+
+/** Visa wordmark on its brand blue */
+export function VisaMark({ h = 20 }: { h?: number }) {
+  return (
+    <span style={{
+      display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+      height: h, padding: '0 7px', borderRadius: 4, background: '#fff',
+      fontStyle: 'italic', fontWeight: 900, fontSize: h * 0.52, letterSpacing: '-0.02em',
+      color: '#1434CB', fontFamily: "'Inter', system-ui, sans-serif", lineHeight: 1,
+    }} aria-label="Visa">VISA</span>
+  )
+}
+
+const COIN_CDN = 'https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color'
+const CRYPTO_ICON: Record<string, string> = {
+  'USDT (TRC-20)': 'usdt', 'USDT (ERC-20)': 'usdt',
+  'Bitcoin (BTC)': 'btc', 'Ethereum (ETH)': 'eth', 'BNB (BEP-20)': 'bnb',
+}
+
 const METHODS: { id: Method; label: string; desc: string; fee: string; time: string; icon: React.ReactNode }[] = [
   {
     id: 'bank',
@@ -25,14 +57,14 @@ const METHODS: { id: Method; label: string; desc: string; fee: string; time: str
   {
     id: 'card',
     label: 'Credit / Debit Card',
-    desc: 'Instant deposit using Visa, Mastercard or Amex.',
+    desc: 'Instant deposit using Visa or Mastercard.',
     fee: '2.5%',
     time: 'Instant',
     icon: (
-      <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
-        <rect x="2" y="5" width="20" height="14" rx="2" />
-        <line x1="2" y1="10" x2="22" y2="10" />
-      </svg>
+      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7 }}>
+        <MastercardMark h={20} />
+        <VisaMark h={20} />
+      </span>
     ),
   },
   {
@@ -42,11 +74,12 @@ const METHODS: { id: Method; label: string; desc: string; fee: string; time: str
     fee: 'Network fee',
     time: '10–30 min',
     icon: (
-      <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
-        <circle cx="12" cy="12" r="9" />
-        <path d="M9 8h4a2 2 0 010 4H9v-4zm0 4h5a2 2 0 010 4H9v-4z" />
-        <path d="M11 7v1m0 8v1m2-10v1m0 8v1" strokeLinecap="round" />
-      </svg>
+      <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+        {['btc', 'eth', 'usdt'].map((c, i) => (
+          <img key={c} src={`${COIN_CDN}/${c}.svg`} alt={c.toUpperCase()} width={22} height={22}
+            style={{ borderRadius: '50%', marginLeft: i > 0 ? -6 : 0, position: 'relative', zIndex: 3 - i, border: '1.5px solid rgba(0,0,0,0.4)' }} />
+        ))}
+      </span>
     ),
   },
 ]
@@ -242,7 +275,13 @@ export default function DepositPage() {
       {/* Method-specific details */}
       {method === 'card' && (
         <div className="card p-5">
-          <p className="text-xs font-bold uppercase tracking-widest text-text-muted mb-3">Card Details</p>
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-xs font-bold uppercase tracking-widest text-text-muted">Card Details</p>
+            <span className="inline-flex items-center gap-2">
+              <MastercardMark h={18} />
+              <VisaMark h={18} />
+            </span>
+          </div>
           <div className="space-y-3">
             <input
               value={cardNumber}
@@ -269,10 +308,11 @@ export default function DepositPage() {
           <div className="flex flex-wrap gap-2 mb-4">
             {CRYPTO_OPTIONS.map(c => (
               <button key={c} onClick={() => setCrypto(c)}
-                className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
+                className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all inline-flex items-center gap-2"
                 style={crypto === c
                   ? { background: 'rgba(245,158,11,0.2)', color: '#fbbf24', border: '1px solid rgba(245,158,11,0.3)' }
                   : { background: 'rgba(var(--ink),0.04)', color: '#94a3b8', border: '1px solid rgba(var(--ink),0.06)' }}>
+                <img src={`${COIN_CDN}/${CRYPTO_ICON[c] ?? 'generic'}.svg`} alt="" width={16} height={16} style={{ borderRadius: '50%' }} />
                 {c}
               </button>
             ))}

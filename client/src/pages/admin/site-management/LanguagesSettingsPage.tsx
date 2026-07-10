@@ -3,14 +3,14 @@ import React, { useState } from 'react'
 interface Lang { code: string; name: string; flag: string; active: boolean; default: boolean; completion: number }
 
 const langData: Lang[] = [
-  { code: 'en', name: 'English',    flag: '🇺🇸', active: true,  default: true,  completion: 100 },
-  { code: 'fr', name: 'French',     flag: '🇫🇷', active: true,  default: false, completion: 92 },
-  { code: 'de', name: 'German',     flag: '🇩🇪', active: true,  default: false, completion: 88 },
-  { code: 'es', name: 'Spanish',    flag: '🇪🇸', active: true,  default: false, completion: 95 },
-  { code: 'zh', name: 'Chinese',    flag: '🇨🇳', active: true,  default: false, completion: 78 },
-  { code: 'ar', name: 'Arabic',     flag: '🇸🇦', active: false, default: false, completion: 45 },
-  { code: 'ja', name: 'Japanese',   flag: '🇯🇵', active: false, default: false, completion: 61 },
-  { code: 'pt', name: 'Portuguese', flag: '🇧🇷', active: true,  default: false, completion: 83 },
+  { code: 'en', name: 'English',    flag: 'us', active: true,  default: true,  completion: 100 },
+  { code: 'fr', name: 'French',     flag: 'fr', active: true,  default: false, completion: 92 },
+  { code: 'de', name: 'German',     flag: 'de', active: true,  default: false, completion: 88 },
+  { code: 'es', name: 'Spanish',    flag: 'es', active: true,  default: false, completion: 95 },
+  { code: 'zh', name: 'Chinese',    flag: 'cn', active: true,  default: false, completion: 78 },
+  { code: 'ar', name: 'Arabic',     flag: 'sa', active: false, default: false, completion: 45 },
+  { code: 'ja', name: 'Japanese',   flag: 'jp', active: false, default: false, completion: 61 },
+  { code: 'pt', name: 'Portuguese', flag: 'br', active: true,  default: false, completion: 83 },
 ]
 
 function Toggle({ value, onChange }: { value: boolean; onChange: (v: boolean) => void }) {
@@ -60,7 +60,8 @@ export default function LanguagesSettingsPage() {
                   onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}>
                   <td className="px-5 py-3">
                     <div className="flex items-center gap-2">
-                      <span className="text-base">{lang.flag}</span>
+                      <img src={`https://flagcdn.com/w40/${lang.flag}.png`} alt={lang.name} width={20} height={14}
+                        style={{ borderRadius: 3, objectFit: 'cover', flexShrink: 0 }} />
                       <span className="font-semibold text-text-primary">{lang.name}</span>
                     </div>
                   </td>

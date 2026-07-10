@@ -545,7 +545,9 @@ export default function ScannerPage() {
             <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#64748b" strokeWidth={2}><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
             <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search symbol or name..."
                    style={{ flex:1, background:'none', border:'none', outline:'none', color:'#e2e8f0', fontSize:13 }}/>
-            {search && <button onClick={() => setSearch('')} style={{ background:'none', border:'none', color:'#334155', cursor:'pointer', fontSize:14, lineHeight:1 }}>✕</button>}
+            {search && <button onClick={() => setSearch('')} style={{ background:'none', border:'none', color:'var(--t-text-3)', cursor:'pointer', lineHeight:1, display:'flex', padding:0 }}>
+              <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>}
           </div>
           {/* View toggle */}
           <div style={{ display:'flex', background:'var(--t-surface-2)', borderRadius:10, padding:3, border:'1px solid rgba(255,255,255,0.07)', flexShrink:0 }}>
@@ -555,7 +557,9 @@ export default function ScannerPage() {
                 background: viewMode===v ? 'rgba(14,165,233,0.15)' : 'transparent',
                 color:      viewMode===v ? '#38bdf8' : '#64748b',
               }}>
-                {v === 'cards' ? '☰' : '⊞'}
+                {v === 'cards'
+                  ? <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} style={{ display: 'block' }}><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                  : <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} style={{ display: 'block' }}><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>}
               </button>
             ))}
           </div>

@@ -177,10 +177,12 @@ export default function WithdrawPage() {
               fee: '$2.50 network',
               time: '10–60 min',
               icon: (
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
-                  <circle cx="12" cy="12" r="9" />
-                  <path d="M9 8h4a2 2 0 010 4H9v-4zm0 4h5a2 2 0 010 4H9v-4z" />
-                </svg>
+                <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+                  {['btc', 'eth', 'usdt'].map((c, i) => (
+                    <img key={c} src={`https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/${c}.svg`} alt={c.toUpperCase()} width={22} height={22}
+                      style={{ borderRadius: '50%', marginLeft: i > 0 ? -6 : 0, position: 'relative', zIndex: 3 - i, border: '1.5px solid rgba(0,0,0,0.4)' }} />
+                  ))}
+                </span>
               ),
             },
           ].map(m => (
@@ -264,15 +266,19 @@ export default function WithdrawPage() {
         <div className="card p-5">
           <p className="text-xs font-bold uppercase tracking-widest text-text-muted mb-3">Crypto Destination</p>
           <div className="flex flex-wrap gap-2 mb-4">
-            {CRYPTO_OPTIONS.map(c => (
-              <button key={c} onClick={() => setCrypto(c)}
-                className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
-                style={crypto === c
-                  ? { background: 'rgba(245,158,11,0.2)', color: '#fbbf24', border: '1px solid rgba(245,158,11,0.3)' }
-                  : { background: 'rgba(var(--ink),0.04)', color: '#94a3b8', border: '1px solid rgba(var(--ink),0.06)' }}>
-                {c}
-              </button>
-            ))}
+            {CRYPTO_OPTIONS.map(c => {
+              const coin = c.includes('USDT') ? 'usdt' : c.includes('BTC') ? 'btc' : c.includes('ETH') ? 'eth' : c.includes('BNB') ? 'bnb' : 'generic'
+              return (
+                <button key={c} onClick={() => setCrypto(c)}
+                  className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all inline-flex items-center gap-2"
+                  style={crypto === c
+                    ? { background: 'rgba(245,158,11,0.2)', color: '#fbbf24', border: '1px solid rgba(245,158,11,0.3)' }
+                    : { background: 'rgba(var(--ink),0.04)', color: '#94a3b8', border: '1px solid rgba(var(--ink),0.06)' }}>
+                  <img src={`https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/${coin}.svg`} alt="" width={16} height={16} style={{ borderRadius: '50%' }} />
+                  {c}
+                </button>
+              )
+            })}
           </div>
           <input value={walletAddress} onChange={e => setWalletAddress(e.target.value)}
             placeholder="Your wallet address"
