@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { useAuthStore } from '../../store/authStore'
 import { useKYCStore } from '../../store/kycStore'
+import { BrandMark } from '../ui/BrandMark'
 import {
   LayoutDashboard, TrendingUp, Bot, Briefcase, ClipboardList,
   BarChart3, ScanLine, Bell, Trophy, ArrowDownToLine, ArrowUpFromLine,
@@ -96,14 +97,12 @@ export default function Sidebar({ mobileOpen, onClose, onOpenMarkets }: SidebarP
       <div className="flex items-center shrink-0 px-3"
            style={{ height: 56, borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
         <div className="flex items-center gap-2.5 flex-1 min-w-0">
-          <div className="w-8 h-8 rounded-xl shrink-0 flex items-center justify-center"
-               style={{ background: 'linear-gradient(135deg,#0ea5e9,#0369a1)', boxShadow: '0 0 16px rgba(14,165,233,0.4)' }}>
-            <TrendingUp size={14} color="#fff" strokeWidth={2.5} />
-          </div>
+          <BrandMark size={32} />
           {!collapsed && (
             <span className="font-bold text-sm tracking-tight select-none">
-              <span style={{ color: '#fff' }}>TradeX</span>
-              <span style={{ color: '#0ea5e9' }}> Pro</span>
+              <span style={{ color: '#e9eef8' }}>Trade</span>
+              <span style={{ color: '#4f8cff' }}>X</span>
+              <span style={{ color: '#5f6d85' }}> Pro</span>
             </span>
           )}
         </div>

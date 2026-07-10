@@ -1,6 +1,7 @@
 ﻿import React, { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
+import { BrandMark } from '../components/ui/BrandMark'
 
 // ─── Static market data for display ──────────────────────────────────────────
 const HERO_TICKERS = [
@@ -190,15 +191,9 @@ function Navbar({ onLogin }: { onLogin: () => void }) {
       <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
         {/* Logo */}
         <div className="flex items-center gap-2.5 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center"
-               style={{ background: 'linear-gradient(135deg, #0ea5e9, #0369a1)' }}>
-            <svg className="w-4.5 h-4.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5} width={18} height={18}>
-              <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
-              <polyline points="16 7 22 7 22 13" />
-            </svg>
-          </div>
-          <span className="font-bold text-lg text-white tracking-tight">
-            TradeX<span className="text-brand-400"> Pro</span>
+          <BrandMark size={32} />
+          <span className="font-bold text-lg tracking-tight">
+            <span style={{ color: '#e9eef8' }}>Trade</span><span style={{ color: '#4f8cff' }}>X</span><span style={{ color: '#5f6d85' }}> Pro</span>
           </span>
         </div>
 
@@ -1765,15 +1760,10 @@ export default function LandingPage() {
             {/* Brand */}
             <div>
               <div className="flex items-center gap-2.5 mb-4">
-                <div className="w-7 h-7 rounded-lg flex items-center justify-center"
-                     style={{ background: 'linear-gradient(135deg, #0ea5e9, #0369a1)' }}>
-                  <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5} width={14} height={14} className="text-white">
-                    <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
-                    <polyline points="16 7 22 7 22 13" />
-                  </svg>
-                </div>
-                <span className="font-bold text-white">TradeX<span className="text-brand-400"> Pro</span></span>
+                <BrandMark size={28} />
+                <span className="font-bold"><span style={{ color: '#e9eef8' }}>Trade</span><span style={{ color: '#4f8cff' }}>X</span><span style={{ color: '#5f6d85' }}> Pro</span></span>
               </div>
+              <p className="text-sm font-medium mb-2" style={{ color: '#7aa7ff' }}>Trade the signal. Not the noise.</p>
               <p className="text-text-muted text-sm leading-relaxed">
                 FCA, CySEC &amp; Curaçao regulated trading platform. Real-execution CFD trading on crypto, forex, stocks and commodities.
               </p>
