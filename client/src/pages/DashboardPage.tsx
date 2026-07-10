@@ -41,7 +41,7 @@ function seedSparkline(symbol: string, up: boolean, pts = 16): string {
 }
 
 // ─── Card shell ───────────────────────────────────────────────────────────────
-function Card({ children, pad = 18, style }: { children: React.ReactNode; pad?: number; style?: React.CSSProperties }) {
+function Card({ children, pad = 20, style }: { children: React.ReactNode; pad?: number; style?: React.CSSProperties }) {
   return (
     <div style={{ background: S.surface, border: `1px solid ${S.border}`, borderRadius: 16, padding: pad, ...style }}>
       {children}
@@ -324,10 +324,10 @@ export default function DashboardPage() {
 
   return (
     <div className="h-full overflow-y-auto" style={{ background: 'transparent' }}>
-      <div style={{ maxWidth: 1240, margin: '0 auto', padding: '22px 18px 100px' }}>
+      <div style={{ maxWidth: 1240, margin: '0 auto', padding: '28px 20px 110px' }}>
 
         {/* ── Greeting ─────────────────────────────────────────────────────── */}
-        <div style={{ marginBottom: 18 }}>
+        <div style={{ marginBottom: 28 }}>
           <h1 style={{ fontSize: 22, fontWeight: 800, color: S.text1, margin: 0, letterSpacing: '-0.01em' }}>
             Welcome back{user?.username ? `, ${user.username}` : ''}
           </h1>
@@ -335,10 +335,10 @@ export default function DashboardPage() {
         </div>
 
         {/* ── Responsive layout ────────────────────────────────────────────── */}
-        <div className="grid grid-cols-1 lg:grid-cols-3" style={{ gap: 18, alignItems: 'start' }}>
+        <div className="grid grid-cols-1 lg:grid-cols-3" style={{ gap: 20, alignItems: 'start' }}>
 
           {/* ===== MAIN COLUMN ===== */}
-          <div className="lg:col-span-2" style={{ display: 'flex', flexDirection: 'column', gap: 18, minWidth: 0 }}>
+          <div className="lg:col-span-2" style={{ display: 'flex', flexDirection: 'column', gap: 20, minWidth: 0 }}>
 
             {/* Equity hero */}
             <div style={{
@@ -451,7 +451,7 @@ export default function DashboardPage() {
           </div>
 
           {/* ===== SIDE COLUMN ===== */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 18, minWidth: 0 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 20, minWidth: 0 }}>
 
             {/* My accounts */}
             <Card>
@@ -573,7 +573,7 @@ export default function DashboardPage() {
         </div>
 
         {/* ── Market categories (full width) ───────────────────────────────── */}
-        <div style={{ marginTop: 24 }}>
+        <div style={{ marginTop: 40 }}>
           <SectionHeader title="Market categories" onMore={() => navigate('/dashboard/watchlists')} />
           <div style={{ display: 'flex', gap: 12, overflowX: 'auto', scrollbarWidth: 'none', paddingBottom: 4 }}>
             {CATEGORIES.map(cat => (
@@ -592,7 +592,7 @@ export default function DashboardPage() {
         </div>
 
         {/* ── Discover markets (full width) ────────────────────────────────── */}
-        <div style={{ marginTop: 24 }}>
+        <div style={{ marginTop: 40 }}>
           <SectionHeader title="Discover markets" onMore={() => navigate('/dashboard/watchlists')} />
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6" style={{ gap: 10 }}>
             {DISCOVER.map(({ label, color, bg }) => (

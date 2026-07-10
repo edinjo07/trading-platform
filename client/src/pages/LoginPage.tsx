@@ -19,6 +19,8 @@ export default function LoginPage() {
   const [showPass,    setShowPass]    = useState(false)
   const [accountType, setAccountType] = useState<AccountType>('raw_spread')
   const [currency,    setCurrencyLocal] = useState<Currency>('USD')
+  // Krug: good defaults beat forced choices — pickers hidden until requested
+  const [customizeAccount, setCustomizeAccount] = useState(false)
   const [localError,  setLocalError]  = useState('')
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -76,13 +78,13 @@ export default function LoginPage() {
         <div style={{
           width: '100%', maxWidth: 400,
           background: 'var(--t-surface)', border: '1px solid var(--t-border)',
-          borderRadius: 18, padding: '28px 28px 26px', boxShadow: 'var(--t-shadow-md)',
+          borderRadius: 18, padding: '32px 30px 28px', boxShadow: 'var(--t-shadow-md)',
         }}>
           <h1 style={{ fontSize: 17, fontWeight: 800, color: 'var(--t-text-1)', margin: '0 0 22px', letterSpacing: '-0.01em' }}>
             {mode === 'login' ? 'Sign in' : 'Create your account'}
           </h1>
 
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
 
             {/* Email */}
             <div>
@@ -106,8 +108,21 @@ export default function LoginPage() {
               </div>
             )}
 
-            {/* Account plan — register only */}
-            {mode === 'register' && (
+            {/* Account defaults summary — one glance, one optional decision */}
+            {mode === 'register' && !customizeAccount && (
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '11px 14px', borderRadius: 10, background: 'var(--t-surface-2)', border: '1px solid var(--t-border)' }}>
+                <span style={{ fontSize: 12.5, color: 'var(--t-text-2)' }}>
+                  Raw Spread plan · USD account
+                </span>
+                <button type="button" onClick={() => setCustomizeAccount(true)}
+                  style={{ background: 'none', border: 'none', color: ACCENT, fontSize: 12.5, fontWeight: 600, cursor: 'pointer', padding: 0, flexShrink: 0 }}>
+                  Change
+                </button>
+              </div>
+            )}
+
+            {/* Account plan — register only, on request */}
+            {mode === 'register' && customizeAccount && (
               <div>
                 <label style={labelStyle}>Account plan</label>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
@@ -133,8 +148,8 @@ export default function LoginPage() {
               </div>
             )}
 
-            {/* Currency — register only */}
-            {mode === 'register' && (
+            {/* Currency — register only, on request */}
+            {mode === 'register' && customizeAccount && (
               <div>
                 <label style={labelStyle}>Account currency</label>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
