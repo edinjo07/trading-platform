@@ -48,10 +48,10 @@ export default function ServerInfoPage() {
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
-          { label: 'Uptime',       value: `${uptime.days}d ${uptime.hours}h`,   color: '#00c878' },
-          { label: 'WS Clients',   value: String(connections),                  color: '#38bdf8' },
+          { label: 'Uptime',       value: `${uptime.days}d ${uptime.hours}h`,   color: '#18c98a' },
+          { label: 'WS Clients',   value: String(connections),                  color: '#7aa7ff' },
           { label: 'Environment',  value: 'Production',                          color: '#a78bfa' },
-          { label: 'Node Version', value: 'v20.11.1',                            color: '#f59e0b' },
+          { label: 'Node Version', value: 'v20.11.1',                            color: '#f6b24a' },
         ].map(s => (
           <div key={s.label} className="rounded-xl p-4" style={{ background: '#0c1220', border: '1px solid rgba(56,189,248,0.08)' }}>
             <p className="text-lg font-bold font-mono" style={{ color: s.color }}>{s.value}</p>
@@ -89,9 +89,9 @@ export default function ServerInfoPage() {
         {/* Resource gauges */}
         <div className="rounded-xl p-5 space-y-5" style={{ background: '#0c1220', border: '1px solid rgba(56,189,248,0.08)' }}>
           <h2 className="text-sm font-semibold text-text-primary">Resource Usage</h2>
-          <GaugeBar label="CPU"    value={3.2}  max={8}   color="#38bdf8" />
+          <GaugeBar label="CPU"    value={3.2}  max={8}   color="#7aa7ff" />
           <GaugeBar label="RAM"    value={6.1}  max={16}  color="#a78bfa" />
-          <GaugeBar label="Disk"   value={42.5} max={200} color="#f59e0b" />
+          <GaugeBar label="Disk"   value={42.5} max={200} color="#f6b24a" />
         </div>
       </div>
 
@@ -109,7 +109,7 @@ export default function ServerInfoPage() {
             { key: 'LOG_LEVEL',      value: 'info' },
           ].map(v => (
             <div key={v.key} className="flex items-center gap-4 py-2.5" style={{ borderBottom: '1px solid rgba(56,189,248,0.04)' }}>
-              <span className="font-mono text-xs font-bold" style={{ color: '#f59e0b', minWidth: '150px' }}>{v.key}</span>
+              <span className="font-mono text-xs font-bold" style={{ color: '#f6b24a', minWidth: '150px' }}>{v.key}</span>
               <span className="font-mono text-xs text-text-primary">{v.value}</span>
             </div>
           ))}

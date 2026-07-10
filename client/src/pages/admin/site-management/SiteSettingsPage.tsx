@@ -27,7 +27,7 @@ function Input({ value, onChange, placeholder }: { value: string; onChange: (v: 
   return (
     <input value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder}
       className="w-full text-xs text-text-primary rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-brand-400"
-      style={{ background: 'rgba(14,165,233,0.06)', border: '1px solid rgba(56,189,248,0.12)' }} />
+      style={{ background: 'rgba(79,140,255,0.06)', border: '1px solid rgba(56,189,248,0.12)' }} />
   )
 }
 
@@ -35,7 +35,7 @@ function Toggle({ value, onChange }: { value: boolean; onChange: (v: boolean) =>
   return (
     <button onClick={() => onChange(!value)}
       className="relative w-10 h-5 rounded-full transition-colors"
-      style={{ background: value ? 'linear-gradient(135deg,#0ea5e9,#0369a1)' : 'rgba(107,128,153,0.3)', minHeight: '20px' }}>
+      style={{ background: value ? 'linear-gradient(135deg,#4f8cff,#3b78f0)' : 'rgba(107,128,153,0.3)', minHeight: '20px' }}>
       <span className="absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform"
         style={{ transform: value ? 'translateX(22px)' : 'translateX(2px)' }} />
     </button>
@@ -83,14 +83,14 @@ export default function SiteSettingsPage() {
           <Field label="Default Timezone" desc="Server and report timezone">
             <select value={timezone} onChange={e => setTimezone(e.target.value)}
               className="text-xs text-text-primary rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-brand-400 w-full"
-              style={{ background: 'rgba(14,165,233,0.06)', border: '1px solid rgba(56,189,248,0.12)', colorScheme: 'dark' }}>
+              style={{ background: 'rgba(79,140,255,0.06)', border: '1px solid rgba(56,189,248,0.12)', colorScheme: 'dark' }}>
               {['UTC', 'UTC+1', 'UTC+2', 'UTC+3', 'UTC-5', 'UTC-8'].map(tz => <option key={tz} value={tz}>{tz}</option>)}
             </select>
           </Field>
           <Field label="Default Currency" desc="Base currency for the platform">
             <select value={currency} onChange={e => setCurrency(e.target.value)}
               className="text-xs text-text-primary rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-brand-400 w-full"
-              style={{ background: 'rgba(14,165,233,0.06)', border: '1px solid rgba(56,189,248,0.12)', colorScheme: 'dark' }}>
+              style={{ background: 'rgba(79,140,255,0.06)', border: '1px solid rgba(56,189,248,0.12)', colorScheme: 'dark' }}>
               {['USD', 'EUR', 'GBP', 'AUD'].map(c => <option key={c} value={c}>{c}</option>)}
             </select>
           </Field>
@@ -125,7 +125,7 @@ export default function SiteSettingsPage() {
           Reset to Defaults
         </button>
         <button className="px-6 py-2 rounded-lg text-sm font-semibold text-white"
-          style={{ background: 'linear-gradient(135deg,#0ea5e9,#0369a1)' }}>
+          style={{ background: 'linear-gradient(135deg,#4f8cff,#3b78f0)' }}>
           Save Changes
         </button>
       </div>

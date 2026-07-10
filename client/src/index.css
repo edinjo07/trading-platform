@@ -52,8 +52,8 @@
   --t-border:       rgba(15,23,42,0.07);
   --t-border-hover: rgba(15,23,42,0.16);
   --t-text-1:       #0f172a;
-  --t-text-2:       #475569;
-  --t-text-3:       #94a3b8;
+  --t-text-2:       var(--t-text-3);
+  --t-text-3:       var(--t-text-2);
   --t-accent:       #2563eb;
   --t-accent-h:     #1d4ed8;
   --t-accent-s:     rgba(37,99,235,0.08);
@@ -70,7 +70,7 @@
   /* Soft tinted washes keep light mode calm and airy, not clinical white */
   --t-bg-glow:
     radial-gradient(1100px 560px at 12% -8%,  rgba(37,99,235,0.06),  transparent 60%),
-    radial-gradient(900px 480px at 102% -2%,  rgba(16,185,129,0.05), transparent 55%),
+    radial-gradient(900px 480px at 102% -2%,  rgba(24,201,138,0.05), transparent 55%),
     radial-gradient(800px 600px at 50% 115%,  rgba(124,108,255,0.04), transparent 60%);
 }
 
@@ -231,7 +231,7 @@ html {
   .badge-bear     { @apply badge bg-bear-muted text-bear; }
   .badge-brand    { @apply badge bg-brand-400/15 text-brand-300; }
   .badge-gray     { @apply badge bg-white/5 text-text-secondary; }
-  .badge-warning  { @apply badge; background: rgba(245,158,11,0.15); color: #f59e0b; }
+  .badge-warning  { @apply badge; background: rgba(246,178,74,0.15); color: #f6b24a; }
 
   /* ── Data table ── */
   .data-table { @apply w-full text-xs font-mono; }
@@ -253,8 +253,8 @@ html {
   }
   .input::placeholder { color: var(--t-text-3); }
   .input:focus {
-    border-color: rgba(14,165,233,0.5);
-    box-shadow: 0 0 0 3px rgba(14,165,233,0.1);
+    border-color: rgba(79,140,255,0.5);
+    box-shadow: 0 0 0 3px rgba(79,140,255,0.1);
   }
   .input:hover:not(:focus) {
     border-color: var(--t-border-hover);
@@ -265,8 +265,8 @@ html {
     @apply flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg
            text-sm font-semibold text-white transition-all duration-150
            hover:opacity-90 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed;
-    background: linear-gradient(135deg, #0ea5e9 0%, #0369a1 100%);
-    box-shadow: 0 2px 12px rgba(14,165,233,0.3);
+    background: linear-gradient(135deg, #4f8cff 0%, #3b78f0 100%);
+    box-shadow: 0 2px 12px rgba(79,140,255,0.3);
   }
 
   /* Victory Gold CTA — brand temperature rule: the moment the human enters.
@@ -304,15 +304,15 @@ html {
     @apply flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg
            text-sm font-bold text-white transition-all duration-150
            hover:opacity-90 active:scale-[0.98];
-    background: linear-gradient(135deg, #00c878 0%, #009a5c 100%);
-    box-shadow: 0 2px 12px rgba(0,200,120,0.25);
+    background: linear-gradient(135deg, #18c98a 0%, #009a5c 100%);
+    box-shadow: 0 2px 12px rgba(24,201,138,0.25);
   }
   .btn-bear {
     @apply flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg
            text-sm font-bold text-white transition-all duration-150
            hover:opacity-90 active:scale-[0.98];
-    background: linear-gradient(135deg, #ff3047 0%, #c2001e 100%);
-    box-shadow: 0 2px 12px rgba(255,48,71,0.25);
+    background: linear-gradient(135deg, #ff5a72 0%, #c2001e 100%);
+    box-shadow: 0 2px 12px rgba(255,90,114,0.25);
   }
 
   /* ── Section header ── */
@@ -341,9 +341,9 @@ html {
     border: 1px solid transparent;
   }
   .nav-link.active {
-    background: rgba(14,165,233,0.10);
-    border-color: rgba(14,165,233,0.18);
-    color: #38bdf8;
+    background: rgba(79,140,255,0.10);
+    border-color: rgba(79,140,255,0.18);
+    color: #7aa7ff;
   }
 
   /* ── Divider ── */
@@ -375,13 +375,13 @@ html {
   .feature-card-light {
     @apply rounded-2xl p-6 transition-all duration-300;
     background: #ffffff;
-    border: 1px solid rgba(14,165,233,0.14);
+    border: 1px solid rgba(79,140,255,0.14);
     box-shadow: 0 2px 12px rgba(0,0,0,0.06);
   }
   .feature-card-light:hover {
-    border-color: rgba(14,165,233,0.35);
+    border-color: rgba(79,140,255,0.35);
     transform: translateY(-2px);
-    box-shadow: 0 12px 32px rgba(14,165,233,0.14);
+    box-shadow: 0 12px 32px rgba(79,140,255,0.14);
   }
 }
 
@@ -405,9 +405,9 @@ html {
   .tabular { font-variant-numeric: tabular-nums; }
 
   /* Glow helpers */
-  .glow-brand { box-shadow: 0 0 20px rgba(14,165,233,0.22); }
-  .glow-bull  { box-shadow: 0 0 14px rgba(0,200,120,0.28); }
-  .glow-bear  { box-shadow: 0 0 14px rgba(255,48,71,0.28); }
+  .glow-brand { box-shadow: 0 0 20px rgba(79,140,255,0.22); }
+  .glow-bull  { box-shadow: 0 0 14px rgba(24,201,138,0.28); }
+  .glow-bear  { box-shadow: 0 0 14px rgba(255,90,114,0.28); }
 
   /* Glass background */
   .glass {
@@ -418,13 +418,13 @@ html {
 
   /* Gradient text */
   .gradient-text {
-    background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+    background: linear-gradient(135deg, #7aa7ff, #4f8cff);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
   .gradient-text-gold {
-    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+    background: linear-gradient(135deg, #f6c453, #f6b24a);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -432,7 +432,7 @@ html {
 
   /* Dot grid bg */
   .dot-grid {
-    background-image: radial-gradient(rgba(14,165,233,0.08) 1px, transparent 1px);
+    background-image: radial-gradient(rgba(79,140,255,0.08) 1px, transparent 1px);
     background-size: 28px 28px;
   }
 

@@ -17,7 +17,7 @@ function Toggle({ value, onChange }: { value: boolean; onChange: (v: boolean) =>
     <button
       onClick={() => onChange(!value)}
       className="relative w-10 h-5 rounded-full transition-colors"
-      style={{ background: value ? 'linear-gradient(135deg,#0ea5e9,#0369a1)' : 'rgba(107,128,153,0.3)' }}
+      style={{ background: value ? 'linear-gradient(135deg,#4f8cff,#3b78f0)' : 'rgba(107,128,153,0.3)' }}
     >
       <span
         className="absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform"
@@ -35,7 +35,7 @@ function NumberInput({ value, onChange, suffix }: { value: number; onChange: (v:
         value={value}
         onChange={e => onChange(parseFloat(e.target.value) || 0)}
         className="w-24 text-xs font-mono text-text-primary rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-brand-400"
-        style={{ background: 'rgba(14,165,233,0.06)', border: '1px solid rgba(56,189,248,0.12)' }}
+        style={{ background: 'rgba(79,140,255,0.06)', border: '1px solid rgba(56,189,248,0.12)' }}
       />
       {suffix && <span className="text-xs text-text-secondary">{suffix}</span>}
     </div>
@@ -117,7 +117,7 @@ export default function WithdrawSettingsPage() {
               { label: 'Neteller',   value: netellerEnabled, set: setNetellerEnabled },
             ].map(m => (
               <div key={m.label} className="flex items-center justify-between p-3 rounded-lg"
-                style={{ background: 'rgba(14,165,233,0.04)', border: '1px solid rgba(56,189,248,0.08)' }}>
+                style={{ background: 'rgba(79,140,255,0.04)', border: '1px solid rgba(56,189,248,0.08)' }}>
                 <span className="text-sm text-text-primary">{m.label}</span>
                 <Toggle value={m.value} onChange={m.set} />
               </div>
@@ -133,7 +133,7 @@ export default function WithdrawSettingsPage() {
           Reset
         </button>
         <button className="px-6 py-2 rounded-lg text-sm font-semibold text-white"
-          style={{ background: 'linear-gradient(135deg,#0ea5e9,#0369a1)' }}>
+          style={{ background: 'linear-gradient(135deg,#4f8cff,#3b78f0)' }}>
           Save Changes
         </button>
       </div>

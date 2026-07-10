@@ -27,7 +27,7 @@ export default function PromoCodePage() {
       data={data}
       columns={[
         { key: 'id',       header: 'ID',       render: r => <span className="font-mono text-brand-300">{r.id}</span> },
-        { key: 'code',     header: 'Code',     render: r => <span className="font-mono font-bold text-warning px-2 py-0.5 rounded" style={{ background: 'rgba(245,158,11,0.08)' }}>{r.code}</span> },
+        { key: 'code',     header: 'Code',     render: r => <span className="font-mono font-bold text-warning px-2 py-0.5 rounded" style={{ background: 'rgba(246,178,74,0.08)' }}>{r.code}</span> },
         { key: 'discount', header: 'Discount', render: r => <span className="font-semibold text-bull">{r.discount}</span> },
         { key: 'type',     header: 'Type',     render: r => <span className="capitalize text-text-primary">{r.type}</span> },
         { key: 'uses',     header: 'Uses',     render: r => <span className="font-mono">{r.uses} / {r.maxUses}</span> },
@@ -35,7 +35,7 @@ export default function PromoCodePage() {
         { key: 'status',   header: 'Status',   render: r => statusBadge(r.status) },
       ]}
       actions={
-        <button className="px-4 py-1.5 rounded-lg text-xs font-semibold text-white" style={{ background: 'linear-gradient(135deg,#0ea5e9,#0369a1)' }}>
+        <button className="px-4 py-1.5 rounded-lg text-xs font-semibold text-white" style={{ background: 'linear-gradient(135deg,#4f8cff,#3b78f0)' }}>
           + Create Code
         </button>
       }

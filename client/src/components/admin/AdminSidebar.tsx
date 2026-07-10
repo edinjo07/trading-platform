@@ -151,20 +151,20 @@ function NavGroup({ group, collapsed }: { group: typeof NAV_GROUPS[0]; collapsed
         onClick={() => setOpen(v => !v)}
         className="flex items-center w-full gap-2.5 px-3 py-2 rounded-lg transition-colors text-left"
         style={{
-          color: isActive ? '#38bdf8' : '#6b8099',
-          background: isActive && !open ? 'rgba(14,165,233,0.08)' : 'transparent',
+          color: isActive ? '#7aa7ff' : 'var(--t-text-2)',
+          background: isActive && !open ? 'rgba(79,140,255,0.08)' : 'transparent',
         }}
         onMouseEnter={e => { if (!isActive) (e.currentTarget as HTMLElement).style.color = '#d4dde8' }}
-        onMouseLeave={e => { if (!isActive) (e.currentTarget as HTMLElement).style.color = '#6b8099' }}
+        onMouseLeave={e => { if (!isActive) (e.currentTarget as HTMLElement).style.color = 'var(--t-text-2)' }}
       >
-        <span style={{ color: isActive ? '#38bdf8' : 'currentColor' }}>{group.icon}</span>
+        <span style={{ color: isActive ? '#7aa7ff' : 'currentColor' }}>{group.icon}</span>
         {!collapsed && (
           <>
             <span className="flex-1 text-xs font-medium tracking-wide">{group.label}</span>
             <span style={{
               transform: open ? 'rotate(180deg)' : 'rotate(0deg)',
               transition: 'transform 0.2s',
-              color: '#6b8099',
+              color: 'var(--t-text-2)',
             }}>
               {Ic.chevronDown}
             </span>
@@ -215,7 +215,7 @@ export default function AdminSidebar() {
       >
         <div
           className="w-8 h-8 rounded-lg shrink-0 flex items-center justify-center"
-          style={{ background: 'linear-gradient(135deg, #0ea5e9, #0369a1)' }}
+          style={{ background: 'linear-gradient(135deg, #4f8cff, #3b78f0)' }}
         >
           <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
             <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
@@ -225,7 +225,7 @@ export default function AdminSidebar() {
         {!collapsed && (
           <div className="min-w-0">
             <p className="text-xs font-bold text-text-primary tracking-wider uppercase">TradeX</p>
-            <p className="text-2xs font-semibold" style={{ color: '#0ea5e9', fontSize: '10px' }}>ADMIN PANEL</p>
+            <p className="text-2xs font-semibold" style={{ color: '#4f8cff', fontSize: '10px' }}>ADMIN PANEL</p>
           </div>
         )}
         <button
@@ -275,9 +275,9 @@ export default function AdminSidebar() {
       <div className="shrink-0 px-2 py-2" style={{ borderTop: '1px solid rgba(56,189,248,0.07)' }}>
         {!collapsed && (
           <div className="flex items-center gap-2.5 px-3 py-2 rounded-lg mb-1"
-            style={{ background: 'rgba(14,165,233,0.06)' }}>
+            style={{ background: 'rgba(79,140,255,0.06)' }}>
             <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
-              style={{ background: 'linear-gradient(135deg,#0ea5e9,#0369a1)', color: '#fff' }}>
+              style={{ background: 'linear-gradient(135deg,#4f8cff,#3b78f0)', color: '#fff' }}>
               {user?.username?.[0]?.toUpperCase() ?? 'A'}
             </div>
             <div className="min-w-0">

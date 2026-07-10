@@ -29,8 +29,8 @@ export default function KYCPage() {
       ]}
       actions={
         <div className="flex gap-2">
-          <button className="px-3 py-1.5 rounded-lg text-xs font-semibold text-white" style={{ background: 'linear-gradient(135deg,#00c878,#059669)' }}>Approve</button>
-          <button className="px-3 py-1.5 rounded-lg text-xs font-semibold text-white" style={{ background: 'linear-gradient(135deg,#ff3047,#b91c1c)' }}>Reject</button>
+          <button className="px-3 py-1.5 rounded-lg text-xs font-semibold text-white" style={{ background: 'linear-gradient(135deg,#18c98a,#059669)' }}>Approve</button>
+          <button className="px-3 py-1.5 rounded-lg text-xs font-semibold text-white" style={{ background: 'linear-gradient(135deg,#ff5a72,#b91c1c)' }}>Reject</button>
         </div>
       }
     />

@@ -93,9 +93,9 @@ const VIDEOS = [
 const VIDEO_CATS = ['All', 'Forex', 'Equities', 'Commodities', 'Crypto']
 
 const CAT_COLOR: Record<string, string> = {
-  Forex:       '#10b981',
-  Equities:    '#0ea5e9',
-  Commodities: '#f59e0b',
+  Forex:       '#18c98a',
+  Equities:    '#4f8cff',
+  Commodities: '#f6b24a',
   Crypto:      '#8b5cf6',
 }
 
@@ -138,7 +138,7 @@ function LivePlayer({ channel }: { channel: typeof LIVE_CHANNELS[number] }) {
         {/* Gradient overlay at top for LIVE badge */}
         <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 48, background: 'linear-gradient(to bottom, rgba(0,0,0,0.7), transparent)', pointerEvents: 'none' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 12px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '3px 9px', borderRadius: 6, background: '#ef4444' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '3px 9px', borderRadius: 6, background: '#ff5a72' }}>
               <div style={{ width: 5, height: 5, borderRadius: '50%', background: '#fff', animation: 'tv-pulse 1.5s ease-in-out infinite' }}/>
               <span style={{ fontSize: 10, fontWeight: 900, color: '#fff', letterSpacing: '0.08em' }}>LIVE</span>
             </div>
@@ -181,7 +181,7 @@ function LivePlayer({ channel }: { channel: typeof LIVE_CHANNELS[number] }) {
 // ─── Video card (horizontal scroll) ──────────────────────────────────────────
 
 function VideoCard({ video, onTap }: { video: typeof VIDEOS[0]; onTap: () => void }) {
-  const color = CAT_COLOR[video.cat] ?? '#64748b'
+  const color = CAT_COLOR[video.cat] ?? 'var(--t-text-3)'
   return (
     <button onClick={onTap} style={{
       flexShrink: 0, width: 'calc(65vw - 16px)', maxWidth: 240, minWidth: 180,
@@ -224,7 +224,7 @@ function VideoCard({ video, onTap }: { video: typeof VIDEOS[0]; onTap: () => voi
 // ─── Video bottom sheet ───────────────────────────────────────────────────────
 
 function VideoSheet({ video, onClose }: { video: typeof VIDEOS[0]; onClose: () => void }) {
-  const color   = CAT_COLOR[video.cat] ?? '#64748b'
+  const color   = CAT_COLOR[video.cat] ?? 'var(--t-text-3)'
   const touchY  = useRef(0)
 
   return (
@@ -303,7 +303,7 @@ export default function WebTVPage() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
           <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#fff" strokeWidth={2}><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3H8M12 3v4"/><polygon points="10 11 16 14 10 17 10 11" fill="#fff" stroke="none"/></svg>
           <span style={{ fontSize: 17, fontWeight: 900, color: '#fff', letterSpacing: '-0.02em' }}>Web TV</span>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '2px 8px', borderRadius: 6, background: '#ef4444' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '2px 8px', borderRadius: 6, background: '#ff5a72' }}>
             <div style={{ width: 5, height: 5, borderRadius: '50%', background: '#fff', animation: 'tv-pulse 1.5s ease-in-out infinite' }}/>
             <span style={{ fontSize: 9, fontWeight: 900, color: '#fff', letterSpacing: '0.08em' }}>LIVE</span>
           </div>
@@ -389,7 +389,7 @@ export default function WebTVPage() {
 
         {/* Footer attribution */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, paddingTop: 8, borderTop: '1px solid #111' }}>
-          <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#ef4444', animation: 'tv-pulse 2s infinite' }}/>
+          <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#ff5a72', animation: 'tv-pulse 2s infinite' }}/>
           <span style={{ fontSize: 10, color: '#1f2937' }}>
             Live streams: Bloomberg · CNBC · Yahoo Finance · Reuters · Fox Business · Al Jazeera · On-demand: Trading Central
           </span>

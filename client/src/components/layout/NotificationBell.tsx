@@ -5,10 +5,10 @@ import { AppNotification, NotifSeverity } from '../../api/notifications'
 
 // ─── Severity styling ──────────────────────────────────────────────────────────
 const SEV: Record<NotifSeverity, { color: string; bg: string }> = {
-  critical: { color: '#ef4444', bg: 'rgba(239,68,68,0.12)' },
-  warning:  { color: '#f59e0b', bg: 'rgba(245,158,11,0.12)' },
-  success:  { color: '#10b981', bg: 'rgba(16,185,129,0.12)' },
-  info:     { color: '#38bdf8', bg: 'rgba(14,165,233,0.12)' },
+  critical: { color: '#ff5a72', bg: 'rgba(255,90,114,0.12)' },
+  warning:  { color: '#f6b24a', bg: 'rgba(246,178,74,0.12)' },
+  success:  { color: '#18c98a', bg: 'rgba(24,201,138,0.12)' },
+  info:     { color: '#7aa7ff', bg: 'rgba(79,140,255,0.12)' },
 }
 
 function sevIcon(sev: NotifSeverity) {
@@ -38,24 +38,24 @@ function Row({ n, onRead, onRemove }: { n: AppNotification; onRead: (id: string)
       onClick={() => !n.read && onRead(n.id)}
       style={{
         display: 'flex', gap: 11, padding: '11px 14px', cursor: n.read ? 'default' : 'pointer',
-        background: n.read ? 'transparent' : 'rgba(14,165,233,0.04)',
+        background: n.read ? 'transparent' : 'rgba(79,140,255,0.04)',
         borderBottom: '1px solid rgba(255,255,255,0.05)', position: 'relative',
       }}
     >
-      {!n.read && <span style={{ position: 'absolute', left: 5, top: '50%', transform: 'translateY(-50%)', width: 5, height: 5, borderRadius: '50%', background: '#38bdf8' }} />}
+      {!n.read && <span style={{ position: 'absolute', left: 5, top: '50%', transform: 'translateY(-50%)', width: 5, height: 5, borderRadius: '50%', background: '#7aa7ff' }} />}
       <div style={{ width: 30, height: 30, borderRadius: 9, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: s.bg, color: s.color }}>
         {sevIcon(n.severity)}
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <span style={{ fontSize: 12.5, fontWeight: 700, color: '#e2e8f0', flex: 1, minWidth: 0 }}>{n.title}</span>
-          <span style={{ fontSize: 10, color: '#475569', flexShrink: 0 }}>{timeAgo(n.created_at)}</span>
+          <span style={{ fontSize: 12.5, fontWeight: 700, color: 'var(--t-text-1)', flex: 1, minWidth: 0 }}>{n.title}</span>
+          <span style={{ fontSize: 10, color: 'var(--t-text-3)', flexShrink: 0 }}>{timeAgo(n.created_at)}</span>
         </div>
-        <p style={{ fontSize: 11.5, color: '#94a3b8', margin: '3px 0 0', lineHeight: 1.45 }}>{n.message}</p>
+        <p style={{ fontSize: 11.5, color: 'var(--t-text-2)', margin: '3px 0 0', lineHeight: 1.45 }}>{n.message}</p>
       </div>
       {hover && (
         <button onClick={e => { e.stopPropagation(); onRemove(n.id) }} title="Dismiss"
-          style={{ position: 'absolute', top: 8, right: 8, width: 20, height: 20, borderRadius: 6, background: 'rgba(255,255,255,0.06)', border: 'none', color: '#64748b', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1 }}>
+          style={{ position: 'absolute', top: 8, right: 8, width: 20, height: 20, borderRadius: 6, background: 'rgba(255,255,255,0.06)', border: 'none', color: 'var(--t-text-3)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1 }}>
           <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.4}><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
       )}
@@ -87,7 +87,7 @@ export default function NotificationBell() {
       <button
         onClick={toggle}
         className="w-8 h-8 rounded-lg flex items-center justify-center transition-all"
-        style={{ color: open ? '#38bdf8' : 'rgba(255,255,255,0.55)', border: `1px solid ${open ? 'rgba(14,165,233,0.3)' : 'rgba(255,255,255,0.09)'}`, background: open ? 'rgba(14,165,233,0.1)' : 'transparent' }}
+        style={{ color: open ? '#7aa7ff' : 'rgba(255,255,255,0.55)', border: `1px solid ${open ? 'rgba(79,140,255,0.3)' : 'rgba(255,255,255,0.09)'}`, background: open ? 'rgba(79,140,255,0.1)' : 'transparent' }}
         aria-label="Notifications"
         title="Notifications"
       >
@@ -97,7 +97,7 @@ export default function NotificationBell() {
         {unread > 0 && (
           <span style={{
             position: 'absolute', top: -4, right: -4, minWidth: 16, height: 16, padding: '0 4px',
-            borderRadius: 9, background: '#ef4444', color: '#fff', fontSize: 9, fontWeight: 800,
+            borderRadius: 9, background: '#ff5a72', color: '#fff', fontSize: 9, fontWeight: 800,
             display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #0a0a0a',
           }}>
             {unread > 9 ? '9+' : unread}
@@ -114,17 +114,17 @@ export default function NotificationBell() {
         }}>
           {/* Header */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 14px', borderBottom: '1px solid rgba(255,255,255,0.08)', flexShrink: 0 }}>
-            <span style={{ fontSize: 14, fontWeight: 800, color: '#e2e8f0' }}>
+            <span style={{ fontSize: 14, fontWeight: 800, color: 'var(--t-text-1)' }}>
               Notifications{unread > 0 ? ` · ${unread}` : ''}
             </span>
             <div style={{ display: 'flex', gap: 10 }}>
               {unread > 0 && (
-                <button onClick={() => markAllRead()} style={{ fontSize: 11, fontWeight: 700, color: '#38bdf8', background: 'none', border: 'none', cursor: 'pointer' }}>
+                <button onClick={() => markAllRead()} style={{ fontSize: 11, fontWeight: 700, color: '#7aa7ff', background: 'none', border: 'none', cursor: 'pointer' }}>
                   Mark all read
                 </button>
               )}
               {visible.length > 0 && (
-                <button onClick={() => clearAll()} style={{ fontSize: 11, fontWeight: 700, color: '#64748b', background: 'none', border: 'none', cursor: 'pointer' }}>
+                <button onClick={() => clearAll()} style={{ fontSize: 11, fontWeight: 700, color: 'var(--t-text-3)', background: 'none', border: 'none', cursor: 'pointer' }}>
                   Clear
                 </button>
               )}
@@ -134,11 +134,11 @@ export default function NotificationBell() {
           {/* List */}
           <div style={{ overflowY: 'auto' }}>
             {visible.length === 0 ? (
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, padding: '40px 20px', color: '#475569' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, padding: '40px 20px', color: 'var(--t-text-3)' }}>
                 <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.4}>
                   <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0" />
                 </svg>
-                <p style={{ fontSize: 12.5, margin: 0, color: '#64748b' }}>No notifications yet</p>
+                <p style={{ fontSize: 12.5, margin: 0, color: 'var(--t-text-3)' }}>No notifications yet</p>
                 <p style={{ fontSize: 10.5, margin: 0, textAlign: 'center' }}>Margin alerts, closed positions and account events appear here.</p>
               </div>
             ) : (
@@ -149,7 +149,7 @@ export default function NotificationBell() {
           {/* Footer */}
           <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', flexShrink: 0 }}>
             <button onClick={() => { setOpen(false); nav('/dashboard/notifications') }}
-              style={{ width: '100%', padding: '11px', background: 'none', border: 'none', color: '#38bdf8', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+              style={{ width: '100%', padding: '11px', background: 'none', border: 'none', color: '#7aa7ff', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
               See all notifications
             </button>
           </div>

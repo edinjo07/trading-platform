@@ -43,7 +43,7 @@ function TradeEngagementChart({ data }: { data: TradeEngagement[] }) {
                 style={{
                   height: `${pct}%`,
                   background: i === todayIdx
-                    ? 'linear-gradient(180deg, #38bdf8, #0369a1)'
+                    ? 'linear-gradient(180deg, #7aa7ff, #3b78f0)'
                     : 'linear-gradient(180deg, rgba(56,189,248,0.5), rgba(3,105,161,0.3))',
                   minHeight: '4px',
                 }}
@@ -85,7 +85,7 @@ function VolumeCard({ label, value, sub, color }: { label: string; value: string
         {sub && <p className="text-text-muted mt-0.5" style={{ fontSize: '10px' }}>{sub}</p>}
         <span
           className="inline-flex items-center gap-0.5 text-xs font-semibold mt-1"
-          style={{ color: up ? '#00c878' : '#ff3047' }}
+          style={{ color: up ? '#18c98a' : '#ff5a72' }}
         >
           {up ? '▲' : '▼'} {(Math.random() * 8 + 1).toFixed(1)}%
         </span>
@@ -118,10 +118,10 @@ export default function AdminAnalyticsPage() {
       {/* Summary row */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
-          { label: 'Total Trades This Week', value: totalTrades.toLocaleString(),                      color: '#38bdf8' },
+          { label: 'Total Trades This Week', value: totalTrades.toLocaleString(),                      color: '#7aa7ff' },
           { label: 'Avg Daily Trades',        value: avgDaily.toLocaleString(),                         color: '#a78bfa' },
-          { label: 'Peak Daily Volume',       value: `$${(peakVolume / 1e6).toFixed(1)}M`,              color: '#f59e0b' },
-          { label: 'Total Weekly Volume',     value: `$${(totalVolume / 1e6).toFixed(1)}M`,             color: '#00c878' },
+          { label: 'Peak Daily Volume',       value: `$${(peakVolume / 1e6).toFixed(1)}M`,              color: '#f6b24a' },
+          { label: 'Total Weekly Volume',     value: `$${(totalVolume / 1e6).toFixed(1)}M`,             color: '#18c98a' },
         ].map(s => (
           <div key={s.label} className="rounded-xl px-4 py-4" style={{ background: '#0c1220', border: '1px solid rgba(56,189,248,0.08)' }}>
             <p className="text-2xl font-bold font-mono" style={{ color: s.color }}>{s.value}</p>
@@ -166,8 +166,8 @@ export default function AdminAnalyticsPage() {
           </div>
           <div className="px-5 py-5 space-y-4">
             {[
-              { label: 'Forex',      pct: 38, trades: 5642, volume: '$8.4M',  color: '#38bdf8' },
-              { label: 'Crypto',     pct: 29, trades: 4301, volume: '$5.2M',  color: '#f59e0b' },
+              { label: 'Forex',      pct: 38, trades: 5642, volume: '$8.4M',  color: '#7aa7ff' },
+              { label: 'Crypto',     pct: 29, trades: 4301, volume: '$5.2M',  color: '#f6b24a' },
               { label: 'Stocks',     pct: 21, trades: 3116, volume: '$3.1M',  color: '#a78bfa' },
               { label: 'Commodities',pct:  8, trades: 1187, volume: '$1.2M',  color: '#34d399' },
               { label: 'Indices',    pct:  4, trades:  594, volume: '$0.6M',  color: '#f43f5e' },
@@ -193,11 +193,11 @@ export default function AdminAnalyticsPage() {
       <div>
         <h2 className="text-sm font-semibold text-text-primary mb-3">Volume Metrics</h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4">
-          <VolumeCard label="Forex Volume"     value="$8.4M"   sub="Spot & derivatives"  color="#38bdf8" />
-          <VolumeCard label="Crypto Volume"    value="$5.2M"   sub="BTC, ETH, alts"       color="#f59e0b" />
+          <VolumeCard label="Forex Volume"     value="$8.4M"   sub="Spot & derivatives"  color="#7aa7ff" />
+          <VolumeCard label="Crypto Volume"    value="$5.2M"   sub="BTC, ETH, alts"       color="#f6b24a" />
           <VolumeCard label="Stock Volume"     value="$3.1M"   sub="US & EU equities"     color="#a78bfa" />
           <VolumeCard label="Commodity Vol"    value="$1.8M"   sub="Gold, Oil, Gas"        color="#34d399" />
-          <VolumeCard label="Total Revenue"    value="$18.5M"  sub="All instruments"       color="#00c878" />
+          <VolumeCard label="Total Revenue"    value="$18.5M"  sub="All instruments"       color="#18c98a" />
           <VolumeCard label="Avg Trade Size"   value="$3,420"  sub="Per transaction"       color="#f43f5e" />
           <VolumeCard label="New Users Today"  value="47"      sub="First-time traders"    color="#e879f9" />
           <VolumeCard label="Active Sessions"  value="312"     sub="Connected right now"   color="#fb923c" />
@@ -230,17 +230,17 @@ export default function AdminAnalyticsPage() {
                     key={d.label}
                     style={{
                       borderBottom: '1px solid rgba(56,189,248,0.04)',
-                      background: isToday ? 'rgba(14,165,233,0.04)' : 'transparent',
+                      background: isToday ? 'rgba(79,140,255,0.04)' : 'transparent',
                     }}
                   >
-                    <td className="px-5 py-3 font-semibold" style={{ color: isToday ? '#38bdf8' : undefined }}>
+                    <td className="px-5 py-3 font-semibold" style={{ color: isToday ? '#7aa7ff' : undefined }}>
                       {d.label}{isToday && <span className="ml-2 text-brand-300" style={{ fontSize: '10px' }}>today</span>}
                     </td>
                     <td className="px-5 py-3 font-mono text-text-primary">{d.trades.toLocaleString()}</td>
                     <td className="px-5 py-3 font-mono font-semibold text-text-primary">${(d.volume / 1e6).toFixed(2)}M</td>
                     <td className="px-5 py-3 font-mono text-text-secondary">${avg.toLocaleString()}</td>
                     <td className="px-5 py-3 font-mono text-text-secondary">{users}</td>
-                    <td className="px-5 py-3 font-mono font-semibold" style={{ color: '#00c878' }}>${rev.toLocaleString()}</td>
+                    <td className="px-5 py-3 font-mono font-semibold" style={{ color: '#18c98a' }}>${rev.toLocaleString()}</td>
                   </tr>
                 )
               })}

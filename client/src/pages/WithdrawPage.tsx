@@ -74,7 +74,7 @@ export default function WithdrawPage() {
             {networkFee > 0 && <div className="flex justify-between"><span className="text-text-muted">Network fee</span><span className="text-bear font-mono">−{formatCurrency(networkFee)}</span></div>}
             <div className="h-px" style={{ background: 'rgba(var(--ink),0.06)' }} />
             <div className="flex justify-between font-bold"><span className="text-text-primary">You receive</span><span className="font-mono text-base" style={{ color: '#fb923c' }}>{formatCurrency(willReceive)}</span></div>
-            <div className="flex justify-between"><span className="text-text-muted">Status</span><span className="px-2 py-0.5 rounded text-xs font-bold" style={{ background: 'rgba(16,185,129,0.12)', color: '#10b981' }}>Processed</span></div>
+            <div className="flex justify-between"><span className="text-text-muted">Status</span><span className="px-2 py-0.5 rounded text-xs font-bold" style={{ background: 'rgba(24,201,138,0.12)', color: '#18c98a' }}>Processed</span></div>
           </div>
           <div className="flex gap-3 w-full">
             <button onClick={() => { setStep('form'); setAmount('') }}
@@ -114,7 +114,7 @@ export default function WithdrawPage() {
             <span>Withdrawals are reviewed by our team within 24 hours. Ensure your details are correct — funds sent to wrong addresses cannot be recovered.</span>
           </div>
           {error && (
-            <div className="rounded-lg p-3 text-xs" style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', color: '#fca5a5' }}>
+            <div className="rounded-lg p-3 text-xs" style={{ background: 'rgba(255,90,114,0.08)', border: '1px solid rgba(255,90,114,0.2)', color: '#fca5a5' }}>
               {error}
             </div>
           )}
@@ -194,7 +194,7 @@ export default function WithdrawPage() {
                 ? { background: 'rgba(251,146,60,0.1)', border: '1px solid rgba(251,146,60,0.35)' }
                 : { background: 'rgba(var(--ink),0.025)', border: '1px solid rgba(var(--ink),0.06)' }}
             >
-              <div className="mb-2" style={{ color: method === m.id ? '#fb923c' : '#94a3b8' }}>{m.icon}</div>
+              <div className="mb-2" style={{ color: method === m.id ? '#fb923c' : 'var(--t-text-2)' }}>{m.icon}</div>
               <p className="font-semibold text-sm text-text-primary">{m.label}</p>
               <p className="text-xs text-text-muted mt-0.5">{m.desc}</p>
               <div className="flex items-center gap-3 mt-2">
@@ -215,7 +215,7 @@ export default function WithdrawPage() {
               className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
               style={amount === String(a)
                 ? { background: 'rgba(251,146,60,0.2)', color: '#fb923c', border: '1px solid rgba(251,146,60,0.3)' }
-                : { background: 'rgba(var(--ink),0.04)', color: '#94a3b8', border: '1px solid rgba(var(--ink),0.06)' }}>
+                : { background: 'rgba(var(--ink),0.04)', color: 'var(--t-text-2)', border: '1px solid rgba(var(--ink),0.06)' }}>
               ${a.toLocaleString()}
             </button>
           ))}
@@ -223,7 +223,7 @@ export default function WithdrawPage() {
             className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
             style={amount === String(Math.floor(available))
               ? { background: 'rgba(251,146,60,0.2)', color: '#fb923c', border: '1px solid rgba(251,146,60,0.3)' }
-              : { background: 'rgba(var(--ink),0.04)', color: '#94a3b8', border: '1px solid rgba(var(--ink),0.06)' }}>
+              : { background: 'rgba(var(--ink),0.04)', color: 'var(--t-text-2)', border: '1px solid rgba(var(--ink),0.06)' }}>
             Max
           </button>
         </div>
@@ -272,8 +272,8 @@ export default function WithdrawPage() {
                 <button key={c} onClick={() => setCrypto(c)}
                   className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all inline-flex items-center gap-2"
                   style={crypto === c
-                    ? { background: 'rgba(245,158,11,0.2)', color: '#fbbf24', border: '1px solid rgba(245,158,11,0.3)' }
-                    : { background: 'rgba(var(--ink),0.04)', color: '#94a3b8', border: '1px solid rgba(var(--ink),0.06)' }}>
+                    ? { background: 'rgba(246,178,74,0.2)', color: '#f6c453', border: '1px solid rgba(246,178,74,0.3)' }
+                    : { background: 'rgba(var(--ink),0.04)', color: 'var(--t-text-2)', border: '1px solid rgba(var(--ink),0.06)' }}>
                   <img src={`https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/${coin}.svg`} alt="" width={16} height={16} style={{ borderRadius: '50%' }} />
                   {c}
                 </button>

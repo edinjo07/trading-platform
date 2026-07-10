@@ -14,10 +14,10 @@ const apis: ApiEntry[] = [
 ]
 
 function latencyColor(ms: number) {
-  if (ms === 0) return '#ff3047'
-  if (ms < 30) return '#00c878'
-  if (ms < 80) return '#f59e0b'
-  return '#ff3047'
+  if (ms === 0) return '#ff5a72'
+  if (ms < 30) return '#18c98a'
+  if (ms < 80) return '#f6b24a'
+  return '#ff5a72'
 }
 
 export default function APIsPage() {
@@ -28,7 +28,7 @@ export default function APIsPage() {
           <h1 className="text-lg font-bold text-text-primary">APIs</h1>
           <p className="text-xs text-text-secondary mt-0.5">Monitor and manage external API integrations</p>
         </div>
-        <button className="px-4 py-1.5 rounded-lg text-xs font-semibold text-white" style={{ background: 'linear-gradient(135deg,#0ea5e9,#0369a1)' }}>
+        <button className="px-4 py-1.5 rounded-lg text-xs font-semibold text-white" style={{ background: 'linear-gradient(135deg,#4f8cff,#3b78f0)' }}>
           + Add Integration
         </button>
       </div>
@@ -36,10 +36,10 @@ export default function APIsPage() {
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
-          { label: 'Total APIs',  value: '8',      color: '#38bdf8' },
-          { label: 'Active',       value: '7',      color: '#00c878' },
-          { label: 'Inactive',     value: '1',      color: '#ff3047' },
-          { label: 'Avg Latency',  value: '52ms',   color: '#f59e0b' },
+          { label: 'Total APIs',  value: '8',      color: '#7aa7ff' },
+          { label: 'Active',       value: '7',      color: '#18c98a' },
+          { label: 'Inactive',     value: '1',      color: '#ff5a72' },
+          { label: 'Avg Latency',  value: '52ms',   color: '#f6b24a' },
         ].map(s => (
           <div key={s.label} className="rounded-xl p-4" style={{ background: '#0c1220', border: '1px solid rgba(56,189,248,0.08)' }}>
             <p className="text-xl font-bold font-mono" style={{ color: s.color }}>{s.value}</p>
@@ -62,7 +62,7 @@ export default function APIsPage() {
             <tbody>
               {apis.map(api => (
                 <tr key={api.id} style={{ borderBottom: '1px solid rgba(56,189,248,0.04)' }}
-                  onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'rgba(14,165,233,0.03)'}
+                  onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'rgba(79,140,255,0.03)'}
                   onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}>
                   <td className="px-5 py-3 font-mono text-brand-300">{api.id}</td>
                   <td className="px-5 py-3 font-semibold text-text-primary">{api.name}</td>
@@ -76,8 +76,8 @@ export default function APIsPage() {
                   </td>
                   <td className="px-5 py-3">
                     <span className="flex items-center gap-1.5 text-xs font-medium"
-                      style={{ color: api.status === 'active' ? '#00c878' : '#ff3047' }}>
-                      <span className="w-1.5 h-1.5 rounded-full" style={{ background: api.status === 'active' ? '#00c878' : '#ff3047', ...(api.status === 'active' ? {} : {}) }} />
+                      style={{ color: api.status === 'active' ? '#18c98a' : '#ff5a72' }}>
+                      <span className="w-1.5 h-1.5 rounded-full" style={{ background: api.status === 'active' ? '#18c98a' : '#ff5a72', ...(api.status === 'active' ? {} : {}) }} />
                       {api.status}
                     </span>
                   </td>

@@ -8,10 +8,10 @@ const STRATEGIES = [
     id: 'ma_crossover',
     name: 'MA Crossover',
     tagline: 'Trend Detection Engine',
-    color: '#0ea5e9',
-    glow: 'rgba(14,165,233,0.25)',
-    bg: 'rgba(14,165,233,0.06)',
-    border: 'rgba(14,165,233,0.18)',
+    color: '#4f8cff',
+    glow: 'rgba(79,140,255,0.25)',
+    bg: 'rgba(79,140,255,0.06)',
+    border: 'rgba(79,140,255,0.18)',
     icon: (
       <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
         <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
@@ -47,10 +47,10 @@ const STRATEGIES = [
     id: 'macd',
     name: 'MACD Momentum',
     tagline: 'Momentum Shift Interceptor',
-    color: '#00c878',
-    glow: 'rgba(0,200,120,0.25)',
-    bg: 'rgba(0,200,120,0.06)',
-    border: 'rgba(0,200,120,0.18)',
+    color: '#18c98a',
+    glow: 'rgba(24,201,138,0.25)',
+    bg: 'rgba(24,201,138,0.06)',
+    border: 'rgba(24,201,138,0.18)',
     icon: (
       <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
         <path d="M18 20V10M12 20V4M6 20v-6" />
@@ -66,10 +66,10 @@ const STRATEGIES = [
     id: 'momentum',
     name: 'Pure Momentum',
     tagline: 'Trend Continuation Engine',
-    color: '#f59e0b',
-    glow: 'rgba(245,158,11,0.25)',
-    bg: 'rgba(245,158,11,0.06)',
-    border: 'rgba(245,158,11,0.18)',
+    color: '#f6b24a',
+    glow: 'rgba(246,178,74,0.25)',
+    bg: 'rgba(246,178,74,0.06)',
+    border: 'rgba(246,178,74,0.18)',
     icon: (
       <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
         <line x1="22" y1="2" x2="11" y2="13" />
@@ -85,12 +85,12 @@ const STRATEGIES = [
 ]
 
 const RISK_FEATURES = [
-  { label: 'Stop-Loss Automation', desc: 'Hard stop on every single trade. No exceptions.', color: '#ff3047', icon: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z' },
-  { label: 'Take-Profit Locking', desc: 'Profit targets set before entry. No emotional hesitation.', color: '#00c878', icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z' },
-  { label: 'Max Daily Loss Limit', desc: 'Bot halts automatically when daily loss threshold is hit.', color: '#f59e0b', icon: 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z' },
+  { label: 'Stop-Loss Automation', desc: 'Hard stop on every single trade. No exceptions.', color: '#ff5a72', icon: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z' },
+  { label: 'Take-Profit Locking', desc: 'Profit targets set before entry. No emotional hesitation.', color: '#18c98a', icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z' },
+  { label: 'Max Daily Loss Limit', desc: 'Bot halts automatically when daily loss threshold is hit.', color: '#f6b24a', icon: 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z' },
   { label: 'Max Daily Trades Cap', desc: 'Prevents overtrading in choppy or volatile conditions.', color: '#8b5cf6', icon: 'M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4z' },
-  { label: 'Confirmation Bars', desc: 'Signal must hold for N candles before entry. Filters false breakouts.', color: '#0ea5e9', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2' },
-  { label: 'Equity Curve Monitor', desc: 'Real-time drawdown tracking with peak-to-trough measurement.', color: '#38bdf8', icon: 'M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z' },
+  { label: 'Confirmation Bars', desc: 'Signal must hold for N candles before entry. Filters false breakouts.', color: '#4f8cff', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2' },
+  { label: 'Equity Curve Monitor', desc: 'Real-time drawdown tracking with peak-to-trough measurement.', color: '#7aa7ff', icon: 'M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z' },
 ]
 
 const HOW_IT_WORKS = [
@@ -98,7 +98,7 @@ const HOW_IT_WORKS = [
     n: '01',
     title: 'Choose Your Strategy',
     desc: 'Pick from four AI-enhanced strategies. Each one has been engineered for a different market condition - trending, ranging, momentum, or reversal.',
-    color: '#0ea5e9',
+    color: '#4f8cff',
   },
   {
     n: '02',
@@ -110,13 +110,13 @@ const HOW_IT_WORKS = [
     n: '03',
     title: 'Activate & Monitor',
     desc: 'Hit start. Pilot monitors every tick. When signal conditions are met, it enters, manages, and exits positions - with zero latency and zero emotion.',
-    color: '#00c878',
+    color: '#18c98a',
   },
   {
     n: '04',
     title: 'Review & Optimise',
     desc: 'Every trade is logged with timestamps and reasoning. Equity curve, win rate, and risk metrics update live. Refine your configuration. Let it compound.',
-    color: '#f59e0b',
+    color: '#f6b24a',
   },
 ]
 
@@ -127,7 +127,7 @@ function NeuralGrid() {
       <svg width="100%" height="100%" style={{ opacity: 0.06 }}>
         <defs>
           <pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse">
-            <path d="M 60 0 L 0 0 0 60" fill="none" stroke="#0ea5e9" strokeWidth="0.5" />
+            <path d="M 60 0 L 0 0 0 60" fill="none" stroke="#4f8cff" strokeWidth="0.5" />
           </pattern>
         </defs>
         <rect width="100%" height="100%" fill="url(#grid)" />
@@ -139,7 +139,7 @@ function NeuralGrid() {
         { cx: '80%', cy: '80%', r: 2 }, { cx: '5%', cy: '55%', r: 1.5 },
       ].map((dot, i) => (
         <svg key={i} style={{ position: 'absolute', top: dot.cy, left: dot.cx, overflow: 'visible' }}>
-          <circle cx="0" cy="0" r={dot.r} fill="#0ea5e9"
+          <circle cx="0" cy="0" r={dot.r} fill="#4f8cff"
             style={{ animation: `pulse ${2 + i * 0.3}s ease-in-out infinite alternate` }} />
         </svg>
       ))}
@@ -153,18 +153,18 @@ function Navbar() {
   const { user } = useAuthStore()
   return (
     <nav className="fixed top-0 left-0 right-0 z-50"
-      style={{ background: 'rgba(6,9,15,0.85)', backdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(14,165,233,0.1)' }}>
+      style={{ background: 'rgba(6,9,15,0.85)', backdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(79,140,255,0.1)' }}>
       <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
         <button onClick={() => navigate('/')} className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-lg flex items-center justify-center"
-               style={{ background: 'linear-gradient(135deg, #0ea5e9, #0369a1)' }}>
+               style={{ background: 'linear-gradient(135deg, #4f8cff, #3b78f0)' }}>
             <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
               <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
               <polyline points="16 7 22 7 22 13" />
             </svg>
           </div>
           <span className="font-bold text-lg text-white tracking-tight">
-            TradeX<span style={{ color: '#38bdf8' }}> Pro</span>
+            TradeX<span style={{ color: '#7aa7ff' }}> Pro</span>
           </span>
         </button>
         <div className="flex items-center gap-3">
@@ -178,7 +178,7 @@ function Navbar() {
           <button
             onClick={() => navigate(user ? '/dashboard/bots' : '/login')}
             className="text-sm font-semibold px-5 py-2 rounded-lg transition-all"
-            style={{ background: 'linear-gradient(135deg,#0ea5e9,#0369a1)', color: '#fff', boxShadow: '0 0 20px rgba(14,165,233,0.3)' }}>
+            style={{ background: 'linear-gradient(135deg,#4f8cff,#3b78f0)', color: '#fff', boxShadow: '0 0 20px rgba(79,140,255,0.3)' }}>
             Launch Pilot
           </button>
         </div>
@@ -204,30 +204,30 @@ export default function TradingPilotPage() {
       {/* ── HERO ──────────────────────────────────────────────────────────── */}
       <section ref={heroRef} className="relative pt-28 pb-24 overflow-hidden" style={{ minHeight: '90vh', display: 'flex', alignItems: 'center' }}>
         {/* Background glow */}
-        <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 80% 50% at 50% -10%, rgba(14,165,233,0.15) 0%, transparent 60%)' }} />
+        <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 80% 50% at 50% -10%, rgba(79,140,255,0.15) 0%, transparent 60%)' }} />
         <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 40% 40% at 80% 60%, rgba(139,92,246,0.08) 0%, transparent 60%)' }} />
         <NeuralGrid />
 
         <div className="relative max-w-6xl mx-auto px-6 text-center w-full">
           {/* Badge */}
           <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full text-xs font-bold mb-8"
-               style={{ background: 'rgba(14,165,233,0.08)', border: '1px solid rgba(14,165,233,0.2)', color: '#38bdf8', letterSpacing: '0.08em' }}>
+               style={{ background: 'rgba(79,140,255,0.08)', border: '1px solid rgba(79,140,255,0.2)', color: '#7aa7ff', letterSpacing: '0.08em' }}>
             <div className="w-2 h-2 rounded-full bg-current" style={{ animation: 'pulse 1.5s ease-in-out infinite' }} />
             POWERED BY CLAUDE AI · AUTONOMOUS TRADING INTELLIGENCE
           </div>
 
           {/* Headline */}
           <h1 className="font-black text-white mb-6"
-              style={{ fontSize: 'clamp(3rem, 8vw, 6rem)', lineHeight: 1.05, letterSpacing: '-0.03em', textShadow: '0 0 80px rgba(14,165,233,0.15)' }}>
+              style={{ fontSize: 'clamp(3rem, 8vw, 6rem)', lineHeight: 1.05, letterSpacing: '-0.03em', textShadow: '0 0 80px rgba(79,140,255,0.15)' }}>
             Trading Pilot
             <br />
-            <span style={{ background: 'linear-gradient(135deg, #0ea5e9 0%, #8b5cf6 50%, #00c878 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+            <span style={{ background: 'linear-gradient(135deg, #4f8cff 0%, #8b5cf6 50%, #18c98a 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
               System
             </span>
           </h1>
 
           <p className="text-xl max-w-3xl mx-auto mb-6 leading-relaxed" style={{ color: 'rgba(255,255,255,0.72)' }}>
-            The first autonomous trading intelligence engine that fuses <strong style={{ color: '#fff' }}>real-time technical signals</strong> with <strong style={{ color: '#38bdf8' }}>Claude AI news sentiment</strong> - executing trades 24/7 with the discipline no human can sustain.
+            The first autonomous trading intelligence engine that fuses <strong style={{ color: '#fff' }}>real-time technical signals</strong> with <strong style={{ color: '#7aa7ff' }}>Claude AI news sentiment</strong> - executing trades 24/7 with the discipline no human can sustain.
           </p>
 
           <p className="text-sm max-w-xl mx-auto mb-12" style={{ color: 'rgba(255,255,255,0.38)' }}>
@@ -238,9 +238,9 @@ export default function TradingPilotPage() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-20">
             <button onClick={goToBots}
               className="flex items-center gap-2 text-base font-semibold px-8 py-4 rounded-xl transition-all"
-              style={{ background: 'linear-gradient(135deg,#0ea5e9,#0369a1)', color: '#fff', boxShadow: '0 0 40px rgba(14,165,233,0.35)', letterSpacing: '0.01em' }}
-              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1.04)'; (e.currentTarget as HTMLElement).style.boxShadow = '0 0 60px rgba(14,165,233,0.5)' }}
-              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = ''; (e.currentTarget as HTMLElement).style.boxShadow = '0 0 40px rgba(14,165,233,0.35)' }}>
+              style={{ background: 'linear-gradient(135deg,#4f8cff,#3b78f0)', color: '#fff', boxShadow: '0 0 40px rgba(79,140,255,0.35)', letterSpacing: '0.01em' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1.04)'; (e.currentTarget as HTMLElement).style.boxShadow = '0 0 60px rgba(79,140,255,0.5)' }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = ''; (e.currentTarget as HTMLElement).style.boxShadow = '0 0 40px rgba(79,140,255,0.35)' }}>
               Activate Pilot Now
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                 <polyline points="9 18 15 12 9 6" />
@@ -261,12 +261,12 @@ export default function TradingPilotPage() {
 
           {/* Live stats bar */}
           <div className="max-w-4xl mx-auto rounded-2xl px-4 py-5 grid grid-cols-2 md:grid-cols-4 gap-6"
-               style={{ background: 'rgba(14,165,233,0.04)', border: '1px solid rgba(14,165,233,0.12)', backdropFilter: 'blur(10px)' }}>
+               style={{ background: 'rgba(79,140,255,0.04)', border: '1px solid rgba(79,140,255,0.12)', backdropFilter: 'blur(10px)' }}>
             {[
-              { val: '4',      label: 'AI STRATEGIES',    color: '#0ea5e9' },
-              { val: '24/7',   label: 'AUTONOMOUS OPS',   color: '#00c878' },
+              { val: '4',      label: 'AI STRATEGIES',    color: '#4f8cff' },
+              { val: '24/7',   label: 'AUTONOMOUS OPS',   color: '#18c98a' },
               { val: '< 1ms', label: 'SIGNAL LATENCY',   color: '#8b5cf6' },
-              { val: '6+',     label: 'RISK CONTROLS',    color: '#f59e0b' },
+              { val: '6+',     label: 'RISK CONTROLS',    color: '#f6b24a' },
             ].map(s => (
               <div key={s.label} className="text-center">
                 <div className="text-2xl font-black font-mono" style={{ color: s.color, letterSpacing: '-0.02em' }}>{s.val}</div>
@@ -279,7 +279,7 @@ export default function TradingPilotPage() {
 
       {/* ── CLAUDE AI SECTION ──────────────────────────────────────────────── */}
       <section className="py-24 relative overflow-hidden">
-        <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, rgba(139,92,246,0.05) 0%, rgba(14,165,233,0.05) 100%)' }} />
+        <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, rgba(139,92,246,0.05) 0%, rgba(79,140,255,0.05) 100%)' }} />
         <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 60% 50%, rgba(139,92,246,0.08) 0%, transparent 50%)' }} />
 
         <div className="relative max-w-6xl mx-auto px-6">
@@ -343,7 +343,7 @@ export default function TradingPilotPage() {
                     <div className="text-xs" style={{ color: '#a78bfa' }}>Live news analysis · BTCUSD</div>
                   </div>
                   <div className="ml-auto flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold"
-                       style={{ background: 'rgba(0,200,120,0.1)', color: '#00c878' }}>
+                       style={{ background: 'rgba(24,201,138,0.1)', color: '#18c98a' }}>
                     <span className="w-1.5 h-1.5 rounded-full bg-current" style={{ animation: 'pulse 1.5s infinite' }} />
                     LIVE
                   </div>
@@ -351,9 +351,9 @@ export default function TradingPilotPage() {
                 {/* News items */}
                 <div className="space-y-3 mb-5">
                   {[
-                    { headline: 'Bitcoin ETF inflows reach $2.1B in single day', sentiment: 'BULLISH', score: 0.87, color: '#00c878' },
-                    { headline: 'Fed signals pause in rate hike cycle for Q2', sentiment: 'BULLISH', score: 0.72, color: '#00c878' },
-                    { headline: 'SEC review of spot crypto products ongoing', sentiment: 'NEUTRAL', score: 0.50, color: '#f59e0b' },
+                    { headline: 'Bitcoin ETF inflows reach $2.1B in single day', sentiment: 'BULLISH', score: 0.87, color: '#18c98a' },
+                    { headline: 'Fed signals pause in rate hike cycle for Q2', sentiment: 'BULLISH', score: 0.72, color: '#18c98a' },
+                    { headline: 'SEC review of spot crypto products ongoing', sentiment: 'NEUTRAL', score: 0.50, color: '#f6b24a' },
                     { headline: 'Whale wallet movement detected on-chain', sentiment: 'CAUTION', score: 0.32, color: '#ff6b35' },
                   ].map((n, i) => (
                     <div key={i} className="rounded-xl p-3" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
@@ -372,12 +372,12 @@ export default function TradingPilotPage() {
                   ))}
                 </div>
                 {/* Aggregate score */}
-                <div className="rounded-xl p-4" style={{ background: 'rgba(0,200,120,0.06)', border: '1px solid rgba(0,200,120,0.2)' }}>
+                <div className="rounded-xl p-4" style={{ background: 'rgba(24,201,138,0.06)', border: '1px solid rgba(24,201,138,0.2)' }}>
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-xs font-semibold" style={{ color: 'rgba(255,255,255,0.5)' }}>AGGREGATE SENTIMENT SCORE</span>
-                    <span className="text-sm font-black" style={{ color: '#00c878' }}>BULLISH · 0.73</span>
+                    <span className="text-sm font-black" style={{ color: '#18c98a' }}>BULLISH · 0.73</span>
                   </div>
-                  <div className="text-xs font-semibold" style={{ color: '#00c878' }}>
+                  <div className="text-xs font-semibold" style={{ color: '#18c98a' }}>
                     Signal approved - MA crossover trade will execute
                   </div>
                 </div>
@@ -392,7 +392,7 @@ export default function TradingPilotPage() {
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-16">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold mb-5"
-                 style={{ background: 'rgba(14,165,233,0.08)', border: '1px solid rgba(14,165,233,0.2)', color: '#38bdf8' }}>
+                 style={{ background: 'rgba(79,140,255,0.08)', border: '1px solid rgba(79,140,255,0.2)', color: '#7aa7ff' }}>
               STRATEGY SUITE
             </div>
             <h2 className="text-4xl md:text-5xl font-black text-white mb-4" style={{ letterSpacing: '-0.02em' }}>
@@ -457,16 +457,16 @@ export default function TradingPilotPage() {
 
       {/* ── HOW IT WORKS ──────────────────────────────────────────────────── */}
       <section className="py-24 relative"
-               style={{ background: 'linear-gradient(180deg, transparent 0%, rgba(14,165,233,0.03) 50%, transparent 100%)' }}>
+               style={{ background: 'linear-gradient(180deg, transparent 0%, rgba(79,140,255,0.03) 50%, transparent 100%)' }}>
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-16">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold mb-5"
-                 style={{ background: 'rgba(14,165,233,0.08)', border: '1px solid rgba(14,165,233,0.2)', color: '#38bdf8' }}>
+                 style={{ background: 'rgba(79,140,255,0.08)', border: '1px solid rgba(79,140,255,0.2)', color: '#7aa7ff' }}>
               HOW IT WORKS
             </div>
             <h2 className="text-4xl md:text-5xl font-black text-white mb-4" style={{ letterSpacing: '-0.02em' }}>
               From Zero to Operating<br />
-              <span style={{ color: '#38bdf8' }}>in Under 60 Seconds</span>
+              <span style={{ color: '#7aa7ff' }}>in Under 60 Seconds</span>
             </h2>
           </div>
 
@@ -500,12 +500,12 @@ export default function TradingPilotPage() {
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-16">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold mb-5"
-                 style={{ background: 'rgba(255,48,71,0.08)', border: '1px solid rgba(255,48,71,0.2)', color: '#ff6b6b' }}>
+                 style={{ background: 'rgba(255,90,114,0.08)', border: '1px solid rgba(255,90,114,0.2)', color: '#ff6b6b' }}>
               RISK MANAGEMENT
             </div>
             <h2 className="text-4xl md:text-5xl font-black text-white mb-4" style={{ letterSpacing: '-0.02em' }}>
               Your Capital.<br />
-              <span style={{ background: 'linear-gradient(135deg,#00c878,#0ea5e9)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+              <span style={{ background: 'linear-gradient(135deg,#18c98a,#4f8cff)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
                 Always Protected.
               </span>
             </h2>
@@ -536,7 +536,7 @@ export default function TradingPilotPage() {
 
       {/* ── LIVE BOT CONSOLE PREVIEW ───────────────────────────────────────── */}
       <section className="py-24 relative">
-        <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 60% 40% at 50% 50%, rgba(14,165,233,0.04) 0%, transparent 60%)' }} />
+        <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 60% 40% at 50% 50%, rgba(79,140,255,0.04) 0%, transparent 60%)' }} />
         <div className="relative max-w-4xl mx-auto px-6">
           <div className="text-center mb-10">
             <h2 className="text-3xl font-black text-white mb-3" style={{ letterSpacing: '-0.02em' }}>Real-Time Bot Console</h2>
@@ -545,7 +545,7 @@ export default function TradingPilotPage() {
 
           {/* Console mock */}
           <div className="rounded-2xl overflow-hidden"
-               style={{ background: '#040a12', border: '1px solid rgba(14,165,233,0.15)', boxShadow: '0 0 60px rgba(14,165,233,0.08)' }}>
+               style={{ background: '#040a12', border: '1px solid rgba(79,140,255,0.15)', boxShadow: '0 0 60px rgba(79,140,255,0.08)' }}>
             {/* Title bar */}
             <div className="flex items-center gap-3 px-4 py-3"
                  style={{ background: '#060d18', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
@@ -555,7 +555,7 @@ export default function TradingPilotPage() {
                 <div className="w-3 h-3 rounded-full" style={{ background: '#28c840' }} />
               </div>
               <span className="text-xs font-mono" style={{ color: '#3a5060' }}>TradePilot - BTCUSD · MA Crossover · RUNNING</span>
-              <div className="ml-auto flex items-center gap-1.5 text-xs font-bold" style={{ color: '#00c878' }}>
+              <div className="ml-auto flex items-center gap-1.5 text-xs font-bold" style={{ color: '#18c98a' }}>
                 <span className="w-1.5 h-1.5 rounded-full bg-current" style={{ animation: 'pulse 1.5s infinite' }} />
                 LIVE
               </div>
@@ -567,13 +567,13 @@ export default function TradingPilotPage() {
                 { ts: '14:32:01', level: 'INFO',   color: '#3a5060', msg: 'Bot initialised - Loading 200 candles for BTCUSD 1h...' },
                 { ts: '14:32:02', level: 'INFO',   color: '#3a5060', msg: 'Warming up: fast MA (9) = 67,312.40 · slow MA (21) = 67,180.22' },
                 { ts: '14:32:02', level: 'INFO',   color: '#3a5060', msg: 'News filter enabled - querying Claude AI for BTCUSD sentiment...' },
-                { ts: '14:32:03', level: 'SIGNAL', color: '#0ea5e9', msg: '▲ CROSSOVER DETECTED - fast MA crossed above slow MA' },
+                { ts: '14:32:03', level: 'SIGNAL', color: '#4f8cff', msg: '▲ CROSSOVER DETECTED - fast MA crossed above slow MA' },
                 { ts: '14:32:03', level: 'SIGNAL', color: '#a78bfa', msg: 'Claude AI sentiment: BULLISH (0.81) - trade approved' },
-                { ts: '14:32:03', level: 'TRADE',  color: '#00c878', msg: 'BUY 0.15 BTCUSD @ 67,420.50 - SL: 65,880 | TP: 70,320' },
+                { ts: '14:32:03', level: 'TRADE',  color: '#18c98a', msg: 'BUY 0.15 BTCUSD @ 67,420.50 - SL: 65,880 | TP: 70,320' },
                 { ts: '14:45:12', level: 'INFO',   color: '#3a5060', msg: 'Position monitoring - current price 67,890.20 · unrealised P&L: +$70.46' },
-                { ts: '15:02:44', level: 'RISK',   color: '#f59e0b', msg: 'Drawdown check: peak $100,070 · current $100,070 · max DD: 0.0%' },
-                { ts: '15:18:30', level: 'TRADE',  color: '#00c878', msg: 'TAKE-PROFIT HIT - CLOSED BTCUSD @ 70,320.00 · P&L: +$434.93' },
-                { ts: '15:18:30', level: 'INFO',   color: '#0ea5e9', msg: 'Daily stats - Trades: 1 · Wins: 1 · P&L: +$434.93 · Win rate: 100%' },
+                { ts: '15:02:44', level: 'RISK',   color: '#f6b24a', msg: 'Drawdown check: peak $100,070 · current $100,070 · max DD: 0.0%' },
+                { ts: '15:18:30', level: 'TRADE',  color: '#18c98a', msg: 'TAKE-PROFIT HIT - CLOSED BTCUSD @ 70,320.00 · P&L: +$434.93' },
+                { ts: '15:18:30', level: 'INFO',   color: '#4f8cff', msg: 'Daily stats - Trades: 1 · Wins: 1 · P&L: +$434.93 · Win rate: 100%' },
               ].map((line, i) => (
                 <div key={i} className="flex items-start gap-3">
                   <span style={{ color: '#2a3a4a', whiteSpace: 'nowrap' }}>{line.ts}</span>
@@ -583,7 +583,7 @@ export default function TradingPilotPage() {
               ))}
               <div className="flex items-center gap-2 mt-3">
                 <span style={{ color: '#2a3a4a' }}>15:18:31</span>
-                <span className="text-current" style={{ color: '#0ea5e9', animation: 'pulse 1s infinite' }}>█</span>
+                <span className="text-current" style={{ color: '#4f8cff', animation: 'pulse 1s infinite' }}>█</span>
               </div>
             </div>
           </div>
@@ -592,12 +592,12 @@ export default function TradingPilotPage() {
 
       {/* ── FINAL CTA ─────────────────────────────────────────────────────── */}
       <section className="py-32 relative overflow-hidden">
-        <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 80% 60% at 50% 50%, rgba(14,165,233,0.1) 0%, transparent 65%)' }} />
+        <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 80% 60% at 50% 50%, rgba(79,140,255,0.1) 0%, transparent 65%)' }} />
         <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 40% 40% at 80% 30%, rgba(139,92,246,0.08) 0%, transparent 60%)' }} />
 
         <div className="relative max-w-3xl mx-auto px-6 text-center">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold mb-8"
-               style={{ background: 'rgba(0,200,120,0.08)', border: '1px solid rgba(0,200,120,0.2)', color: '#00c878' }}>
+               style={{ background: 'rgba(24,201,138,0.08)', border: '1px solid rgba(24,201,138,0.2)', color: '#18c98a' }}>
             <span className="w-1.5 h-1.5 rounded-full bg-current" style={{ animation: 'pulse 1.5s infinite' }} />
             FREE WITH YOUR TRADEX PRO ACCOUNT
           </div>
@@ -605,7 +605,7 @@ export default function TradingPilotPage() {
           <h2 className="text-5xl md:text-6xl font-black text-white mb-6" style={{ letterSpacing: '-0.03em', lineHeight: 1.05 }}>
             The Market Never<br />Sleeps.
             <br />
-            <span style={{ color: '#38bdf8' }}>Neither Does Pilot.</span>
+            <span style={{ color: '#7aa7ff' }}>Neither Does Pilot.</span>
           </h2>
 
           <p className="text-lg mb-12 leading-relaxed" style={{ color: 'rgba(255,255,255,0.55)', maxWidth: 520, margin: '0 auto 3rem' }}>
@@ -614,7 +614,7 @@ export default function TradingPilotPage() {
 
           <button onClick={goToBots}
             className="inline-flex items-center gap-3 text-lg font-bold px-10 py-5 rounded-2xl transition-all"
-            style={{ background: 'linear-gradient(135deg,#0ea5e9,#7c3aed)', color: '#fff', boxShadow: '0 0 60px rgba(14,165,233,0.3), 0 0 30px rgba(124,58,237,0.2)', letterSpacing: '0.01em' }}
+            style={{ background: 'linear-gradient(135deg,#4f8cff,#7c3aed)', color: '#fff', boxShadow: '0 0 60px rgba(79,140,255,0.3), 0 0 30px rgba(124,58,237,0.2)', letterSpacing: '0.01em' }}
             onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1.04)' }}
             onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = '' }}>
             Activate Trading Pilot
@@ -633,13 +633,13 @@ export default function TradingPilotPage() {
         <div className="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
           <button onClick={() => navigate('/')} className="flex items-center gap-2">
             <div className="w-6 h-6 rounded-md flex items-center justify-center"
-                 style={{ background: 'linear-gradient(135deg, #0ea5e9, #0369a1)' }}>
+                 style={{ background: 'linear-gradient(135deg, #4f8cff, #3b78f0)' }}>
               <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5} width={12} height={12} className="text-white">
                 <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
                 <polyline points="16 7 22 7 22 13" />
               </svg>
             </div>
-            <span className="font-bold text-sm text-white">TradeX<span style={{ color: '#38bdf8' }}> Pro</span></span>
+            <span className="font-bold text-sm text-white">TradeX<span style={{ color: '#7aa7ff' }}> Pro</span></span>
           </button>
           <p className="text-xs" style={{ color: 'rgba(255,255,255,0.25)' }}>
             Regulated by FCA &amp; CySEC. Trading involves risk. Capital at risk.

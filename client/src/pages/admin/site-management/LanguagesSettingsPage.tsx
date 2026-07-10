@@ -16,7 +16,7 @@ const langData: Lang[] = [
 function Toggle({ value, onChange }: { value: boolean; onChange: (v: boolean) => void }) {
   return (
     <button onClick={() => onChange(!value)} className="relative rounded-full transition-colors"
-      style={{ background: value ? 'linear-gradient(135deg,#0ea5e9,#0369a1)' : 'rgba(107,128,153,0.3)', width: '36px', height: '18px', minWidth: '36px' }}>
+      style={{ background: value ? 'linear-gradient(135deg,#4f8cff,#3b78f0)' : 'rgba(107,128,153,0.3)', width: '36px', height: '18px', minWidth: '36px' }}>
       <span className="absolute top-[2px] w-3.5 h-3.5 bg-white rounded-full shadow transition-transform"
         style={{ transform: value ? 'translateX(19px)' : 'translateX(2px)' }} />
     </button>
@@ -37,7 +37,7 @@ export default function LanguagesSettingsPage() {
           <h1 className="text-lg font-bold text-text-primary">Language Settings</h1>
           <p className="text-xs text-text-secondary mt-0.5">Manage interface languages and translation coverage</p>
         </div>
-        <button className="px-4 py-1.5 rounded-lg text-xs font-semibold text-white" style={{ background: 'linear-gradient(135deg,#0ea5e9,#0369a1)' }}>
+        <button className="px-4 py-1.5 rounded-lg text-xs font-semibold text-white" style={{ background: 'linear-gradient(135deg,#4f8cff,#3b78f0)' }}>
           + Add Language
         </button>
       </div>
@@ -56,7 +56,7 @@ export default function LanguagesSettingsPage() {
               {langs.map(lang => (
                 <tr key={lang.code}
                   style={{ borderBottom: '1px solid rgba(56,189,248,0.04)' }}
-                  onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'rgba(14,165,233,0.03)'}
+                  onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'rgba(79,140,255,0.03)'}
                   onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}>
                   <td className="px-5 py-3">
                     <div className="flex items-center gap-2">
@@ -66,20 +66,20 @@ export default function LanguagesSettingsPage() {
                     </div>
                   </td>
                   <td className="px-5 py-3">
-                    <span className="font-mono font-bold uppercase" style={{ color: '#38bdf8' }}>{lang.code}</span>
+                    <span className="font-mono font-bold uppercase" style={{ color: '#7aa7ff' }}>{lang.code}</span>
                   </td>
                   <td className="px-5 py-3">
                     <div className="flex items-center gap-2">
                       <div className="w-32 h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.05)' }}>
                         <div className="h-full rounded-full"
-                          style={{ width: `${lang.completion}%`, background: lang.completion >= 90 ? '#00c878' : lang.completion >= 70 ? '#f59e0b' : '#ff3047' }} />
+                          style={{ width: `${lang.completion}%`, background: lang.completion >= 90 ? '#18c98a' : lang.completion >= 70 ? '#f6b24a' : '#ff5a72' }} />
                       </div>
                       <span className="font-mono text-text-muted">{lang.completion}%</span>
                     </div>
                   </td>
                   <td className="px-5 py-3">
                     {lang.default
-                      ? <span className="px-2 py-0.5 rounded-full text-xs font-medium" style={{ background: 'rgba(0,200,120,0.1)', color: '#00c878' }}>Default</span>
+                      ? <span className="px-2 py-0.5 rounded-full text-xs font-medium" style={{ background: 'rgba(24,201,138,0.1)', color: '#18c98a' }}>Default</span>
                       : <button className="text-xs text-text-muted hover:text-brand-300 transition-colors">Set Default</button>
                     }
                   </td>

@@ -160,7 +160,7 @@ function PriceDepthModal({ onClose }: { onClose: () => void }) {
                   color: top ? '#000' : '#666',
                 }}>{i + 1}</div>
               </div>
-              <span style={{ fontSize: 13, fontFamily: 'monospace', color: top ? '#38bdf8' : '#1a7ab0', background: top ? 'rgba(56,189,248,0.07)' : 'none', borderRadius: 4, padding: '2px 4px' }}>
+              <span style={{ fontSize: 13, fontFamily: 'monospace', color: top ? '#7aa7ff' : '#1a7ab0', background: top ? 'rgba(56,189,248,0.07)' : 'none', borderRadius: 4, padding: '2px 4px' }}>
                 {a ? formatPrice(a.price, selectedSymbol) : '–'}
               </span>
               <span style={{ fontSize: 13, color: '#888', textAlign: 'right' }}>{a?.size.toFixed(2) ?? '–'}</span>
@@ -176,8 +176,8 @@ function PriceDepthModal({ onClose }: { onClose: () => void }) {
           </div>
           <div style={{ width: 1, background: 'rgba(var(--ink),0.08)' }} />
           <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: 11, color: '#38bdf8', fontWeight: 600, marginBottom: 4 }}>Buy price</div>
-            <div style={{ fontSize: 16, color: '#38bdf8', fontFamily: 'monospace', fontWeight: 700 }}>{formatPrice(ask, selectedSymbol)}</div>
+            <div style={{ fontSize: 11, color: '#7aa7ff', fontWeight: 600, marginBottom: 4 }}>Buy price</div>
+            <div style={{ fontSize: 16, color: '#7aa7ff', fontFamily: 'monospace', fontWeight: 700 }}>{formatPrice(ask, selectedSymbol)}</div>
           </div>
         </div>
 
@@ -421,8 +421,8 @@ export default function OrderForm() {
                 onClick={() => setLeverage(l)}
                 style={{
                   padding: '5px 10px', borderRadius: 8, border: 'none', cursor: 'pointer',
-                  background: leverage === l ? 'rgba(14,165,233,0.25)' : 'rgba(var(--ink),0.05)',
-                  color: leverage === l ? '#38bdf8' : '#555',
+                  background: leverage === l ? 'rgba(79,140,255,0.25)' : 'rgba(var(--ink),0.05)',
+                  color: leverage === l ? '#7aa7ff' : '#555',
                   fontSize: 12, fontWeight: 700, transition: 'all 0.15s',
                 }}
               >L{l}</button>
@@ -477,7 +477,7 @@ export default function OrderForm() {
             </span>
             <span style={{ fontSize: 12, color: '#444' }}>·</span>
             <span style={{ fontSize: 12, color: '#555' }}>
-              Available: <span style={{ color: totalCostLocal > cash ? '#ff4444' : '#00c878', fontWeight: 600 }}>
+              Available: <span style={{ color: totalCostLocal > cash ? '#ff4444' : '#18c98a', fontWeight: 600 }}>
                 {formatCurrency(cash, 0, currency)}
               </span>
             </span>
@@ -540,7 +540,7 @@ export default function OrderForm() {
             {pendingLimitOrders.filter(o => o.symbol === selectedSymbol).map(o => (
               <div key={o.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '7px 12px', borderTop: '1px solid rgba(255,255,255,0.04)' }}>
                 <div style={{ fontSize: 12, lineHeight: 1.4 }}>
-                  <span style={{ fontWeight: 700, color: o.side === 'buy' ? '#38bdf8' : '#f87171' }}>
+                  <span style={{ fontWeight: 700, color: o.side === 'buy' ? '#7aa7ff' : '#f87171' }}>
                     {o.side.toUpperCase()}
                   </span>
                   <span style={{ color: '#888', marginLeft: 6 }}>
@@ -574,7 +574,7 @@ export default function OrderForm() {
 
       {/* ── Error ─────────────────────────────────────────────────────────────── */}
       {error && (
-        <div style={{ margin: '8px 12px', padding: '10px 14px', borderRadius: 10, background: 'rgba(255,48,71,0.08)', border: '1px solid rgba(255,48,71,0.2)', color: '#ff7080', fontSize: 12 }}>
+        <div style={{ margin: '8px 12px', padding: '10px 14px', borderRadius: 10, background: 'rgba(255,90,114,0.08)', border: '1px solid rgba(255,90,114,0.2)', color: '#ff7080', fontSize: 12 }}>
           {error}
         </div>
       )}

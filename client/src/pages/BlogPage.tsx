@@ -24,14 +24,14 @@ function safeUrl(url: string): string {
 
 const CAT_COLORS: Record<string, string> = {
   'central-banks': '#8b5cf6',
-  'inflation':     '#ef4444',
-  'employment':    '#10b981',
-  'gdp':           '#0ea5e9',
-  'manufacturing': '#f59e0b',
+  'inflation':     '#ff5a72',
+  'employment':    '#18c98a',
+  'gdp':           '#4f8cff',
+  'manufacturing': '#f6b24a',
   'commodities':   '#f97316',
   'trade':         '#06b6d4',
   'markets':       '#a78bfa',
-  'general':       '#64748b',
+  'general':       'var(--t-text-3)',
 }
 
 const SOURCE_LABELS: Record<string, string> = {
@@ -143,8 +143,8 @@ function NewsSection({ title, articles, onRead }: { title: string; articles: Mac
             style={{ flexShrink: 0, width: 'calc(65vw - 16px)', maxWidth: 260, minWidth: 180, borderRadius: 14, background: '#111', border: '1px solid rgba(255,255,255,0.06)', padding: '14px', textAlign: 'left', cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: 10 }}>
             {/* Category dot + label */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <div style={{ width: 6, height: 6, borderRadius: '50%', background: CAT_COLORS[art.category] ?? '#64748b', flexShrink: 0 }}/>
-              <span style={{ fontSize: 10, fontWeight: 700, color: CAT_COLORS[art.category] ?? '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              <div style={{ width: 6, height: 6, borderRadius: '50%', background: CAT_COLORS[art.category] ?? 'var(--t-text-3)', flexShrink: 0 }}/>
+              <span style={{ fontSize: 10, fontWeight: 700, color: CAT_COLORS[art.category] ?? 'var(--t-text-3)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                 {art.category.replace('-', ' ')}
               </span>
             </div>
@@ -169,8 +169,8 @@ function NewsSection({ title, articles, onRead }: { title: string; articles: Mac
 // ─── Article detail sheet ─────────────────────────────────────────────────────
 
 function ArticleSheet({ article, onClose }: { article: MacroNews; onClose: () => void }) {
-  const sentColor = article.label === 'bullish' ? '#10b981' : article.label === 'bearish' ? '#ef4444' : '#64748b'
-  const catColor  = CAT_COLORS[article.category] ?? '#64748b'
+  const sentColor = article.label === 'bullish' ? '#18c98a' : article.label === 'bearish' ? '#ff5a72' : 'var(--t-text-3)'
+  const catColor  = CAT_COLORS[article.category] ?? 'var(--t-text-3)'
 
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 300, display: 'flex', alignItems: 'flex-end' }}
@@ -341,7 +341,7 @@ export default function BlogPage() {
 
             {/* Source attribution */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 0', borderTop: '1px solid #111' }}>
-              <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#10b981', animation: 'blog-spin 0s' }}/>
+              <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#18c98a', animation: 'blog-spin 0s' }}/>
               <span style={{ fontSize: 11, color: '#374151' }}>Reuters · Yahoo Finance · CNBC · MarketWatch · Bloomberg · refreshes every 10 min</span>
             </div>
           </>

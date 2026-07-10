@@ -61,8 +61,8 @@ function AssetCard({ symbol, name, assetClass, baseAsset, quoteAsset }: {
         {t ? (
           <span style={{
             fontSize: 11, fontWeight: 700, padding: '2px 7px', borderRadius: 20,
-            background: up ? 'rgba(0,200,120,0.12)' : 'rgba(255,48,71,0.12)',
-            color: up ? '#00c878' : '#ff3047', flexShrink: 0,
+            background: up ? 'rgba(24,201,138,0.12)' : 'rgba(255,90,114,0.12)',
+            color: up ? '#18c98a' : '#ff5a72', flexShrink: 0,
           }}>
             {up ? '+' : ''}{t.changePercent.toFixed(2)}%
           </span>
@@ -72,18 +72,18 @@ function AssetCard({ symbol, name, assetClass, baseAsset, quoteAsset }: {
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr' }}>
-        <button onClick={go} style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', padding: '6px 14px 10px', background: 'rgba(255,48,71,0.08)', border: 'none', cursor: 'pointer', borderTop: '1px solid rgba(255,48,71,0.15)', borderBottomLeftRadius: 14 }}>
-          <span style={{ fontSize: 10, fontWeight: 700, color: '#ff3047', marginBottom: 2 }}>SELL</span>
-          <span style={{ fontSize: 14, fontWeight: 700, fontFamily: 'monospace', color: '#ff3047' }}>{fmt(bid)}</span>
+        <button onClick={go} style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', padding: '6px 14px 10px', background: 'rgba(255,90,114,0.08)', border: 'none', cursor: 'pointer', borderTop: '1px solid rgba(255,90,114,0.15)', borderBottomLeftRadius: 14 }}>
+          <span style={{ fontSize: 10, fontWeight: 700, color: '#ff5a72', marginBottom: 2 }}>SELL</span>
+          <span style={{ fontSize: 14, fontWeight: 700, fontFamily: 'monospace', color: '#ff5a72' }}>{fmt(bid)}</span>
         </button>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px', borderTop: '1px solid rgba(var(--ink),0.05)' }}>
           <svg width="64" height="26" viewBox="0 0 64 26">
-            <polyline points={pts} fill="none" stroke={up ? '#00c878' : '#ff3047'} strokeWidth={1.5} strokeLinejoin="round" strokeLinecap="round" />
+            <polyline points={pts} fill="none" stroke={up ? '#18c98a' : '#ff5a72'} strokeWidth={1.5} strokeLinejoin="round" strokeLinecap="round" />
           </svg>
         </div>
-        <button onClick={go} style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', padding: '6px 14px 10px', background: 'rgba(14,165,233,0.08)', border: 'none', cursor: 'pointer', borderTop: '1px solid rgba(14,165,233,0.15)', borderBottomRightRadius: 14 }}>
-          <span style={{ fontSize: 10, fontWeight: 700, color: '#38bdf8', marginBottom: 2 }}>BUY</span>
-          <span style={{ fontSize: 14, fontWeight: 700, fontFamily: 'monospace', color: '#38bdf8' }}>{fmt(ask)}</span>
+        <button onClick={go} style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', padding: '6px 14px 10px', background: 'rgba(79,140,255,0.08)', border: 'none', cursor: 'pointer', borderTop: '1px solid rgba(79,140,255,0.15)', borderBottomRightRadius: 14 }}>
+          <span style={{ fontSize: 10, fontWeight: 700, color: '#7aa7ff', marginBottom: 2 }}>BUY</span>
+          <span style={{ fontSize: 14, fontWeight: 700, fontFamily: 'monospace', color: '#7aa7ff' }}>{fmt(ask)}</span>
         </button>
       </div>
     </div>
@@ -226,11 +226,11 @@ export default function WatchlistsPage() {
               style={{
                 width: 38, height: 38, borderRadius: 10, cursor: 'pointer',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                background: showSort || sort !== 'default' ? 'rgba(14,165,233,0.15)' : 'var(--t-border)',
-                border: showSort || sort !== 'default' ? '1px solid rgba(14,165,233,0.3)' : '1px solid rgba(var(--ink),0.06)',
+                background: showSort || sort !== 'default' ? 'rgba(79,140,255,0.15)' : 'var(--t-border)',
+                border: showSort || sort !== 'default' ? '1px solid rgba(79,140,255,0.3)' : '1px solid rgba(var(--ink),0.06)',
               }}
             >
-              <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke={showSort || sort !== 'default' ? '#38bdf8' : 'rgba(var(--ink),0.7)'} strokeWidth={1.8}>
+              <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke={showSort || sort !== 'default' ? '#7aa7ff' : 'rgba(var(--ink),0.7)'} strokeWidth={1.8}>
                 <line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="14" y2="12"/><line x1="4" y1="18" x2="10" y2="18"/>
               </svg>
             </button>
@@ -248,16 +248,16 @@ export default function WatchlistsPage() {
                     onClick={() => { setSort(key); setShowSort(false) }}
                     style={{
                       width: '100%', padding: '10px 14px', textAlign: 'left',
-                      background: sort === key ? 'rgba(14,165,233,0.1)' : 'transparent',
+                      background: sort === key ? 'rgba(79,140,255,0.1)' : 'transparent',
                       border: 'none', borderBottom: '1px solid rgba(var(--ink),0.05)',
                       cursor: 'pointer', fontSize: 13,
-                      color: sort === key ? '#38bdf8' : 'rgba(var(--ink),0.75)',
+                      color: sort === key ? '#7aa7ff' : 'rgba(var(--ink),0.75)',
                       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                     }}
                   >
                     {label}
                     {sort === key && (
-                      <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="#38bdf8" strokeWidth={2.5}>
+                      <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="#7aa7ff" strokeWidth={2.5}>
                         <polyline points="20 6 9 17 4 12"/>
                       </svg>
                     )}

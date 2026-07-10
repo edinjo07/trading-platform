@@ -79,10 +79,10 @@ export default function CandlestickChart({ candles, symbol, interval, onInterval
 
     // Price series
     const candleSeries = chart.addCandlestickSeries({
-      upColor: '#00c878',
-      downColor: '#ff3047',
-      borderUpColor: '#00c878',
-      borderDownColor: '#ff3047',
+      upColor: '#18c98a',
+      downColor: '#ff5a72',
+      borderUpColor: '#18c98a',
+      borderDownColor: '#ff5a72',
       wickUpColor: '#00e88a',
       wickDownColor: '#ff6070',
     })
@@ -135,7 +135,7 @@ export default function CandlestickChart({ candles, symbol, interval, onInterval
       const vData: VolumeData[] = candles.map(c => ({
         time: c.time as unknown as number,
         value: c.volume,
-        color: c.close >= c.open ? 'rgba(0,200,120,0.35)' : 'rgba(255,48,71,0.35)',
+        color: c.close >= c.open ? 'rgba(24,201,138,0.35)' : 'rgba(255,90,114,0.35)',
       }))
       candleSeriesRef.current.setData(cData as Parameters<typeof candleSeriesRef.current.setData>[0])
       volumeSeriesRef.current.setData(vData as Parameters<typeof volumeSeriesRef.current.setData>[0])
@@ -145,7 +145,7 @@ export default function CandlestickChart({ candles, symbol, interval, onInterval
       const last = candles[candles.length - 1]
       if (!last) return
       const cPoint = { time: last.time as unknown as number, open: last.open, high: last.high, low: last.low, close: last.close }
-      const vPoint = { time: last.time as unknown as number, value: last.volume, color: last.close >= last.open ? 'rgba(0,200,120,0.35)' : 'rgba(255,48,71,0.35)' }
+      const vPoint = { time: last.time as unknown as number, value: last.volume, color: last.close >= last.open ? 'rgba(24,201,138,0.35)' : 'rgba(255,90,114,0.35)' }
       candleSeriesRef.current.update(cPoint as Parameters<typeof candleSeriesRef.current.update>[0])
       volumeSeriesRef.current.update(vPoint as Parameters<typeof volumeSeriesRef.current.update>[0])
     }

@@ -16,7 +16,7 @@ export default function AutomaticGatewaysPage() {
         { key: 'amount',   header: 'Amount',    render: r => <span className="font-mono font-semibold text-bull">${r.amount.toLocaleString()}</span> },
         { key: 'currency', header: 'Currency' },
         { key: 'method',   header: 'Method' },
-        { key: 'gateway',  header: 'Gateway',   render: r => <span className="px-2 py-0.5 rounded text-xs font-medium" style={{ background: 'rgba(14,165,233,0.1)', color: '#38bdf8' }}>{r.gateway}</span> },
+        { key: 'gateway',  header: 'Gateway',   render: r => <span className="px-2 py-0.5 rounded text-xs font-medium" style={{ background: 'rgba(79,140,255,0.1)', color: '#7aa7ff' }}>{r.gateway}</span> },
         { key: 'txRef',    header: 'Ref',       render: r => <span className="font-mono text-xs text-text-muted">{r.txRef}</span> },
         { key: 'status',   header: 'Status',    render: r => statusBadge(r.status) },
         { key: 'date',     header: 'Date',      render: r => <span className="font-mono text-text-muted">{r.date}</span> },

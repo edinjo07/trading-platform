@@ -131,7 +131,7 @@ export default function MarketsPanel({ open, onClose }: MarketsPanelProps) {
                 onClick={() => setActiveTab(tab.id)}
                 className="px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap shrink-0 transition-all"
                 style={activeTab === tab.id
-                  ? { background: 'rgba(14,165,233,0.15)', color: '#0ea5e9', border: '1px solid rgba(14,165,233,0.25)' }
+                  ? { background: 'rgba(79,140,255,0.15)', color: '#4f8cff', border: '1px solid rgba(79,140,255,0.25)' }
                   : { background: 'rgba(var(--ink),0.04)', color: 'rgba(var(--ink),0.45)', border: '1px solid rgba(255,255,255,0.06)' }
                 }
               >
@@ -162,7 +162,7 @@ export default function MarketsPanel({ open, onClose }: MarketsPanelProps) {
                   onClick={() => handleSelect(s.symbol)}
                   className="w-full flex items-center justify-between px-4 py-3 text-left transition-colors"
                   style={{
-                    background: isSelected ? 'rgba(14,165,233,0.07)' : 'transparent',
+                    background: isSelected ? 'rgba(79,140,255,0.07)' : 'transparent',
                     borderBottom: '1px solid rgba(255,255,255,0.03)',
                   }}
                   onMouseEnter={e => { if (!isSelected) (e.currentTarget as HTMLButtonElement).style.background = 'rgba(var(--ink),0.03)' }}
@@ -178,7 +178,7 @@ export default function MarketsPanel({ open, onClose }: MarketsPanelProps) {
                         {isSelected && (
                           <span
                             className="text-2xs px-1.5 py-0.5 rounded"
-                            style={{ background: 'rgba(14,165,233,0.18)', color: '#0ea5e9' }}
+                            style={{ background: 'rgba(79,140,255,0.18)', color: '#4f8cff' }}
                           >
                             active
                           </span>

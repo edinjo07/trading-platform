@@ -23,7 +23,7 @@ export default function SpreadSettingsPage() {
       data={data}
       columns={[
         { key: 'symbol',      header: 'Symbol',       render: r => <span className="font-mono font-bold text-text-primary">{r.symbol}</span> },
-        { key: 'account',     header: 'Account Type', render: r => <span className="px-2 py-0.5 rounded text-xs font-medium" style={{ background: 'rgba(56,189,248,0.1)', color: '#38bdf8' }}>{r.account}</span> },
+        { key: 'account',     header: 'Account Type', render: r => <span className="px-2 py-0.5 rounded text-xs font-medium" style={{ background: 'rgba(56,189,248,0.1)', color: '#7aa7ff' }}>{r.account}</span> },
         { key: 'rawSpread',   header: 'Raw Spread',   render: r => <span className="font-mono text-text-primary">{r.rawSpread} pip</span> },
         { key: 'markup',      header: 'Markup',       render: r => <span className="font-mono text-warning">{r.markup} pip</span> },
         { key: 'totalSpread', header: 'Total Spread', render: r => <span className="font-mono font-semibold text-bull">{r.totalSpread} pip</span> },

@@ -211,7 +211,7 @@ export default function LeaderboardPage() {
                     <td className="px-4 py-3.5">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
-                             style={{ color: '#fff', background: entry.displayRank <= 3 ? GRADIENT[entry.displayRank - 1] : 'linear-gradient(135deg,#0ea5e9,#7c3aed)' }}>
+                             style={{ color: '#fff', background: entry.displayRank <= 3 ? GRADIENT[entry.displayRank - 1] : 'linear-gradient(135deg,#4f8cff,#7c3aed)' }}>
                           {entry.avatar}
                         </div>
                         <div>

@@ -4,48 +4,48 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Primary accent – sky / electric blue (IC Markets / Bloomberg style)
+        // Primary accent – Signal Blue (the racing line; see BRAND.md)
         brand: {
-          50:  '#e0f2fe',
-          100: '#bae6fd',
-          200: '#7dd3fc',
-          300: '#38bdf8',
-          400: '#0ea5e9',
-          500: '#0284c7',
-          600: '#0369a1',
-          700: '#075985',
-          800: '#0c4a6e',
+          50:  '#eaf1ff',
+          100: '#d6e3ff',
+          200: '#adc7ff',
+          300: '#7aa7ff',
+          400: '#4f8cff',
+          500: '#3b78f0',
+          600: '#2f62d6',
+          700: '#274fae',
+          800: '#203f89',
         },
-        // Pure-black dark surfaces
+        // Warm dusk surfaces (Midnight Tarmac family)
         surface: {
-          DEFAULT: '#000000',
-          50:  '#0a0a0a',
-          100: '#111111',
-          150: '#161616',
-          200: '#1c1c1c',
-          300: '#242424',
+          DEFAULT: '#14121a',
+          50:  '#181521',
+          100: '#1d1a26',
+          150: '#221e2c',
+          200: '#262231',
+          300: '#322c40',
         },
-        // Buy green (crisp)
+        // Verdant — gains, confident not neon
         bull: {
-          DEFAULT: '#00c878',
-          muted:   '#00c87820',
-          dim:     '#00c87810',
+          DEFAULT: '#18c98a',
+          muted:   '#18c98a20',
+          dim:     '#18c98a10',
         },
-        // Sell red (vibrant)
+        // Coral — losses, serious never alarmist
         bear: {
-          DEFAULT: '#ff3047',
-          muted:   '#ff304720',
-          dim:     '#ff304710',
+          DEFAULT: '#ff5a72',
+          muted:   '#ff5a7220',
+          dim:     '#ff5a7210',
         },
-        success: '#00c878',
-        danger:  '#ff3047',
-        warning: '#f59e0b',
-        info:    '#38bdf8',
-        // Text shades
+        success: '#18c98a',
+        danger:  '#ff5a72',
+        warning: '#f6b24a',
+        info:    '#7aa7ff',
+        // Warm text shades (match --t-text-* tokens)
         text: {
-          primary:   '#f0f0f0',
-          secondary: '#7a7a7a',
-          muted:     '#4a4a4a',
+          primary:   '#eeeaf4',
+          secondary: '#a59fb2',
+          muted:     '#6e6880',
         },
       },
       fontFamily: {
@@ -56,18 +56,18 @@ export default {
         '2xs': ['10px', '14px'],
       },
       boxShadow: {
-        'glow-brand':   '0 0 20px rgba(14, 165, 233, 0.20)',
-        'glow-bull':    '0 0 16px rgba(0, 200, 120, 0.25)',
-        'glow-bear':    '0 0 16px rgba(255, 48, 71, 0.25)',
-        'card':         '0 1px 3px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.04)',
-        'card-hover':   '0 4px 16px rgba(0,0,0,0.5), 0 0 0 1px rgba(14,165,233,0.2)',
-        'panel':        '0 0 0 1px rgba(255,255,255,0.05)',
+        'glow-brand':   '0 0 20px rgba(79, 140, 255, 0.20)',
+        'glow-bull':    '0 0 16px rgba(24, 201, 138, 0.25)',
+        'glow-bear':    '0 0 16px rgba(255, 90, 114, 0.25)',
+        'card':         '0 1px 2px rgba(12,8,16,0.45), 0 2px 6px rgba(12,8,16,0.28), 0 0 0 1px rgba(176,168,190,0.05)',
+        'card-hover':   '0 4px 16px rgba(12,8,16,0.5), 0 0 0 1px rgba(79,140,255,0.2)',
+        'panel':        '0 0 0 1px rgba(176,168,190,0.06)',
       },
       backgroundImage: {
-        'brand-gradient':  'linear-gradient(135deg, #0ea5e9 0%, #075985 100%)',
-        'bull-gradient':   'linear-gradient(135deg, #00c878 0%, #009a5c 100%)',
-        'bear-gradient':   'linear-gradient(135deg, #ff3047 0%, #c2001e 100%)',
-        'surface-gradient':'linear-gradient(180deg, #0c1220 0%, #06090f 100%)',
+        'brand-gradient':  'linear-gradient(135deg, #4f8cff 0%, #2f62d6 100%)',
+        'bull-gradient':   'linear-gradient(135deg, #18c98a 0%, #109a68 100%)',
+        'bear-gradient':   'linear-gradient(135deg, #ff5a72 0%, #d63a54 100%)',
+        'surface-gradient':'linear-gradient(180deg, #221e2c 0%, #14121a 100%)',
         'card-shimmer':    'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.03) 50%, transparent 100%)',
       },
       keyframes: {
@@ -88,7 +88,7 @@ export default {
           '50%':      { opacity: '0.4' },
         },
         tickFlash: {
-          '0%':   { backgroundColor: 'rgba(14,165,233,0.18)' },
+          '0%':   { backgroundColor: 'rgba(79,140,255,0.18)' },
           '100%': { backgroundColor: 'transparent' },
         },
         shimmer: {

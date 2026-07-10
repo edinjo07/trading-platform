@@ -134,7 +134,7 @@ export default function DepositPage() {
       <div className="max-w-lg mx-auto mt-8">
         <div className="card p-8 text-center flex flex-col items-center gap-4">
           <div className="w-16 h-16 rounded-full flex items-center justify-center"
-               style={{ background: 'rgba(0,200,120,0.12)', border: '2px solid rgba(0,200,120,0.3)' }}>
+               style={{ background: 'rgba(24,201,138,0.12)', border: '2px solid rgba(24,201,138,0.3)' }}>
             <svg className="w-8 h-8 text-bull" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
               <polyline points="20 6 9 17 4 12" />
             </svg>
@@ -180,7 +180,7 @@ export default function DepositPage() {
             <div className="flex justify-between"><span className="text-text-muted">Processing time</span><span className="text-brand-300 font-medium">{selectedMethod.time}</span></div>
           </div>
           {error && (
-            <div className="rounded-lg p-3 text-xs" style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', color: '#fca5a5' }}>
+            <div className="rounded-lg p-3 text-xs" style={{ background: 'rgba(255,90,114,0.08)', border: '1px solid rgba(255,90,114,0.2)', color: '#fca5a5' }}>
               {error}
             </div>
           )}
@@ -225,8 +225,8 @@ export default function DepositPage() {
               onClick={() => setMethod(m.id)}
               className="rounded-xl p-4 text-left transition-all"
               style={method === m.id
-                ? { background: 'rgba(14,165,233,0.1)', border: '1px solid rgba(14,165,233,0.35)', color: '#38bdf8' }
-                : { background: 'rgba(var(--ink),0.025)', border: '1px solid rgba(var(--ink),0.06)', color: '#94a3b8' }}
+                ? { background: 'rgba(79,140,255,0.1)', border: '1px solid rgba(79,140,255,0.35)', color: '#7aa7ff' }
+                : { background: 'rgba(var(--ink),0.025)', border: '1px solid rgba(var(--ink),0.06)', color: 'var(--t-text-2)' }}
               onMouseEnter={e => method !== m.id && ((e.currentTarget as HTMLElement).style.borderColor = 'rgba(var(--ink),0.14)')}
               onMouseLeave={e => method !== m.id && ((e.currentTarget as HTMLElement).style.borderColor = 'rgba(var(--ink),0.06)')}
             >
@@ -250,8 +250,8 @@ export default function DepositPage() {
             <button key={a} onClick={() => setAmount(String(a))}
               className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
               style={amount === String(a)
-                ? { background: 'rgba(14,165,233,0.2)', color: '#38bdf8', border: '1px solid rgba(14,165,233,0.3)' }
-                : { background: 'rgba(var(--ink),0.04)', color: '#94a3b8', border: '1px solid rgba(var(--ink),0.06)' }}>
+                ? { background: 'rgba(79,140,255,0.2)', color: '#7aa7ff', border: '1px solid rgba(79,140,255,0.3)' }
+                : { background: 'rgba(var(--ink),0.04)', color: 'var(--t-text-2)', border: '1px solid rgba(var(--ink),0.06)' }}>
               ${a.toLocaleString()}
             </button>
           ))}
@@ -310,14 +310,14 @@ export default function DepositPage() {
               <button key={c} onClick={() => setCrypto(c)}
                 className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all inline-flex items-center gap-2"
                 style={crypto === c
-                  ? { background: 'rgba(245,158,11,0.2)', color: '#fbbf24', border: '1px solid rgba(245,158,11,0.3)' }
-                  : { background: 'rgba(var(--ink),0.04)', color: '#94a3b8', border: '1px solid rgba(var(--ink),0.06)' }}>
+                  ? { background: 'rgba(246,178,74,0.2)', color: '#f6c453', border: '1px solid rgba(246,178,74,0.3)' }
+                  : { background: 'rgba(var(--ink),0.04)', color: 'var(--t-text-2)', border: '1px solid rgba(var(--ink),0.06)' }}>
                 <img src={`${COIN_CDN}/${CRYPTO_ICON[c] ?? 'generic'}.svg`} alt="" width={16} height={16} style={{ borderRadius: '50%' }} />
                 {c}
               </button>
             ))}
           </div>
-          <div className="rounded-xl p-4 text-center space-y-2" style={{ background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.18)' }}>
+          <div className="rounded-xl p-4 text-center space-y-2" style={{ background: 'rgba(246,178,74,0.06)', border: '1px solid rgba(246,178,74,0.18)' }}>
             <p className="text-xs text-text-muted">Send {crypto} to this deposit address:</p>
             <p className="font-mono text-xs text-yellow-300 break-all select-all">
               {crypto.includes('BTC') ? '1A2B3C4D5E6F7G8H9I0J1K2L3M4N5O6P7Q8R9S0T' : crypto.includes('ETH') ? '0xAbCdEf1234567890AbCdEf1234567890AbCdEf12' : 'TRX9xYz1234567890abcDEFGHIJKLMNOPQRSTUVW'}

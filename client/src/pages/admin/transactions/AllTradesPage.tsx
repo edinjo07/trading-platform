@@ -23,7 +23,7 @@ export default function AllTradesPage() {
         { key: 'openTime',   header: 'Date',        render: r => <span className="font-mono text-text-muted">{r.openTime}</span> },
       ]}
       actions={
-        <button className="px-4 py-1.5 rounded-lg text-xs font-semibold text-white" style={{ background: 'linear-gradient(135deg,#0ea5e9,#0369a1)' }}>
+        <button className="px-4 py-1.5 rounded-lg text-xs font-semibold text-white" style={{ background: 'linear-gradient(135deg,#4f8cff,#3b78f0)' }}>
           + New Trade
         </button>
       }

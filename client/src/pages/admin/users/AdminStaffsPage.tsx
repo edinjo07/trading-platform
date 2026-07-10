@@ -27,8 +27,8 @@ function generateStaff(): StaffRow[] {
 const permBadge = (p: string) => {
   const m: Record<string, { color: string; bg: string }> = {
     full:    { color: '#a78bfa', bg: 'rgba(167,139,250,0.1)' },
-    admin:   { color: '#38bdf8', bg: 'rgba(56,189,248,0.1)' },
-    limited: { color: '#6b8099', bg: 'rgba(107,128,153,0.1)' },
+    admin:   { color: '#7aa7ff', bg: 'rgba(56,189,248,0.1)' },
+    limited: { color: 'var(--t-text-2)', bg: 'rgba(107,128,153,0.1)' },
   }
   const s = m[p] ?? m.limited
   return <Badge label={p} color={s.color} bg={s.bg} />
@@ -47,7 +47,7 @@ export default function AdminStaffsPage() {
         { key: 'name',       header: 'Name',       render: r => <span className="font-semibold text-text-primary">{String(r.name)}</span> },
         { key: 'email',      header: 'Email',      render: r => <span className="text-text-secondary">{String(r.email)}</span> },
         { key: 'role',       header: 'Role',       render: r => (
-          <span className="px-2 py-0.5 rounded text-xs font-medium" style={{ background: 'rgba(14,165,233,0.1)', color: '#38bdf8' }}>{String(r.role)}</span>
+          <span className="px-2 py-0.5 rounded text-xs font-medium" style={{ background: 'rgba(79,140,255,0.1)', color: '#7aa7ff' }}>{String(r.role)}</span>
         )},
         { key: 'department', header: 'Department' },
         { key: 'permissions',header: 'Permissions', render: r => permBadge(String(r.permissions)) },
@@ -55,7 +55,7 @@ export default function AdminStaffsPage() {
         { key: 'lastLogin',  header: 'Last Login', render: r => <span className="font-mono text-text-muted">{String(r.lastLogin)}</span> },
       ]}
       actions={
-        <button className="px-4 py-1.5 rounded-lg text-xs font-semibold text-white" style={{ background: 'linear-gradient(135deg,#0ea5e9,#0369a1)' }}>
+        <button className="px-4 py-1.5 rounded-lg text-xs font-semibold text-white" style={{ background: 'linear-gradient(135deg,#4f8cff,#3b78f0)' }}>
           + Invite Staff
         </button>
       }

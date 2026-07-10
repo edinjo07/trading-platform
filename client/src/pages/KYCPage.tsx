@@ -358,7 +358,7 @@ export default function KYCPage() {
 
           {/* Main: document cards */}
           <div className="lg:col-span-2" style={{ display: 'flex', flexDirection: 'column', gap: 18, minWidth: 0 }}>
-            <DocCard step={1} title="Identity Document" subtitle="A government-issued photo ID" accent="#0ea5e9"
+            <DocCard step={1} title="Identity Document" subtitle="A government-issued photo ID" accent="#4f8cff"
               typeOptions={ID_TYPES} docType={idType} setDocType={setIdType} file={idFileShown} setFile={setIdFile} status={idDisplay} requirements={ID_REQUIREMENTS} />
             <DocCard step={2} title="Proof of Address" subtitle="A recent document with your address" accent="#8b5cf6"
               typeOptions={POA_TYPES} docType={poaType} setDocType={setPoaType} file={poaFileShown} setFile={setPoaFile} status={poaDisplay} requirements={POA_REQUIREMENTS} />

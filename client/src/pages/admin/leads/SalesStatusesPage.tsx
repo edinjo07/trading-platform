@@ -3,12 +3,12 @@ import React, { useState } from 'react'
 interface StatusItem { id: string; name: string; color: string; description: string; order: number; active: boolean }
 
 const defaultStatuses: StatusItem[] = [
-  { id: '1', name: 'New',        color: '#38bdf8', description: 'Freshly created lead',           order: 1, active: true },
+  { id: '1', name: 'New',        color: '#7aa7ff', description: 'Freshly created lead',           order: 1, active: true },
   { id: '2', name: 'Contacted',  color: '#a78bfa', description: 'First contact made',             order: 2, active: true },
-  { id: '3', name: 'Interested', color: '#f59e0b', description: 'Expressed interest in opening',  order: 3, active: true },
+  { id: '3', name: 'Interested', color: '#f6b24a', description: 'Expressed interest in opening',  order: 3, active: true },
   { id: '4', name: 'Pending',    color: '#f97316', description: 'Awaiting document submission',   order: 4, active: true },
-  { id: '5', name: 'Converted',  color: '#00c878', description: 'Successfully converted to client',order: 5, active: true },
-  { id: '6', name: 'Lost',       color: '#ff3047', description: 'Lead lost or unresponsive',      order: 6, active: true },
+  { id: '5', name: 'Converted',  color: '#18c98a', description: 'Successfully converted to client',order: 5, active: true },
+  { id: '6', name: 'Lost',       color: '#ff5a72', description: 'Lead lost or unresponsive',      order: 6, active: true },
 ]
 
 function ColorDot({ color }: { color: string }) {
@@ -25,7 +25,7 @@ export default function SalesStatusesPage() {
           <h1 className="text-lg font-bold text-text-primary">Sales Statuses</h1>
           <p className="text-xs text-text-secondary mt-0.5">Configure lead pipeline stages and sales statuses</p>
         </div>
-        <button className="px-4 py-1.5 rounded-lg text-xs font-semibold text-white" style={{ background: 'linear-gradient(135deg,#0ea5e9,#0369a1)' }}>
+        <button className="px-4 py-1.5 rounded-lg text-xs font-semibold text-white" style={{ background: 'linear-gradient(135deg,#4f8cff,#3b78f0)' }}>
           + Add Status
         </button>
       </div>
@@ -48,14 +48,14 @@ export default function SalesStatusesPage() {
                 <button
                   onClick={() => setStatuses(prev => prev.map(x => x.id === s.id ? { ...x, active: !x.active } : x))}
                   className="relative w-9 h-4.5 rounded-full transition-colors"
-                  style={{ background: s.active ? 'linear-gradient(135deg,#0ea5e9,#0369a1)' : 'rgba(107,128,153,0.3)', padding: '0', minHeight: '18px', minWidth: '36px' }}
+                  style={{ background: s.active ? 'linear-gradient(135deg,#4f8cff,#3b78f0)' : 'rgba(107,128,153,0.3)', padding: '0', minHeight: '18px', minWidth: '36px' }}
                 >
                   <span
                     className="absolute top-0.5 w-3.5 h-3.5 bg-white rounded-full shadow transition-transform"
                     style={{ transform: s.active ? 'translateX(18px)' : 'translateX(2px)' }}
                   />
                 </button>
-                <button className="p-1.5 rounded text-text-muted hover:text-warning transition-colors" style={{ background: 'rgba(245,158,11,0.05)' }}>
+                <button className="p-1.5 rounded text-text-muted hover:text-warning transition-colors" style={{ background: 'rgba(246,178,74,0.05)' }}>
                   <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
                   </svg>

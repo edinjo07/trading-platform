@@ -5,7 +5,7 @@ const ACCOUNTS = [
   {
     name: 'Standard',
     tagline: 'Best for beginners',
-    color: '#38bdf8',
+    color: '#7aa7ff',
     glowColor: 'rgba(56,189,248,0.12)',
     borderColor: 'rgba(56,189,248,0.2)',
     popular: false,
@@ -29,14 +29,14 @@ const ACCOUNTS = [
       'FCA & CySEC regulated',
     ],
     cta: 'Open Standard Account',
-    ctaStyle: { background: 'rgba(56,189,248,0.12)', color: '#38bdf8', border: '1px solid rgba(56,189,248,0.3)' },
+    ctaStyle: { background: 'rgba(56,189,248,0.12)', color: '#7aa7ff', border: '1px solid rgba(56,189,248,0.3)' },
   },
   {
     name: 'Raw Spread',
     tagline: 'Best for active traders',
-    color: '#00c878',
-    glowColor: 'rgba(0,200,120,0.12)',
-    borderColor: 'rgba(0,200,120,0.25)',
+    color: '#18c98a',
+    glowColor: 'rgba(24,201,138,0.12)',
+    borderColor: 'rgba(24,201,138,0.25)',
     popular: true,
     minDeposit: '$200',
     spread: 'From 0.0 pips',
@@ -58,7 +58,7 @@ const ACCOUNTS = [
       'FCA & CySEC regulated',
     ],
     cta: 'Open Raw Spread Account',
-    ctaStyle: { background: 'rgba(0,200,120,0.15)', color: '#00c878', border: '1px solid rgba(0,200,120,0.35)' },
+    ctaStyle: { background: 'rgba(24,201,138,0.15)', color: '#18c98a', border: '1px solid rgba(24,201,138,0.35)' },
   },
   {
     name: 'cTrader Raw',
@@ -114,19 +114,19 @@ export default function AccountTypesPage() {
       <nav style={{ position: 'sticky', top: 0, zIndex: 50, background: 'rgba(0,0,0,0.92)', backdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 24px', height: 60, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }} onClick={() => navigate('/')}>
-            <div style={{ width: 30, height: 30, borderRadius: 8, background: 'linear-gradient(135deg,#0ea5e9,#0369a1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ width: 30, height: 30, borderRadius: 8, background: 'linear-gradient(135deg,#4f8cff,#3b78f0)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="white" strokeWidth={2.5}>
                 <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/>
               </svg>
             </div>
-            <span style={{ fontWeight: 700, fontSize: 16, color: '#fff' }}>TradeX<span style={{ color: '#38bdf8' }}> Pro</span></span>
+            <span style={{ fontWeight: 700, fontSize: 16, color: '#fff' }}>TradeX<span style={{ color: '#7aa7ff' }}> Pro</span></span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <a href="/" style={{ color: '#6b8099', fontSize: 13, textDecoration: 'none' }}>Home</a>
-            <a href="/#features" style={{ color: '#6b8099', fontSize: 13, textDecoration: 'none' }}>Features</a>
+            <a href="/" style={{ color: 'var(--t-text-2)', fontSize: 13, textDecoration: 'none' }}>Home</a>
+            <a href="/#features" style={{ color: 'var(--t-text-2)', fontSize: 13, textDecoration: 'none' }}>Features</a>
             <button
               onClick={() => navigate('/login')}
-              style={{ background: 'linear-gradient(135deg,#0ea5e9,#0369a1)', color: '#fff', border: 'none', borderRadius: 10, padding: '8px 20px', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+              style={{ background: 'linear-gradient(135deg,#4f8cff,#3b78f0)', color: '#fff', border: 'none', borderRadius: 10, padding: '8px 20px', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
               Open Account
             </button>
           </div>
@@ -134,15 +134,15 @@ export default function AccountTypesPage() {
       </nav>
 
       {/* ── Hero ── */}
-      <div style={{ background: 'linear-gradient(180deg,rgba(14,165,233,0.06) 0%,#000 60%)', borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '72px 24px 56px', textAlign: 'center' }}>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '4px 14px', borderRadius: 99, background: 'rgba(14,165,233,0.1)', border: '1px solid rgba(14,165,233,0.22)', color: '#38bdf8', fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 20 }}>
-          <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#38bdf8', display: 'inline-block' }} />
+      <div style={{ background: 'linear-gradient(180deg,rgba(79,140,255,0.06) 0%,#000 60%)', borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '72px 24px 56px', textAlign: 'center' }}>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '4px 14px', borderRadius: 99, background: 'rgba(79,140,255,0.1)', border: '1px solid rgba(79,140,255,0.22)', color: '#7aa7ff', fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 20 }}>
+          <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#7aa7ff', display: 'inline-block' }} />
           FCA &amp; CySEC Regulated
         </div>
         <h1 style={{ fontSize: 'clamp(32px,5vw,52px)', fontWeight: 800, color: '#fff', marginBottom: 14, letterSpacing: '-0.02em' }}>
           Choose Your Account Type
         </h1>
-        <p style={{ color: '#6b8099', fontSize: 16, maxWidth: 560, margin: '0 auto 28px' }}>
+        <p style={{ color: 'var(--t-text-2)', fontSize: 16, maxWidth: 560, margin: '0 auto 28px' }}>
           Three account types built for every trading style — from beginners to institutional-grade algo traders. All accounts include full market access, segregated funds, and negative balance protection.
         </p>
         {/* Reg badges */}
@@ -220,7 +220,7 @@ export default function AccountTypesPage() {
                 <div style={{ fontSize: 11, fontWeight: 700, color: '#3a5060', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 12 }}>Includes</div>
                 <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 9 }}>
                   {acc.features.map(f => (
-                    <li key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: 9, fontSize: 13, color: '#94a3b8', lineHeight: 1.5 }}>
+                    <li key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: 9, fontSize: 13, color: 'var(--t-text-2)', lineHeight: 1.5 }}>
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={acc.color} strokeWidth={2.5} style={{ flexShrink: 0, marginTop: 1 }}>
                         <polyline points="20 6 9 17 4 12"/>
                       </svg>
@@ -248,7 +248,7 @@ export default function AccountTypesPage() {
       <div style={{ maxWidth: 1100, margin: '64px auto 0', padding: '0 24px' }}>
         <div style={{ textAlign: 'center', marginBottom: 36 }}>
           <h2 style={{ fontSize: 28, fontWeight: 800, color: '#fff', marginBottom: 10 }}>Full Account Comparison</h2>
-          <p style={{ color: '#6b8099', fontSize: 14 }}>Side-by-side breakdown of all three account types</p>
+          <p style={{ color: 'var(--t-text-2)', fontSize: 14 }}>Side-by-side breakdown of all three account types</p>
         </div>
         <div style={{ borderRadius: 16, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.07)' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
@@ -263,7 +263,7 @@ export default function AccountTypesPage() {
             <tbody>
               {COMPARISON.map((row, idx) => (
                 <tr key={row.label} style={{ background: idx % 2 === 0 ? 'rgba(255,255,255,0.025)' : 'transparent' }}>
-                  <td style={{ padding: '12px 24px', color: '#94a3b8', fontWeight: 600, borderBottom: '1px solid rgba(255,255,255,0.04)' }}>{row.label}</td>
+                  <td style={{ padding: '12px 24px', color: 'var(--t-text-2)', fontWeight: 600, borderBottom: '1px solid rgba(255,255,255,0.04)' }}>{row.label}</td>
                   {[row.std, row.raw, row.ctrader].map((v, vi) => (
                     <td key={vi} style={{ padding: '12px 24px', textAlign: 'center', color: '#c8d6e5', fontWeight: 600, borderBottom: '1px solid rgba(255,255,255,0.04)', borderLeft: '1px solid rgba(255,255,255,0.04)' }}>
                       {v === '✓'
@@ -280,10 +280,10 @@ export default function AccountTypesPage() {
 
       {/* ── Risk Warning ── */}
       <div style={{ maxWidth: 1100, margin: '48px auto 0', padding: '0 24px' }}>
-        <div style={{ background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.15)', borderRadius: 12, padding: '16px 22px', fontSize: 12, lineHeight: 1.7, color: '#92400e' }}>
+        <div style={{ background: 'rgba(246,178,74,0.06)', border: '1px solid rgba(246,178,74,0.15)', borderRadius: 12, padding: '16px 22px', fontSize: 12, lineHeight: 1.7, color: '#92400e' }}>
           <strong style={{ color: '#d97706' }}>Risk Warning:</strong>{' '}
           CFDs are complex instruments and come with a high risk of losing money rapidly due to leverage.{' '}
-          <strong style={{ color: '#fbbf24' }}>74% of retail investor accounts lose money when trading CFDs with TradeX Pro.</strong>{' '}
+          <strong style={{ color: '#f6c453' }}>74% of retail investor accounts lose money when trading CFDs with TradeX Pro.</strong>{' '}
           You should consider whether you understand how CFDs work and whether you can afford to take the high risk of losing your money.
           TradeX Pro Limited is authorised and regulated by the FCA (FRN 987654), CySEC (Licence 123/45), and holds Curaçao GCB Licence 0005/GCB.
           Registered in England &amp; Wales No. 12345678. 22 Bishopsgate, London EC2N 4BQ.
@@ -292,14 +292,14 @@ export default function AccountTypesPage() {
 
       {/* ── CTA Strip ── */}
       <div style={{ maxWidth: 1100, margin: '48px auto 0', padding: '0 24px 80px' }}>
-        <div style={{ borderRadius: 20, background: 'rgba(14,165,233,0.06)', border: '1px solid rgba(14,165,233,0.15)', padding: '48px 40px', textAlign: 'center' }}>
+        <div style={{ borderRadius: 20, background: 'rgba(79,140,255,0.06)', border: '1px solid rgba(79,140,255,0.15)', padding: '48px 40px', textAlign: 'center' }}>
           <h2 style={{ fontSize: 30, fontWeight: 800, color: '#fff', marginBottom: 10 }}>Ready to Open Your Account?</h2>
-          <p style={{ color: '#6b8099', fontSize: 15, marginBottom: 28, maxWidth: 480, margin: '0 auto 28px' }}>
+          <p style={{ color: 'var(--t-text-2)', fontSize: 15, marginBottom: 28, maxWidth: 480, margin: '0 auto 28px' }}>
             Complete KYC in minutes. Deposit from $200. Start trading real markets same day.
           </p>
           <div style={{ display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap' }}>
             <button onClick={() => navigate('/login')}
-              style={{ padding: '13px 32px', borderRadius: 12, background: 'linear-gradient(135deg,#0ea5e9,#0369a1)', color: '#fff', fontWeight: 700, fontSize: 15, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
+              style={{ padding: '13px 32px', borderRadius: 12, background: 'linear-gradient(135deg,#4f8cff,#3b78f0)', color: '#fff', fontWeight: 700, fontSize: 15, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
               Open Live Account
               <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             </button>

@@ -254,12 +254,12 @@ function PnlCalendar({ trades }: { trades: TradeRecord[] }) {
     return sign + '$' + v.toFixed(0)
   }
 
-  const G = '#10b981', R = '#ef4444', MUTED = '#334155'
+  const G = '#18c98a', R = '#ff5a72', MUTED = 'var(--t-text-3)'
 
   return (
     <div style={{
       borderRadius: 18, overflow: 'hidden',
-      background: 'linear-gradient(180deg, rgba(14,165,233,0.04) 0%, rgba(0,0,0,0) 60%)',
+      background: 'linear-gradient(180deg, rgba(79,140,255,0.04) 0%, rgba(0,0,0,0) 60%)',
       border: '1px solid rgba(var(--ink),0.09)',
       boxShadow: '0 8px 40px rgba(0,0,0,0.35), inset 0 1px 0 rgba(var(--ink),0.06)',
     }}>
@@ -273,9 +273,9 @@ function PnlCalendar({ trades }: { trades: TradeRecord[] }) {
             <div style={{
               width: 36, height: 36, borderRadius: 10, flexShrink: 0,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              background: 'linear-gradient(135deg, rgba(14,165,233,0.2), rgba(6,182,212,0.1))',
-              border: '1px solid rgba(14,165,233,0.25)',
-              boxShadow: '0 0 12px rgba(14,165,233,0.15)',
+              background: 'linear-gradient(135deg, rgba(79,140,255,0.2), rgba(6,182,212,0.1))',
+              border: '1px solid rgba(79,140,255,0.25)',
+              boxShadow: '0 0 12px rgba(79,140,255,0.15)',
             }}>
               {/* Calendar icon */}
               <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#7aa7ff" strokeWidth={1.8}>
@@ -286,7 +286,7 @@ function PnlCalendar({ trades }: { trades: TradeRecord[] }) {
               </svg>
             </div>
             <div>
-              <h3 style={{ fontSize: 15, fontWeight: 800, color: '#e2e8f0', margin: 0, lineHeight: 1.2 }}>P&amp;L Calendar</h3>
+              <h3 style={{ fontSize: 15, fontWeight: 800, color: 'var(--t-text-1)', margin: 0, lineHeight: 1.2 }}>P&amp;L Calendar</h3>
               <p style={{ fontSize: 11, color: MUTED, margin: 0 }}>Daily closed trade performance</p>
             </div>
           </div>
@@ -301,7 +301,7 @@ function PnlCalendar({ trades }: { trades: TradeRecord[] }) {
               }}>
                 <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><polyline points="15 18 9 12 15 6"/></svg>
               </button>
-              <span style={{ fontSize: 12, fontWeight: 700, color: '#94a3b8', minWidth: 130, textAlign: 'center' }}>{label}</span>
+              <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--t-text-2)', minWidth: 130, textAlign: 'center' }}>{label}</span>
               <button onClick={() => setMonthOffset(o => Math.min(o + 1, 0))} disabled={monthOffset === 0} style={{
                 width: 28, height: 28, borderRadius: 8, border: '1px solid rgba(var(--ink),0.1)',
                 background: 'rgba(var(--ink),0.05)', color: 'var(--t-text-2)', cursor: monthOffset === 0 ? 'not-allowed' : 'pointer',
@@ -313,7 +313,7 @@ function PnlCalendar({ trades }: { trades: TradeRecord[] }) {
             <div style={{
               fontSize: 22, fontWeight: 900, fontFamily: 'monospace',
               color: monthlyPnl >= 0 ? G : R,
-              textShadow: `0 0 20px ${monthlyPnl >= 0 ? 'rgba(16,185,129,0.4)' : 'rgba(239,68,68,0.4)'}`,
+              textShadow: `0 0 20px ${monthlyPnl >= 0 ? 'rgba(24,201,138,0.4)' : 'rgba(255,90,114,0.4)'}`,
               lineHeight: 1,
             }}>
               {monthlyPnl >= 0 ? '+' : ''}{formatCurrency(monthlyPnl)}
@@ -390,8 +390,8 @@ function PnlCalendar({ trades }: { trades: TradeRecord[] }) {
 
                 const bg = data
                   ? data.pnl >= 0
-                    ? `rgba(16,185,129,${alpha})`
-                    : `rgba(239,68,68,${alpha})`
+                    ? `rgba(24,201,138,${alpha})`
+                    : `rgba(255,90,114,${alpha})`
                   : inFuture ? 'rgba(var(--ink),0.01)' : 'rgba(var(--ink),0.03)'
 
                 const pnlColor2 = data
@@ -401,13 +401,13 @@ function PnlCalendar({ trades }: { trades: TradeRecord[] }) {
                 const borderStyle = isToday
                   ? `1px solid rgba(56,189,248,0.7)`
                   : data
-                  ? `1px solid ${data.pnl >= 0 ? 'rgba(16,185,129,0.25)' : 'rgba(239,68,68,0.25)'}`
+                  ? `1px solid ${data.pnl >= 0 ? 'rgba(24,201,138,0.25)' : 'rgba(255,90,114,0.25)'}`
                   : '1px solid var(--t-surface)'
 
                 const glowShadow = isToday
                   ? '0 0 0 2px rgba(56,189,248,0.15), inset 0 0 10px rgba(56,189,248,0.05)'
                   : data && intensity > 0.5
-                  ? `inset 0 0 12px ${data.pnl >= 0 ? 'rgba(16,185,129,0.08)' : 'rgba(239,68,68,0.08)'}`
+                  ? `inset 0 0 12px ${data.pnl >= 0 ? 'rgba(24,201,138,0.08)' : 'rgba(255,90,114,0.08)'}`
                   : 'none'
 
                 return (
@@ -433,8 +433,8 @@ function PnlCalendar({ trades }: { trades: TradeRecord[] }) {
                       <div style={{
                         position: 'absolute', inset: 0, borderRadius: 10,
                         background: data.pnl >= 0
-                          ? 'linear-gradient(135deg, rgba(16,185,129,0.1) 0%, transparent 70%)'
-                          : 'linear-gradient(135deg, rgba(239,68,68,0.1) 0%, transparent 70%)',
+                          ? 'linear-gradient(135deg, rgba(24,201,138,0.1) 0%, transparent 70%)'
+                          : 'linear-gradient(135deg, rgba(255,90,114,0.1) 0%, transparent 70%)',
                         pointerEvents: 'none',
                       }}/>
                     )}
@@ -442,7 +442,7 @@ function PnlCalendar({ trades }: { trades: TradeRecord[] }) {
                     {/* Day number */}
                     <span style={{
                       fontSize: 11, fontWeight: isToday ? 800 : 600, alignSelf: 'flex-start',
-                      color: isToday ? '#7aa7ff' : data ? '#94a3b8' : inFuture ? '#1e293b' : '#334155',
+                      color: isToday ? '#7aa7ff' : data ? 'var(--t-text-2)' : inFuture ? '#1e293b' : 'var(--t-text-3)',
                       lineHeight: 1,
                     }}>{day}</span>
 
@@ -453,7 +453,7 @@ function PnlCalendar({ trades }: { trades: TradeRecord[] }) {
                           fontSize: intensity > 0.4 ? 12 : 10,
                           fontWeight: 800, fontFamily: 'monospace',
                           color: pnlColor2, lineHeight: 1,
-                          textShadow: intensity > 0.6 ? `0 0 8px ${data.pnl >= 0 ? 'rgba(16,185,129,0.5)' : 'rgba(239,68,68,0.5)'}` : 'none',
+                          textShadow: intensity > 0.6 ? `0 0 8px ${data.pnl >= 0 ? 'rgba(24,201,138,0.5)' : 'rgba(255,90,114,0.5)'}` : 'none',
                         }}>
                           {fmtShort(data.pnl)}
                         </span>
@@ -462,8 +462,8 @@ function PnlCalendar({ trades }: { trades: TradeRecord[] }) {
                           {Array.from({ length: Math.min(data.count, 5) }).map((_, i) => (
                             <span key={i} style={{
                               width: 4, height: 4, borderRadius: '50%',
-                              background: data.pnl >= 0 ? 'rgba(16,185,129,0.7)' : 'rgba(239,68,68,0.7)',
-                              boxShadow: data.pnl >= 0 ? '0 0 3px rgba(16,185,129,0.5)' : '0 0 3px rgba(239,68,68,0.5)',
+                              background: data.pnl >= 0 ? 'rgba(24,201,138,0.7)' : 'rgba(255,90,114,0.7)',
+                              boxShadow: data.pnl >= 0 ? '0 0 3px rgba(24,201,138,0.5)' : '0 0 3px rgba(255,90,114,0.5)',
                             }}/>
                           ))}
                           {data.count > 5 && <span style={{ fontSize: 8, color: pnlColor2, lineHeight: '4px' }}>+{data.count-5}</span>}
@@ -479,10 +479,10 @@ function PnlCalendar({ trades }: { trades: TradeRecord[] }) {
                 minHeight: 58, borderRadius: 10, display: 'flex', flexDirection: 'column',
                 alignItems: 'center', justifyContent: 'center', gap: 3,
                 background: hasWeekTrades
-                  ? wPnl >= 0 ? 'rgba(16,185,129,0.07)' : 'rgba(239,68,68,0.07)'
+                  ? wPnl >= 0 ? 'rgba(24,201,138,0.07)' : 'rgba(255,90,114,0.07)'
                   : 'rgba(var(--ink),0.02)',
                 border: hasWeekTrades
-                  ? `1px solid ${wPnl >= 0 ? 'rgba(16,185,129,0.18)' : 'rgba(239,68,68,0.18)'}`
+                  ? `1px solid ${wPnl >= 0 ? 'rgba(24,201,138,0.18)' : 'rgba(255,90,114,0.18)'}`
                   : '1px solid var(--t-surface)',
               }}>
                 {hasWeekTrades ? (
@@ -511,23 +511,23 @@ function PnlCalendar({ trades }: { trades: TradeRecord[] }) {
               position: 'absolute', left: Math.min(tooltip.x, 500), top: tooltip.y + 6,
               zIndex: 50, pointerEvents: 'none',
               background: 'rgba(10,14,26,0.97)', backdropFilter: 'blur(12px)',
-              border: `1px solid ${d.pnl >= 0 ? 'rgba(16,185,129,0.35)' : 'rgba(239,68,68,0.35)'}`,
+              border: `1px solid ${d.pnl >= 0 ? 'rgba(24,201,138,0.35)' : 'rgba(255,90,114,0.35)'}`,
               borderRadius: 12, padding: '10px 14px', minWidth: 160,
               boxShadow: `0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px var(--t-surface)`,
             }}>
-              <p style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', margin: '0 0 6px' }}>{dateLabel}</p>
+              <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--t-text-2)', margin: '0 0 6px' }}>{dateLabel}</p>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 16, marginBottom: 4 }}>
-                <span style={{ fontSize: 10, color: '#475569' }}>Net P&L</span>
+                <span style={{ fontSize: 10, color: 'var(--t-text-3)' }}>Net P&L</span>
                 <span style={{ fontSize: 14, fontWeight: 900, fontFamily: 'monospace', color: d.pnl >= 0 ? G : R }}>
                   {d.pnl >= 0 ? '+' : ''}{formatCurrency(d.pnl)}
                 </span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, marginBottom: 2 }}>
-                <span style={{ fontSize: 10, color: '#475569' }}>Trades</span>
-                <span style={{ fontSize: 11, fontWeight: 700, color: '#e2e8f0' }}>{d.count}</span>
+                <span style={{ fontSize: 10, color: 'var(--t-text-3)' }}>Trades</span>
+                <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--t-text-1)' }}>{d.count}</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16 }}>
-                <span style={{ fontSize: 10, color: '#475569' }}>Win rate</span>
+                <span style={{ fontSize: 10, color: 'var(--t-text-3)' }}>Win rate</span>
                 <span style={{ fontSize: 11, fontWeight: 700, color: winRate2 >= 50 ? G : R }}>{winRate2}%</span>
               </div>
             </div>
@@ -539,26 +539,26 @@ function PnlCalendar({ trades }: { trades: TradeRecord[] }) {
       <div style={{ padding: '12px 22px 16px', borderTop: '1px solid rgba(var(--ink),0.05)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <div style={{ width: 10, height: 10, borderRadius: 3, background: 'rgba(16,185,129,0.6)', boxShadow: '0 0 6px rgba(16,185,129,0.4)' }}/>
-            <span style={{ fontSize: 10, color: '#475569' }}>Profit day</span>
+            <div style={{ width: 10, height: 10, borderRadius: 3, background: 'rgba(24,201,138,0.6)', boxShadow: '0 0 6px rgba(24,201,138,0.4)' }}/>
+            <span style={{ fontSize: 10, color: 'var(--t-text-3)' }}>Profit day</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <div style={{ width: 10, height: 10, borderRadius: 3, background: 'rgba(239,68,68,0.6)', boxShadow: '0 0 6px rgba(239,68,68,0.4)' }}/>
-            <span style={{ fontSize: 10, color: '#475569' }}>Loss day</span>
+            <div style={{ width: 10, height: 10, borderRadius: 3, background: 'rgba(255,90,114,0.6)', boxShadow: '0 0 6px rgba(255,90,114,0.4)' }}/>
+            <span style={{ fontSize: 10, color: 'var(--t-text-3)' }}>Loss day</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             <div style={{ width: 10, height: 10, borderRadius: 3, background: 'rgba(var(--ink),0.05)', border: '1px solid rgba(var(--ink),0.08)' }}/>
-            <span style={{ fontSize: 10, color: '#475569' }}>No trades</span>
+            <span style={{ fontSize: 10, color: 'var(--t-text-3)' }}>No trades</span>
           </div>
         </div>
         {/* Heatmap scale */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <span style={{ fontSize: 10, color: '#334155' }}>Low</span>
+          <span style={{ fontSize: 10, color: 'var(--t-text-3)' }}>Low</span>
           <div style={{
             width: 80, height: 8, borderRadius: 4, overflow: 'hidden',
-            background: 'linear-gradient(to right, rgba(16,185,129,0.15), rgba(16,185,129,0.7))',
+            background: 'linear-gradient(to right, rgba(24,201,138,0.15), rgba(24,201,138,0.7))',
           }}/>
-          <span style={{ fontSize: 10, color: '#334155' }}>High intensity</span>
+          <span style={{ fontSize: 10, color: 'var(--t-text-3)' }}>High intensity</span>
         </div>
       </div>
 
@@ -580,8 +580,8 @@ function JournalRow({ trade, idx }: { trade: TradeRecord; idx: number }) {
       <td className="px-4 py-2.5 text-xs">
         <span className="px-1.5 py-0.5 rounded text-[10px] font-bold uppercase"
           style={trade.side === 'long'
-            ? { background: 'rgba(0,200,120,0.12)', color: '#18c98a' }
-            : { background: 'rgba(255,48,71,0.12)', color: '#ff5a72' }
+            ? { background: 'rgba(24,201,138,0.12)', color: '#18c98a' }
+            : { background: 'rgba(255,90,114,0.12)', color: '#ff5a72' }
           }>{trade.side}</span>
       </td>
       <td className="px-4 py-2.5 text-xs text-right font-mono text-text-secondary tabular">{trade.quantity}</td>
@@ -590,7 +590,7 @@ function JournalRow({ trade, idx }: { trade: TradeRecord; idx: number }) {
         {isClosed && trade.exitPrice ? formatCurrency(trade.exitPrice) : <span className="text-text-muted">Open</span>}
       </td>
       <td className="px-4 py-2.5 text-xs text-right font-mono font-semibold tabular"
-          style={{ color: isClosed ? pnlColor(pnl) : '#6b8099' }}>
+          style={{ color: isClosed ? pnlColor(pnl) : 'var(--t-text-2)' }}>
         {isClosed ? formatPnl(pnl) : '-'}
       </td>
       <td className="px-4 py-2.5 text-xs text-right font-mono text-text-muted tabular">
@@ -603,9 +603,9 @@ function JournalRow({ trade, idx }: { trade: TradeRecord; idx: number }) {
         <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase"
           style={isClosed
             ? isWin
-              ? { background: 'rgba(0,200,120,0.12)', color: '#18c98a' }
-              : { background: 'rgba(255,48,71,0.12)', color: '#ff5a72' }
-            : { background: 'rgba(var(--ink),0.06)', color: '#6b8099' }
+              ? { background: 'rgba(24,201,138,0.12)', color: '#18c98a' }
+              : { background: 'rgba(255,90,114,0.12)', color: '#ff5a72' }
+            : { background: 'rgba(var(--ink),0.06)', color: 'var(--t-text-2)' }
           }>{isClosed ? (isWin ? 'Win' : 'Loss') : 'Open'}</span>
       </td>
     </tr>
@@ -629,21 +629,21 @@ function AssetBreakdown({ trades }: { trades: TradeRecord[] }) {
   const entries = Object.entries(byClass).sort((a, b) => b[1].count - a[1].count)
   const total = closed.length
 
-  const classColors: Record<string, string> = { stock: '#0ea5e9', crypto: '#e879f9', forex: '#f59e0b' }
+  const classColors: Record<string, string> = { stock: '#4f8cff', crypto: '#e879f9', forex: '#f6b24a' }
 
   return (
     <div className="rounded-xl p-5" style={{ background: 'var(--t-surface)', border: '1px solid var(--t-border)' }}>
       <h3 className="text-sm font-semibold text-text-primary mb-4">Asset Class Breakdown</h3>
       <div className="flex h-3 rounded-full overflow-hidden mb-4">
         {entries.map(([ac, d]) => (
-          <div key={ac} style={{ width: (d.count / total * 100) + '%', background: classColors[ac] ?? '#6b8099' }} />
+          <div key={ac} style={{ width: (d.count / total * 100) + '%', background: classColors[ac] ?? 'var(--t-text-2)' }} />
         ))}
       </div>
       <div className="flex flex-col gap-2">
         {entries.map(([ac, d]) => (
           <div key={ac} className="flex items-center justify-between text-xs">
             <div className="flex items-center gap-2">
-              <div className="w-2.5 h-2.5 rounded-sm" style={{ background: classColors[ac] ?? '#6b8099' }} />
+              <div className="w-2.5 h-2.5 rounded-sm" style={{ background: classColors[ac] ?? 'var(--t-text-2)' }} />
               <span className="text-text-secondary capitalize font-medium">{ac}</span>
             </div>
             <div className="flex items-center gap-4 font-mono">
@@ -661,10 +661,10 @@ function AssetBreakdown({ trades }: { trades: TradeRecord[] }) {
 // Performance attribution — per bot / per strategy / bots vs manual
 // ---------------------------------------------------------------------------
 const STRAT_ATTR: Record<string, { label: string; color: string }> = {
-  ma_crossover: { label: 'MA Cross', color: '#0ea5e9' },
+  ma_crossover: { label: 'MA Cross', color: '#4f8cff' },
   rsi:          { label: 'RSI',      color: '#8b5cf6' },
   macd:         { label: 'MACD',     color: '#06b6d4' },
-  momentum:     { label: 'Momentum', color: '#f59e0b' },
+  momentum:     { label: 'Momentum', color: '#f6b24a' },
 }
 const stratMeta = (s: string) => STRAT_ATTR[s] ?? { label: s, color: 'var(--t-text-2)' }
 
@@ -683,7 +683,7 @@ function PerformanceAttribution({ data }: { data: Attribution | null }) {
 
       {/* Bots vs Manual */}
       <div className="grid grid-cols-2 gap-3 mb-5">
-        <div className="rounded-lg p-3" style={{ background: 'rgba(14,165,233,0.06)', border: '1px solid rgba(14,165,233,0.15)' }}>
+        <div className="rounded-lg p-3" style={{ background: 'rgba(79,140,255,0.06)', border: '1px solid rgba(79,140,255,0.15)' }}>
           <p className="text-2xs uppercase tracking-wider text-text-muted mb-1 flex items-center gap-1.5">
             <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><rect x="5" y="8" width="14" height="11" rx="2"/><path d="M12 8V5M8 5h8M9 13h.01M15 13h.01M9.5 16.5h5"/></svg>
             Bots
@@ -799,7 +799,7 @@ export default function AnalyticsPage() {
         <div className="flex items-center gap-2.5">
           {/* Live indicator */}
           <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg"
-               style={{ background: 'rgba(0,200,120,0.08)', border: '1px solid rgba(0,200,120,0.2)' }}>
+               style={{ background: 'rgba(24,201,138,0.08)', border: '1px solid rgba(24,201,138,0.2)' }}>
             <span className="w-1.5 h-1.5 rounded-full bg-bull animate-pulse2" />
             <span className="text-2xs font-semibold text-bull">LIVE</span>
             <span className="text-2xs text-text-muted font-mono hidden sm:inline">
@@ -808,7 +808,7 @@ export default function AnalyticsPage() {
           </div>
           <button onClick={() => loadAnalytics().then(() => setLastUpdated(Date.now()))}
             className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
-            style={{ background: 'rgba(14,165,233,0.1)', border: '1px solid rgba(14,165,233,0.2)', color: '#7aa7ff' }}>
+            style={{ background: 'rgba(79,140,255,0.1)', border: '1px solid rgba(79,140,255,0.2)', color: '#7aa7ff' }}>
             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
             </svg>
@@ -857,7 +857,7 @@ export default function AnalyticsPage() {
                   <button key={key} onClick={() => setRange(key)}
                     className="px-3.5 py-1.5 rounded-md text-xs font-bold transition-all"
                     style={range === key
-                      ? { background: 'rgba(14,165,233,0.15)', color: '#7aa7ff', border: '1px solid rgba(14,165,233,0.35)' }
+                      ? { background: 'rgba(79,140,255,0.15)', color: '#7aa7ff', border: '1px solid rgba(79,140,255,0.35)' }
                       : { background: 'transparent', color: 'var(--t-text-2)', border: '1px solid transparent' }}>
                     {label}
                   </button>
@@ -881,7 +881,7 @@ export default function AnalyticsPage() {
                 sub="Gross profit / loss"
                 icon={<svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/></svg>}/>
               <StatCard label="Sharpe Ratio" value={(stats!.sharpeRatio ?? 0).toFixed(2)}
-                color={(stats!.sharpeRatio ?? 0) >= 1 ? '#18c98a' : (stats!.sharpeRatio ?? 0) >= 0 ? '#f59e0b' : '#ff5a72'}
+                color={(stats!.sharpeRatio ?? 0) >= 1 ? '#18c98a' : (stats!.sharpeRatio ?? 0) >= 0 ? '#f6b24a' : '#ff5a72'}
                 sub="Annualised (√252)"
                 icon={<svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>}/>
               <StatCard label="Max Drawdown" value={fmtPct((stats!.maxDrawdownPercent ?? 0) / 100)}
@@ -903,7 +903,7 @@ export default function AnalyticsPage() {
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <h3 className="text-sm font-semibold text-text-primary">Equity Curve</h3>
-                  <span className="text-2xs font-semibold px-1.5 py-0.5 rounded" style={{ background: 'rgba(14,165,233,0.1)', color: '#7aa7ff' }}>
+                  <span className="text-2xs font-semibold px-1.5 py-0.5 rounded" style={{ background: 'rgba(79,140,255,0.1)', color: '#7aa7ff' }}>
                     {range === 'all' ? 'All time' : range.toUpperCase()}
                   </span>
                   {(stats?.openPositions ?? 0) > 0 && (
@@ -929,7 +929,7 @@ export default function AnalyticsPage() {
                       <button key={mo} onClick={() => setChartMode(mo)}
                         className="px-2 py-0.5 rounded text-2xs font-bold transition-all"
                         style={chartMode === mo
-                          ? { background: 'rgba(14,165,233,0.15)', color: '#7aa7ff' }
+                          ? { background: 'rgba(79,140,255,0.15)', color: '#7aa7ff' }
                           : { background: 'transparent', color: 'var(--t-text-2)' }}>
                         {mo === 'value' ? '$' : '%'}
                       </button>

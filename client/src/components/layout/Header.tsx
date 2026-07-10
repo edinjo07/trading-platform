@@ -173,7 +173,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
       <div className="ml-auto flex items-center gap-3 shrink-0">
         {/* Live indicator */}
         <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full"
-             style={{ background: 'rgba(0,200,120,0.08)', border: '1px solid rgba(0,200,120,0.2)' }}>
+             style={{ background: 'rgba(24,201,138,0.08)', border: '1px solid rgba(24,201,138,0.2)' }}>
           <span className="w-1.5 h-1.5 rounded-full bg-bull animate-pulse2" />
           <span className="text-2xs font-semibold text-bull">LIVE</span>
         </div>
@@ -191,7 +191,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
             onClick={() => setShowMore(s => !s)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
             style={showMore
-              ? { background: 'rgba(14,165,233,0.12)', color: '#38bdf8', border: '1px solid rgba(14,165,233,0.25)' }
+              ? { background: 'rgba(79,140,255,0.12)', color: '#7aa7ff', border: '1px solid rgba(79,140,255,0.25)' }
               : { background: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.6)', border: '1px solid rgba(255,255,255,0.07)' }
             }
           >
@@ -211,7 +211,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
                   onClick={() => { navigate(link.path); setShowMore(false) }}
                   className="w-full flex items-center gap-3 px-4 py-3 text-left transition-colors"
                   style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}
-                  onMouseEnter={e => (e.currentTarget.style.background = 'rgba(14,165,233,0.06)')}
+                  onMouseEnter={e => (e.currentTarget.style.background = 'rgba(79,140,255,0.06)')}
                   onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
                 >
                   <span className="text-text-muted shrink-0">{link.icon}</span>

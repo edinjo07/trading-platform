@@ -330,7 +330,7 @@ export default function TVPublicChart({ symbol, interval = '1h' }: Props) {
           alignItems: 'center', justifyContent: 'center', gap: '8px',
           background: '#06090f', zIndex: 1,
         }}>
-          <span style={{ color: '#ff3047', fontSize: '13px', fontFamily: 'monospace' }}>Chart failed to load</span>
+          <span style={{ color: '#ff5a72', fontSize: '13px', fontFamily: 'monospace' }}>Chart failed to load</span>
           <span style={{ color: '#4b6070', fontSize: '11px' }}>Please refresh the page or check your connection</span>
         </div>
       )}

@@ -23,7 +23,7 @@ const pnlCol = (v: number) => (v >= 0 ? S.bull : S.bear)
 const sign   = (v: number) => (v >= 0 ? '+' : '')
 
 // Distinct hues for the exposure breakdown
-const HUES = ['#0ea5e9', '#8b5cf6', '#f59e0b', '#10b981', '#ec4899', '#14b8a6', '#f43f5e', '#a3e635']
+const HUES = ['#4f8cff', '#8b5cf6', '#f6b24a', '#18c98a', '#ec4899', '#14b8a6', '#f43f5e', '#a3e635']
 
 // ───────────────────────────────────────────────────────────────────────────────
 // Small metric tile

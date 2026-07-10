@@ -49,8 +49,8 @@ export default function PositionsTable() {
         <tbody>
           {positions.map((pos) => {
             const isPos    = pos.unrealizedPnl >= 0
-            const pnlColor = isPos ? '#00c878' : '#ff3047'
-            const rowBg    = isPos ? 'rgba(0,200,120,0.025)' : 'rgba(255,48,71,0.025)'
+            const pnlColor = isPos ? '#18c98a' : '#ff5a72'
+            const rowBg    = isPos ? 'rgba(24,201,138,0.025)' : 'rgba(255,90,114,0.025)'
             const isClosing = closingId === pos.id
             return (
               <tr key={pos.id}
@@ -65,15 +65,15 @@ export default function PositionsTable() {
                   <div className="flex items-center gap-1.5">
                     <span className="px-2 py-0.5 rounded text-[10px] font-bold"
                       style={pos.side === 'long'
-                        ? { background: 'rgba(0,200,120,0.15)', color: '#00c878' }
-                        : { background: 'rgba(255,48,71,0.15)', color: '#ff3047' }}>
+                        ? { background: 'rgba(24,201,138,0.15)', color: '#18c98a' }
+                        : { background: 'rgba(255,90,114,0.15)', color: '#ff5a72' }}>
                       {pos.side.toUpperCase()}
                     </span>
                     {pos.leverage > 1 && (
                       <span className="px-1.5 py-0.5 rounded text-[10px] font-bold"
                         style={{
-                          background: 'rgba(245,158,11,0.15)',
-                          color: pos.leverage >= 25 ? '#ef4444' : pos.leverage >= 10 ? '#f59e0b' : '#38bdf8',
+                          background: 'rgba(246,178,74,0.15)',
+                          color: pos.leverage >= 25 ? '#ff5a72' : pos.leverage >= 10 ? '#f6b24a' : '#7aa7ff',
                         }}>
                         {pos.leverage}x
                       </span>
@@ -101,7 +101,7 @@ export default function PositionsTable() {
                 </td>
                 <td className="px-4 py-3 text-right tabular">
                   {pos.leverage > 1
-                    ? <span className="font-mono text-[10px] font-semibold" style={{ color: '#ef4444' }}>
+                    ? <span className="font-mono text-[10px] font-semibold" style={{ color: '#ff5a72' }}>
                         {formatPrice(pos.liquidationPrice, pos.symbol)}
                       </span>
                     : <span style={{ color: '#2d4460' }}>-</span>
@@ -112,9 +112,9 @@ export default function PositionsTable() {
                     disabled={isClosing}
                     onClick={(e) => handleClose(e, pos.id, pos.symbol)}
                     className="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wide transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-                    style={{ background: 'rgba(255,48,71,0.12)', color: '#ff3047', border: '1px solid rgba(255,48,71,0.25)' }}
-                    onMouseEnter={e => { if (!isClosing) (e.currentTarget as HTMLElement).style.background = 'rgba(255,48,71,0.25)' }}
-                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,48,71,0.12)' }}>
+                    style={{ background: 'rgba(255,90,114,0.12)', color: '#ff5a72', border: '1px solid rgba(255,90,114,0.25)' }}
+                    onMouseEnter={e => { if (!isClosing) (e.currentTarget as HTMLElement).style.background = 'rgba(255,90,114,0.25)' }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,90,114,0.12)' }}>
                     {isClosing ? '…' : 'Close'}
                   </button>
                 </td>

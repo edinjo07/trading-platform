@@ -35,23 +35,23 @@ export function Badge({ label, color, bg }: { label: string; color: string; bg: 
 
 export function statusBadge(status: string) {
   const map: Record<string, { color: string; bg: string }> = {
-    active:     { color: '#00c878', bg: 'rgba(0,200,120,0.1)' },
-    inactive:   { color: '#6b8099', bg: 'rgba(107,128,153,0.1)' },
-    pending:    { color: '#f59e0b', bg: 'rgba(245,158,11,0.1)' },
-    completed:  { color: '#00c878', bg: 'rgba(0,200,120,0.1)' },
-    failed:     { color: '#ff3047', bg: 'rgba(255,48,71,0.1)' },
-    open:       { color: '#38bdf8', bg: 'rgba(56,189,248,0.1)' },
-    closed:     { color: '#6b8099', bg: 'rgba(107,128,153,0.1)' },
-    approved:   { color: '#00c878', bg: 'rgba(0,200,120,0.1)' },
-    rejected:   { color: '#ff3047', bg: 'rgba(255,48,71,0.1)' },
+    active:     { color: '#18c98a', bg: 'rgba(24,201,138,0.1)' },
+    inactive:   { color: 'var(--t-text-2)', bg: 'rgba(107,128,153,0.1)' },
+    pending:    { color: '#f6b24a', bg: 'rgba(246,178,74,0.1)' },
+    completed:  { color: '#18c98a', bg: 'rgba(24,201,138,0.1)' },
+    failed:     { color: '#ff5a72', bg: 'rgba(255,90,114,0.1)' },
+    open:       { color: '#7aa7ff', bg: 'rgba(56,189,248,0.1)' },
+    closed:     { color: 'var(--t-text-2)', bg: 'rgba(107,128,153,0.1)' },
+    approved:   { color: '#18c98a', bg: 'rgba(24,201,138,0.1)' },
+    rejected:   { color: '#ff5a72', bg: 'rgba(255,90,114,0.1)' },
     live:       { color: '#a78bfa', bg: 'rgba(167,139,250,0.1)' },
-    archived:   { color: '#6b8099', bg: 'rgba(107,128,153,0.1)' },
+    archived:   { color: 'var(--t-text-2)', bg: 'rgba(107,128,153,0.1)' },
     verified:   { color: '#34d399', bg: 'rgba(52,211,153,0.1)' },
-    unverified: { color: '#f59e0b', bg: 'rgba(245,158,11,0.1)' },
-    enabled:    { color: '#00c878', bg: 'rgba(0,200,120,0.1)' },
-    disabled:   { color: '#ff3047', bg: 'rgba(255,48,71,0.1)' },
+    unverified: { color: '#f6b24a', bg: 'rgba(246,178,74,0.1)' },
+    enabled:    { color: '#18c98a', bg: 'rgba(24,201,138,0.1)' },
+    disabled:   { color: '#ff5a72', bg: 'rgba(255,90,114,0.1)' },
   }
-  const s = map[status.toLowerCase()] ?? { color: '#6b8099', bg: 'rgba(107,128,153,0.1)' }
+  const s = map[status.toLowerCase()] ?? { color: 'var(--t-text-2)', bg: 'rgba(107,128,153,0.1)' }
   return <Badge label={status} color={s.color} bg={s.bg} />
 }
 
@@ -90,8 +90,8 @@ function Pagination({
             onClick={() => onChange(v as number)}
             className="px-2.5 py-1 rounded text-xs font-mono transition-all"
             style={{
-              background: v === page ? 'rgba(14,165,233,0.15)' : 'transparent',
-              color: v === page ? '#38bdf8' : '#6b8099',
+              background: v === page ? 'rgba(79,140,255,0.15)' : 'transparent',
+              color: v === page ? '#7aa7ff' : 'var(--t-text-2)',
               border: `1px solid ${v === page ? 'rgba(56,189,248,0.25)' : 'rgba(56,189,248,0.08)'}`,
             }}
           >
@@ -181,7 +181,7 @@ export default function AdminListPage<T extends object>({
         >
           {/* Search */}
           <div className="flex items-center gap-2 flex-1 min-w-[200px]" style={{
-            background: 'rgba(14,165,233,0.05)',
+            background: 'rgba(79,140,255,0.05)',
             border: '1px solid rgba(56,189,248,0.1)',
             borderRadius: '8px',
             padding: '6px 12px',
@@ -250,7 +250,7 @@ export default function AdminListPage<T extends object>({
                     className="transition-colors cursor-pointer"
                     style={{ borderBottom: '1px solid rgba(56,189,248,0.04)' }}
                     onClick={() => onRowClick?.(row)}
-                    onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'rgba(14,165,233,0.03)'}
+                    onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'rgba(79,140,255,0.03)'}
                     onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}
                   >
                     {columns.map(col => (
@@ -265,7 +265,7 @@ export default function AdminListPage<T extends object>({
                       <div className="flex items-center justify-end gap-1">
                         <button
                           className="p-1.5 rounded text-text-muted hover:text-brand-300 transition-colors"
-                          style={{ background: 'rgba(14,165,233,0.05)' }}
+                          style={{ background: 'rgba(79,140,255,0.05)' }}
                           onClick={e => e.stopPropagation()}
                         >
                           <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -274,7 +274,7 @@ export default function AdminListPage<T extends object>({
                         </button>
                         <button
                           className="p-1.5 rounded text-text-muted hover:text-warning transition-colors"
-                          style={{ background: 'rgba(245,158,11,0.05)' }}
+                          style={{ background: 'rgba(246,178,74,0.05)' }}
                           onClick={e => e.stopPropagation()}
                         >
                           <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -283,7 +283,7 @@ export default function AdminListPage<T extends object>({
                         </button>
                         <button
                           className="p-1.5 rounded text-text-muted hover:text-bear transition-colors"
-                          style={{ background: 'rgba(255,48,71,0.05)' }}
+                          style={{ background: 'rgba(255,90,114,0.05)' }}
                           onClick={e => e.stopPropagation()}
                         >
                           <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>

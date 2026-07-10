@@ -21,7 +21,7 @@ export default function InactiveCustomersPage() {
         { key: 'lastLogin',  header: 'Last Login', render: r => <span className="font-mono text-text-muted">{r.lastLogin}</span> },
       ]}
       actions={
-        <button className="px-4 py-1.5 rounded-lg text-xs font-semibold text-white" style={{ background: 'linear-gradient(135deg,#00c878,#059669)' }}>
+        <button className="px-4 py-1.5 rounded-lg text-xs font-semibold text-white" style={{ background: 'linear-gradient(135deg,#18c98a,#059669)' }}>
           Re-activate Selected
         </button>
       }

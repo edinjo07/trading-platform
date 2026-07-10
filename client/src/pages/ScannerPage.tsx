@@ -25,7 +25,7 @@ const C = {
   amber:     '#f6b24a',
   violet:    '#8b5cf6',
 }
-const SENT: Record<string, string> = { bullish: '#10b981', bearish: '#ef4444', neutral: '#f59e0b' }
+const SENT: Record<string, string> = { bullish: '#18c98a', bearish: '#ff5a72', neutral: '#f6b24a' }
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -50,9 +50,9 @@ interface ScreenerFilters {
 // ─── Config ───────────────────────────────────────────────────────────────────
 
 const ASSET_COLOR: Record<string, { color: string; bg: string }> = {
-  crypto:    { color: '#fbbf24', bg: 'rgba(245,158,11,0.12)'  },
+  crypto:    { color: '#f6c453', bg: 'rgba(246,178,74,0.12)'  },
   forex:     { color: '#7dd3fc', bg: 'rgba(56,189,248,0.12)'  },
-  stock:     { color: '#38bdf8', bg: 'rgba(14,165,233,0.12)'  },
+  stock:     { color: '#7aa7ff', bg: 'rgba(79,140,255,0.12)'  },
   commodity: { color: '#4ade80', bg: 'rgba(34,197,94,0.12)'   },
   index:     { color: '#c084fc', bg: 'rgba(168,85,247,0.12)'  },
   bond:      { color: '#fb7185', bg: 'rgba(251,113,133,0.12)' },
@@ -80,12 +80,12 @@ function computeSignals(row: Row, avgVolume: number): Signal[] {
   const rsi   = Math.round(pos * 100)
   const chg   = row.changePercent
 
-  if (rsi >= 70) sigs.push({ type:'RSI_OB',   label:`RSI ~${rsi} OB`, color:'#ef4444', bg:'rgba(239,68,68,0.12)'   })
-  if (rsi <= 30) sigs.push({ type:'RSI_OS',   label:`RSI ~${rsi} OS`, color:'#10b981', bg:'rgba(16,185,129,0.12)'  })
-  if (pos >= 0.94) sigs.push({ type:'NEAR_HIGH', label:'Near 24H High', color:'#f59e0b', bg:'rgba(245,158,11,0.12)'  })
-  if (pos <= 0.06) sigs.push({ type:'NEAR_LOW',  label:'Near 24H Low',  color:'#0ea5e9', bg:'rgba(14,165,233,0.12)'  })
-  if (chg >= 5)    sigs.push({ type:'SURGE',     label:`+${chg.toFixed(1)}% Surge`,  color:'#10b981', bg:'rgba(16,185,129,0.12)'  })
-  if (chg <= -5)   sigs.push({ type:'DUMP',      label:`${chg.toFixed(1)}% Drop`,    color:'#ef4444', bg:'rgba(239,68,68,0.12)'   })
+  if (rsi >= 70) sigs.push({ type:'RSI_OB',   label:`RSI ~${rsi} OB`, color:'#ff5a72', bg:'rgba(255,90,114,0.12)'   })
+  if (rsi <= 30) sigs.push({ type:'RSI_OS',   label:`RSI ~${rsi} OS`, color:'#18c98a', bg:'rgba(24,201,138,0.12)'  })
+  if (pos >= 0.94) sigs.push({ type:'NEAR_HIGH', label:'Near 24H High', color:'#f6b24a', bg:'rgba(246,178,74,0.12)'  })
+  if (pos <= 0.06) sigs.push({ type:'NEAR_LOW',  label:'Near 24H Low',  color:'#4f8cff', bg:'rgba(79,140,255,0.12)'  })
+  if (chg >= 5)    sigs.push({ type:'SURGE',     label:`+${chg.toFixed(1)}% Surge`,  color:'#18c98a', bg:'rgba(24,201,138,0.12)'  })
+  if (chg <= -5)   sigs.push({ type:'DUMP',      label:`${chg.toFixed(1)}% Drop`,    color:'#ff5a72', bg:'rgba(255,90,114,0.12)'   })
   if (avgVolume > 0 && row.volume24h > avgVolume * 2.5)
                    sigs.push({ type:'VOL_SPIKE',  label:'Vol Spike',      color:'#8b5cf6', bg:'rgba(139,92,246,0.12)'  })
   return sigs
@@ -96,7 +96,7 @@ function computeSignals(row: Row, avgVolume: number): Signal[] {
 function MiniBar({ row }: { row: Row }) {
   const range = row.high24h - row.low24h
   const pos   = range > 0 ? Math.min(Math.max((row.price - row.low24h) / range, 0), 1) : 0.5
-  const color = row.changePercent >= 0 ? '#10b981' : '#ef4444'
+  const color = row.changePercent >= 0 ? '#18c98a' : '#ff5a72'
   const W = 40, H = 16
   // 7 synthetic bars across the 24h range
   const bars = [0.3, 0.45, 0.38, 0.55, 0.62, 0.7, pos]
@@ -115,7 +115,7 @@ function MiniBar({ row }: { row: Row }) {
 
 function MoverCard({ row, rank, onClick }: { row: Row; rank: number; onClick: () => void }) {
   const isUp  = row.changePercent >= 0
-  const color = isUp ? '#10b981' : '#ef4444'
+  const color = isUp ? '#18c98a' : '#ff5a72'
   const ac    = ASSET_COLOR[row.assetClass]
   return (
     <button onClick={onClick} style={{
@@ -128,8 +128,8 @@ function MoverCard({ row, rank, onClick }: { row: Row; rank: number; onClick: ()
       <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between' }}>
         <div>
           <div style={{ display:'flex', alignItems:'center', gap:6 }}>
-            <span style={{ fontSize:9, fontWeight:900, color:'#334155' }}>#{rank}</span>
-            <span style={{ fontSize:13, fontWeight:900, color:'#e2e8f0', fontFamily:'monospace' }}>{row.symbol}</span>
+            <span style={{ fontSize:9, fontWeight:900, color:'var(--t-text-3)' }}>#{rank}</span>
+            <span style={{ fontSize:13, fontWeight:900, color:'var(--t-text-1)', fontFamily:'monospace' }}>{row.symbol}</span>
           </div>
           <span style={{ fontSize:9, fontWeight:700, padding:'1px 5px', borderRadius:4, background:ac?.bg, color:ac?.color }}>{row.assetClass.toUpperCase()}</span>
         </div>
@@ -137,11 +137,11 @@ function MoverCard({ row, rank, onClick }: { row: Row; rank: number; onClick: ()
       </div>
       {/* Price */}
       <div>
-        <div style={{ fontSize:14, fontFamily:'monospace', fontWeight:900, color:'#e2e8f0', lineHeight:1 }}>{formatPrice(row.price, row.symbol)}</div>
+        <div style={{ fontSize:14, fontFamily:'monospace', fontWeight:900, color:'var(--t-text-1)', lineHeight:1 }}>{formatPrice(row.price, row.symbol)}</div>
         <div style={{ fontSize:13, fontWeight:800, color, marginTop:3 }}>{isUp?'+':''}{row.changePercent.toFixed(2)}%</div>
       </div>
       {/* Vol */}
-      <div style={{ fontSize:10, color:'#334155' }}>Vol: {fmtVol(row.volume24h)}</div>
+      <div style={{ fontSize:10, color:'var(--t-text-3)' }}>Vol: {fmtVol(row.volume24h)}</div>
     </button>
   )
 }
@@ -150,7 +150,7 @@ function MoverCard({ row, rank, onClick }: { row: Row; rank: number; onClick: ()
 
 function InstrumentCard({ row, signals, onClick }: { row: Row; signals: Signal[]; onClick: () => void }) {
   const isUp  = row.changePercent >= 0
-  const color = isUp ? '#10b981' : '#ef4444'
+  const color = isUp ? '#18c98a' : '#ff5a72'
   const ac    = ASSET_COLOR[row.assetClass]
   const range = row.high24h - row.low24h
   const pos   = range > 0 ? Math.min(Math.max((row.price - row.low24h) / range, 0), 1) : 0.5
@@ -166,32 +166,32 @@ function InstrumentCard({ row, signals, onClick }: { row: Row; signals: Signal[]
     >
       {/* Left: symbol */}
       <div style={{ flex:'0 0 auto', minWidth:100 }}>
-        <div style={{ fontSize:13, fontFamily:'monospace', fontWeight:900, color:'#e2e8f0' }}>{row.symbol}</div>
-        <div style={{ fontSize:9, color:'#334155', marginTop:2, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis', maxWidth:100 }}>{row.name}</div>
+        <div style={{ fontSize:13, fontFamily:'monospace', fontWeight:900, color:'var(--t-text-1)' }}>{row.symbol}</div>
+        <div style={{ fontSize:9, color:'var(--t-text-3)', marginTop:2, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis', maxWidth:100 }}>{row.name}</div>
         <span style={{ fontSize:8, fontWeight:700, padding:'1px 5px', borderRadius:4, background:ac?.bg, color:ac?.color, marginTop:3, display:'inline-block' }}>{row.assetClass.toUpperCase()}</span>
       </div>
 
       {/* Center: price + change */}
       <div style={{ flex:1, minWidth:0 }}>
-        <div style={{ fontSize:14, fontFamily:'monospace', fontWeight:900, color:'#e2e8f0', lineHeight:1 }}>{formatPrice(row.price, row.symbol)}</div>
+        <div style={{ fontSize:14, fontFamily:'monospace', fontWeight:900, color:'var(--t-text-1)', lineHeight:1 }}>{formatPrice(row.price, row.symbol)}</div>
         <div style={{ fontSize:12, fontWeight:800, color, marginTop:3 }}>{isUp?'+':''}{row.changePercent.toFixed(2)}%</div>
         {/* 24h range bar */}
         <div style={{ marginTop:6, display:'flex', alignItems:'center', gap:4 }}>
-          <span style={{ fontSize:8, color:'#334155', fontFamily:'monospace' }}>{formatPrice(row.low24h, row.symbol)}</span>
+          <span style={{ fontSize:8, color:'var(--t-text-3)', fontFamily:'monospace' }}>{formatPrice(row.low24h, row.symbol)}</span>
           <div style={{ flex:1, height:3, borderRadius:2, background:'var(--t-surface-2)', position:'relative', overflow:'hidden' }}>
             <div style={{ position:'absolute', left:0, top:0, height:'100%', width:`${pos * 100}%`, background:color, borderRadius:2, transition:'width 0.3s' }}/>
           </div>
-          <span style={{ fontSize:8, color:'#334155', fontFamily:'monospace' }}>{formatPrice(row.high24h, row.symbol)}</span>
+          <span style={{ fontSize:8, color:'var(--t-text-3)', fontFamily:'monospace' }}>{formatPrice(row.high24h, row.symbol)}</span>
         </div>
       </div>
 
       {/* Right: volume + signals + chevron */}
       <div style={{ flex:'0 0 auto', display:'flex', flexDirection:'column', alignItems:'flex-end', gap:4 }}>
-        <div style={{ fontSize:10, color:'#334155' }}>{fmtVol(row.volume24h)}</div>
+        <div style={{ fontSize:10, color:'var(--t-text-3)' }}>{fmtVol(row.volume24h)}</div>
         {signals.slice(0, 2).map(s => (
           <span key={s.type} style={{ fontSize:8, fontWeight:800, padding:'1px 5px', borderRadius:4, background:s.bg, color:s.color, whiteSpace:'nowrap' }}>{s.label}</span>
         ))}
-        <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="#334155" strokeWidth={2.5} style={{ marginTop:2 }}><polyline points="9 18 15 12 9 6"/></svg>
+        <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="var(--t-text-3)" strokeWidth={2.5} style={{ marginTop:2 }}><polyline points="9 18 15 12 9 6"/></svg>
       </div>
     </button>
   )
@@ -201,7 +201,7 @@ function InstrumentCard({ row, signals, onClick }: { row: Row; signals: Signal[]
 
 function TableRow({ row, signals, rank, onClick }: { row: Row; signals: Signal[]; rank: number; onClick: () => void }) {
   const isUp  = row.changePercent >= 0
-  const color = isUp ? '#10b981' : '#ef4444'
+  const color = isUp ? '#18c98a' : '#ff5a72'
   const ac    = ASSET_COLOR[row.assetClass]
   const range = row.high24h - row.low24h
   const pos   = range > 0 ? Math.min(Math.max((row.price - row.low24h) / range, 0), 1) : 0.5
@@ -211,14 +211,14 @@ function TableRow({ row, signals, rank, onClick }: { row: Row; signals: Signal[]
         onMouseEnter={e => (e.currentTarget.style.background = 'var(--t-bg)')}
         onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
       {/* Rank */}
-      <td style={{ padding:'10px 10px 10px 14px', fontSize:10, color:'#334155', fontFamily:'monospace', width:32 }}>#{rank}</td>
+      <td style={{ padding:'10px 10px 10px 14px', fontSize:10, color:'var(--t-text-3)', fontFamily:'monospace', width:32 }}>#{rank}</td>
       {/* Symbol */}
       <td style={{ padding:'10px 8px' }}>
         <div style={{ display:'flex', alignItems:'center', gap:8 }}>
           <div style={{ width:3, height:32, borderRadius:2, background:color, flexShrink:0 }}/>
           <div>
-            <div style={{ fontSize:12, fontFamily:'monospace', fontWeight:900, color:'#e2e8f0' }}>{row.symbol}</div>
-            <div style={{ fontSize:9, color:'#334155', maxWidth:120, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{row.name}</div>
+            <div style={{ fontSize:12, fontFamily:'monospace', fontWeight:900, color:'var(--t-text-1)' }}>{row.symbol}</div>
+            <div style={{ fontSize:9, color:'var(--t-text-3)', maxWidth:120, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{row.name}</div>
           </div>
         </div>
       </td>
@@ -227,7 +227,7 @@ function TableRow({ row, signals, rank, onClick }: { row: Row; signals: Signal[]
         <span style={{ fontSize:8, fontWeight:800, padding:'2px 6px', borderRadius:4, background:ac?.bg, color:ac?.color }}>{row.assetClass.toUpperCase()}</span>
       </td>
       {/* Price */}
-      <td style={{ padding:'10px 8px', textAlign:'right', fontFamily:'monospace', fontSize:13, fontWeight:900, color:'#e2e8f0' }}>{formatPrice(row.price, row.symbol)}</td>
+      <td style={{ padding:'10px 8px', textAlign:'right', fontFamily:'monospace', fontSize:13, fontWeight:900, color:'var(--t-text-1)' }}>{formatPrice(row.price, row.symbol)}</td>
       {/* Change */}
       <td style={{ padding:'10px 8px', textAlign:'right' }}>
         <span style={{ fontSize:12, fontFamily:'monospace', fontWeight:800, color }}>{isUp?'+':''}{row.changePercent.toFixed(2)}%</span>
@@ -235,15 +235,15 @@ function TableRow({ row, signals, rank, onClick }: { row: Row; signals: Signal[]
       {/* 24h range */}
       <td style={{ padding:'10px 8px', minWidth:110 }}>
         <div style={{ display:'flex', alignItems:'center', gap:4 }}>
-          <span style={{ fontSize:8, color:'#334155', fontFamily:'monospace', flexShrink:0 }}>{formatPrice(row.low24h, row.symbol)}</span>
+          <span style={{ fontSize:8, color:'var(--t-text-3)', fontFamily:'monospace', flexShrink:0 }}>{formatPrice(row.low24h, row.symbol)}</span>
           <div style={{ flex:1, height:3, borderRadius:2, background:'var(--t-surface-2)', position:'relative', minWidth:36 }}>
             <div style={{ position:'absolute', left:0, top:0, height:'100%', width:`${pos*100}%`, background:color, borderRadius:2 }}/>
           </div>
-          <span style={{ fontSize:8, color:'#334155', fontFamily:'monospace', flexShrink:0 }}>{formatPrice(row.high24h, row.symbol)}</span>
+          <span style={{ fontSize:8, color:'var(--t-text-3)', fontFamily:'monospace', flexShrink:0 }}>{formatPrice(row.high24h, row.symbol)}</span>
         </div>
       </td>
       {/* Volume */}
-      <td style={{ padding:'10px 8px', textAlign:'right', fontSize:11, color:'#64748b', fontFamily:'monospace' }}>{fmtVol(row.volume24h)}</td>
+      <td style={{ padding:'10px 8px', textAlign:'right', fontSize:11, color:'var(--t-text-3)', fontFamily:'monospace' }}>{fmtVol(row.volume24h)}</td>
       {/* Signals */}
       <td style={{ padding:'10px 8px' }}>
         <div style={{ display:'flex', gap:4, flexWrap:'wrap' }}>
@@ -255,7 +255,7 @@ function TableRow({ row, signals, rank, onClick }: { row: Row; signals: Signal[]
       {/* Action */}
       <td style={{ padding:'10px 14px 10px 8px' }}>
         <button onClick={e => { e.stopPropagation(); onClick() }}
-                style={{ padding:'6px 14px', borderRadius:8, background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.1)', color:'#e2e8f0', fontSize:11, fontWeight:700, cursor:'pointer', whiteSpace:'nowrap' }}>
+                style={{ padding:'6px 14px', borderRadius:8, background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.1)', color:'var(--t-text-1)', fontSize:11, fontWeight:700, cursor:'pointer', whiteSpace:'nowrap' }}>
           Trade →
         </button>
       </td>
@@ -277,7 +277,7 @@ function ScreenerSheet({ filters, onChange, onClose }: {
 
   const section = (label: string, children: React.ReactNode) => (
     <div style={{ marginBottom:20 }}>
-      <div style={{ fontSize:10, fontWeight:800, color:'#334155', textTransform:'uppercase', letterSpacing:'0.07em', marginBottom:8 }}>{label}</div>
+      <div style={{ fontSize:10, fontWeight:800, color:'var(--t-text-3)', textTransform:'uppercase', letterSpacing:'0.07em', marginBottom:8 }}>{label}</div>
       {children}
     </div>
   )
@@ -286,9 +286,9 @@ function ScreenerSheet({ filters, onChange, onClose }: {
       {opts.map(o => (
         <button key={o.value} onClick={() => set(o.value)} style={{
           padding:'6px 12px', borderRadius:20, fontSize:11, fontWeight:700, cursor:'pointer', transition:'all 0.12s',
-          background: current === o.value ? 'rgba(14,165,233,0.15)' : 'var(--t-surface-2)',
-          color:      current === o.value ? '#38bdf8' : '#64748b',
-          border:     current === o.value ? '1px solid rgba(14,165,233,0.35)' : '1px solid transparent',
+          background: current === o.value ? 'rgba(79,140,255,0.15)' : 'var(--t-surface-2)',
+          color:      current === o.value ? '#7aa7ff' : 'var(--t-text-3)',
+          border:     current === o.value ? '1px solid rgba(79,140,255,0.35)' : '1px solid transparent',
         }}>{o.label}</button>
       ))}
     </div>
@@ -304,8 +304,8 @@ function ScreenerSheet({ filters, onChange, onClose }: {
         </div>
         {/* Header */}
         <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'12px 18px', borderBottom:'1px solid rgba(255,255,255,0.07)', flexShrink:0 }}>
-          <span style={{ fontSize:16, fontWeight:900, color:'#e2e8f0' }}>Advanced Screener</span>
-          <button onClick={reset} style={{ fontSize:11, fontWeight:700, color:'#64748b', background:'none', border:'none', cursor:'pointer' }}>Reset all</button>
+          <span style={{ fontSize:16, fontWeight:900, color:'var(--t-text-1)' }}>Advanced Screener</span>
+          <button onClick={reset} style={{ fontSize:11, fontWeight:700, color:'var(--t-text-3)', background:'none', border:'none', cursor:'pointer' }}>Reset all</button>
         </div>
 
         <div style={{ flex:1, overflowY:'auto', padding:'18px 18px 0' }}>
@@ -344,7 +344,7 @@ function ScreenerSheet({ filters, onChange, onClose }: {
         </div>
 
         <div style={{ padding:'14px 18px 28px', borderTop:'1px solid rgba(255,255,255,0.07)', flexShrink:0 }}>
-          <button onClick={apply} style={{ width:'100%', padding:'14px 0', borderRadius:14, background:'rgba(14,165,233,0.9)', color:'#e2e8f0', fontSize:14, fontWeight:900, cursor:'pointer', border:'none', boxShadow:'0 4px 16px rgba(14,165,233,0.25)' }}>
+          <button onClick={apply} style={{ width:'100%', padding:'14px 0', borderRadius:14, background:'rgba(79,140,255,0.9)', color:'var(--t-text-1)', fontSize:14, fontWeight:900, cursor:'pointer', border:'none', boxShadow:'0 4px 16px rgba(79,140,255,0.25)' }}>
             Apply Filters
           </button>
         </div>
@@ -501,7 +501,7 @@ export default function ScannerPage() {
   ].filter(Boolean).length
 
   const SortTh = ({ k, label }: { k: SortKey; label: string }) => (
-    <th onClick={() => handleSort(k)} style={{ padding:'9px 8px', textAlign:'right', fontSize:9, fontWeight:800, color: sortKey===k ? '#e2e8f0' : '#334155', cursor:'pointer', textTransform:'uppercase', letterSpacing:'0.07em', whiteSpace:'nowrap', userSelect:'none' }}>
+    <th onClick={() => handleSort(k)} style={{ padding:'9px 8px', textAlign:'right', fontSize:9, fontWeight:800, color: sortKey===k ? 'var(--t-text-1)' : 'var(--t-text-3)', cursor:'pointer', textTransform:'uppercase', letterSpacing:'0.07em', whiteSpace:'nowrap', userSelect:'none' }}>
       {label} {sortKey===k && (sortDir==='asc' ? '↑' : '↓')}
     </th>
   )
@@ -520,13 +520,13 @@ export default function ScannerPage() {
         {/* Title row */}
         <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:10 }}>
           <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#e2e8f0" strokeWidth={2}><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
-            <span style={{ fontSize:17, fontWeight:900, color:'#e2e8f0', letterSpacing:'-0.02em' }}>Market Scanner</span>
-            <div style={{ display:'flex', alignItems:'center', gap:4, padding:'2px 8px', borderRadius:6, background:'rgba(16,185,129,0.12)', border:'1px solid rgba(16,185,129,0.2)' }}>
-              <div style={{ width:5, height:5, borderRadius:'50%', background:'#10b981', animation:'sc-pulse 2s infinite' }}/>
-              <span style={{ fontSize:9, fontWeight:900, color:'#10b981', letterSpacing:'0.08em' }}>LIVE</span>
+            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="var(--t-text-1)" strokeWidth={2}><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+            <span style={{ fontSize:17, fontWeight:900, color:'var(--t-text-1)', letterSpacing:'-0.02em' }}>Market Scanner</span>
+            <div style={{ display:'flex', alignItems:'center', gap:4, padding:'2px 8px', borderRadius:6, background:'rgba(24,201,138,0.12)', border:'1px solid rgba(24,201,138,0.2)' }}>
+              <div style={{ width:5, height:5, borderRadius:'50%', background:'#18c98a', animation:'sc-pulse 2s infinite' }}/>
+              <span style={{ fontSize:9, fontWeight:900, color:'#18c98a', letterSpacing:'0.08em' }}>LIVE</span>
               {lastTick > 0 && (
-                <span style={{ fontSize:9, fontWeight:700, color:'#10b981', fontFamily:'monospace', opacity:0.7 }}>
+                <span style={{ fontSize:9, fontWeight:700, color:'#18c98a', fontFamily:'monospace', opacity:0.7 }}>
                   · {new Date(lastTick).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', second:'2-digit' })}
                 </span>
               )}
@@ -534,17 +534,17 @@ export default function ScannerPage() {
           </div>
           {/* Market breadth */}
           <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-            <span style={{ fontSize:12, fontWeight:800, color:'#10b981', fontFamily:'monospace' }}>▲{upCount}</span>
-            <span style={{ fontSize:12, fontWeight:800, color:'#ef4444', fontFamily:'monospace' }}>▼{downCount}</span>
+            <span style={{ fontSize:12, fontWeight:800, color:'#18c98a', fontFamily:'monospace' }}>▲{upCount}</span>
+            <span style={{ fontSize:12, fontWeight:800, color:'#ff5a72', fontFamily:'monospace' }}>▼{downCount}</span>
           </div>
         </div>
 
         {/* Search + view + screener */}
         <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:10 }}>
           <div style={{ flex:1, display:'flex', alignItems:'center', gap:8, background:'var(--t-surface-2)', borderRadius:12, padding:'9px 12px', border:'1px solid rgba(255,255,255,0.07)' }}>
-            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#64748b" strokeWidth={2}><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="var(--t-text-3)" strokeWidth={2}><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
             <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search symbol or name..."
-                   style={{ flex:1, background:'none', border:'none', outline:'none', color:'#e2e8f0', fontSize:13 }}/>
+                   style={{ flex:1, background:'none', border:'none', outline:'none', color:'var(--t-text-1)', fontSize:13 }}/>
             {search && <button onClick={() => setSearch('')} style={{ background:'none', border:'none', color:'var(--t-text-3)', cursor:'pointer', lineHeight:1, display:'flex', padding:0 }}>
               <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>}
@@ -554,8 +554,8 @@ export default function ScannerPage() {
             {(['cards','table'] as ViewMode[]).map(v => (
               <button key={v} onClick={() => setViewMode(v)} style={{
                 padding:'5px 10px', borderRadius:8, border:'none', cursor:'pointer', fontSize:10, fontWeight:700, transition:'all 0.12s',
-                background: viewMode===v ? 'rgba(14,165,233,0.15)' : 'transparent',
-                color:      viewMode===v ? '#38bdf8' : '#64748b',
+                background: viewMode===v ? 'rgba(79,140,255,0.15)' : 'transparent',
+                color:      viewMode===v ? '#7aa7ff' : 'var(--t-text-3)',
               }}>
                 {v === 'cards'
                   ? <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} style={{ display: 'block' }}><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
@@ -566,9 +566,9 @@ export default function ScannerPage() {
           {/* Screener */}
           <button onClick={() => setShowScreener(true)} style={{
             display:'flex', alignItems:'center', gap:5, padding:'8px 12px', borderRadius:10, cursor:'pointer', transition:'all 0.12s', flexShrink:0,
-            background: activeFilters > 0 ? 'rgba(14,165,233,0.15)' : 'var(--t-surface-2)',
-            color:      activeFilters > 0 ? '#38bdf8' : '#64748b',
-            border:     activeFilters > 0 ? '1px solid rgba(14,165,233,0.35)' : '1px solid transparent',
+            background: activeFilters > 0 ? 'rgba(79,140,255,0.15)' : 'var(--t-surface-2)',
+            color:      activeFilters > 0 ? '#7aa7ff' : 'var(--t-text-3)',
+            border:     activeFilters > 0 ? '1px solid rgba(79,140,255,0.35)' : '1px solid transparent',
             fontSize:11, fontWeight:800,
           }}>
             <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
@@ -583,9 +583,9 @@ export default function ScannerPage() {
             return (
               <button key={tab.key} onClick={() => setAssetFilter(tab.key)} style={{
                 flexShrink:0, padding:'6px 14px', borderRadius:20, fontSize:12, fontWeight:700, cursor:'pointer', transition:'all 0.15s',
-                background: isActive ? 'rgba(14,165,233,0.15)' : 'var(--t-surface-2)',
-                color:      isActive ? '#38bdf8' : '#64748b',
-                border:     isActive ? '1px solid rgba(14,165,233,0.35)' : '1px solid transparent',
+                background: isActive ? 'rgba(79,140,255,0.15)' : 'var(--t-surface-2)',
+                color:      isActive ? '#7aa7ff' : 'var(--t-text-3)',
+                border:     isActive ? '1px solid rgba(79,140,255,0.35)' : '1px solid transparent',
               }}>{tab.label}</button>
             )
           })}
@@ -602,8 +602,8 @@ export default function ScannerPage() {
         {topGainers.length > 0 && (
           <div style={{ marginBottom:24, marginTop:14 }}>
             <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:10 }}>
-              <span style={{ fontSize:18, fontWeight:800, color:'#e2e8f0', letterSpacing:'-0.01em' }}>Top Gainers</span>
-              <span style={{ fontSize:11, fontWeight:700, color:'#10b981' }}>▲ {upCount} rising</span>
+              <span style={{ fontSize:18, fontWeight:800, color:'var(--t-text-1)', letterSpacing:'-0.01em' }}>Top Gainers</span>
+              <span style={{ fontSize:11, fontWeight:700, color:'#18c98a' }}>▲ {upCount} rising</span>
             </div>
             <div style={{ display:'flex', gap:10, overflowX:'auto', paddingBottom:4, scrollbarWidth:'none' }}>
               {topGainers.map((r, i) => <MoverCard key={r.symbol} row={r} rank={i+1} onClick={() => goTrade(r.symbol)}/>)}
@@ -615,8 +615,8 @@ export default function ScannerPage() {
         {topLosers.length > 0 && (
           <div style={{ marginBottom:24 }}>
             <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:10 }}>
-              <span style={{ fontSize:18, fontWeight:800, color:'#e2e8f0', letterSpacing:'-0.01em' }}>Top Losers</span>
-              <span style={{ fontSize:11, fontWeight:700, color:'#ef4444' }}>▼ {downCount} falling</span>
+              <span style={{ fontSize:18, fontWeight:800, color:'var(--t-text-1)', letterSpacing:'-0.01em' }}>Top Losers</span>
+              <span style={{ fontSize:11, fontWeight:700, color:'#ff5a72' }}>▼ {downCount} falling</span>
             </div>
             <div style={{ display:'flex', gap:10, overflowX:'auto', paddingBottom:4, scrollbarWidth:'none' }}>
               {topLosers.map((r, i) => <MoverCard key={r.symbol} row={r} rank={i+1} onClick={() => goTrade(r.symbol)}/>)}
@@ -628,7 +628,7 @@ export default function ScannerPage() {
         {mostActive.length > 0 && (
           <div style={{ marginBottom:24 }}>
             <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:10 }}>
-              <span style={{ fontSize:18, fontWeight:800, color:'#e2e8f0', letterSpacing:'-0.01em' }}>Most Active</span>
+              <span style={{ fontSize:18, fontWeight:800, color:'var(--t-text-1)', letterSpacing:'-0.01em' }}>Most Active</span>
               <span style={{ fontSize:11, fontWeight:700, color:'#8b5cf6' }}>by volume</span>
             </div>
             <div style={{ display:'flex', gap:10, overflowX:'auto', paddingBottom:4, scrollbarWidth:'none' }}>
@@ -640,13 +640,13 @@ export default function ScannerPage() {
         {/* All instruments */}
         <div style={{ marginBottom:20 }}>
           <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:12 }}>
-            <span style={{ fontSize:18, fontWeight:800, color:'#e2e8f0', letterSpacing:'-0.01em' }}>
+            <span style={{ fontSize:18, fontWeight:800, color:'var(--t-text-1)', letterSpacing:'-0.01em' }}>
               All Instruments
-              <span style={{ fontSize:13, fontWeight:700, color:'#334155', marginLeft:8 }}>{sorted.length}</span>
+              <span style={{ fontSize:13, fontWeight:700, color:'var(--t-text-3)', marginLeft:8 }}>{sorted.length}</span>
             </span>
             {/* Sort pill (compact, mobile) */}
             <select value={sortKey} onChange={e => { setSortKey(e.target.value as SortKey); setSortDir('desc') }}
-                    style={{ background:'var(--t-surface-2)', border:'1px solid rgba(255,255,255,0.07)', color:'#64748b', fontSize:10, fontWeight:700, borderRadius:8, padding:'4px 8px', cursor:'pointer', outline:'none' }}>
+                    style={{ background:'var(--t-surface-2)', border:'1px solid rgba(255,255,255,0.07)', color:'var(--t-text-3)', fontSize:10, fontWeight:700, borderRadius:8, padding:'4px 8px', cursor:'pointer', outline:'none' }}>
               <option value="changePercent">Sort: Change %</option>
               <option value="volume24h">Sort: Volume</option>
               <option value="price">Sort: Price</option>
@@ -657,10 +657,10 @@ export default function ScannerPage() {
 
           {sorted.length === 0 ? (
             <div style={{ display:'flex', flexDirection:'column', alignItems:'center', padding:'60px 20px', gap:10 }}>
-              <svg width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="#334155" strokeWidth={1.3} style={{ display:'block' }}><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-              <p style={{ fontSize:13, color:'#64748b', margin:0 }}>No instruments match your filters</p>
+              <svg width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="var(--t-text-3)" strokeWidth={1.3} style={{ display:'block' }}><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+              <p style={{ fontSize:13, color:'var(--t-text-3)', margin:0 }}>No instruments match your filters</p>
               <button onClick={() => { setScreenerFilters({changeMode:'any',volumeMode:'any',signal:'any'}); setSearch(''); setAssetFilter('all') }}
-                      style={{ fontSize:11, fontWeight:700, color:'#64748b', background:'var(--t-surface-2)', border:'1px solid rgba(255,255,255,0.07)', borderRadius:8, padding:'6px 14px', cursor:'pointer' }}>
+                      style={{ fontSize:11, fontWeight:700, color:'var(--t-text-3)', background:'var(--t-surface-2)', border:'1px solid rgba(255,255,255,0.07)', borderRadius:8, padding:'6px 14px', cursor:'pointer' }}>
                 Clear filters
               </button>
             </div>
@@ -676,14 +676,14 @@ export default function ScannerPage() {
               <table style={{ width:'100%', borderCollapse:'collapse' }}>
                 <thead>
                   <tr style={{ background:'var(--t-bg)', borderBottom:'1px solid rgba(255,255,255,0.07)' }}>
-                    <th style={{ padding:'9px 10px 9px 14px', textAlign:'left', fontSize:9, color:'#334155', fontWeight:800, textTransform:'uppercase', letterSpacing:'0.07em', width:32 }}>#</th>
-                    <th style={{ padding:'9px 8px', textAlign:'left', fontSize:9, color:'#334155', fontWeight:800, textTransform:'uppercase', letterSpacing:'0.07em' }}>Symbol</th>
-                    <th style={{ padding:'9px 8px', textAlign:'left', fontSize:9, color:'#334155', fontWeight:800, textTransform:'uppercase', letterSpacing:'0.07em' }}>Type</th>
+                    <th style={{ padding:'9px 10px 9px 14px', textAlign:'left', fontSize:9, color:'var(--t-text-3)', fontWeight:800, textTransform:'uppercase', letterSpacing:'0.07em', width:32 }}>#</th>
+                    <th style={{ padding:'9px 8px', textAlign:'left', fontSize:9, color:'var(--t-text-3)', fontWeight:800, textTransform:'uppercase', letterSpacing:'0.07em' }}>Symbol</th>
+                    <th style={{ padding:'9px 8px', textAlign:'left', fontSize:9, color:'var(--t-text-3)', fontWeight:800, textTransform:'uppercase', letterSpacing:'0.07em' }}>Type</th>
                     <SortTh k="price"         label="Price"/>
                     <SortTh k="changePercent" label="Change"/>
-                    <th style={{ padding:'9px 8px', textAlign:'left', fontSize:9, color:'#334155', fontWeight:800, textTransform:'uppercase', letterSpacing:'0.07em', minWidth:130 }}>24H Range</th>
+                    <th style={{ padding:'9px 8px', textAlign:'left', fontSize:9, color:'var(--t-text-3)', fontWeight:800, textTransform:'uppercase', letterSpacing:'0.07em', minWidth:130 }}>24H Range</th>
                     <SortTh k="volume24h"     label="Volume"/>
-                    <th style={{ padding:'9px 8px', textAlign:'left', fontSize:9, color:'#334155', fontWeight:800, textTransform:'uppercase', letterSpacing:'0.07em' }}>Signals</th>
+                    <th style={{ padding:'9px 8px', textAlign:'left', fontSize:9, color:'var(--t-text-3)', fontWeight:800, textTransform:'uppercase', letterSpacing:'0.07em' }}>Signals</th>
                     <th style={{ padding:'9px 14px 9px 8px' }}/>
                   </tr>
                 </thead>
@@ -699,8 +699,8 @@ export default function ScannerPage() {
 
         {/* Footer */}
         <div style={{ display:'flex', alignItems:'center', gap:8, paddingBottom:16, borderTop:'1px solid rgba(255,255,255,0.07)', paddingTop:10 }}>
-          <div style={{ width:6, height:6, borderRadius:'50%', background:'#10b981', animation:'sc-pulse 2s infinite' }}/>
-          <span style={{ fontSize:10, color:'#334155' }}>{allRows.length} instruments · Streaming live from WebSocket · Signal engine: RSI, Volume Spike, Range Position</span>
+          <div style={{ width:6, height:6, borderRadius:'50%', background:'#18c98a', animation:'sc-pulse 2s infinite' }}/>
+          <span style={{ fontSize:10, color:'var(--t-text-3)' }}>{allRows.length} instruments · Streaming live from WebSocket · Signal engine: RSI, Volume Spike, Range Position</span>
         </div>
       </div>
 

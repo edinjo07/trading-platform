@@ -14,10 +14,10 @@ const C = {
   green:    'var(--t-bull)',
 }
 const SEV: Record<NotifSeverity, { color: string; bg: string }> = {
-  critical: { color: '#ef4444', bg: 'rgba(239,68,68,0.12)' },
-  warning:  { color: '#f59e0b', bg: 'rgba(245,158,11,0.12)' },
-  success:  { color: '#10b981', bg: 'rgba(16,185,129,0.12)' },
-  info:     { color: '#38bdf8', bg: 'rgba(14,165,233,0.12)' },
+  critical: { color: '#ff5a72', bg: 'rgba(255,90,114,0.12)' },
+  warning:  { color: '#f6b24a', bg: 'rgba(246,178,74,0.12)' },
+  success:  { color: '#18c98a', bg: 'rgba(24,201,138,0.12)' },
+  info:     { color: '#7aa7ff', bg: 'rgba(79,140,255,0.12)' },
 }
 
 function sevIcon(sev: NotifSeverity) {
@@ -137,9 +137,9 @@ export default function NotificationsPage() {
           <button key={f} onClick={() => setFilter(f)}
             style={{
               padding: '7px 16px', borderRadius: 20, fontSize: 12, fontWeight: 700, cursor: 'pointer', textTransform: 'capitalize',
-              background: filter === f ? 'rgba(14,165,233,0.15)' : C.surface2,
+              background: filter === f ? 'rgba(79,140,255,0.15)' : C.surface2,
               color:      filter === f ? C.blue : C.text3,
-              border:     `1px solid ${filter === f ? 'rgba(14,165,233,0.35)' : C.border}`,
+              border:     `1px solid ${filter === f ? 'rgba(79,140,255,0.35)' : C.border}`,
             }}>
             {f}{f === 'unread' && unread > 0 ? ` (${unread})` : ''}
           </button>
@@ -149,7 +149,7 @@ export default function NotificationsPage() {
       {/* List */}
       {list.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '70px 24px', background: C.surface, borderRadius: 16, border: `1px solid ${C.border}` }}>
-          <div style={{ width: 56, height: 56, borderRadius: '50%', margin: '0 auto 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(14,165,233,0.07)', border: '1px solid rgba(14,165,233,0.15)', color: C.blue }}>
+          <div style={{ width: 56, height: 56, borderRadius: '50%', margin: '0 auto 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(79,140,255,0.07)', border: '1px solid rgba(79,140,255,0.15)', color: C.blue }}>
             <svg width="26" height="26" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0" /></svg>
           </div>
           <p style={{ fontSize: 15, fontWeight: 700, color: C.text1, margin: '0 0 6px' }}>{filter === 'unread' ? 'No unread notifications' : 'No notifications yet'}</p>

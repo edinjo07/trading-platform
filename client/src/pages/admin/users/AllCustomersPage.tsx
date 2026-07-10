@@ -22,7 +22,7 @@ export default function AllCustomersPage() {
         { key: 'lastLogin',  header: 'Last Login', render: r => <span className="font-mono text-text-muted">{r.lastLogin}</span> },
       ]}
       actions={
-        <button className="px-4 py-1.5 rounded-lg text-xs font-semibold text-white" style={{ background: 'linear-gradient(135deg,#0ea5e9,#0369a1)' }}>
+        <button className="px-4 py-1.5 rounded-lg text-xs font-semibold text-white" style={{ background: 'linear-gradient(135deg,#4f8cff,#3b78f0)' }}>
           + Add Customer
         </button>
       }

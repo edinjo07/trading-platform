@@ -16,41 +16,41 @@ const NAV_GROUPS = [
   {
     label: '',
     items: [
-      { path: '/dashboard',         end: true,  trade: false, label: 'Dashboard',  icon: LayoutDashboard, color: '#0ea5e9' },
-      { path: '/dashboard/trade',   end: false, trade: true,  label: 'WebTrader',  icon: TrendingUp,      color: '#10b981' },
+      { path: '/dashboard',         end: true,  trade: false, label: 'Dashboard',  icon: LayoutDashboard, color: '#4f8cff' },
+      { path: '/dashboard/trade',   end: false, trade: true,  label: 'WebTrader',  icon: TrendingUp,      color: '#18c98a' },
       { path: '/dashboard/bots',    end: false, trade: false, label: 'TradePilot', icon: Bot,             color: '#a78bfa' },
     ],
   },
   {
     label: 'Positions',
     items: [
-      { path: '/dashboard/portfolio', end: false, trade: false, label: 'Portfolio',  icon: Briefcase,     color: '#f59e0b' },
-      { path: '/dashboard/orders',    end: false, trade: false, label: 'Orders',     icon: ClipboardList, color: '#0ea5e9' },
+      { path: '/dashboard/portfolio', end: false, trade: false, label: 'Portfolio',  icon: Briefcase,     color: '#f6b24a' },
+      { path: '/dashboard/orders',    end: false, trade: false, label: 'Orders',     icon: ClipboardList, color: '#4f8cff' },
       { path: '/dashboard/analytics', end: false, trade: false, label: 'Analytics',  icon: BarChart3,     color: '#e879f9' },
     ],
   },
   {
     label: 'Tools',
     items: [
-      { path: '/dashboard/scanner',     end: false, trade: false, label: 'Scanner',     icon: ScanLine, color: '#38bdf8' },
+      { path: '/dashboard/scanner',     end: false, trade: false, label: 'Scanner',     icon: ScanLine, color: '#7aa7ff' },
       { path: '/dashboard/alerts',      end: false, trade: false, label: 'Alerts',      icon: Bell,     color: '#fb923c' },
-      { path: '/dashboard/leaderboard', end: false, trade: false, label: 'Leaderboard', icon: Trophy,   color: '#fbbf24' },
+      { path: '/dashboard/leaderboard', end: false, trade: false, label: 'Leaderboard', icon: Trophy,   color: '#f6c453' },
     ],
   },
   {
     label: 'Finance',
     items: [
-      { path: '/dashboard/deposit',  end: false, trade: false, label: 'Deposit',  icon: ArrowDownToLine, color: '#10b981' },
+      { path: '/dashboard/deposit',  end: false, trade: false, label: 'Deposit',  icon: ArrowDownToLine, color: '#18c98a' },
       { path: '/dashboard/withdraw', end: false, trade: false, label: 'Withdraw', icon: ArrowUpFromLine, color: '#f43f5e' },
     ],
   },
 ]
 
 const DISCOVER_ITEMS = [
-  { path: '/dashboard/economic-calendar', label: 'Economic Calendar', icon: Calendar,    color: '#0ea5e9' },
-  { path: '/dashboard/forex-calculators', label: 'Forex Calculators', icon: Calculator,  color: '#10b981' },
+  { path: '/dashboard/economic-calendar', label: 'Economic Calendar', icon: Calendar,    color: '#4f8cff' },
+  { path: '/dashboard/forex-calculators', label: 'Forex Calculators', icon: Calculator,  color: '#18c98a' },
   { path: '/dashboard/web-tv',            label: 'Web TV',            icon: Tv2,         color: '#a78bfa' },
-  { path: '/dashboard/blog',              label: 'Blog & News',       icon: BookOpen,    color: '#f59e0b' },
+  { path: '/dashboard/blog',              label: 'Blog & News',       icon: BookOpen,    color: '#f6b24a' },
   { path: '/dashboard/trading-scams',     label: 'Scam Awareness',    icon: ShieldAlert, color: '#f43f5e' },
 ]
 
@@ -125,22 +125,22 @@ export default function Sidebar({ mobileOpen, onClose, onOpenMarkets }: SidebarP
         <NavLink to="/dashboard/verify" onClick={onClose}
           className="flex items-center gap-2.5 rounded-xl px-3 py-2 w-full"
           style={kycStatus === 'verified'
-            ? { background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)' }
+            ? { background: 'rgba(24,201,138,0.08)', border: '1px solid rgba(24,201,138,0.2)' }
             : kycStatus === 'pending'
-            ? { background: 'rgba(14,165,233,0.08)', border: '1px solid rgba(14,165,233,0.2)' }
-            : { background: 'rgba(245,158,11,0.09)', border: '1px solid rgba(245,158,11,0.3)' }
+            ? { background: 'rgba(79,140,255,0.08)', border: '1px solid rgba(79,140,255,0.2)' }
+            : { background: 'rgba(246,178,74,0.09)', border: '1px solid rgba(246,178,74,0.3)' }
           }>
           <ShieldCheck size={14} strokeWidth={2}
-            color={kycStatus === 'verified' ? '#10b981' : kycStatus === 'pending' ? '#38bdf8' : '#f59e0b'} />
+            color={kycStatus === 'verified' ? '#18c98a' : kycStatus === 'pending' ? '#7aa7ff' : '#f6b24a'} />
           {!collapsed && (
             <span className="text-xs font-semibold flex-1 min-w-0 truncate"
-                  style={{ color: kycStatus === 'verified' ? '#10b981' : kycStatus === 'pending' ? '#38bdf8' : '#f59e0b' }}>
+                  style={{ color: kycStatus === 'verified' ? '#18c98a' : kycStatus === 'pending' ? '#7aa7ff' : '#f6b24a' }}>
               {kycStatus === 'verified' ? 'Account Verified' : kycStatus === 'pending' ? 'Verification Pending' : 'Verify Account'}
             </span>
           )}
           {!collapsed && kycStatus !== 'verified' && (
             <span className="text-[10px] font-bold px-1.5 py-0.5 rounded shrink-0"
-                  style={{ background: kycStatus === 'pending' ? 'rgba(14,165,233,0.2)' : 'rgba(245,158,11,0.22)', color: kycStatus === 'pending' ? '#38bdf8' : '#f59e0b' }}>
+                  style={{ background: kycStatus === 'pending' ? 'rgba(79,140,255,0.2)' : 'rgba(246,178,74,0.22)', color: kycStatus === 'pending' ? '#7aa7ff' : '#f6b24a' }}>
               {kycStatus === 'pending' ? 'PENDING' : '!'}
             </span>
           )}
@@ -174,13 +174,13 @@ export default function Sidebar({ mobileOpen, onClose, onOpenMarkets }: SidebarP
                     style={{
                       gap: collapsed ? 0 : 12, padding: collapsed ? 10 : '9px 12px',
                       justifyContent: collapsed ? 'center' : 'flex-start',
-                      background: isOnTrade ? `rgba(16,185,129,0.12)` : 'transparent',
+                      background: isOnTrade ? `rgba(24,201,138,0.12)` : 'transparent',
                     }}
                     onMouseEnter={e => { if (!isOnTrade) (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.05)' }}
                     onMouseLeave={e => { if (!isOnTrade) (e.currentTarget as HTMLElement).style.background = 'transparent' }}
                   >
                     <div className="shrink-0 flex items-center justify-center rounded-lg"
-                         style={{ width: 32, height: 32, background: isOnTrade ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.06)' }}>
+                         style={{ width: 32, height: 32, background: isOnTrade ? 'rgba(24,201,138,0.2)' : 'rgba(255,255,255,0.06)' }}>
                       <Icon size={16} strokeWidth={2} color={isOnTrade ? item.color : 'rgba(255,255,255,0.6)'} />
                     </div>
                     {!collapsed && (
@@ -298,7 +298,7 @@ export default function Sidebar({ mobileOpen, onClose, onOpenMarkets }: SidebarP
             <div className="flex items-center gap-3 px-4 py-3.5"
                  style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
               <div className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold text-white shrink-0"
-                   style={{ background: 'linear-gradient(135deg,#0ea5e9,#0369a1)', boxShadow: '0 0 12px rgba(14,165,233,0.3)' }}>
+                   style={{ background: 'linear-gradient(135deg,#4f8cff,#3b78f0)', boxShadow: '0 0 12px rgba(79,140,255,0.3)' }}>
                 {user?.username?.[0]?.toUpperCase() ?? 'U'}
               </div>
               <div className="min-w-0">
@@ -338,7 +338,7 @@ export default function Sidebar({ mobileOpen, onClose, onOpenMarkets }: SidebarP
                   <button key={m} onClick={() => { setAccountMode(m); setProfileOpen(false) }}
                     className="flex-1 py-2 rounded-xl transition-all"
                     style={user?.accountMode === m
-                      ? { background: m === 'real' ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.15)', color: m === 'real' ? '#10b981' : '#f59e0b', border: `1px solid ${m === 'real' ? 'rgba(16,185,129,0.3)' : 'rgba(245,158,11,0.3)'}`, fontSize: 12, fontWeight: 600 }
+                      ? { background: m === 'real' ? 'rgba(24,201,138,0.15)' : 'rgba(246,178,74,0.15)', color: m === 'real' ? '#18c98a' : '#f6b24a', border: `1px solid ${m === 'real' ? 'rgba(24,201,138,0.3)' : 'rgba(246,178,74,0.3)'}`, fontSize: 12, fontWeight: 600 }
                       : { background: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.4)', border: '1px solid rgba(255,255,255,0.08)', fontSize: 12, fontWeight: 600 }
                     }>
                     {m === 'real' ? 'Live' : 'Demo'}
@@ -363,17 +363,17 @@ export default function Sidebar({ mobileOpen, onClose, onOpenMarkets }: SidebarP
         {!collapsed ? (
           <button onClick={() => setProfileOpen(o => !o)}
             className="w-full flex items-center gap-3 rounded-xl transition-all px-3 py-2.5"
-            style={{ background: profileOpen ? 'rgba(14,165,233,0.08)' : 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}
+            style={{ background: profileOpen ? 'rgba(79,140,255,0.08)' : 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}
             onMouseEnter={e => { if (!profileOpen) e.currentTarget.style.background = 'rgba(255,255,255,0.07)' }}
             onMouseLeave={e => { if (!profileOpen) e.currentTarget.style.background = 'rgba(255,255,255,0.04)' }}>
             <div className="w-8 h-8 rounded-full shrink-0 flex items-center justify-center text-xs font-bold text-white"
-                 style={{ background: 'linear-gradient(135deg,#0ea5e9,#0369a1)' }}>
+                 style={{ background: 'linear-gradient(135deg,#4f8cff,#3b78f0)' }}>
               {user?.username?.[0]?.toUpperCase() ?? 'U'}
             </div>
             <div className="flex-1 min-w-0 text-left">
               <p style={{ fontSize: 12, fontWeight: 600, color: '#f0f0f0', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.username}</p>
               <div className="flex items-center gap-1.5 mt-0.5">
-                <span className="w-1.5 h-1.5 rounded-full" style={{ background: user?.accountMode === 'real' ? '#10b981' : '#f59e0b' }} />
+                <span className="w-1.5 h-1.5 rounded-full" style={{ background: user?.accountMode === 'real' ? '#18c98a' : '#f6b24a' }} />
                 <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.38)' }}>{user?.accountMode === 'real' ? 'Live' : 'Demo'}</span>
               </div>
             </div>
@@ -385,7 +385,7 @@ export default function Sidebar({ mobileOpen, onClose, onOpenMarkets }: SidebarP
             className="w-full flex items-center justify-center py-2 rounded-xl"
             style={{ background: 'rgba(255,255,255,0.04)' }}>
             <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white"
-                 style={{ background: 'linear-gradient(135deg,#0ea5e9,#0369a1)' }}>
+                 style={{ background: 'linear-gradient(135deg,#4f8cff,#3b78f0)' }}>
               {user?.username?.[0]?.toUpperCase() ?? 'U'}
             </div>
           </button>

@@ -76,7 +76,7 @@ function CalcInput({
           onChange={e => onChange(e.target.value)}
           className="px-3 py-2.5 rounded-xl text-sm font-mono text-text-primary focus:outline-none transition-all"
           style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
-          onFocus={e => { e.currentTarget.style.borderColor = 'rgba(14,165,233,0.5)' }}
+          onFocus={e => { e.currentTarget.style.borderColor = 'rgba(79,140,255,0.5)' }}
           onBlur={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)' }}
         />
       )}
@@ -172,8 +172,8 @@ function AllInOneCalc() {
                 className="flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all capitalize"
                 style={direction === d
                   ? d === 'long'
-                    ? { background: 'rgba(0,200,120,0.12)', color: '#00c878', border: '1px solid rgba(0,200,120,0.3)' }
-                    : { background: 'rgba(255,48,71,0.12)', color: '#ff3047', border: '1px solid rgba(255,48,71,0.3)' }
+                    ? { background: 'rgba(24,201,138,0.12)', color: '#18c98a', border: '1px solid rgba(24,201,138,0.3)' }
+                    : { background: 'rgba(255,90,114,0.12)', color: '#ff5a72', border: '1px solid rgba(255,90,114,0.3)' }
                   : { background: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.4)', border: '1px solid rgba(255,255,255,0.07)' }
                 }
               >
@@ -195,13 +195,13 @@ function AllInOneCalc() {
           <p className="text-text-muted text-sm text-center py-8">Enter a position size to see results.</p>
         ) : (
           <>
-            <ResultRow label="Required Margin" value={`${fmt(results.marginInAcct)} ${acctCur}`} color="#38bdf8" />
+            <ResultRow label="Required Margin" value={`${fmt(results.marginInAcct)} ${acctCur}`} color="#7aa7ff" />
             <ResultRow label="Commission (per side)" value={`${fmt(results.commissionAcct)} ${acctCur}`} />
-            <ResultRow label="Pip Value" value={`${fmt(results.pipValueAcct)} ${acctCur}`} color="#00c878" />
+            <ResultRow label="Pip Value" value={`${fmt(results.pipValueAcct)} ${acctCur}`} color="#18c98a" />
             <ResultRow
               label={`Swap (${direction === 'long' ? 'Long' : 'Short'}) / day`}
               value={`${results.swapAcct >= 0 ? '+' : ''}${fmt(results.swapAcct)} ${acctCur}`}
-              color={results.swapAcct >= 0 ? '#00c878' : '#ff3047'}
+              color={results.swapAcct >= 0 ? '#18c98a' : '#ff5a72'}
             />
             <div className="mt-4 px-3 py-2.5 rounded-lg" style={{ background: 'rgba(255,255,255,0.03)' }}>
               <p className="text-text-muted text-xs leading-relaxed">
@@ -255,9 +255,9 @@ function PipCalc() {
           <span className="text-text-primary font-semibold text-sm">Pip Value Results</span>
           <span className="text-text-muted text-xs ml-auto">{acctCur}</span>
         </div>
-        <ResultRow label="Pip Value (per pip)" value={`${fmt(perPip)} ${acctCur}`} color="#38bdf8" />
-        <ResultRow label={`P&L for ${pipsNum} pips`} value={`${fmt(perPip * pipsNum)} ${acctCur}`} color="#00c878" />
-        <ResultRow label="P&L if price reverses" value={`-${fmt(perPip * pipsNum)} ${acctCur}`} color="#ff3047" />
+        <ResultRow label="Pip Value (per pip)" value={`${fmt(perPip)} ${acctCur}`} color="#7aa7ff" />
+        <ResultRow label={`P&L for ${pipsNum} pips`} value={`${fmt(perPip * pipsNum)} ${acctCur}`} color="#18c98a" />
+        <ResultRow label="P&L if price reverses" value={`-${fmt(perPip * pipsNum)} ${acctCur}`} color="#ff5a72" />
       </div>
     </div>
   )
@@ -295,10 +295,10 @@ function MarginCalc() {
           <span className="text-text-primary font-semibold text-sm">Margin Results</span>
           <span className="text-text-muted text-xs ml-auto">{acctCur}</span>
         </div>
-        <ResultRow label="Required Margin" value={`${fmt(margin)} ${acctCur}`} color="#38bdf8" />
+        <ResultRow label="Required Margin" value={`${fmt(margin)} ${acctCur}`} color="#7aa7ff" />
         <ResultRow label="Position Notional Value" value={`${fmt(notional)} ${acctCur}`} />
         <ResultRow label="Leverage Used" value={leverage} />
-        <ResultRow label="Margin Level (if only trade)" value={lotsNum > 0 ? `${fmt((notional / margin) * 100)}%` : '—'} color="#00c878" />
+        <ResultRow label="Margin Level (if only trade)" value={lotsNum > 0 ? `${fmt((notional / margin) * 100)}%` : '—'} color="#18c98a" />
       </div>
     </div>
   )
@@ -351,10 +351,10 @@ function PositionCalc() {
           <div className="w-2 h-2 rounded-full bg-bull animate-pulse" />
           <span className="text-text-primary font-semibold text-sm">Position Size Results</span>
         </div>
-        <ResultRow label="Risk Amount" value={`${fmt(riskAmt)} ${acctCur}`} color="#f59e0b" />
-        <ResultRow label="Recommended Lot Size" value={`${fmt(lots, 4)} lots`} color="#38bdf8" />
+        <ResultRow label="Risk Amount" value={`${fmt(riskAmt)} ${acctCur}`} color="#f6b24a" />
+        <ResultRow label="Recommended Lot Size" value={`${fmt(lots, 4)} lots`} color="#7aa7ff" />
         <ResultRow label="Position Units" value={`${fmt(units, 0)} units`} />
-        <ResultRow label={`Stop Loss (${stopPips} pips)`} value={`${fmt(riskAmt)} ${acctCur} max loss`} color="#ff3047" />
+        <ResultRow label={`Stop Loss (${stopPips} pips)`} value={`${fmt(riskAmt)} ${acctCur} max loss`} color="#ff5a72" />
       </div>
     </div>
   )
@@ -376,7 +376,7 @@ export default function ForexCalculatorsPage() {
       {/* Header */}
       <div className="flex flex-col gap-1">
         <div className="flex items-center gap-2">
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="#38bdf8" strokeWidth={1.8}>
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="#7aa7ff" strokeWidth={1.8}>
             <path d="M9 7H6a2 2 0 00-2 2v9a2 2 0 002 2h9a2 2 0 002-2v-3M13 3h8v8M13 11L21 3" />
           </svg>
           <h1 className="text-text-primary text-2xl font-bold">Forex Trading Calculators</h1>
@@ -394,12 +394,12 @@ export default function ForexCalculatorsPage() {
             onClick={() => setTab(ct.id)}
             className="rounded-xl p-4 text-left transition-all"
             style={tab === ct.id
-              ? { background: 'rgba(14,165,233,0.1)', border: '1px solid rgba(14,165,233,0.3)' }
+              ? { background: 'rgba(79,140,255,0.1)', border: '1px solid rgba(79,140,255,0.3)' }
               : { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }
             }
           >
             <div className="text-sm font-semibold mb-0.5"
-                 style={{ color: tab === ct.id ? '#38bdf8' : '#e2eaf0' }}>
+                 style={{ color: tab === ct.id ? '#7aa7ff' : '#e2eaf0' }}>
               {ct.label}
             </div>
             <div className="text-xs text-text-muted leading-snug">{ct.desc}</div>
@@ -418,8 +418,8 @@ export default function ForexCalculatorsPage() {
 
       {/* Disclaimer */}
       <div className="rounded-xl px-4 py-3.5 flex gap-3 items-start"
-           style={{ background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.15)' }}>
-        <svg className="w-4 h-4 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="#f59e0b" strokeWidth={1.8}>
+           style={{ background: 'rgba(246,178,74,0.06)', border: '1px solid rgba(246,178,74,0.15)' }}>
+        <svg className="w-4 h-4 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="#f6b24a" strokeWidth={1.8}>
           <path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
         </svg>
         <p className="text-text-muted text-xs leading-relaxed">

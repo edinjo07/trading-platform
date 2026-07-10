@@ -53,12 +53,12 @@ const INDEX_FLAG: Record<string, string> = {
 
 // ─── Fallback colours per asset class ────────────────────────────────────────
 const CLASS_COLOR: Record<string, { bg: string; fg: string }> = {
-  crypto:    { bg: '#f59e0b22', fg: '#f59e0b' },
+  crypto:    { bg: '#f6b24a22', fg: '#f6b24a' },
   stock:     { bg: '#8b5cf622', fg: '#a78bfa' },
   forex:     { bg: '#3b82f622', fg: '#60a5fa' },
   commodity: { bg: '#f9731622', fg: '#fb923c' },
-  index:     { bg: '#0ea5e922', fg: '#38bdf8' },
-  bond:      { bg: '#10b98122', fg: '#34d399' },
+  index:     { bg: '#4f8cff22', fg: '#7aa7ff' },
+  bond:      { bg: '#18c98a22', fg: '#34d399' },
 }
 
 /* ─── 3D coin treatment ─────────────────────────────────────────────────────────

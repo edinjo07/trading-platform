@@ -62,7 +62,7 @@ export default function AdminLayout() {
               </svg>
               <span
                 className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full"
-                style={{ background: '#ff3047' }}
+                style={{ background: '#ff5a72' }}
               />
             </button>
           </div>

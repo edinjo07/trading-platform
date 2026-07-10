@@ -35,8 +35,8 @@ export default function OrderBook() {
       {/* Depth bar */}
       <div className="shrink-0 px-3 py-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
         <div className="flex h-1.5 rounded-full overflow-hidden">
-          <div className="transition-all" style={{ width: `${bidPct}%`, background: '#00c878' }} />
-          <div className="flex-1" style={{ background: '#ff3047' }} />
+          <div className="transition-all" style={{ width: `${bidPct}%`, background: '#18c98a' }} />
+          <div className="flex-1" style={{ background: '#ff5a72' }} />
         </div>
         <div className="flex justify-between mt-1">
           <span className="text-bull text-2xs">{bidPct.toFixed(0)}% B</span>
@@ -58,7 +58,7 @@ export default function OrderBook() {
           {[...asks].reverse().map((ask, i) => (
             <div key={i} className="relative flex justify-between px-3 py-[3px] group hover:bg-white/[0.025]">
               <div className="absolute inset-y-0 right-0 transition-all"
-                   style={{ width: `${(ask.total / maxAsk) * 100}%`, background: 'rgba(255,48,71,0.1)' }} />
+                   style={{ width: `${(ask.total / maxAsk) * 100}%`, background: 'rgba(255,90,114,0.1)' }} />
               <span className="text-bear z-10 tabular">{formatPrice(ask.price, selectedSymbol)}</span>
               <span className="text-text-secondary z-10 tabular">{ask.size.toFixed(4)}</span>
               <span className="text-text-muted z-10 tabular">{ask.total.toFixed(3)}</span>
@@ -69,7 +69,7 @@ export default function OrderBook() {
         {/* Spread / mid price */}
         {ticker && (
           <div className="shrink-0 flex items-center justify-between px-3 py-2"
-               style={{ background: 'rgba(14,165,233,0.06)', borderTop: '1px solid rgba(14,165,233,0.12)', borderBottom: '1px solid rgba(14,165,233,0.12)' }}>
+               style={{ background: 'rgba(79,140,255,0.06)', borderTop: '1px solid rgba(79,140,255,0.12)', borderBottom: '1px solid rgba(79,140,255,0.12)' }}>
             <div>
               <span className={`font-bold text-sm tabular ${isUp(ticker.changePercent) ? 'text-bull' : 'text-bear'}`}>
                 {formatPrice(ticker.price, selectedSymbol)}
@@ -94,7 +94,7 @@ export default function OrderBook() {
           {bids.map((bid, i) => (
             <div key={i} className="relative flex justify-between px-3 py-[3px] hover:bg-white/[0.025]">
               <div className="absolute inset-y-0 right-0 transition-all"
-                   style={{ width: `${(bid.total / maxBid) * 100}%`, background: 'rgba(0,200,120,0.08)' }} />
+                   style={{ width: `${(bid.total / maxBid) * 100}%`, background: 'rgba(24,201,138,0.08)' }} />
               <span className="text-bull z-10 tabular">{formatPrice(bid.price, selectedSymbol)}</span>
               <span className="text-text-secondary z-10 tabular">{bid.size.toFixed(4)}</span>
               <span className="text-text-muted z-10 tabular">{bid.total.toFixed(3)}</span>

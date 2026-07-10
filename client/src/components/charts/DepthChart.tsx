@@ -52,17 +52,17 @@ export default function DepthChart({ orderBook, symbol }: Props) {
     })
 
     const bidSeries = chart.addAreaSeries({
-      lineColor: '#00c878',
-      topColor: 'rgba(0,200,120,0.25)',
-      bottomColor: 'rgba(0,200,120,0.0)',
+      lineColor: '#18c98a',
+      topColor: 'rgba(24,201,138,0.25)',
+      bottomColor: 'rgba(24,201,138,0.0)',
       lineWidth: 2,
       priceFormat: { type: 'volume' },
     })
 
     const askSeries = chart.addAreaSeries({
-      lineColor: '#ff3047',
-      topColor: 'rgba(255,48,71,0.25)',
-      bottomColor: 'rgba(255,48,71,0.0)',
+      lineColor: '#ff5a72',
+      topColor: 'rgba(255,90,114,0.25)',
+      bottomColor: 'rgba(255,90,114,0.0)',
       lineWidth: 2,
       priceFormat: { type: 'volume' },
     })
@@ -125,11 +125,11 @@ export default function DepthChart({ orderBook, symbol }: Props) {
       <div className="flex items-center justify-between px-4 py-2 border-b border-white/5">
         <span className="text-text-muted text-xs font-mono font-medium">Market Depth</span>
         <div className="flex items-center gap-3 text-xs font-mono">
-          <span style={{ color: '#00c878' }}>{bidPct}% Bid</span>
-          <div className="w-24 h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,48,71,0.25)' }}>
-            <div className="h-full rounded-full transition-all" style={{ width: `${bidPct}%`, background: '#00c878' }} />
+          <span style={{ color: '#18c98a' }}>{bidPct}% Bid</span>
+          <div className="w-24 h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,90,114,0.25)' }}>
+            <div className="h-full rounded-full transition-all" style={{ width: `${bidPct}%`, background: '#18c98a' }} />
           </div>
-          <span style={{ color: '#ff3047' }}>{askPct}% Ask</span>
+          <span style={{ color: '#ff5a72' }}>{askPct}% Ask</span>
         </div>
       </div>
       <div className="relative flex-1 min-h-0">

@@ -25,7 +25,7 @@ export class ErrorBoundary extends React.Component<{ children: React.ReactNode; 
             <p className="text-text-muted text-sm font-mono">Something went wrong loading this panel.</p>
             <button
               className="mt-4 px-4 py-1.5 rounded text-xs font-semibold"
-              style={{ background: 'rgba(14,165,233,0.15)', color: '#38bdf8', border: '1px solid rgba(14,165,233,0.3)' }}
+              style={{ background: 'rgba(79,140,255,0.15)', color: '#7aa7ff', border: '1px solid rgba(79,140,255,0.3)' }}
               onClick={() => this.setState({ hasError: false, error: null })}
             >
               Retry

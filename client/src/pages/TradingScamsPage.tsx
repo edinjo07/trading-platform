@@ -157,10 +157,10 @@ export default function TradingScamsPage() {
     <div className="space-y-6 max-w-4xl">
       {/* Hero */}
       <div className="rounded-2xl p-6"
-           style={{ background: 'linear-gradient(135deg, rgba(239,68,68,0.08) 0%, rgba(12,24,41,1) 60%)', border: '1px solid rgba(239,68,68,0.15)' }}>
+           style={{ background: 'linear-gradient(135deg, rgba(255,90,114,0.08) 0%, rgba(12,24,41,1) 60%)', border: '1px solid rgba(255,90,114,0.15)' }}>
         <div className="flex items-start gap-4">
-          <div className="p-3 rounded-xl shrink-0" style={{ background: 'rgba(239,68,68,0.1)' }}>
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="#ef4444" strokeWidth={1.8}>
+          <div className="p-3 rounded-xl shrink-0" style={{ background: 'rgba(255,90,114,0.1)' }}>
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="#ff5a72" strokeWidth={1.8}>
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
               <line x1="12" y1="8" x2="12" y2="12" />
               <line x1="12" y1="16" x2="12.01" y2="16" />
@@ -202,7 +202,7 @@ export default function TradingScamsPage() {
               <div key={threat.title}
                    className="rounded-xl p-5 flex flex-col gap-3"
                    style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
-                <div className="p-2.5 rounded-lg w-fit" style={{ background: 'rgba(239,68,68,0.08)', color: '#f87171' }}>
+                <div className="p-2.5 rounded-lg w-fit" style={{ background: 'rgba(255,90,114,0.08)', color: '#f87171' }}>
                   {threat.icon}
                 </div>
                 <h3 className="text-text-primary font-semibold">{threat.title}</h3>
@@ -222,7 +222,7 @@ export default function TradingScamsPage() {
                  className="flex gap-4 px-4 py-3.5 rounded-xl"
                  style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
               <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 text-xs font-bold"
-                   style={{ background: 'rgba(239,68,68,0.1)', color: '#f87171' }}>
+                   style={{ background: 'rgba(255,90,114,0.1)', color: '#f87171' }}>
                 {i + 1}
               </div>
               <div>
@@ -243,7 +243,7 @@ export default function TradingScamsPage() {
               <div key={step.title}
                    className="flex gap-3 px-4 py-3.5 rounded-xl"
                    style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
-                <div className="p-2 rounded-lg shrink-0 h-fit" style={{ background: 'rgba(14,165,233,0.08)', color: '#38bdf8' }}>
+                <div className="p-2 rounded-lg shrink-0 h-fit" style={{ background: 'rgba(79,140,255,0.08)', color: '#7aa7ff' }}>
                   {step.icon}
                 </div>
                 <div>
@@ -268,9 +268,9 @@ export default function TradingScamsPage() {
         <a
           href="mailto:report-scams@icmarkets.com"
           className="px-4 py-2 rounded-lg text-sm font-semibold transition-all shrink-0 flex items-center gap-2"
-          style={{ background: 'rgba(239,68,68,0.1)', color: '#f87171', border: '1px solid rgba(239,68,68,0.2)' }}
-          onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(239,68,68,0.18)' }}
-          onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(239,68,68,0.1)' }}
+          style={{ background: 'rgba(255,90,114,0.1)', color: '#f87171', border: '1px solid rgba(255,90,114,0.2)' }}
+          onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(255,90,114,0.18)' }}
+          onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(255,90,114,0.1)' }}
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
             <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />

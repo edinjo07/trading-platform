@@ -172,18 +172,18 @@ function QuickAction({ label, icon, onClick, primary }: { label: string; icon: R
 // ─── Category cards ─────────────────────────────────────────────────────────────
 const CATEGORIES = [
   { label: 'Energy',    accent: '#22c55e', gradient: 'linear-gradient(145deg, #0f2318 0%, #071a0e 100%)', img: <svg width="48" height="48" fill="none" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="#22c55e" fillOpacity=".15" stroke="#22c55e" strokeWidth={1.5} strokeLinejoin="round"/></svg> },
-  { label: 'Gas & Oil', accent: '#38bdf8', gradient: 'linear-gradient(145deg, #0e1829 0%, #070f1d 100%)', img: <svg width="48" height="48" fill="none" viewBox="0 0 24 24"><ellipse cx="12" cy="16" rx="6" ry="4" fill="#38bdf8" fillOpacity=".12" stroke="#38bdf8" strokeWidth={1.4}/><path d="M6 16V9a6 6 0 0112 0v7" stroke="#38bdf8" strokeWidth={1.4} strokeLinecap="round"/></svg> },
+  { label: 'Gas & Oil', accent: '#7aa7ff', gradient: 'linear-gradient(145deg, #0e1829 0%, #070f1d 100%)', img: <svg width="48" height="48" fill="none" viewBox="0 0 24 24"><ellipse cx="12" cy="16" rx="6" ry="4" fill="#7aa7ff" fillOpacity=".12" stroke="#7aa7ff" strokeWidth={1.4}/><path d="M6 16V9a6 6 0 0112 0v7" stroke="#7aa7ff" strokeWidth={1.4} strokeLinecap="round"/></svg> },
   { label: 'Big Tech',  accent: '#a78bfa', gradient: 'linear-gradient(145deg, #1a0f2e 0%, #110820 100%)', img: <svg width="48" height="48" fill="none" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="13" rx="2" fill="#a78bfa" fillOpacity=".1" stroke="#a78bfa" strokeWidth={1.4}/><path d="M8 21h8M12 16v5" stroke="#a78bfa" strokeWidth={1.4} strokeLinecap="round"/></svg> },
-  { label: 'Crypto',    accent: '#f59e0b', gradient: 'linear-gradient(145deg, #1f1208 0%, #150c04 100%)', img: <svg width="48" height="48" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="#f59e0b" fillOpacity=".1" stroke="#f59e0b" strokeWidth={1.4}/><path d="M9 8h4.5a2 2 0 010 4H9m0-4v4m0 0h5a2 2 0 010 4H9m0-4v4" stroke="#f59e0b" strokeWidth={1.3} strokeLinecap="round"/></svg> },
+  { label: 'Crypto',    accent: '#f6b24a', gradient: 'linear-gradient(145deg, #1f1208 0%, #150c04 100%)', img: <svg width="48" height="48" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="#f6b24a" fillOpacity=".1" stroke="#f6b24a" strokeWidth={1.4}/><path d="M9 8h4.5a2 2 0 010 4H9m0-4v4m0 0h5a2 2 0 010 4H9m0-4v4" stroke="#f6b24a" strokeWidth={1.3} strokeLinecap="round"/></svg> },
 ]
 
 const DISCOVER = [
   { label: 'Shares',      color: '#60a5fa', bg: 'rgba(96,165,250,0.12)' },
   { label: 'Indices',     color: '#a78bfa', bg: 'rgba(167,139,250,0.12)' },
-  { label: 'Commodities', color: '#f59e0b', bg: 'rgba(245,158,11,0.12)' },
+  { label: 'Commodities', color: '#f6b24a', bg: 'rgba(246,178,74,0.12)' },
   { label: 'Forex',       color: '#34d399', bg: 'rgba(52,211,153,0.12)' },
   { label: 'ETF',         color: '#fb923c', bg: 'rgba(251,146,60,0.12)' },
-  { label: 'Cryptos',     color: '#f59e0b', bg: 'rgba(245,158,11,0.12)' },
+  { label: 'Cryptos',     color: '#f6b24a', bg: 'rgba(246,178,74,0.12)' },
 ]
 
 const ACCOUNTS: { id: string; label: string; sub: string; mode: AccountMode; currency: Currency }[] = [
@@ -342,7 +342,7 @@ export default function DashboardPage() {
 
             {/* Equity hero */}
             <div style={{
-              background: `linear-gradient(135deg, ${isLive ? 'rgba(16,185,129,0.12)' : 'rgba(245,158,11,0.10)'} 0%, var(--t-surface) 60%)`,
+              background: `linear-gradient(135deg, ${isLive ? 'rgba(24,201,138,0.12)' : 'rgba(246,178,74,0.10)'} 0%, var(--t-surface) 60%)`,
               border: `1px solid ${S.border}`, borderRadius: 18, padding: 22, boxShadow: 'var(--t-shadow-sm)',
             }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, flexWrap: 'wrap', gap: 10 }}>
@@ -625,11 +625,11 @@ export default function DashboardPage() {
                 return (
                   <button key={acct.id} onClick={() => handleSelectAccount(acct)}
                     style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', borderRadius: 14, marginBottom: 8,
-                      background: isActive ? 'rgba(14,165,233,0.08)' : 'rgba(var(--ink),0.04)', border: `1px solid ${isActive ? 'rgba(14,165,233,0.3)' : 'rgba(var(--ink),0.08)'}`, cursor: 'pointer', textAlign: 'left' }}>
-                    <div style={{ width: 44, height: 44, borderRadius: 12, flexShrink: 0, background: live ? 'rgba(16,185,129,0.12)' : 'rgba(245,158,11,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      background: isActive ? 'rgba(79,140,255,0.08)' : 'rgba(var(--ink),0.04)', border: `1px solid ${isActive ? 'rgba(79,140,255,0.3)' : 'rgba(var(--ink),0.08)'}`, cursor: 'pointer', textAlign: 'left' }}>
+                    <div style={{ width: 44, height: 44, borderRadius: 12, flexShrink: 0, background: live ? 'rgba(24,201,138,0.12)' : 'rgba(246,178,74,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       {live
-                        ? <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#10b981" strokeWidth={1.8}><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>
-                        : <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#f59e0b" strokeWidth={1.8}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>}
+                        ? <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#18c98a" strokeWidth={1.8}><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>
+                        : <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#f6b24a" strokeWidth={1.8}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>}
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: 14, fontWeight: 700, color: 'rgb(var(--ink))', marginBottom: 2 }}>{acct.label}</div>
@@ -637,7 +637,7 @@ export default function DashboardPage() {
                       {row?.account_number ? <div style={{ fontSize: 10, fontFamily: 'monospace', color: 'rgba(var(--ink),0.28)', marginTop: 2 }}>#{row.account_number}</div> : null}
                     </div>
                     {isActive && (
-                      <div style={{ width: 22, height: 22, borderRadius: '50%', background: '#0ea5e9', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <div style={{ width: 22, height: 22, borderRadius: '50%', background: '#4f8cff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                         <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="#fff" strokeWidth={3}><polyline points="20 6 9 17 4 12"/></svg>
                       </div>
                     )}
@@ -645,7 +645,7 @@ export default function DashboardPage() {
                 )
               })}
               <button onClick={() => { setSwitcherPage('create'); setCreateError(''); setCreatedNumber(null) }}
-                style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: 13, borderRadius: 14, background: 'rgba(14,165,233,0.07)', border: '1px dashed rgba(14,165,233,0.3)', color: '#38bdf8', fontSize: 13, fontWeight: 700, cursor: 'pointer', marginTop: 4, marginBottom: 8 }}>
+                style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: 13, borderRadius: 14, background: 'rgba(79,140,255,0.07)', border: '1px dashed rgba(79,140,255,0.3)', color: '#7aa7ff', fontSize: 13, fontWeight: 700, cursor: 'pointer', marginTop: 4, marginBottom: 8 }}>
                 <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                 Create Account
               </button>
@@ -664,8 +664,8 @@ export default function DashboardPage() {
               </div>
               {createdNumber ? (
                 <div style={{ textAlign: 'center', padding: '24px 0' }}>
-                  <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'rgba(0,200,120,0.12)', border: '1px solid rgba(0,200,120,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
-                    <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="#00c878" strokeWidth={2.5}><polyline points="20 6 9 17 4 12"/></svg>
+                  <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'rgba(24,201,138,0.12)', border: '1px solid rgba(24,201,138,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+                    <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="#18c98a" strokeWidth={2.5}><polyline points="20 6 9 17 4 12"/></svg>
                   </div>
                   <div style={{ fontSize: 16, fontWeight: 700, color: 'rgb(var(--ink))', marginBottom: 6 }}>Account Created</div>
                   <div style={{ fontSize: 13, color: 'rgba(var(--ink),0.5)', marginBottom: 12 }}>Your account number is</div>
@@ -678,9 +678,9 @@ export default function DashboardPage() {
                     {(['demo', 'real'] as AccountMode[]).map(m => (
                       <button key={m} onClick={() => setCreateMode(m)}
                         style={{ flex: 1, padding: 9, borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: 'pointer',
-                          background: createMode === m ? (m === 'real' ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.15)') : 'transparent',
-                          color: createMode === m ? (m === 'real' ? '#10b981' : '#f59e0b') : 'rgba(var(--ink),0.4)',
-                          border: createMode === m ? `1px solid ${m === 'real' ? 'rgba(16,185,129,0.35)' : 'rgba(245,158,11,0.35)'}` : '1px solid transparent' }}>
+                          background: createMode === m ? (m === 'real' ? 'rgba(24,201,138,0.15)' : 'rgba(246,178,74,0.15)') : 'transparent',
+                          color: createMode === m ? (m === 'real' ? '#18c98a' : '#f6b24a') : 'rgba(var(--ink),0.4)',
+                          border: createMode === m ? `1px solid ${m === 'real' ? 'rgba(24,201,138,0.35)' : 'rgba(246,178,74,0.35)'}` : '1px solid transparent' }}>
                         {m === 'real' ? 'Live' : 'Demo'}
                       </button>
                     ))}
@@ -692,8 +692,8 @@ export default function DashboardPage() {
                     {([{ key: 'USD', symbol: '$', name: 'US Dollar' }, { key: 'EUR', symbol: '€', name: 'Euro' }, { key: 'GBP', symbol: '£', name: 'Pound' }] as { key: Currency; symbol: string; name: string }[]).map(c => (
                       <button key={c.key} onClick={() => setCreateCurrency(c.key)}
                         style={{ flex: 1, padding: '12px 8px', borderRadius: 12, cursor: 'pointer', textAlign: 'center',
-                          background: createCurrency === c.key ? 'rgba(14,165,233,0.1)' : 'rgba(var(--ink),0.04)', border: `1px solid ${createCurrency === c.key ? 'rgba(14,165,233,0.35)' : 'rgba(var(--ink),0.08)'}` }}>
-                        <div style={{ fontSize: 18, fontWeight: 800, color: createCurrency === c.key ? '#38bdf8' : 'rgba(var(--ink),0.4)', marginBottom: 2 }}>{c.symbol}</div>
+                          background: createCurrency === c.key ? 'rgba(79,140,255,0.1)' : 'rgba(var(--ink),0.04)', border: `1px solid ${createCurrency === c.key ? 'rgba(79,140,255,0.35)' : 'rgba(var(--ink),0.08)'}` }}>
+                        <div style={{ fontSize: 18, fontWeight: 800, color: createCurrency === c.key ? '#7aa7ff' : 'rgba(var(--ink),0.4)', marginBottom: 2 }}>{c.symbol}</div>
                         <div style={{ fontSize: 11, fontWeight: 700, color: createCurrency === c.key ? 'rgb(var(--ink))' : 'rgba(var(--ink),0.5)' }}>{c.key}</div>
                         <div style={{ fontSize: 9, color: 'rgba(var(--ink),0.3)', marginTop: 1 }}>{c.name}</div>
                       </button>
@@ -706,12 +706,12 @@ export default function DashboardPage() {
                     {([{ key: 'raw_spread', label: 'Raw Spread', sub: '$3.50 / lot · 0.0 pip spread', popular: true }, { key: 'ctrader', label: 'cTrader', sub: '$3 / 100k · 0.0 pip spread', popular: false }, { key: 'standard', label: 'Standard', sub: '$0 commission · 0.8 pip spread', popular: false }] as { key: AccountType; label: string; sub: string; popular: boolean }[]).map(t => (
                       <button key={t.key} onClick={() => setCreateAccountType(t.key)}
                         style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 12, cursor: 'pointer', textAlign: 'left',
-                          background: createAccountType === t.key ? 'rgba(14,165,233,0.08)' : 'rgba(var(--ink),0.04)', border: `1px solid ${createAccountType === t.key ? 'rgba(14,165,233,0.3)' : 'rgba(var(--ink),0.08)'}` }}>
-                        <div style={{ width: 10, height: 10, borderRadius: '50%', flexShrink: 0, background: createAccountType === t.key ? '#0ea5e9' : 'rgba(var(--ink),0.15)', border: createAccountType === t.key ? '2px solid rgba(14,165,233,0.5)' : '2px solid rgba(var(--ink),0.15)' }} />
+                          background: createAccountType === t.key ? 'rgba(79,140,255,0.08)' : 'rgba(var(--ink),0.04)', border: `1px solid ${createAccountType === t.key ? 'rgba(79,140,255,0.3)' : 'rgba(var(--ink),0.08)'}` }}>
+                        <div style={{ width: 10, height: 10, borderRadius: '50%', flexShrink: 0, background: createAccountType === t.key ? '#4f8cff' : 'rgba(var(--ink),0.15)', border: createAccountType === t.key ? '2px solid rgba(79,140,255,0.5)' : '2px solid rgba(var(--ink),0.15)' }} />
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                             <span style={{ fontSize: 13, fontWeight: 700, color: 'rgb(var(--ink))' }}>{t.label}</span>
-                            {t.popular && <span style={{ fontSize: 9, fontWeight: 800, padding: '1px 5px', borderRadius: 4, background: 'rgba(14,165,233,0.18)', color: '#38bdf8' }}>POPULAR</span>}
+                            {t.popular && <span style={{ fontSize: 9, fontWeight: 800, padding: '1px 5px', borderRadius: 4, background: 'rgba(79,140,255,0.18)', color: '#7aa7ff' }}>POPULAR</span>}
                           </div>
                           <div style={{ fontSize: 11, color: 'rgba(var(--ink),0.4)', marginTop: 2 }}>{t.sub}</div>
                         </div>
@@ -725,7 +725,7 @@ export default function DashboardPage() {
                 </div>
                 {createError && <div style={{ background: 'rgba(220,56,38,0.1)', border: '1px solid rgba(220,56,38,0.25)', borderRadius: 10, padding: '10px 14px', marginBottom: 12, fontSize: 12, color: '#ff6b6b' }}>{createError}</div>}
                 <button onClick={handleCreateAccount} disabled={creating}
-                  style={{ width: '100%', padding: 14, borderRadius: 14, background: creating ? 'rgba(14,165,233,0.4)' : '#0ea5e9', color: '#fff', fontSize: 14, fontWeight: 700, cursor: creating ? 'not-allowed' : 'pointer', border: 'none' }}>
+                  style={{ width: '100%', padding: 14, borderRadius: 14, background: creating ? 'rgba(79,140,255,0.4)' : '#4f8cff', color: '#fff', fontSize: 14, fontWeight: 700, cursor: creating ? 'not-allowed' : 'pointer', border: 'none' }}>
                   {creating ? 'Creating…' : 'Create Account'}
                 </button>
               </>)}
@@ -744,14 +744,14 @@ export default function DashboardPage() {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 10, marginBottom: 12 }}>
               {[5000, 10000, 25000, 50000].map(amt => (
                 <button key={amt} onClick={() => handleDeposit(amt)} disabled={depositing}
-                  style={{ padding: '16px 12px', borderRadius: 14, background: 'rgba(0,200,120,0.08)', border: '1px solid rgba(0,200,120,0.2)', cursor: depositing ? 'not-allowed' : 'pointer', textAlign: 'center' }}>
-                  <div style={{ fontSize: 17, fontWeight: 800, color: '#00c878', fontFamily: 'monospace' }}>{currencySymbol(depositCurrency)}{amt.toLocaleString()}</div>
+                  style={{ padding: '16px 12px', borderRadius: 14, background: 'rgba(24,201,138,0.08)', border: '1px solid rgba(24,201,138,0.2)', cursor: depositing ? 'not-allowed' : 'pointer', textAlign: 'center' }}>
+                  <div style={{ fontSize: 17, fontWeight: 800, color: '#18c98a', fontFamily: 'monospace' }}>{currencySymbol(depositCurrency)}{amt.toLocaleString()}</div>
                   <div style={{ fontSize: 11, color: 'rgba(var(--ink),0.35)', marginTop: 3 }}>+{amt.toLocaleString()} {depositCurrency}</div>
                 </button>
               ))}
             </div>
             <button onClick={() => handleDeposit(100000)} disabled={depositing}
-              style={{ width: '100%', padding: 14, borderRadius: 14, background: 'rgba(0,200,120,0.12)', border: '1px solid rgba(0,200,120,0.3)', color: '#00c878', fontSize: 14, fontWeight: 700, cursor: depositing ? 'not-allowed' : 'pointer', marginBottom: 12 }}>
+              style={{ width: '100%', padding: 14, borderRadius: 14, background: 'rgba(24,201,138,0.12)', border: '1px solid rgba(24,201,138,0.3)', color: '#18c98a', fontSize: 14, fontWeight: 700, cursor: depositing ? 'not-allowed' : 'pointer', marginBottom: 12 }}>
               {currencySymbol(depositCurrency)}100,000 — Top up to max
             </button>
             {depositError && <div style={{ background: 'rgba(220,56,38,0.1)', border: '1px solid rgba(220,56,38,0.25)', borderRadius: 10, padding: '10px 14px', marginBottom: 12, fontSize: 12, color: '#ff6b6b' }}>{depositError}</div>}

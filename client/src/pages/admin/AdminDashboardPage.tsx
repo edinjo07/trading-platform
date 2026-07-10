@@ -61,7 +61,7 @@ function StatCard({
         </div>
         <span
           className="flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full"
-          style={{ background: pos ? 'rgba(0,200,120,0.1)' : 'rgba(255,48,71,0.1)', color: pos ? '#00c878' : '#ff3047' }}
+          style={{ background: pos ? 'rgba(24,201,138,0.1)' : 'rgba(255,90,114,0.1)', color: pos ? '#18c98a' : '#ff5a72' }}
         >
           {pos ? '▲' : '▼'} {Math.abs(change).toFixed(1)}%
         </span>
@@ -81,7 +81,7 @@ function ServiceDot({ ok }: { ok: boolean }) {
   return (
     <span
       className="inline-block w-2 h-2 rounded-full"
-      style={{ background: ok ? '#00c878' : '#ff3047', boxShadow: ok ? '0 0 4px #00c878' : '0 0 4px #ff3047' }}
+      style={{ background: ok ? '#18c98a' : '#ff5a72', boxShadow: ok ? '0 0 4px #18c98a' : '0 0 4px #ff5a72' }}
     />
   )
 }
@@ -148,10 +148,10 @@ function TradeEngagement() {
         {/* Legend */}
         <div className="flex items-center gap-4">
           <span className="flex items-center gap-1.5 text-xs text-text-secondary">
-            <span className="w-2.5 h-2.5 rounded-sm inline-block" style={{ background: '#00c878' }} /> Profitable
+            <span className="w-2.5 h-2.5 rounded-sm inline-block" style={{ background: '#18c98a' }} /> Profitable
           </span>
           <span className="flex items-center gap-1.5 text-xs text-text-secondary">
-            <span className="w-2.5 h-2.5 rounded-sm inline-block" style={{ background: '#ff3047' }} /> Loss
+            <span className="w-2.5 h-2.5 rounded-sm inline-block" style={{ background: '#ff5a72' }} /> Loss
           </span>
         </div>
         {/* Bars */}
@@ -171,7 +171,7 @@ function TradeEngagement() {
                 width={bw}
                 height={bh}
                 rx="1.5"
-                fill={b.profitable ? 'rgba(0,200,120,0.7)' : 'rgba(255,48,71,0.6)'}
+                fill={b.profitable ? 'rgba(24,201,138,0.7)' : 'rgba(255,90,114,0.6)'}
               />
             )
           })}
@@ -182,11 +182,11 @@ function TradeEngagement() {
         </div>
         {/* Summary pills */}
         <div className="grid grid-cols-2 gap-2">
-          <div className="rounded-lg p-3" style={{ background: 'rgba(0,200,120,0.07)', border: '1px solid rgba(0,200,120,0.13)' }}>
+          <div className="rounded-lg p-3" style={{ background: 'rgba(24,201,138,0.07)', border: '1px solid rgba(24,201,138,0.13)' }}>
             <p className="text-sm font-bold font-mono text-bull">{profitable}</p>
             <p className="text-text-secondary mt-0.5" style={{ fontSize: '10px' }}>Profitable Days</p>
           </div>
-          <div className="rounded-lg p-3" style={{ background: 'rgba(255,48,71,0.07)', border: '1px solid rgba(255,48,71,0.13)' }}>
+          <div className="rounded-lg p-3" style={{ background: 'rgba(255,90,114,0.07)', border: '1px solid rgba(255,90,114,0.13)' }}>
             <p className="text-sm font-bold font-mono text-bear">{30 - profitable}</p>
             <p className="text-text-secondary mt-0.5" style={{ fontSize: '10px' }}>Loss Days</p>
           </div>
@@ -242,13 +242,13 @@ export default function AdminDashboardPage() {
     {
       label: 'Total Deposits', prefix: '',
       value: stats ? fmtEur(stats.totalDeposits) : '-',
-      change: 12.4, accent: '#0ea5e9',
+      change: 12.4, accent: '#4f8cff',
       icon: <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M12 5v14M19 12l-7 7-7-7" /></svg>,
     },
     {
       label: 'Total Withdraws', prefix: '',
       value: stats ? fmtEur(stats.totalWithdraws) : '-',
-      change: -3.1, accent: '#f59e0b',
+      change: -3.1, accent: '#f6b24a',
       icon: <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M12 19V5M5 12l7-7 7 7" /></svg>,
     },
     {
@@ -266,14 +266,14 @@ export default function AdminDashboardPage() {
     {
       label: 'Profit / Loss', prefix: '',
       value: stats ? (stats.profitLoss < 0 ? '-' : '') + fmtEur(stats.profitLoss) : '-',
-      change: stats ? (stats.profitLoss >= 0 ? 18.2 : -18.2) : 18.2, accent: stats && stats.profitLoss >= 0 ? '#00c878' : '#ff3047',
+      change: stats ? (stats.profitLoss >= 0 ? 18.2 : -18.2) : 18.2, accent: stats && stats.profitLoss >= 0 ? '#18c98a' : '#ff5a72',
       icon: <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" /></svg>,
     },
   ]
 
   const QUICK_ACTIONS = [
     {
-      label: 'All Customers', sub: 'User management', accent: '#38bdf8', to: '/admin/users/all',
+      label: 'All Customers', sub: 'User management', accent: '#7aa7ff', to: '/admin/users/all',
       icon: <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" /><circle cx="9" cy="7" r="4" /></svg>,
     },
     {
@@ -281,11 +281,11 @@ export default function AdminDashboardPage() {
       icon: <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><polyline points="22 7 13.5 15.5 8.5 10.5 2 17" /><polyline points="16 7 22 7 22 13" /></svg>,
     },
     {
-      label: 'Deposits', sub: 'Payments received', accent: '#00c878', to: '/admin/transactions/deposits',
+      label: 'Deposits', sub: 'Payments received', accent: '#18c98a', to: '/admin/transactions/deposits',
       icon: <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path d="M12 5v14M19 12l-7 7-7-7" /></svg>,
     },
     {
-      label: 'Pending Withdraws', sub: 'Awaiting approval', accent: '#f59e0b', to: '/admin/transactions/pending-withdraws',
+      label: 'Pending Withdraws', sub: 'Awaiting approval', accent: '#f6b24a', to: '/admin/transactions/pending-withdraws',
       icon: <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path d="M12 19V5M5 12l7-7 7 7" /></svg>,
     },
     {
@@ -324,7 +324,7 @@ export default function AdminDashboardPage() {
         <div className="flex items-center gap-3 flex-wrap">
           {/* Date range picker */}
           <div className="flex items-center gap-2 rounded-xl px-4 py-2" style={{ background: '#0c1220', border: '1px solid rgba(56,189,248,0.12)' }}>
-            <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} style={{ color: '#6b8099' }}>
+            <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} style={{ color: 'var(--t-text-2)' }}>
               <rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" />
             </svg>
             <span className="text-xs text-text-secondary">From</span>
@@ -350,7 +350,7 @@ export default function AdminDashboardPage() {
             onClick={fetchStats}
             disabled={loading}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all disabled:opacity-50"
-            style={{ background: 'rgba(14,165,233,0.08)', border: '1px solid rgba(56,189,248,0.14)', color: '#38bdf8' }}
+            style={{ background: 'rgba(79,140,255,0.08)', border: '1px solid rgba(56,189,248,0.14)', color: '#7aa7ff' }}
           >
             <svg className={`w-3 h-3 ${loading ? 'animate-spin' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -372,9 +372,9 @@ export default function AdminDashboardPage() {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[
             { label: 'Open Positions',   value: String(stats.openTrades),   color: '#f43f5e', bg: 'rgba(244,63,94,0.08)',  border: 'rgba(244,63,94,0.18)' },
-            { label: 'Closed Trades',    value: String(stats.closedTrades), color: '#00c878', bg: 'rgba(0,200,120,0.08)',  border: 'rgba(0,200,120,0.18)' },
-            { label: 'Net P&L',          value: `${stats.profitLoss >= 0 ? '+' : '-'}${fmtEur(stats.profitLoss)}`, color: stats.profitLoss >= 0 ? '#00c878' : '#ff3047', bg: 'rgba(56,189,248,0.05)', border: 'rgba(56,189,248,0.12)' },
-            { label: 'Registered Users', value: String(stats.totalUsers),   color: '#38bdf8', bg: 'rgba(56,189,248,0.05)', border: 'rgba(56,189,248,0.12)' },
+            { label: 'Closed Trades',    value: String(stats.closedTrades), color: '#18c98a', bg: 'rgba(24,201,138,0.08)',  border: 'rgba(24,201,138,0.18)' },
+            { label: 'Net P&L',          value: `${stats.profitLoss >= 0 ? '+' : '-'}${fmtEur(stats.profitLoss)}`, color: stats.profitLoss >= 0 ? '#18c98a' : '#ff5a72', bg: 'rgba(56,189,248,0.05)', border: 'rgba(56,189,248,0.12)' },
+            { label: 'Registered Users', value: String(stats.totalUsers),   color: '#7aa7ff', bg: 'rgba(56,189,248,0.05)', border: 'rgba(56,189,248,0.12)' },
           ].map(s => (
             <div key={s.label} className="rounded-xl px-4 py-3" style={{ background: s.bg, border: `1px solid ${s.border}` }}>
               <p className="text-xl font-bold font-mono" style={{ color: s.color }}>{s.value}</p>
@@ -409,7 +409,7 @@ export default function AdminDashboardPage() {
               <thead>
                 <tr style={{ borderBottom: '1px solid rgba(56,189,248,0.06)' }}>
                   {['Trade ID', 'User', 'Symbol', 'Side', 'Lots', 'P&L', 'Status', 'Date'].map(h => (
-                    <th key={h} className="text-left px-4 py-2.5 font-medium whitespace-nowrap" style={{ color: '#6b8099', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{h}</th>
+                    <th key={h} className="text-left px-4 py-2.5 font-medium whitespace-nowrap" style={{ color: 'var(--t-text-2)', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -423,14 +423,14 @@ export default function AdminDashboardPage() {
                       <span className={`font-semibold ${t.side === 'buy' ? 'text-bull' : 'text-bear'}`}>{t.side.toUpperCase()}</span>
                     </td>
                     <td className="px-4 py-3 font-mono text-text-secondary">{t.lots}</td>
-                    <td className="px-4 py-3 font-mono font-semibold whitespace-nowrap" style={{ color: t.pnl >= 0 ? '#00c878' : '#ff3047' }}>
+                    <td className="px-4 py-3 font-mono font-semibold whitespace-nowrap" style={{ color: t.pnl >= 0 ? '#18c98a' : '#ff5a72' }}>
                       {t.pnl >= 0 ? '+' : '-'}{fmtEur(t.pnl)}
                     </td>
                     <td className="px-4 py-3">
                       <span className="inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full"
                         style={{
-                          color: t.status === 'open' ? '#38bdf8' : t.status === 'closed' ? '#6b8099' : '#f59e0b',
-                          background: t.status === 'open' ? 'rgba(56,189,248,0.1)' : t.status === 'closed' ? 'rgba(107,128,153,0.1)' : 'rgba(245,158,11,0.1)',
+                          color: t.status === 'open' ? '#7aa7ff' : t.status === 'closed' ? 'var(--t-text-2)' : '#f6b24a',
+                          background: t.status === 'open' ? 'rgba(56,189,248,0.1)' : t.status === 'closed' ? 'rgba(107,128,153,0.1)' : 'rgba(246,178,74,0.1)',
                         }}>
                         <span className="w-1 h-1 rounded-full" style={{ background: 'currentColor' }} />
                         {t.status}
@@ -470,7 +470,7 @@ export default function AdminDashboardPage() {
                 <span className="text-xs text-text-secondary">{s.name}</span>
                 <div className="flex items-center gap-2">
                   <ServiceDot ok={s.ok} />
-                  <span className="text-xs font-semibold" style={{ color: s.ok ? '#00c878' : '#ff3047' }}>{s.ok ? 'Online' : 'Down'}</span>
+                  <span className="text-xs font-semibold" style={{ color: s.ok ? '#18c98a' : '#ff5a72' }}>{s.ok ? 'Online' : 'Down'}</span>
                 </div>
               </div>
             ))}
@@ -488,15 +488,15 @@ export default function AdminDashboardPage() {
           <div className="px-5 py-4 space-y-3">
             {server ? (
               <>
-                <MemBar used={server.memory.heapUsed} total={server.memory.heapTotal} color="#38bdf8" />
+                <MemBar used={server.memory.heapUsed} total={server.memory.heapTotal} color="#7aa7ff" />
                 <div className="grid grid-cols-2 gap-2">
                   {[
-                    { l: 'Uptime',  v: formatUptime(server.uptime),   c: '#00c878' },
+                    { l: 'Uptime',  v: formatUptime(server.uptime),   c: '#18c98a' },
                     { l: 'Node.js', v: server.nodeVersion,             c: '#a78bfa' },
-                    { l: 'RSS',     v: formatBytes(server.memory.rss), c: '#f59e0b' },
-                    { l: 'Env',     v: server.env,                     c: '#38bdf8' },
+                    { l: 'RSS',     v: formatBytes(server.memory.rss), c: '#f6b24a' },
+                    { l: 'Env',     v: server.env,                     c: '#7aa7ff' },
                   ].map(s => (
-                    <div key={s.l} className="rounded-lg px-3 py-2" style={{ background: 'rgba(14,165,233,0.04)', border: '1px solid rgba(56,189,248,0.07)' }}>
+                    <div key={s.l} className="rounded-lg px-3 py-2" style={{ background: 'rgba(79,140,255,0.04)', border: '1px solid rgba(56,189,248,0.07)' }}>
                       <p className="font-mono font-semibold text-xs" style={{ color: s.c }}>{s.v}</p>
                       <p className="text-text-muted mt-0.5" style={{ fontSize: '10px' }}>{s.l}</p>
                     </div>

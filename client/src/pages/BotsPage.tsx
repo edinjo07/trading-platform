@@ -32,28 +32,28 @@ const C = {
 }
 
 const STRAT: Record<BotStrategy, { label: string; color: string; glow: string }> = {
-  ma_crossover: { label: 'MA Cross',  color: '#0ea5e9', glow: 'rgba(14,165,233,0.15)'  },
+  ma_crossover: { label: 'MA Cross',  color: '#4f8cff', glow: 'rgba(79,140,255,0.15)'  },
   rsi:          { label: 'RSI',       color: '#8b5cf6', glow: 'rgba(139,92,246,0.15)'  },
   macd:         { label: 'MACD',      color: '#06b6d4', glow: 'rgba(6,182,212,0.15)'   },
-  momentum:     { label: 'Momentum',  color: '#f59e0b', glow: 'rgba(245,158,11,0.15)'  },
+  momentum:     { label: 'Momentum',  color: '#f6b24a', glow: 'rgba(246,178,74,0.15)'  },
 }
 
 const STATUS_CFG: Record<string, { bg: string; color: string; label: string; pulse: boolean }> = {
-  running:    { bg: 'rgba(16,185,129,0.12)', color: '#10b981', label: 'Running',    pulse: true  },
-  warming_up: { bg: 'rgba(14,165,233,0.12)', color: '#0ea5e9', label: 'Warming up', pulse: true  },
-  paused:     { bg: 'rgba(245,158,11,0.12)', color: '#f59e0b', label: 'Paused',     pulse: false },
-  idle:       { bg: 'rgba(100,116,139,0.1)', color: '#64748b', label: 'Idle',       pulse: false },
-  stopped:    { bg: 'rgba(100,116,139,0.1)', color: '#475569', label: 'Stopped',    pulse: false },
-  error:      { bg: 'rgba(239,68,68,0.12)',  color: '#ef4444', label: 'Error',      pulse: false },
+  running:    { bg: 'rgba(24,201,138,0.12)', color: '#18c98a', label: 'Running',    pulse: true  },
+  warming_up: { bg: 'rgba(79,140,255,0.12)', color: '#4f8cff', label: 'Warming up', pulse: true  },
+  paused:     { bg: 'rgba(246,178,74,0.12)', color: '#f6b24a', label: 'Paused',     pulse: false },
+  idle:       { bg: 'rgba(100,116,139,0.1)', color: 'var(--t-text-3)', label: 'Idle',       pulse: false },
+  stopped:    { bg: 'rgba(100,116,139,0.1)', color: 'var(--t-text-3)', label: 'Stopped',    pulse: false },
+  error:      { bg: 'rgba(255,90,114,0.12)',  color: '#ff5a72', label: 'Error',      pulse: false },
 }
 
 const LOG_CFG: Record<string, { color: string; border: string; label: string }> = {
-  info:   { color: '#475569', border: '#1e293b', label: 'INFO'   },
-  signal: { color: '#f59e0b', border: '#78350f', label: 'SIGNAL' },
-  trade:  { color: '#10b981', border: '#064e3b', label: 'TRADE'  },
+  info:   { color: 'var(--t-text-3)', border: '#1e293b', label: 'INFO'   },
+  signal: { color: '#f6b24a', border: '#78350f', label: 'SIGNAL' },
+  trade:  { color: '#18c98a', border: '#064e3b', label: 'TRADE'  },
   risk:   { color: '#f43f5e', border: '#881337', label: 'RISK'   },
   warn:   { color: '#fb923c', border: '#7c2d12', label: 'WARN'   },
-  error:  { color: '#ef4444', border: '#7f1d1d', label: 'ERROR'  },
+  error:  { color: '#ff5a72', border: '#7f1d1d', label: 'ERROR'  },
 }
 
 const SYMBOL_GROUPS: { label: string; symbols: string[] }[] = [
@@ -347,9 +347,9 @@ function BotCard({ bot, selected, onClick }: { bot: Bot; selected: boolean; onCl
               <span style={{ fontSize: 10, fontWeight: 700, color: meta.color }}>{meta.label}</span>
               <span style={{
                 fontSize: 9, fontWeight: 800, padding: '1px 5px', borderRadius: 5, letterSpacing: '0.04em',
-                background: bot.mode === 'real' ? 'rgba(239,68,68,0.12)' : 'rgba(14,165,233,0.08)',
+                background: bot.mode === 'real' ? 'rgba(255,90,114,0.12)' : 'rgba(79,140,255,0.08)',
                 color: bot.mode === 'real' ? C.red : C.blue,
-                border: `1px solid ${bot.mode === 'real' ? 'rgba(239,68,68,0.2)' : 'rgba(14,165,233,0.2)'}`,
+                border: `1px solid ${bot.mode === 'real' ? 'rgba(255,90,114,0.2)' : 'rgba(79,140,255,0.2)'}`,
               }}>
                 {bot.mode === 'real' ? 'REAL' : 'DEMO'}
               </span>
@@ -360,7 +360,7 @@ function BotCard({ bot, selected, onClick }: { bot: Bot; selected: boolean; onCl
         {/* Warmup bar */}
         {bot.status === 'warming_up' && (
           <div style={{ marginBottom: 9 }}>
-            <div style={{ height: 2, borderRadius: 2, background: 'rgba(14,165,233,0.12)' }}>
+            <div style={{ height: 2, borderRadius: 2, background: 'rgba(79,140,255,0.12)' }}>
               <div style={{ height: 2, borderRadius: 2, width: `${warmPct}%`, background: `linear-gradient(90deg, ${C.blue}, ${C.cyan})`, transition: 'width 0.5s' }}/>
             </div>
           </div>
@@ -519,9 +519,9 @@ function RiskDisclosureModal({ onAccept, onClose }: { onAccept: () => void; onCl
   ]
   return createPortal(
     <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, background: 'rgba(0,0,0,0.88)', backdropFilter: 'blur(10px)' }}>
-      <div style={{ width: '100%', maxWidth: 440, maxHeight: '90vh', overflowY: 'auto', borderRadius: 20, background: C.surface, border: `1px solid rgba(239,68,68,0.25)` }}>
+      <div style={{ width: '100%', maxWidth: 440, maxHeight: '90vh', overflowY: 'auto', borderRadius: 20, background: C.surface, border: `1px solid rgba(255,90,114,0.25)` }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '18px 20px 14px', borderBottom: `1px solid ${C.border}` }}>
-          <div style={{ width: 36, height: 36, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)', flexShrink: 0 }}>
+          <div style={{ width: 36, height: 36, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,90,114,0.1)', border: '1px solid rgba(255,90,114,0.25)', flexShrink: 0 }}>
             <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke={C.red} strokeWidth={2}><path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
           </div>
           <div>
@@ -541,7 +541,7 @@ function RiskDisclosureModal({ onAccept, onClose }: { onAccept: () => void; onCl
               </div>
             ))}
           </div>
-          <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '10px 12px', borderRadius: 10, cursor: 'pointer', background: checked ? 'rgba(16,185,129,0.07)' : C.bg, border: `1px solid ${checked ? 'rgba(16,185,129,0.25)' : C.border}`, marginBottom: 14, transition: 'all 0.15s' }}>
+          <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '10px 12px', borderRadius: 10, cursor: 'pointer', background: checked ? 'rgba(24,201,138,0.07)' : C.bg, border: `1px solid ${checked ? 'rgba(24,201,138,0.25)' : C.border}`, marginBottom: 14, transition: 'all 0.15s' }}>
             <input type="checkbox" checked={checked} onChange={e => setChecked(e.target.checked)} style={{ marginTop: 2, width: 14, height: 14, flexShrink: 0, cursor: 'pointer' }}/>
             <span style={{ fontSize: 11, color: checked ? C.green : C.text2, lineHeight: 1.5 }}>
               I have read and fully understood the risks. I accept sole responsibility for any losses.
@@ -907,7 +907,7 @@ function CreateBotModal({ onClose, onCreate }: { onClose: () => void; onCreate: 
           {/* Footer */}
           <div style={{ flexShrink: 0, padding: '12px 18px 20px', borderTop: `1px solid ${C.border}`, background: C.surface }}>
             {err && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', borderRadius: 8, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', marginBottom: 10 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', borderRadius: 8, background: 'rgba(255,90,114,0.08)', border: '1px solid rgba(255,90,114,0.2)', marginBottom: 10 }}>
                 <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke={C.red} strokeWidth={2}><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                 <p style={{ fontSize: 11, color: '#fca5a5', margin: 0 }}>{err}</p>
               </div>
@@ -1121,7 +1121,7 @@ export default function BotsPage() {
             {canStart ? (
               <button onClick={() => handleStart(selected)} disabled={!!actionId} style={{
                 display: 'flex', alignItems: 'center', gap: 5, padding: '7px 12px', borderRadius: 9, fontSize: 11, fontWeight: 700, cursor: actionId ? 'not-allowed' : 'pointer',
-                background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.28)', color: C.green,
+                background: 'rgba(24,201,138,0.1)', border: '1px solid rgba(24,201,138,0.28)', color: C.green,
               }}>
                 <svg width="11" height="11" fill="currentColor" viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
                 {actionId === selected.id ? '…' : 'Start'}
@@ -1129,7 +1129,7 @@ export default function BotsPage() {
             ) : (
               <button onClick={() => handleStop(selected)} disabled={!!actionId} style={{
                 display: 'flex', alignItems: 'center', gap: 5, padding: '7px 12px', borderRadius: 9, fontSize: 11, fontWeight: 700, cursor: actionId ? 'not-allowed' : 'pointer',
-                background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.28)', color: C.amber,
+                background: 'rgba(246,178,74,0.1)', border: '1px solid rgba(246,178,74,0.28)', color: C.amber,
               }}>
                 <svg width="11" height="11" fill="currentColor" viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
                 {actionId === selected.id ? '…' : 'Stop'}
@@ -1137,7 +1137,7 @@ export default function BotsPage() {
             )}
             <button onClick={() => handleDelete(selected)} disabled={!!actionId} style={{
               display: 'flex', alignItems: 'center', gap: 5, padding: '7px 12px', borderRadius: 9, fontSize: 11, fontWeight: 700, cursor: actionId ? 'not-allowed' : 'pointer',
-              background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', color: C.red,
+              background: 'rgba(255,90,114,0.08)', border: '1px solid rgba(255,90,114,0.2)', color: C.red,
             }}>
               <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
               <span className="bots-del-label">Delete</span>
@@ -1180,7 +1180,7 @@ export default function BotsPage() {
 
       {/* Active position ticket — live entry / price / P&L / SL / TP */}
       {selected.position !== 'none' && (
-        <div style={{ padding: '10px 18px', borderBottom: `1px solid ${C.border}`, flexShrink: 0, background: selected.position === 'long' ? 'rgba(16,185,129,0.05)' : 'rgba(239,68,68,0.05)' }}>
+        <div style={{ padding: '10px 18px', borderBottom: `1px solid ${C.border}`, flexShrink: 0, background: selected.position === 'long' ? 'rgba(24,201,138,0.05)' : 'rgba(255,90,114,0.05)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <span style={{ width: 8, height: 8, borderRadius: '50%', background: selected.position === 'long' ? C.green : C.red, boxShadow: `0 0 8px ${selected.position === 'long' ? C.green : C.red}`, animation: 'pulse 1.8s ease-in-out infinite' }}/>
@@ -1239,8 +1239,8 @@ export default function BotsPage() {
             <span style={{ fontSize: 12, fontFamily: 'monospace', fontWeight: 800, color: selected.pnl >= 0 ? C.green : C.red }}>{fmtPnl(selected.pnl)}</span>
           </div>
           <div style={{ display: 'flex', gap: 6 }}>
-            {selected.params.stopLossPercent && <span style={{ fontSize: 10, padding: '2px 7px', borderRadius: 20, background: 'rgba(239,68,68,0.08)', color: C.red, border: '1px solid rgba(239,68,68,0.18)' }}>SL {selected.params.stopLossPercent}% (ATR-adj)</span>}
-            {selected.params.takeProfitPercent && <span style={{ fontSize: 10, padding: '2px 7px', borderRadius: 20, background: 'rgba(245,158,11,0.08)', color: C.amber, border: '1px solid rgba(245,158,11,0.18)' }}>TP {selected.params.takeProfitPercent}% (ATR-adj)</span>}
+            {selected.params.stopLossPercent && <span style={{ fontSize: 10, padding: '2px 7px', borderRadius: 20, background: 'rgba(255,90,114,0.08)', color: C.red, border: '1px solid rgba(255,90,114,0.18)' }}>SL {selected.params.stopLossPercent}% (ATR-adj)</span>}
+            {selected.params.takeProfitPercent && <span style={{ fontSize: 10, padding: '2px 7px', borderRadius: 20, background: 'rgba(246,178,74,0.08)', color: C.amber, border: '1px solid rgba(246,178,74,0.18)' }}>TP {selected.params.takeProfitPercent}% (ATR-adj)</span>}
             {selected.params.tradeSize && <span style={{ fontSize: 10, padding: '2px 7px', borderRadius: 20, background: C.surface2, color: C.text2, border: `1px solid ${C.border}` }}>Size {selected.params.tradeSize}</span>}
           </div>
         </div>
@@ -1321,7 +1321,7 @@ export default function BotsPage() {
         @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.85)} }
         @keyframes spin  { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
         @keyframes botscan { 0%{transform:translateX(-100%);opacity:0} 50%{opacity:1} 100%{transform:translateX(100%);opacity:0} }
-        @keyframes livedot { 0%,100%{box-shadow:0 0 0 0 rgba(16,185,129,0.5)} 50%{box-shadow:0 0 0 5px rgba(16,185,129,0)} }
+        @keyframes livedot { 0%,100%{box-shadow:0 0 0 0 rgba(24,201,138,0.5)} 50%{box-shadow:0 0 0 5px rgba(24,201,138,0)} }
 
         /* ── Sidebar ── */
         .bots-sidebar {

@@ -39,12 +39,12 @@ export default function PortfolioSummary() {
       <StatCard
         label="Unrealized P&L"
         value={formatPnl(portfolio.unrealizedPnl)}
-        accent={portfolio.unrealizedPnl >= 0 ? '#00c878' : '#ff3047'}
+        accent={portfolio.unrealizedPnl >= 0 ? '#18c98a' : '#ff5a72'}
       />
       <StatCard
         label="Realized P&L"
         value={formatPnl(portfolio.realizedPnl)}
-        accent={portfolio.realizedPnl >= 0 ? '#00c878' : '#ff3047'}
+        accent={portfolio.realizedPnl >= 0 ? '#18c98a' : '#ff5a72'}
       />
     </div>
   )

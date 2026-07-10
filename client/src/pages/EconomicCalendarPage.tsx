@@ -11,10 +11,10 @@ const DAY_LABELS: Record<DayKey, string> = { mon:'Mon', tue:'Tue', wed:'Wed', th
 const CURRENCIES = ['All','USD','EUR','GBP','JPY','AUD','CAD','CHF','NZD']
 
 const IMPACT_COLOR: Record<string, string> = {
-  high: '#ef4444', medium: '#f59e0b', low: '#3b82f6', holiday: '#374151',
+  high: '#ff5a72', medium: '#f6b24a', low: '#3b82f6', holiday: '#374151',
 }
 const IMPACT_BG: Record<string, string> = {
-  high: 'rgba(239,68,68,0.1)', medium: 'rgba(245,158,11,0.1)', low: 'rgba(59,130,246,0.1)', holiday: 'transparent',
+  high: 'rgba(255,90,114,0.1)', medium: 'rgba(246,178,74,0.1)', low: 'rgba(59,130,246,0.1)', holiday: 'transparent',
 }
 const IMPACT_BARS: Record<string, number> = { high: 3, medium: 2, low: 1, holiday: 0 }
 
@@ -99,7 +99,7 @@ function LiveClock() {
   const est = t.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit', hour12:false, timeZone:'America/New_York' })
   return (
     <div style={{ display:'flex', alignItems:'center', gap:5 }}>
-      <div style={{ width:6, height:6, borderRadius:'50%', background:'#10b981', animation:'ec2-pulse 2s ease-in-out infinite' }}/>
+      <div style={{ width:6, height:6, borderRadius:'50%', background:'#18c98a', animation:'ec2-pulse 2s ease-in-out infinite' }}/>
       <span style={{ fontSize:12, fontFamily:'monospace', fontWeight:700, color:'#6b7280' }}>{est} EST</span>
     </div>
   )
@@ -164,7 +164,7 @@ function MarketMovers({ events, onTap }: { events: EconomicEvent[]; onTap: (e: E
                 {ev.actual && (
                   <div style={{ marginLeft:'auto' }}>
                     <div style={{ fontSize:9, color:'#374151', fontWeight:700, marginBottom:2 }}>Actual</div>
-                    <div style={{ fontSize:13, fontFamily:'monospace', fontWeight:900, color: (parseNum(ev.actual) ?? 0) >= (parseNum(ev.forecast) ?? 0) ? '#10b981' : '#ef4444' }}>{ev.actual}</div>
+                    <div style={{ fontSize:13, fontFamily:'monospace', fontWeight:900, color: (parseNum(ev.actual) ?? 0) >= (parseNum(ev.forecast) ?? 0) ? '#18c98a' : '#ff5a72' }}>{ev.actual}</div>
                   </div>
                 )}
               </div>
@@ -247,8 +247,8 @@ function EventTimeline({ events, onTap }: { events: EconomicEvent[]; onTap: (e: 
                   </div>
                   {ev.actual ? (
                     <div style={{ textAlign:'right' }}>
-                      <div style={{ fontSize:12, fontFamily:'monospace', fontWeight:900, color: isBeat ? '#10b981' : isMiss ? '#ef4444' : '#fff', lineHeight:1 }}>{ev.actual}</div>
-                      {(isBeat || isMiss) && <div style={{ fontSize:8, fontWeight:800, color: isBeat ? '#10b981' : '#ef4444' }}>{isBeat ? '▲BEAT' : '▼MISS'}</div>}
+                      <div style={{ fontSize:12, fontFamily:'monospace', fontWeight:900, color: isBeat ? '#18c98a' : isMiss ? '#ff5a72' : '#fff', lineHeight:1 }}>{ev.actual}</div>
+                      {(isBeat || isMiss) && <div style={{ fontSize:8, fontWeight:800, color: isBeat ? '#18c98a' : '#ff5a72' }}>{isBeat ? '▲BEAT' : '▼MISS'}</div>}
                     </div>
                   ) : (
                     <span style={{ fontSize:9, color:'#1f2937', fontStyle:'italic' }}>—</span>
@@ -312,13 +312,13 @@ function EventSheet({ event, relatedNews, onClose }: { event: EconomicEvent; rel
               {[
                 { l:'Forecast', v:event.forecast, c:'#fff' },
                 { l:'Previous', v:event.previous, c:'#6b7280' },
-                { l:'Actual',   v:event.actual ?? 'Pending', c: event.actual ? (isBeat ? '#10b981' : isMiss ? '#ef4444' : '#fff') : '#374151' },
+                { l:'Actual',   v:event.actual ?? 'Pending', c: event.actual ? (isBeat ? '#18c98a' : isMiss ? '#ff5a72' : '#fff') : '#374151' },
               ].map(col => (
                 <div key={col.l} style={{ background:'#1a1a1a', borderRadius:12, padding:'10px 12px', textAlign:'center' }}>
                   <div style={{ fontSize:9, color:'#374151', fontWeight:700, textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:4 }}>{col.l}</div>
                   <div style={{ fontSize:16, fontFamily:'monospace', fontWeight:900, color:col.c, lineHeight:1 }}>{col.v}</div>
                   {col.l === 'Actual' && (isBeat || isMiss) && event.actual && (
-                    <div style={{ fontSize:9, fontWeight:800, color: isBeat ? '#10b981' : '#ef4444', marginTop:3 }}>{isBeat ? '▲ BEAT' : '▼ MISS'}</div>
+                    <div style={{ fontSize:9, fontWeight:800, color: isBeat ? '#18c98a' : '#ff5a72', marginTop:3 }}>{isBeat ? '▲ BEAT' : '▼ MISS'}</div>
                   )}
                 </div>
               ))}
@@ -464,7 +464,7 @@ export default function EconomicCalendarPage() {
           <div style={{ display:'flex', alignItems:'center', gap:8 }}>
             <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#fff" strokeWidth={2}><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
             <span style={{ fontSize:17, fontWeight:900, color:'#fff', letterSpacing:'-0.02em' }}>Economic Calendar</span>
-            {cached && <span style={{ fontSize:9, fontWeight:700, padding:'2px 6px', borderRadius:4, background:'rgba(245,158,11,0.12)', color:'#f59e0b', border:'1px solid rgba(245,158,11,0.2)' }}>CACHED</span>}
+            {cached && <span style={{ fontSize:9, fontWeight:700, padding:'2px 6px', borderRadius:4, background:'rgba(246,178,74,0.12)', color:'#f6b24a', border:'1px solid rgba(246,178,74,0.2)' }}>CACHED</span>}
           </div>
           <div style={{ display:'flex', alignItems:'center', gap:8 }}>
             <LiveClock/>
@@ -498,7 +498,7 @@ export default function EconomicCalendarPage() {
               }}>
                 {DAY_LABELS[k]}
                 <span style={{ marginLeft:4, fontSize:10, color: isActive ? '#374151' : '#374151' }}>·{cnt}</span>
-                {isToday && !isActive && <div style={{ position:'absolute', top:4, right:4, width:5, height:5, borderRadius:'50%', background:'#0ea5e9' }}/>}
+                {isToday && !isActive && <div style={{ position:'absolute', top:4, right:4, width:5, height:5, borderRadius:'50%', background:'#4f8cff' }}/>}
               </button>
             )
           })}
@@ -508,8 +508,8 @@ export default function EconomicCalendarPage() {
         <div style={{ display:'flex', gap:8, overflowX:'auto', paddingBottom:10, scrollbarWidth:'none' }}>
           {([
             ['All',    '#fff',     '',         dayEvents.length],
-            ['High',   '#ef4444',  '#ef444420', highTotal],
-            ['Medium', '#f59e0b',  '#f59e0b20', medTotal],
+            ['High',   '#ff5a72',  '#ff5a7220', highTotal],
+            ['Medium', '#f6b24a',  '#f6b24a20', medTotal],
             ['Low',    '#3b82f6',  '#3b82f620', dayEvents.filter(e=>e.impact==='low').length],
           ] as const).map(([label, activeColor, activeBg, cnt]) => {
             const isActive = impactFilter === label
@@ -563,7 +563,7 @@ export default function EconomicCalendarPage() {
 
             {/* Date label */}
             <div style={{ display:'flex', alignItems:'center', gap:8, paddingTop:4, borderTop:'1px solid #111' }}>
-              <div style={{ width:6, height:6, borderRadius:'50%', background:'#10b981', animation:'ec2-pulse 2s infinite' }}/>
+              <div style={{ width:6, height:6, borderRadius:'50%', background:'#18c98a', animation:'ec2-pulse 2s infinite' }}/>
               <span style={{ fontSize:10, color:'#1f2937' }}>
                 {weekDates[activeDay].toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' })} · Events from Forex Factory · Refreshes every 5 min
               </span>

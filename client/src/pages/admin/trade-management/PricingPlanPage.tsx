@@ -8,7 +8,7 @@ const plans: Plan[] = [
     name: 'Basic',
     price: '$0',
     period: '/mo',
-    color: '#6b8099',
+    color: 'var(--t-text-2)',
     active: true,
     features: ['5 Instruments', '1:100 Leverage', 'Standard Spreads', 'Email Support', '1 Account'],
   },
@@ -17,7 +17,7 @@ const plans: Plan[] = [
     name: 'Standard',
     price: '$29',
     period: '/mo',
-    color: '#38bdf8',
+    color: '#7aa7ff',
     popular: true,
     active: true,
     features: ['50 Instruments', '1:500 Leverage', 'Raw Spreads + $3 comm.', 'Live Chat Support', '3 Accounts', 'API Access'],
@@ -36,7 +36,7 @@ const plans: Plan[] = [
     name: 'Institutional',
     price: 'Custom',
     period: '',
-    color: '#00c878',
+    color: '#18c98a',
     active: true,
     features: ['All Pro Features', 'Custom Leverage', 'White-Label Solution', 'Dedicated Server', 'SLA Guarantee', 'Custom Integration'],
   },
@@ -60,7 +60,7 @@ export default function PricingPlanPage() {
           <h1 className="text-lg font-bold text-text-primary">Pricing Plans</h1>
           <p className="text-xs text-text-secondary mt-0.5">Manage subscription tiers and feature access control</p>
         </div>
-        <button className="px-4 py-1.5 rounded-lg text-xs font-semibold text-white" style={{ background: 'linear-gradient(135deg,#0ea5e9,#0369a1)' }}>
+        <button className="px-4 py-1.5 rounded-lg text-xs font-semibold text-white" style={{ background: 'linear-gradient(135deg,#4f8cff,#3b78f0)' }}>
           + New Plan
         </button>
       </div>
@@ -104,7 +104,7 @@ export default function PricingPlanPage() {
               </button>
               <button
                 className="w-full py-1.5 rounded-lg text-xs transition-colors"
-                style={{ background: 'rgba(255,48,71,0.06)', color: plan.active ? '#ff3047' : '#00c878', border: '1px solid rgba(255,48,71,0.08)' }}
+                style={{ background: 'rgba(255,90,114,0.06)', color: plan.active ? '#ff5a72' : '#18c98a', border: '1px solid rgba(255,90,114,0.08)' }}
                 onClick={() => setActivePlans(prev => prev.map(p => p.id === plan.id ? { ...p, active: !p.active } : p))}
               >
                 {plan.active ? 'Deactivate' : 'Activate'}

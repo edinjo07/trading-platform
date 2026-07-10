@@ -16,7 +16,7 @@ function timeAgo(iso: string): string {
   return `${Math.floor(s / 86400)}d ago`
 }
 
-const SEV_DOT: Record<string, string> = { critical: '#ef4444', warning: '#f59e0b', success: '#10b981', info: '#0ea5e9' }
+const SEV_DOT: Record<string, string> = { critical: '#ff5a72', warning: '#f6b24a', success: '#18c98a', info: '#4f8cff' }
 
 function currentDevice(): string {
   const ua = typeof navigator !== 'undefined' ? navigator.userAgent : ''
@@ -41,11 +41,11 @@ const COUNTRIES = [
 ]
 
 const AVATAR_GRADIENTS = [
-  'linear-gradient(135deg,#0ea5e9,#7c3aed)',
-  'linear-gradient(135deg,#10b981,#0ea5e9)',
-  'linear-gradient(135deg,#f59e0b,#ef4444)',
+  'linear-gradient(135deg,#4f8cff,#7c3aed)',
+  'linear-gradient(135deg,#18c98a,#4f8cff)',
+  'linear-gradient(135deg,#f6b24a,#ff5a72)',
   'linear-gradient(135deg,#8b5cf6,#ec4899)',
-  'linear-gradient(135deg,#06b6d4,#10b981)',
+  'linear-gradient(135deg,#06b6d4,#18c98a)',
   'linear-gradient(135deg,#f97316,#eab308)',
 ]
 
@@ -76,7 +76,7 @@ function StatBox({ label, value, sub, color, icon }: {
       style={{ background: 'rgba(var(--ink),0.025)', border: '1px solid rgba(var(--ink),0.05)' }}>
       {icon && (
         <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
-          style={{ background: 'rgba(14,165,233,0.1)' }}>
+          style={{ background: 'rgba(79,140,255,0.1)' }}>
           {icon}
         </div>
       )}
@@ -109,7 +109,7 @@ function Field({
         style={{
           background: readOnly ? 'rgba(var(--ink),0.025)' : 'rgba(var(--ink),0.05)',
           border: readOnly ? '1px solid rgba(var(--ink),0.06)' : '1px solid rgba(var(--ink),0.08)',
-          color: readOnly ? '#6b8099' : undefined,
+          color: readOnly ? 'var(--t-text-2)' : undefined,
           cursor: readOnly ? 'default' : undefined,
         }}
       />
@@ -146,8 +146,8 @@ function Toggle({ active, onToggle }: { active: boolean; onToggle: () => void })
       className="relative shrink-0 focus:outline-none"
       style={{
         width: '40px', height: '22px', borderRadius: '11px',
-        background: active ? '#0ea5e9' : 'rgba(var(--ink),0.1)',
-        border: active ? '1px solid rgba(14,165,233,0.4)' : '1px solid rgba(var(--ink),0.1)',
+        background: active ? '#4f8cff' : 'rgba(var(--ink),0.1)',
+        border: active ? '1px solid rgba(79,140,255,0.4)' : '1px solid rgba(var(--ink),0.1)',
         transition: 'background 0.2s',
       }}
     >
@@ -169,9 +169,9 @@ function Toast({ msg, type }: { msg: string; type: 'ok' | 'err' }) {
     <div
       className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 px-4 py-3 rounded-xl text-sm font-medium shadow-xl"
       style={{
-        background: type === 'ok' ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)',
-        border: `1px solid ${type === 'ok' ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)'}`,
-        color: type === 'ok' ? '#10b981' : '#ef4444',
+        background: type === 'ok' ? 'rgba(24,201,138,0.15)' : 'rgba(255,90,114,0.15)',
+        border: `1px solid ${type === 'ok' ? 'rgba(24,201,138,0.3)' : 'rgba(255,90,114,0.3)'}`,
+        color: type === 'ok' ? '#18c98a' : '#ff5a72',
       }}
     >
       {type === 'ok'
@@ -186,9 +186,9 @@ function Toast({ msg, type }: { msg: string; type: 'ok' | 'err' }) {
 // ─── KYC Badge ────────────────────────────────────────────────────────────────
 function KYCBadge({ level }: { level: 'unverified' | 'basic' | 'verified' }) {
   const styles = {
-    unverified: { color: '#ef4444', bg: 'rgba(239,68,68,0.1)', border: 'rgba(239,68,68,0.2)', label: 'Unverified' },
-    basic:      { color: '#f59e0b', bg: 'rgba(245,158,11,0.1)', border: 'rgba(245,158,11,0.2)', label: 'Basic KYC' },
-    verified:   { color: '#10b981', bg: 'rgba(16,185,129,0.1)', border: 'rgba(16,185,129,0.2)', label: 'Verified' },
+    unverified: { color: '#ff5a72', bg: 'rgba(255,90,114,0.1)', border: 'rgba(255,90,114,0.2)', label: 'Unverified' },
+    basic:      { color: '#f6b24a', bg: 'rgba(246,178,74,0.1)', border: 'rgba(246,178,74,0.2)', label: 'Basic KYC' },
+    verified:   { color: '#18c98a', bg: 'rgba(24,201,138,0.1)', border: 'rgba(24,201,138,0.2)', label: 'Verified' },
   }
   const s = styles[level]
   return (
@@ -320,12 +320,12 @@ export default function ProfilePage() {
         className="rounded-2xl p-6 mb-5 relative overflow-hidden"
         style={{
           background: 'rgba(var(--ink),0.04)',
-          border: '1px solid rgba(14,165,233,0.18)',
+          border: '1px solid rgba(79,140,255,0.18)',
         }}
       >
         {/* Background glow */}
         <div className="absolute -top-12 -right-12 w-48 h-48 rounded-full pointer-events-none"
-          style={{ background: 'radial-gradient(circle, rgba(14,165,233,0.08) 0%, transparent 70%)' }} />
+          style={{ background: 'radial-gradient(circle, rgba(79,140,255,0.08) 0%, transparent 70%)' }} />
 
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5 relative">
           {/* Avatar */}
@@ -350,7 +350,7 @@ export default function ProfilePage() {
                     className="w-7 h-7 rounded-lg shrink-0 ring-offset-1 transition-all"
                     style={{
                       background: g,
-                      outline: avatarIdx === i ? '2px solid #38bdf8' : 'none',
+                      outline: avatarIdx === i ? '2px solid #7aa7ff' : 'none',
                     }}
                   />
                 ))}
@@ -388,8 +388,8 @@ export default function ProfilePage() {
             <div className="flex items-center justify-end gap-2 mt-1">
               <span className="text-xs font-semibold px-2 py-0.5 rounded-full"
                 style={{
-                  color: user?.accountMode === 'real' ? '#10b981' : '#f59e0b',
-                  background: user?.accountMode === 'real' ? 'rgba(16,185,129,0.1)' : 'rgba(245,158,11,0.1)',
+                  color: user?.accountMode === 'real' ? '#18c98a' : '#f6b24a',
+                  background: user?.accountMode === 'real' ? 'rgba(24,201,138,0.1)' : 'rgba(246,178,74,0.1)',
                 }}>
                 {user?.accountMode === 'real' ? 'Live' : 'Demo'}
               </span>
@@ -408,8 +408,8 @@ export default function ProfilePage() {
             onClick={() => setTab(t.key)}
             className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all flex-1 justify-center"
             style={tab === t.key
-              ? { background: 'rgba(14,165,233,0.12)', color: '#38bdf8', border: '1px solid rgba(14,165,233,0.22)' }
-              : { color: '#6b8099', border: '1px solid transparent' }
+              ? { background: 'rgba(79,140,255,0.12)', color: '#7aa7ff', border: '1px solid rgba(79,140,255,0.22)' }
+              : { color: 'var(--t-text-2)', border: '1px solid transparent' }
             }
           >
             {t.icon}
@@ -429,7 +429,7 @@ export default function ProfilePage() {
             action={
               <button type="submit" disabled={profileSaving}
                 className="px-4 py-2 rounded-lg text-xs font-semibold text-white disabled:opacity-50"
-                style={{ background: 'linear-gradient(135deg,#0ea5e9,#0369a1)' }}>
+                style={{ background: 'linear-gradient(135deg,#4f8cff,#3b78f0)' }}>
                 {profileSaving ? 'Saving…' : 'Save Changes'}
               </button>
             }
@@ -475,8 +475,8 @@ export default function ProfilePage() {
                   style={{ background: 'rgba(var(--ink),0.02)', border: '1px solid rgba(var(--ink),0.04)' }}>
                   <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-xs font-bold"
                     style={item.done
-                      ? { background: 'rgba(16,185,129,0.15)', color: '#10b981', border: '1px solid rgba(16,185,129,0.3)' }
-                      : { background: 'rgba(var(--ink),0.05)', color: '#6b8099', border: '1px solid rgba(var(--ink),0.08)' }
+                      ? { background: 'rgba(24,201,138,0.15)', color: '#18c98a', border: '1px solid rgba(24,201,138,0.3)' }
+                      : { background: 'rgba(var(--ink),0.05)', color: 'var(--t-text-2)', border: '1px solid rgba(var(--ink),0.08)' }
                     }>
                     {item.done
                       ? <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><polyline points="20 6 9 17 4 12"/></svg>
@@ -490,7 +490,7 @@ export default function ProfilePage() {
                   {!item.done && (
                     <a href="/dashboard/verify"
                       className="px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-opacity hover:opacity-80"
-                      style={{ background: 'rgba(14,165,233,0.1)', color: '#38bdf8', border: '1px solid rgba(14,165,233,0.2)' }}>
+                      style={{ background: 'rgba(79,140,255,0.1)', color: '#7aa7ff', border: '1px solid rgba(79,140,255,0.2)' }}>
                       Start
                     </a>
                   )}
@@ -510,7 +510,7 @@ export default function ProfilePage() {
               </div>
               <button type="button"
                 className="px-4 py-2.5 rounded-lg text-sm font-semibold whitespace-nowrap"
-                style={{ background: 'rgba(14,165,233,0.1)', color: '#38bdf8', border: '1px solid rgba(14,165,233,0.2)' }}
+                style={{ background: 'rgba(79,140,255,0.1)', color: '#7aa7ff', border: '1px solid rgba(79,140,255,0.2)' }}
                 onClick={() => {
                   navigator.clipboard.writeText(`https://tradeplatform.com/ref/${user?.id?.slice(0, 8) ?? ''}`)
                     .then(() => showToast('Referral link copied!', 'ok'))
@@ -593,8 +593,8 @@ export default function ProfilePage() {
               ].map(item => (
                 <div key={item.level} className="p-4 rounded-xl flex flex-col gap-2"
                   style={{
-                    background: item.done ? 'rgba(16,185,129,0.05)' : 'rgba(var(--ink),0.02)',
-                    border: `1px solid ${item.done ? 'rgba(16,185,129,0.2)' : 'rgba(var(--ink),0.05)'}`,
+                    background: item.done ? 'rgba(24,201,138,0.05)' : 'rgba(var(--ink),0.02)',
+                    border: `1px solid ${item.done ? 'rgba(24,201,138,0.2)' : 'rgba(var(--ink),0.05)'}`,
                   }}>
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-text-muted uppercase tracking-widest">{item.level}</span>
@@ -610,7 +610,7 @@ export default function ProfilePage() {
             </div>
             <a href="/dashboard/verify"
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold text-white"
-              style={{ background: 'linear-gradient(135deg,#0ea5e9,#0369a1)' }}>
+              style={{ background: 'linear-gradient(135deg,#4f8cff,#3b78f0)' }}>
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
               Complete Verification
             </a>
@@ -627,7 +627,7 @@ export default function ProfilePage() {
                 {notifications.slice(0, 6).map(n => (
                   <div key={n.id} className="flex items-center gap-3 py-2.5 px-3 rounded-lg"
                     style={{ background: 'rgba(var(--ink),0.02)' }}>
-                    <span className="w-2 h-2 rounded-full shrink-0" style={{ background: SEV_DOT[n.severity] ?? '#6b8099' }} />
+                    <span className="w-2 h-2 rounded-full shrink-0" style={{ background: SEV_DOT[n.severity] ?? 'var(--t-text-2)' }} />
                     <span className="flex-1 text-sm text-text-secondary truncate">{n.title}</span>
                     <span className="text-xs text-text-muted shrink-0">{timeAgo(n.created_at)}</span>
                   </div>
@@ -652,7 +652,7 @@ export default function ProfilePage() {
                 type="submit"
                 disabled={pwdLoading}
                 className="px-6 py-2.5 rounded-lg text-sm font-semibold text-white disabled:opacity-50"
-                style={{ background: 'linear-gradient(135deg,#0ea5e9,#0369a1)' }}>
+                style={{ background: 'linear-gradient(135deg,#4f8cff,#3b78f0)' }}>
                 {pwdLoading ? 'Updating…' : 'Update Password'}
               </button>
             </form>
@@ -664,8 +664,8 @@ export default function ProfilePage() {
                 style={{ background: 'rgba(var(--ink),0.02)', border: '1px solid rgba(var(--ink),0.05)' }}>
                 <div className="flex items-center gap-3">
                   <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
-                    style={{ background: twoFA ? 'rgba(16,185,129,0.1)' : 'rgba(var(--ink),0.04)' }}>
-                    <svg className="w-4.5 h-4.5" style={{ color: twoFA ? '#10b981' : '#6b8099' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+                    style={{ background: twoFA ? 'rgba(24,201,138,0.1)' : 'rgba(var(--ink),0.04)' }}>
+                    <svg className="w-4.5 h-4.5" style={{ color: twoFA ? '#18c98a' : 'var(--t-text-2)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
                   </div>
                   <div>
                     <div className="text-sm font-medium text-text-primary">Authenticator App</div>
@@ -679,7 +679,7 @@ export default function ProfilePage() {
 
               {twoFA && (
                 <div className="p-4 rounded-xl text-xs text-text-secondary"
-                  style={{ background: 'rgba(16,185,129,0.05)', border: '1px solid rgba(16,185,129,0.15)' }}>
+                  style={{ background: 'rgba(24,201,138,0.05)', border: '1px solid rgba(24,201,138,0.15)' }}>
                   2FA is active. Use your authenticator app to generate a 6-digit code when signing in.
                 </div>
               )}
@@ -697,7 +697,7 @@ export default function ProfilePage() {
                   </div>
                 </div>
                 <span className="text-xs font-semibold px-2.5 py-1 rounded-full"
-                  style={{ color: '#10b981', background: 'rgba(16,185,129,0.1)' }}>Active</span>
+                  style={{ color: '#18c98a', background: 'rgba(24,201,138,0.1)' }}>Active</span>
               </div>
             </div>
           </Card>
@@ -711,13 +711,13 @@ export default function ProfilePage() {
                 <div className="text-xs text-text-muted">This device · Active now</div>
               </div>
               <span className="text-xs font-semibold px-2.5 py-1 rounded-full shrink-0"
-                style={{ color: '#10b981', background: 'rgba(16,185,129,0.1)' }}>Current</span>
+                style={{ color: '#18c98a', background: 'rgba(24,201,138,0.1)' }}>Current</span>
             </div>
           </Card>
 
           <Card title="API Keys" description="Manage keys for algorithmic trading integrations">
             <div className="p-4 rounded-xl mb-4 text-xs text-text-secondary"
-              style={{ background: 'rgba(245,158,11,0.05)', border: '1px solid rgba(245,158,11,0.15)' }}>
+              style={{ background: 'rgba(246,178,74,0.05)', border: '1px solid rgba(246,178,74,0.15)' }}>
               <span className="font-semibold text-amber-400">Warning:</span> Keep your API keys secret. Never share them or commit them to public repositories.
             </div>
             <div className="flex items-center justify-between p-4 rounded-xl"
@@ -728,7 +728,7 @@ export default function ProfilePage() {
               </div>
               <button
                 className="px-4 py-2 rounded-lg text-xs font-semibold text-white"
-                style={{ background: 'linear-gradient(135deg,#0ea5e9,#0369a1)' }}
+                style={{ background: 'linear-gradient(135deg,#4f8cff,#3b78f0)' }}
                 onClick={() => showToast('API key management coming soon', 'ok')}>
                 Create Key
               </button>
@@ -769,7 +769,7 @@ export default function ProfilePage() {
             action={
               <button
                 className="px-4 py-2 rounded-lg text-xs font-semibold text-white"
-                style={{ background: 'linear-gradient(135deg,#0ea5e9,#0369a1)' }}
+                style={{ background: 'linear-gradient(135deg,#4f8cff,#3b78f0)' }}
                 onClick={async () => {
                   await setCurrency(selectedCurrency)
                   showToast('Preferences saved', 'ok')
@@ -829,8 +829,8 @@ export default function ProfilePage() {
                   onClick={async () => { await setAccountMode(m); showToast(`Switched to ${m === 'real' ? 'Real' : 'Demo'} account`, 'ok') }}
                   className="py-4 rounded-xl text-sm font-bold transition-all"
                   style={user?.accountMode === m
-                    ? { background: m === 'real' ? 'rgba(16,185,129,0.1)' : 'rgba(245,158,11,0.1)', color: m === 'real' ? '#10b981' : '#f59e0b', border: `1px solid ${m === 'real' ? 'rgba(16,185,129,0.3)' : 'rgba(245,158,11,0.3)'}` }
-                    : { background: 'rgba(var(--ink),0.025)', color: '#6b8099', border: '1px solid var(--t-border)' }
+                    ? { background: m === 'real' ? 'rgba(24,201,138,0.1)' : 'rgba(246,178,74,0.1)', color: m === 'real' ? '#18c98a' : '#f6b24a', border: `1px solid ${m === 'real' ? 'rgba(24,201,138,0.3)' : 'rgba(246,178,74,0.3)'}` }
+                    : { background: 'rgba(var(--ink),0.025)', color: 'var(--t-text-2)', border: '1px solid var(--t-border)' }
                   }
                 >
                   <span className="inline-flex items-center gap-2">
@@ -856,8 +856,8 @@ export default function ProfilePage() {
                 <button key={t.label}
                   className="px-5 py-2.5 rounded-lg text-sm font-medium transition-all"
                   style={t.active
-                    ? { background: 'rgba(14,165,233,0.1)', color: '#38bdf8', border: '1px solid rgba(14,165,233,0.2)' }
-                    : { background: 'rgba(var(--ink),0.025)', color: '#6b8099', border: '1px solid rgba(var(--ink),0.06)' }
+                    ? { background: 'rgba(79,140,255,0.1)', color: '#7aa7ff', border: '1px solid rgba(79,140,255,0.2)' }
+                    : { background: 'rgba(var(--ink),0.025)', color: 'var(--t-text-2)', border: '1px solid rgba(var(--ink),0.06)' }
                   }
                   onClick={() => showToast(`${t.label} theme coming soon`, 'ok')}>
                   {t.label}
@@ -870,27 +870,27 @@ export default function ProfilePage() {
           <Card title="Danger Zone">
             <div className="space-y-3 max-w-lg">
               <div className="flex items-center justify-between p-4 rounded-xl"
-                style={{ background: 'rgba(245,158,11,0.04)', border: '1px solid rgba(245,158,11,0.15)' }}>
+                style={{ background: 'rgba(246,178,74,0.04)', border: '1px solid rgba(246,178,74,0.15)' }}>
                 <div>
                   <div className="text-sm font-semibold text-text-primary">Reset Demo Balance</div>
                   <div className="text-xs text-text-muted">Restore practice account to $100,000</div>
                 </div>
                 <button
                   className="px-4 py-2 rounded-lg text-xs font-semibold transition-opacity hover:opacity-80"
-                  style={{ color: '#f59e0b', background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)' }}
+                  style={{ color: '#f6b24a', background: 'rgba(246,178,74,0.1)', border: '1px solid rgba(246,178,74,0.2)' }}
                   onClick={() => showToast('Demo balance reset to $100,000', 'ok')}>
                   Reset
                 </button>
               </div>
               <div className="flex items-center justify-between p-4 rounded-xl"
-                style={{ background: 'rgba(239,68,68,0.04)', border: '1px solid rgba(239,68,68,0.15)' }}>
+                style={{ background: 'rgba(255,90,114,0.04)', border: '1px solid rgba(255,90,114,0.15)' }}>
                 <div>
                   <div className="text-sm font-semibold text-text-primary">Close Account</div>
                   <div className="text-xs text-text-muted">Permanently delete your account and all data</div>
                 </div>
                 <button
                   className="px-4 py-2 rounded-lg text-xs font-semibold transition-opacity hover:opacity-80"
-                  style={{ color: '#ef4444', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)' }}
+                  style={{ color: '#ff5a72', background: 'rgba(255,90,114,0.08)', border: '1px solid rgba(255,90,114,0.2)' }}
                   onClick={() => showToast('Contact support to close your account', 'err')}>
                   Close
                 </button>

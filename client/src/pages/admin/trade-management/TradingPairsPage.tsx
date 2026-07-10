@@ -91,9 +91,9 @@ function useApiBase() {
 function StatCard({ label, value, sub, color }: { label: string; value: string | number; sub?: string; color?: string }) {
   return (
     <div className="rounded-xl p-4 border" style={{ background: '#0c1220', borderColor: 'rgba(56,189,248,0.08)' }}>
-      <p className="text-xs font-medium mb-1" style={{ color: '#6b8099' }}>{label}</p>
+      <p className="text-xs font-medium mb-1" style={{ color: 'var(--t-text-2)' }}>{label}</p>
       <p className={`text-2xl font-bold ${color ?? 'text-text-primary'}`}>{value}</p>
-      {sub && <p className="text-xs mt-0.5" style={{ color: '#6b8099' }}>{sub}</p>}
+      {sub && <p className="text-xs mt-0.5" style={{ color: 'var(--t-text-2)' }}>{sub}</p>}
     </div>
   )
 }
@@ -127,7 +127,7 @@ function Modal({ title, onClose, children, wide }: { title: string; onClose: () 
 function Field({ label, children, hint }: { label: string; children: React.ReactNode; hint?: string }) {
   return (
     <div>
-      <label className="block text-xs font-semibold mb-1" style={{ color: '#6b8099' }}>{label}</label>
+      <label className="block text-xs font-semibold mb-1" style={{ color: 'var(--t-text-2)' }}>{label}</label>
       {children}
       {hint && <p className="text-xs mt-1" style={{ color: '#4a6075' }}>{hint}</p>}
     </div>
@@ -256,13 +256,13 @@ function DeleteModal({ pair, onConfirm, onCancel, loading }: {
   return (
     <Modal title="Delete Trading Pair" onClose={onCancel}>
       <div className="px-6 py-6 text-center">
-        <div className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: 'rgba(255,48,71,0.12)' }}>
+        <div className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: 'rgba(255,90,114,0.12)' }}>
           <svg className="w-7 h-7 text-bear" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
             <path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
           </svg>
         </div>
         <p className="text-base font-semibold text-text-primary mb-1">Delete {pair.symbol}?</p>
-        <p className="text-sm" style={{ color: '#6b8099' }}>
+        <p className="text-sm" style={{ color: 'var(--t-text-2)' }}>
           This will permanently remove <span className="text-text-primary font-medium">{pair.name}</span> from the trading pairs list.
           Active trades on this pair will not be affected.
         </p>
@@ -277,7 +277,7 @@ function DeleteModal({ pair, onConfirm, onCancel, loading }: {
           <button
             onClick={onConfirm} disabled={loading}
             className="flex-1 py-2.5 rounded-lg text-sm font-bold text-white transition-opacity disabled:opacity-60"
-            style={{ background: 'linear-gradient(135deg,#ff3047,#c01030)' }}
+            style={{ background: 'linear-gradient(135deg,#ff5a72,#c01030)' }}
           >
             {loading ? 'Deleting…' : 'Delete Pair'}
           </button>
@@ -512,14 +512,14 @@ export default function TradingPairsPage() {
       <div className="flex items-start justify-between flex-wrap gap-4">
         <div>
           <h1 className="text-xl font-bold text-text-primary">Trading Pairs</h1>
-          <p className="text-sm mt-0.5" style={{ color: '#6b8099' }}>
+          <p className="text-sm mt-0.5" style={{ color: 'var(--t-text-2)' }}>
             Manage all tradeable instruments, spreads, leverage, and lot settings
           </p>
         </div>
         <button
           onClick={openAdd}
           className="px-5 py-2.5 rounded-xl text-sm font-bold text-white transition-all hover:brightness-110 flex items-center gap-2"
-          style={{ background: 'linear-gradient(135deg,#0ea5e9,#0369a1)' }}
+          style={{ background: 'linear-gradient(135deg,#4f8cff,#3b78f0)' }}
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
             <path d="M12 5v14M5 12h14" />
@@ -556,8 +556,8 @@ export default function TradingPairsPage() {
                     : 'text-text-secondary hover:text-text-primary'
                 }`}
                 style={activeTab === tab.value
-                  ? { background: 'linear-gradient(135deg,#0ea5e9,#0369a1)' }
-                  : { background: 'rgba(14,165,233,0.06)' }
+                  ? { background: 'linear-gradient(135deg,#4f8cff,#3b78f0)' }
+                  : { background: 'rgba(79,140,255,0.06)' }
                 }
               >
                 {tab.label}
@@ -566,7 +566,7 @@ export default function TradingPairsPage() {
           </div>
           {/* Search */}
           <div className="relative">
-            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: '#6b8099' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: 'var(--t-text-2)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <circle cx="11" cy="11" r="8" /><path d="M21 21l-4.35-4.35" />
             </svg>
             <input
@@ -587,7 +587,7 @@ export default function TradingPairsPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr style={{ borderBottom: '1px solid rgba(56,189,248,0.07)', color: '#6b8099' }}>
+                <tr style={{ borderBottom: '1px solid rgba(56,189,248,0.07)', color: 'var(--t-text-2)' }}>
                   <th className={thCls} onClick={() => handleSort('symbol')}>Symbol <SortIcon k="symbol" /></th>
                   <th className={thCls} onClick={() => handleSort('name')}>Name <SortIcon k="name" /></th>
                   <th className={thCls} onClick={() => handleSort('category')}>Category <SortIcon k="category" /></th>
@@ -609,7 +609,7 @@ export default function TradingPairsPage() {
                     key={p.id}
                     style={{
                       borderBottom: '1px solid rgba(56,189,248,0.04)',
-                      background: i % 2 === 1 ? 'rgba(14,165,233,0.015)' : 'transparent',
+                      background: i % 2 === 1 ? 'rgba(79,140,255,0.015)' : 'transparent',
                     }}
                   >
                     <td className="px-3 py-3">
@@ -625,7 +625,7 @@ export default function TradingPairsPage() {
                     </td>
                     <td className="px-3 py-3">
                       <span className="font-mono text-info text-xs">{p.spread}</span>
-                      {p.spreadType === 'variable' && <span className="ml-1 text-xs" style={{ color: '#6b8099' }}>var</span>}
+                      {p.spreadType === 'variable' && <span className="ml-1 text-xs" style={{ color: 'var(--t-text-2)' }}>var</span>}
                     </td>
                     <td className="px-3 py-3 font-mono text-text-secondary">{p.digits}</td>
                     <td className="px-3 py-3 font-mono text-text-secondary">{p.minLot}</td>
@@ -656,7 +656,7 @@ export default function TradingPairsPage() {
                         <button
                           onClick={() => openEdit(p)}
                           className="p-1.5 rounded-md transition-colors hover:text-info"
-                          style={{ color: '#6b8099', background: 'rgba(56,189,248,0.06)' }}
+                          style={{ color: 'var(--t-text-2)', background: 'rgba(56,189,248,0.06)' }}
                           title="Edit"
                         >
                           <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -666,7 +666,7 @@ export default function TradingPairsPage() {
                         <button
                           onClick={() => setDeletePair(p)}
                           className="p-1.5 rounded-md transition-colors hover:text-bear"
-                          style={{ color: '#6b8099', background: 'rgba(255,48,71,0.06)' }}
+                          style={{ color: 'var(--t-text-2)', background: 'rgba(255,90,114,0.06)' }}
                           title="Delete"
                         >
                           <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -685,7 +685,7 @@ export default function TradingPairsPage() {
         {/* Pagination */}
         {!loading && filtered.length > PAGE_SIZE && (
           <div className="flex items-center justify-between px-5 py-3 border-t" style={{ borderColor: 'rgba(56,189,248,0.06)' }}>
-            <span className="text-xs" style={{ color: '#6b8099' }}>
+            <span className="text-xs" style={{ color: 'var(--t-text-2)' }}>
               Showing {Math.min((page - 1) * PAGE_SIZE + 1, filtered.length)}–{Math.min(page * PAGE_SIZE, filtered.length)} of {filtered.length}
             </span>
             <div className="flex gap-1.5">
@@ -693,7 +693,7 @@ export default function TradingPairsPage() {
                 <button
                   key={n} onClick={() => setPage(n)}
                   className={`w-7 h-7 rounded-md text-xs font-medium transition-colors ${n === page ? 'text-white' : 'text-text-secondary hover:text-text-primary'}`}
-                  style={n === page ? { background: 'linear-gradient(135deg,#0ea5e9,#0369a1)' } : { background: 'rgba(56,189,248,0.06)' }}
+                  style={n === page ? { background: 'linear-gradient(135deg,#4f8cff,#3b78f0)' } : { background: 'rgba(56,189,248,0.06)' }}
                 >
                   {n}
                 </button>
@@ -721,7 +721,7 @@ export default function TradingPairsPage() {
             <button
               onClick={handleAdd} disabled={saving}
               className="flex-1 py-2.5 rounded-xl text-sm font-bold text-white disabled:opacity-60 transition-all hover:brightness-110"
-              style={{ background: 'linear-gradient(135deg,#0ea5e9,#0369a1)' }}
+              style={{ background: 'linear-gradient(135deg,#4f8cff,#3b78f0)' }}
             >
               {saving ? 'Creating…' : 'Create Pair'}
             </button>
@@ -747,7 +747,7 @@ export default function TradingPairsPage() {
             <button
               onClick={handleEdit} disabled={saving}
               className="flex-1 py-2.5 rounded-xl text-sm font-bold text-white disabled:opacity-60 transition-all hover:brightness-110"
-              style={{ background: 'linear-gradient(135deg,#0ea5e9,#0369a1)' }}
+              style={{ background: 'linear-gradient(135deg,#4f8cff,#3b78f0)' }}
             >
               {saving ? 'Saving…' : 'Save Changes'}
             </button>
