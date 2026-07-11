@@ -514,6 +514,7 @@ export default function LandingPage() {
   const isAuthenticated = !!token
   const [scrolled, setScrolled] = useState(false)
   const [showBar, setShowBar] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
   const [tickers, setTickers] = useState<Record<string, Ticker>>({})
   const [meta, setMeta] = useState<Record<string, MarketSymbol>>({})
 
@@ -546,7 +547,19 @@ export default function LandingPage() {
     return () => { dead = true; clearInterval(iv) }
   }, [])
 
-  const go = () => navigate(isAuthenticated ? '/dashboard' : '/login?mode=register')
+  // Lock the page scroll while the mobile menu is open
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? 'hidden' : ''
+    return () => { document.body.style.overflow = '' }
+  }, [menuOpen])
+
+  const go = () => { setMenuOpen(false); navigate(isAuthenticated ? '/dashboard' : '/login?mode=register') }
+  const goTo = (path: string) => { setMenuOpen(false); navigate(path) }
+  const jump = (id: string) => {
+    setMenuOpen(false)
+    // wait for the drawer to release the scroll lock before jumping
+    setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' }), 60)
+  }
 
   const marquee = useMemo(() => {
     const live = FALLBACK_TICKER.map(f => {
@@ -590,11 +603,27 @@ export default function LandingPage() {
         .lx-mini:hover { filter: brightness(1.3); transform: translateY(-1px) }
         .lx-sticky { display: none }
         .lx-sticky-spacer { display: none }
+        .lx-burger { display: none; background: none; border: 1px solid rgba(242,184,75,0.25); border-radius: 10px;
+          width: 42px; height: 42px; cursor: pointer; align-items: center; justify-content: center; flex-shrink: 0 }
+        .lx-drawer { position: fixed; inset: 0; z-index: 200; background: rgba(26,19,16,0.97);
+          backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+          display: flex; flex-direction: column; padding: 18px;
+          opacity: 0; pointer-events: none; transition: opacity 0.25s ease }
+        .lx-drawer.lx-on { opacity: 1; pointer-events: auto }
+        .lx-dlink { background: none; border: none; cursor: pointer; text-align: left; padding: 15px 6px;
+          font-size: 22px; font-weight: 750; letter-spacing: -0.01em; color: ${IVORY};
+          border-bottom: 1px solid rgba(242,184,75,0.08) }
+        .lx-dlink:active { color: ${GOLD} }
+        .lx-dsub { background: none; border: none; cursor: pointer; text-align: left; padding: 10px 6px;
+          font-size: 15px; font-weight: 600; color: ${BODY} }
+        .lx-dsub:active { color: ${IVORY} }
         @media (max-width: 960px) {
           .lx-msplit, .lx-psplit { grid-template-columns: 1fr }
         }
         @media (max-width: 720px) {
           .lx-navlinks { display: none }
+          .lx-burger { display: flex }
+          .lx-navsignin { display: none }
           .lx-hero {
             background:
               linear-gradient(180deg, rgba(26,19,16,0.5) 0%, rgba(26,19,16,0.28) 40%, rgba(26,19,16,0.92) 90%, ${NIGHT} 100%),
@@ -635,18 +664,73 @@ export default function LandingPage() {
           <BrandMark size={30} />
           <Wordmark />
         </div>
-        <div className="lx-navlinks" style={{ display: 'flex', gap: 28, alignItems: 'center' }}>
+        <div className="lx-navlinks" style={{ display: 'flex', gap: 26, alignItems: 'center' }}>
           <a className="lx-navlink" href="#pilot">TradePilot</a>
           <a className="lx-navlink" href="#markets">Markets</a>
+          <a className="lx-navlink" href="#cockpit">Platform</a>
+          <button onClick={() => goTo('/account-types')} className="lx-navlink" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+            Account types
+          </button>
           <a className="lx-navlink" href="#story">The story</a>
         </div>
         <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-          <button onClick={() => navigate('/login')} className="lx-navlink" style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+          <button onClick={() => navigate('/login')} className="lx-navlink lx-navsignin" style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
             Sign in
           </button>
           <span className="lx-navcta"><GoldBtn onClick={go}>Claim $100,000 free</GoldBtn></span>
+          <button className="lx-burger" aria-label="Menu" onClick={() => setMenuOpen(true)}>
+            <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke={GOLD} strokeWidth={2} strokeLinecap="round">
+              <line x1="4" y1="7" x2="20" y2="7" /><line x1="4" y1="12" x2="20" y2="12" /><line x1="4" y1="17" x2="14" y2="17" />
+            </svg>
+          </button>
         </div>
       </nav>
+
+      {/* ── Mobile drawer: every page, one thumb ─────────────────────────────── */}
+      <div className={`lx-drawer${menuOpen ? ' lx-on' : ''}`}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <BrandMark size={30} />
+            <Wordmark />
+          </div>
+          <button aria-label="Close menu" onClick={() => setMenuOpen(false)} style={{
+            background: 'none', border: '1px solid rgba(242,184,75,0.25)', borderRadius: 10,
+            width: 42, height: 42, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke={GOLD} strokeWidth={2} strokeLinecap="round">
+              <line x1="6" y1="6" x2="18" y2="18" /><line x1="18" y1="6" x2="6" y2="18" />
+            </svg>
+          </button>
+        </div>
+
+        <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+          <button className="lx-dlink" onClick={() => jump('pilot')}>TradePilot</button>
+          <button className="lx-dlink" onClick={() => jump('markets')}>Live markets</button>
+          <button className="lx-dlink" onClick={() => jump('cockpit')}>The platform</button>
+          <button className="lx-dlink" onClick={() => jump('earn')}>Ways to earn</button>
+          <button className="lx-dlink" onClick={() => jump('story')}>The story</button>
+
+          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', color: DIM, margin: '24px 6px 4px' }}>
+            Pages
+          </div>
+          <button className="lx-dsub" onClick={() => goTo('/trading-pilot')}>TradePilot in depth</button>
+          <button className="lx-dsub" onClick={() => goTo('/account-types')}>Account types &amp; plans</button>
+          <button className="lx-dsub" onClick={() => goTo('/login')}>Sign in</button>
+        </div>
+
+        <div style={{ paddingTop: 14 }}>
+          <button onClick={go} className="lx-gold" style={{
+            background: GOLD_G, color: '#221503', border: 'none', cursor: 'pointer',
+            borderRadius: 14, fontWeight: 800, fontSize: 16, padding: '16px 0', width: '100%',
+            boxShadow: '0 2px 6px rgba(20,10,4,0.35), 0 10px 30px rgba(242,184,75,0.2)',
+          }}>
+            Claim your free $100,000
+          </button>
+          <p style={{ fontSize: 12, color: DIM, textAlign: 'center', margin: '10px 0 0' }}>
+            60 seconds to open · no card, no catch
+          </p>
+        </div>
+      </div>
 
       {/* ── Hero: the car at golden hour, the pitch on the left ────────────── */}
       <header className="lx-hero" style={{
@@ -796,6 +880,12 @@ export default function LandingPage() {
                   See the markets it hunts
                 </GhostBtn>
               </div>
+              <button onClick={() => goTo('/trading-pilot')} style={{
+                background: 'none', border: 'none', cursor: 'pointer', padding: 0, marginTop: 18,
+                fontSize: 14, fontWeight: 700, color: GOLD,
+              }}>
+                Explore TradePilot in depth →
+              </button>
             </div>
 
             <PilotConsole go={go} />
@@ -823,6 +913,74 @@ export default function LandingPage() {
           <div className="lx-msplit">
             <MarketsBoard tickers={tickers} meta={meta} go={go} />
             <LiveTradeCard tickers={tickers} go={go} />
+          </div>
+        </div>
+      </section>
+
+      {/* ── Inside the cockpit: the platform's hidden depth ─────────────────── */}
+      <section id="cockpit" style={{
+        background: `radial-gradient(900px 480px at 50% -10%, rgba(242,184,75,0.05), transparent 60%), ${NIGHT}`,
+        padding: 'clamp(72px, 9vw, 110px) clamp(18px, 4vw, 44px)',
+      }}>
+        <div style={{ maxWidth: 1240, margin: '0 auto' }}>
+          <Eyebrow>Inside the cockpit</Eyebrow>
+          <h2 style={{
+            fontFamily: SERIF, fontWeight: 550, fontSize: 'clamp(30px, 4.2vw, 48px)',
+            lineHeight: 1.1, letterSpacing: '-0.015em', color: IVORY, margin: '0 0 14px',
+          }}>
+            A full pit wall, not just a chart.
+          </h2>
+          <p style={{ maxWidth: 560, fontSize: 16, lineHeight: 1.7, color: BODY, margin: '0 0 44px' }}>
+            Your seat comes with every instrument on the dash. All of it is included,
+            from the first practice lap.
+          </p>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 14 }}>
+            {[
+              {
+                t: 'WebTrader', d: 'Full charting, one-tap orders, order book and depth, on any screen.',
+                i: <path d="M8 6v4m0 8v-4m0 0h-2v-4h2v4zm8-10v2m0 10v4m0-14h2v6h-2m0 0h-2v-6h2" />,
+              },
+              {
+                t: 'Market scanner', d: 'Momentum, breakouts and unusual volume, surfaced before the crowd sees them.',
+                i: <><circle cx="11" cy="11" r="7" /><path d="M21 21l-4.35-4.35" /></>,
+              },
+              {
+                t: 'Analytics & telemetry', d: 'Equity curve, drawdown, win rate, attribution by bot and by strategy.',
+                i: <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />,
+              },
+              {
+                t: 'Leaderboard', d: 'Race the grid. Every driver ranked by verified performance, not talk.',
+                i: <><path d="M8 21h8M12 17v4" /><path d="M7 4h10v6a5 5 0 01-10 0V4z" /><path d="M17 6h3a2 2 0 01-2 4h-1M7 6H4a2 2 0 002 4h1" /></>,
+              },
+              {
+                t: 'Economic calendar', d: 'Rate decisions, payrolls, earnings. Know the corners before you reach them.',
+                i: <><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M16 3v4M8 3v4M3 11h18" /></>,
+              },
+              {
+                t: 'Trading Web TV', d: 'Live market briefings and strategy sessions from the pit wall, all day.',
+                i: <><rect x="2" y="6" width="20" height="13" rx="2" /><path d="M10 10l5 2.5-5 2.5v-5z" /></>,
+              },
+            ].map(f => (
+              <div key={f.t} className="lx-mrow" onClick={go} style={{
+                display: 'flex', gap: 16, padding: '20px 22px', borderRadius: 16, cursor: 'pointer',
+                background: 'rgba(36,26,20,0.55)', border: '1px solid rgba(242,184,75,0.08)',
+              }}>
+                <div style={{
+                  width: 42, height: 42, borderRadius: 12, flexShrink: 0,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  background: 'rgba(242,184,75,0.1)', border: '1px solid rgba(242,184,75,0.18)', color: GOLD,
+                }}>
+                  <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+                    {f.i}
+                  </svg>
+                </div>
+                <div>
+                  <h3 style={{ fontSize: 15.5, fontWeight: 750, color: IVORY, margin: '0 0 5px', letterSpacing: '-0.01em' }}>{f.t}</h3>
+                  <p style={{ fontSize: 13, lineHeight: 1.6, color: BODY, margin: 0 }}>{f.d}</p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -1087,26 +1245,78 @@ export default function LandingPage() {
       </div>
       <div className="lx-sticky-spacer" />
 
-      {/* ── Footer ──────────────────────────────────────────────────────────── */}
-      <footer style={{ background: NIGHT, borderTop: '1px solid rgba(242,184,75,0.08)', padding: '36px clamp(18px, 4vw, 44px)' }}>
+      {/* ── Footer: every page, findable ────────────────────────────────────── */}
+      <footer style={{ background: NIGHT, borderTop: '1px solid rgba(242,184,75,0.08)', padding: '52px clamp(18px, 4vw, 44px) 36px' }}>
         <div style={{
-          maxWidth: 1240, margin: '0 auto', display: 'flex', flexWrap: 'wrap',
-          alignItems: 'center', justifyContent: 'space-between', gap: 18,
+          maxWidth: 1240, margin: '0 auto',
+          display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+          gap: 'clamp(28px, 4vw, 48px)',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <BrandMark size={24} />
-            <Wordmark />
+          <div style={{ gridColumn: 'span 1' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+              <BrandMark size={26} />
+              <Wordmark />
+            </div>
+            <p style={{ fontSize: 13, lineHeight: 1.65, color: DIM, margin: 0, maxWidth: 240 }}>
+              A racing team for the markets. The car is built, the engine is running,
+              the seat is yours.
+            </p>
+            <div style={{ marginTop: 16 }}>
+              <StartLights lit={5} size={8} />
+            </div>
           </div>
-          <div style={{ display: 'flex', gap: 22 }}>
-            <a className="lx-navlink" href="#pilot">TradePilot</a>
-            <a className="lx-navlink" href="#markets">Markets</a>
-            <a className="lx-navlink" href="#story">The story</a>
-            <button onClick={() => navigate('/login')} className="lx-navlink" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
-              Sign in
-            </button>
-          </div>
+
+          {[
+            {
+              h: 'Trade',
+              links: [
+                ['Live markets', () => jump('markets')],
+                ['WebTrader', go],
+                ['TradePilot bots', () => goTo('/trading-pilot')],
+                ['Account types', () => goTo('/account-types')],
+                ['Ways to earn', () => jump('earn')],
+              ] as [string, () => void][],
+            },
+            {
+              h: 'Inside the platform',
+              links: [
+                ['Market scanner', go],
+                ['Analytics & telemetry', go],
+                ['Leaderboard', go],
+                ['Economic calendar', go],
+                ['Forex calculators', go],
+                ['Trading Web TV', go],
+              ] as [string, () => void][],
+            },
+            {
+              h: 'Company & legal',
+              links: [
+                ['The story', () => jump('story')],
+                ['Sign in', () => goTo('/login')],
+                ['Privacy policy', () => window.open('/privacy-policy.html', '_blank')],
+                ['Terms of service', () => window.open('/terms-of-service.html', '_blank')],
+                ['Risk disclosure', () => window.open('/risk-disclosure.html', '_blank')],
+                ['Cookie policy', () => window.open('/cookie-policy.html', '_blank')],
+              ] as [string, () => void][],
+            },
+          ].map(col => (
+            <div key={col.h}>
+              <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: GOLD, marginBottom: 14 }}>
+                {col.h}
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {col.links.map(([label, fn]) => (
+                  <button key={label} onClick={fn} className="lx-navlink"
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, textAlign: 'left', fontSize: 13.5 }}>
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
-        <div style={{ maxWidth: 1240, margin: '18px auto 0' }}>
+
+        <div style={{ maxWidth: 1240, margin: '36px auto 0', borderTop: '1px solid rgba(242,184,75,0.07)', paddingTop: 20 }}>
           <p style={{ fontSize: 12, lineHeight: 1.6, color: DIM, margin: 0 }}>
             Trading involves real risk and leverage multiplies losses as well as gains.
             Simulated results do not guarantee future returns. Practice accounts use
