@@ -198,7 +198,7 @@ export default function TradingPilotPage() {
   useEffect(() => { window.scrollTo(0, 0) }, [])
 
   return (
-    <div style={{ background: '#06090f', color: '#d4dde8', minHeight: '100vh', fontFamily: 'inherit' }}>
+    <div style={{ background: '#1a1310', color: '#c7b8a5', minHeight: '100vh', fontFamily: 'inherit' }}>
       <Navbar />
 
       {/* ── HERO ──────────────────────────────────────────────────────────── */}
@@ -221,7 +221,7 @@ export default function TradingPilotPage() {
               style={{ fontSize: 'clamp(3rem, 8vw, 6rem)', lineHeight: 1.05, letterSpacing: '-0.03em', textShadow: '0 0 80px rgba(79,140,255,0.15)' }}>
             Trading Pilot
             <br />
-            <span style={{ background: 'linear-gradient(135deg, #4f8cff 0%, #8b5cf6 50%, #18c98a 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+            <span style={{ background: 'linear-gradient(120deg, #f9d98c 0%, #f2b84b 45%, #dd9c2f 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
               System
             </span>
           </h1>
@@ -249,9 +249,9 @@ export default function TradingPilotPage() {
             <button
               onClick={() => document.getElementById('strategies')?.scrollIntoView({ behavior: 'smooth' })}
               className="flex items-center gap-2 text-base font-medium px-8 py-4 rounded-xl transition-all"
-              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#d4dde8' }}
-              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.08)'; (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.2)' }}
-              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.04)'; (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.1)' }}>
+              style={{ background: 'rgba(242,184,75,0.07)', border: '1px solid rgba(242,184,75,0.13)', color: '#c7b8a5' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(242,184,75,0.11)'; (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.2)' }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(242,184,75,0.07)'; (e.currentTarget as HTMLElement).style.borderColor = 'rgba(242,184,75,0.13)' }}>
               Explore Strategies
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <polyline points="6 9 12 15 18 9" />
@@ -331,7 +331,7 @@ export default function TradingPilotPage() {
               <div className="relative rounded-3xl overflow-hidden p-6"
                    style={{ background: 'linear-gradient(135deg,rgba(20,15,40,0.9),rgba(10,8,25,0.95))', border: '1px solid rgba(139,92,246,0.2)' }}>
                 {/* Header */}
-                <div className="flex items-center gap-3 mb-5 pb-4" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                <div className="flex items-center gap-3 mb-5 pb-4" style={{ borderBottom: '1px solid rgba(242,184,75,0.09)' }}>
                   <div className="w-9 h-9 rounded-xl flex items-center justify-center"
                        style={{ background: 'linear-gradient(135deg,#7c3aed,#4f46e5)' }}>
                     <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
@@ -356,7 +356,7 @@ export default function TradingPilotPage() {
                     { headline: 'SEC review of spot crypto products ongoing', sentiment: 'NEUTRAL', score: 0.50, color: '#f6b24a' },
                     { headline: 'Whale wallet movement detected on-chain', sentiment: 'CAUTION', score: 0.32, color: '#ff6b35' },
                   ].map((n, i) => (
-                    <div key={i} className="rounded-xl p-3" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                    <div key={i} className="rounded-xl p-3" style={{ background: 'rgba(242,184,75,0.06)', border: '1px solid rgba(242,184,75,0.09)' }}>
                       <div className="flex items-start justify-between gap-3">
                         <p className="text-xs leading-relaxed" style={{ color: 'rgba(255,255,255,0.7)' }}>{n.headline}</p>
                         <span className="text-2xs font-bold px-2 py-0.5 rounded-full shrink-0"
@@ -365,7 +365,7 @@ export default function TradingPilotPage() {
                         </span>
                       </div>
                       {/* Sentiment bar */}
-                      <div className="mt-2 h-1 rounded-full" style={{ background: 'rgba(255,255,255,0.06)' }}>
+                      <div className="mt-2 h-1 rounded-full" style={{ background: 'rgba(242,184,75,0.09)' }}>
                         <div className="h-1 rounded-full transition-all" style={{ width: `${n.score * 100}%`, background: `linear-gradient(90deg, ${n.color}88, ${n.color})` }} />
                       </div>
                     </div>
@@ -479,7 +479,7 @@ export default function TradingPilotPage() {
                        style={{ background: `linear-gradient(90deg, ${step.color}44, transparent)`, transform: 'translateX(-50%)' }} />
                 )}
                 <div className="relative z-10 rounded-2xl p-6"
-                     style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                     style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(242,184,75,0.09)' }}>
                   {/* Number */}
                   <div className="text-5xl font-black font-mono mb-4" style={{ color: step.color, opacity: 0.2, lineHeight: 1 }}>{step.n}</div>
                   <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4"
@@ -505,7 +505,7 @@ export default function TradingPilotPage() {
             </div>
             <h2 className="text-4xl md:text-5xl font-black text-white mb-4" style={{ letterSpacing: '-0.02em' }}>
               Your Capital.<br />
-              <span style={{ background: 'linear-gradient(135deg,#18c98a,#4f8cff)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+              <span style={{ background: 'linear-gradient(120deg,#f9d98c,#dd9c2f)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
                 Always Protected.
               </span>
             </h2>
@@ -545,10 +545,10 @@ export default function TradingPilotPage() {
 
           {/* Console mock */}
           <div className="rounded-2xl overflow-hidden"
-               style={{ background: '#040a12', border: '1px solid rgba(79,140,255,0.15)', boxShadow: '0 0 60px rgba(79,140,255,0.08)' }}>
+               style={{ background: '#160f0c', border: '1px solid rgba(79,140,255,0.15)', boxShadow: '0 0 60px rgba(79,140,255,0.08)' }}>
             {/* Title bar */}
             <div className="flex items-center gap-3 px-4 py-3"
-                 style={{ background: '#060d18', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                 style={{ background: '#20160f', borderBottom: '1px solid rgba(242,184,75,0.08)' }}>
               <div className="flex gap-1.5">
                 <div className="w-3 h-3 rounded-full" style={{ background: '#ff5f57' }} />
                 <div className="w-3 h-3 rounded-full" style={{ background: '#febc2e' }} />
@@ -629,7 +629,7 @@ export default function TradingPilotPage() {
       </section>
 
       {/* ── FOOTER ────────────────────────────────────────────────────────── */}
-      <footer style={{ borderTop: '1px solid rgba(255,255,255,0.06)', background: '#040710', padding: '2rem 0' }}>
+      <footer style={{ borderTop: '1px solid rgba(242,184,75,0.09)', background: '#160f0c', padding: '2rem 0' }}>
         <div className="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
           <button onClick={() => navigate('/')} className="flex items-center gap-2">
             <div className="w-6 h-6 rounded-md flex items-center justify-center"

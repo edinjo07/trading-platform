@@ -108,10 +108,10 @@ export default function AccountTypesPage() {
   const navigate = useNavigate()
 
   return (
-    <div style={{ background: '#000', minHeight: '100vh', color: '#c8d6e5', fontFamily: "-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif" }}>
+    <div style={{ background: '#1a1310', minHeight: '100vh', color: '#c7b8a5', fontFamily: "-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif" }}>
 
       {/* ── Navbar ── */}
-      <nav style={{ position: 'sticky', top: 0, zIndex: 50, background: 'rgba(0,0,0,0.92)', backdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+      <nav style={{ position: 'sticky', top: 0, zIndex: 50, background: 'rgba(0,0,0,0.92)', backdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(242,184,75,0.09)' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 24px', height: 60, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }} onClick={() => navigate('/')}>
             <div style={{ width: 30, height: 30, borderRadius: 8, background: 'linear-gradient(135deg,#4f8cff,#3b78f0)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -122,8 +122,8 @@ export default function AccountTypesPage() {
             <span style={{ fontWeight: 700, fontSize: 16, color: '#fff' }}>TradeX<span style={{ color: '#7aa7ff' }}> Pro</span></span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <a href="/" style={{ color: 'var(--t-text-2)', fontSize: 13, textDecoration: 'none' }}>Home</a>
-            <a href="/#features" style={{ color: 'var(--t-text-2)', fontSize: 13, textDecoration: 'none' }}>Features</a>
+            <a href="/" style={{ color: '#c7b8a5', fontSize: 13, textDecoration: 'none' }}>Home</a>
+            <a href="/#features" style={{ color: '#c7b8a5', fontSize: 13, textDecoration: 'none' }}>Features</a>
             <button
               onClick={() => navigate('/login')}
               style={{ background: 'linear-gradient(135deg,#4f8cff,#3b78f0)', color: '#fff', border: 'none', borderRadius: 10, padding: '8px 20px', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
@@ -134,15 +134,15 @@ export default function AccountTypesPage() {
       </nav>
 
       {/* ── Hero ── */}
-      <div style={{ background: 'linear-gradient(180deg,rgba(79,140,255,0.06) 0%,#000 60%)', borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '72px 24px 56px', textAlign: 'center' }}>
+      <div style={{ background: 'linear-gradient(180deg,rgba(79,140,255,0.06) 0%,#000 60%)', borderBottom: '1px solid rgba(242,184,75,0.09)', padding: '72px 24px 56px', textAlign: 'center' }}>
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '4px 14px', borderRadius: 99, background: 'rgba(79,140,255,0.1)', border: '1px solid rgba(79,140,255,0.22)', color: '#7aa7ff', fontSize: 12, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 20 }}>
-          <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#7aa7ff', display: 'inline-block' }} />
+          <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#f2b84b', display: 'inline-block' }} />
           FCA &amp; CySEC Regulated
         </div>
         <h1 style={{ fontSize: 'clamp(32px,5vw,52px)', fontWeight: 800, color: '#fff', marginBottom: 14, letterSpacing: '-0.02em' }}>
           Choose Your Account Type
         </h1>
-        <p style={{ color: 'var(--t-text-2)', fontSize: 16, maxWidth: 560, margin: '0 auto 28px' }}>
+        <p style={{ color: '#c7b8a5', fontSize: 16, maxWidth: 560, margin: '0 auto 28px' }}>
           Three account types built for every trading style, from beginners to institutional-grade algo traders. All accounts include full market access, segregated funds, and negative balance protection.
         </p>
         {/* Reg badges */}
@@ -152,10 +152,10 @@ export default function AccountTypesPage() {
             { flagSrc: 'https://flagcdn.com/w40/cy.png', code: 'CySEC', reg: 'Licence 123/45' },
             { flagSrc: 'https://flagcdn.com/w40/cw.png', code: 'Curaçao GCB', reg: '0005/GCB' },
           ].map(r => (
-            <div key={r.code} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 16px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.09)', borderRadius: 8 }}>
+            <div key={r.code} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 16px', background: 'rgba(242,184,75,0.07)', border: '1px solid rgba(242,184,75,0.12)', borderRadius: 8 }}>
               <img src={r.flagSrc} alt={r.code} style={{ width: 22, height: 15, borderRadius: 2, objectFit: 'cover' }} />
               <div>
-                <div style={{ fontSize: 12, fontWeight: 700, color: '#c8d6e5' }}>{r.code}</div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#c7b8a5' }}>{r.code}</div>
                 <div style={{ fontSize: 10.5, color: '#3a5060' }}>{r.reg}</div>
               </div>
             </div>
@@ -167,7 +167,7 @@ export default function AccountTypesPage() {
       <div style={{ maxWidth: 1100, margin: '0 auto', padding: '64px 24px 0' }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: 24 }}>
           {ACCOUNTS.map(acc => (
-            <div key={acc.name} style={{ position: 'relative', borderRadius: 20, background: '#111', border: `1px solid ${acc.borderColor}`, boxShadow: acc.popular ? `0 0 40px ${acc.glowColor}` : 'none', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+            <div key={acc.name} style={{ position: 'relative', borderRadius: 20, background: '#241a14', border: `1px solid ${acc.borderColor}`, boxShadow: acc.popular ? `0 0 40px ${acc.glowColor}` : 'none', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
               {acc.popular && (
                 <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: `linear-gradient(90deg, transparent, ${acc.color}, transparent)` }} />
               )}
@@ -194,7 +194,7 @@ export default function AccountTypesPage() {
                 </div>
               </div>
 
-              <div style={{ height: 1, background: 'rgba(255,255,255,0.05)', margin: '0 28px' }} />
+              <div style={{ height: 1, background: 'rgba(242,184,75,0.08)', margin: '0 28px' }} />
 
               {/* Key specs */}
               <div style={{ padding: '20px 28px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px 0' }}>
@@ -208,19 +208,19 @@ export default function AccountTypesPage() {
                 ].map(s => (
                   <div key={s.label}>
                     <div style={{ fontSize: 10.5, color: '#3a5060', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 3 }}>{s.label}</div>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: '#c8d6e5' }}>{s.value}</div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: '#c7b8a5' }}>{s.value}</div>
                   </div>
                 ))}
               </div>
 
-              <div style={{ height: 1, background: 'rgba(255,255,255,0.05)', margin: '0 28px' }} />
+              <div style={{ height: 1, background: 'rgba(242,184,75,0.08)', margin: '0 28px' }} />
 
               {/* Features */}
               <div style={{ padding: '20px 28px', flex: 1 }}>
                 <div style={{ fontSize: 12, fontWeight: 700, color: '#3a5060', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 12 }}>Includes</div>
                 <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 9 }}>
                   {acc.features.map(f => (
-                    <li key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: 9, fontSize: 13, color: 'var(--t-text-2)', lineHeight: 1.5 }}>
+                    <li key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: 9, fontSize: 13, color: '#c7b8a5', lineHeight: 1.5 }}>
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={acc.color} strokeWidth={2.5} style={{ flexShrink: 0, marginTop: 1 }}>
                         <polyline points="20 6 9 17 4 12"/>
                       </svg>
@@ -248,24 +248,24 @@ export default function AccountTypesPage() {
       <div style={{ maxWidth: 1100, margin: '64px auto 0', padding: '0 24px' }}>
         <div style={{ textAlign: 'center', marginBottom: 36 }}>
           <h2 style={{ fontSize: 28, fontWeight: 800, color: '#fff', marginBottom: 10 }}>Full Account Comparison</h2>
-          <p style={{ color: 'var(--t-text-2)', fontSize: 14 }}>Side-by-side breakdown of all three account types</p>
+          <p style={{ color: '#c7b8a5', fontSize: 14 }}>Side-by-side breakdown of all three account types</p>
         </div>
-        <div style={{ borderRadius: 16, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.07)' }}>
+        <div style={{ borderRadius: 16, overflow: 'hidden', border: '1px solid rgba(242,184,75,0.10)' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
             <thead>
-              <tr style={{ background: 'rgba(255,255,255,0.04)' }}>
-                <th style={{ padding: '14px 24px', textAlign: 'left', color: '#3a5060', fontWeight: 700, fontSize: 12, letterSpacing: '0.06em', textTransform: 'uppercase', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>Feature</th>
+              <tr style={{ background: 'rgba(242,184,75,0.07)' }}>
+                <th style={{ padding: '14px 24px', textAlign: 'left', color: '#3a5060', fontWeight: 700, fontSize: 12, letterSpacing: '0.06em', textTransform: 'uppercase', borderBottom: '1px solid rgba(242,184,75,0.10)' }}>Feature</th>
                 {['Standard', 'Raw Spread', 'cTrader Raw'].map((h, i) => (
-                  <th key={h} style={{ padding: '14px 24px', textAlign: 'center', color: [ACCOUNTS[0].color, ACCOUNTS[1].color, ACCOUNTS[2].color][i], fontWeight: 700, fontSize: 13, borderBottom: '1px solid rgba(255,255,255,0.07)', borderLeft: '1px solid rgba(255,255,255,0.05)' }}>{h}</th>
+                  <th key={h} style={{ padding: '14px 24px', textAlign: 'center', color: [ACCOUNTS[0].color, ACCOUNTS[1].color, ACCOUNTS[2].color][i], fontWeight: 700, fontSize: 13, borderBottom: '1px solid rgba(242,184,75,0.10)', borderLeft: '1px solid rgba(242,184,75,0.08)' }}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {COMPARISON.map((row, idx) => (
                 <tr key={row.label} style={{ background: idx % 2 === 0 ? 'rgba(255,255,255,0.025)' : 'transparent' }}>
-                  <td style={{ padding: '12px 24px', color: 'var(--t-text-2)', fontWeight: 600, borderBottom: '1px solid rgba(255,255,255,0.04)' }}>{row.label}</td>
+                  <td style={{ padding: '12px 24px', color: '#c7b8a5', fontWeight: 600, borderBottom: '1px solid rgba(242,184,75,0.07)' }}>{row.label}</td>
                   {[row.std, row.raw, row.ctrader].map((v, vi) => (
-                    <td key={vi} style={{ padding: '12px 24px', textAlign: 'center', color: '#c8d6e5', fontWeight: 600, borderBottom: '1px solid rgba(255,255,255,0.04)', borderLeft: '1px solid rgba(255,255,255,0.04)' }}>
+                    <td key={vi} style={{ padding: '12px 24px', textAlign: 'center', color: '#c7b8a5', fontWeight: 600, borderBottom: '1px solid rgba(242,184,75,0.07)', borderLeft: '1px solid rgba(242,184,75,0.07)' }}>
                       {v === '✓'
                         ? <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="#18c98a" strokeWidth={2.6} strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline-block', verticalAlign: 'middle' }}><polyline points="20 6 9 17 4 12"/></svg>
                         : v}
@@ -294,7 +294,7 @@ export default function AccountTypesPage() {
       <div style={{ maxWidth: 1100, margin: '48px auto 0', padding: '0 24px 80px' }}>
         <div style={{ borderRadius: 20, background: 'rgba(79,140,255,0.06)', border: '1px solid rgba(79,140,255,0.15)', padding: '48px 40px', textAlign: 'center' }}>
           <h2 style={{ fontSize: 28, fontWeight: 800, color: '#fff', marginBottom: 10 }}>Ready to Open Your Account?</h2>
-          <p style={{ color: 'var(--t-text-2)', fontSize: 16, marginBottom: 28, maxWidth: 480, margin: '0 auto 28px' }}>
+          <p style={{ color: '#c7b8a5', fontSize: 16, marginBottom: 28, maxWidth: 480, margin: '0 auto 28px' }}>
             Complete KYC in minutes. Deposit from $200. Start trading real markets same day.
           </p>
           <div style={{ display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap' }}>
@@ -304,7 +304,7 @@ export default function AccountTypesPage() {
               <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             </button>
             <button onClick={() => navigate('/login')}
-              style={{ padding: '13px 32px', borderRadius: 12, background: 'rgba(255,255,255,0.05)', color: '#c8d6e5', fontWeight: 600, fontSize: 16, border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer' }}>
+              style={{ padding: '13px 32px', borderRadius: 12, background: 'rgba(242,184,75,0.08)', color: '#c7b8a5', fontWeight: 600, fontSize: 16, border: '1px solid rgba(242,184,75,0.13)', cursor: 'pointer' }}>
               Try Demo Account
             </button>
           </div>
@@ -312,7 +312,7 @@ export default function AccountTypesPage() {
       </div>
 
       {/* ── Footer ── */}
-      <footer style={{ borderTop: '1px solid rgba(255,255,255,0.06)', background: '#000', padding: '24px', textAlign: 'center' }}>
+      <footer style={{ borderTop: '1px solid rgba(242,184,75,0.09)', background: '#160f0c', padding: '24px', textAlign: 'center' }}>
         <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '6px 20px', marginBottom: 10 }}>
           {[['Terms of Service', '/terms-of-service.html'], ['Privacy Policy', '/privacy-policy.html'], ['Risk Disclosure', '/risk-disclosure.html'], ['Cookie Policy', '/cookie-policy.html']].map(([l, h]) => (
             <a key={l} href={h} target="_blank" rel="noreferrer" style={{ color: '#3a5060', fontSize: 12, textDecoration: 'none' }}>{l}</a>

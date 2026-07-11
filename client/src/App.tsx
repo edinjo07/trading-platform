@@ -24,6 +24,7 @@ import TradingPilotPage from './pages/TradingPilotPage'
 import AccountTypesPage from './pages/AccountTypesPage'
 import BlogPage from './pages/BlogPage'
 import TradingScamsPage from './pages/TradingScamsPage'
+import ScamsPublicPage from './pages/ScamsPublicPage'
 import EconomicCalendarPage from './pages/EconomicCalendarPage'
 import ForexCalculatorsPage from './pages/ForexCalculatorsPage'
 import WebTVPage from './pages/WebTVPage'
@@ -104,6 +105,7 @@ export default function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/trading-pilot" element={<TradingPilotPage />} />
         <Route path="/account-types" element={<AccountTypesPage />} />
+        <Route path="/trading-scams" element={<ScamsPublicPage />} />
 
         {/* Main App */}
         <Route

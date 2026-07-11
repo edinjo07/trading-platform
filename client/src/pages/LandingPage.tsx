@@ -577,6 +577,7 @@ export default function LandingPage() {
   const PAGE_LINKS: [string, () => void][] = [
     ['TradePilot in depth', () => goTo('/trading-pilot')],
     ['Account types & plans', () => goTo('/account-types')],
+    ['Trading scams & safety', () => goTo('/trading-scams')],
     ['Sign in', () => goTo('/login')],
   ]
   const PLATFORM_LINKS: [string, () => void][] = [
@@ -1378,6 +1379,7 @@ export default function LandingPage() {
               h: 'Company & legal',
               links: [
                 ['The story', () => jump('story')],
+                ['Trading scams & safety', () => goTo('/trading-scams')],
                 ['Sign in', () => goTo('/login')],
                 ['Privacy policy', () => window.open('/privacy-policy.html', '_blank')],
                 ['Terms of service', () => window.open('/terms-of-service.html', '_blank')],
