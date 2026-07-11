@@ -143,7 +143,7 @@ export default function AccountTypesPage() {
           Choose Your Account Type
         </h1>
         <p style={{ color: 'var(--t-text-2)', fontSize: 16, maxWidth: 560, margin: '0 auto 28px' }}>
-          Three account types built for every trading style — from beginners to institutional-grade algo traders. All accounts include full market access, segregated funds, and negative balance protection.
+          Three account types built for every trading style, from beginners to institutional-grade algo traders. All accounts include full market access, segregated funds, and negative balance protection.
         </p>
         {/* Reg badges */}
         <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 10 }}>

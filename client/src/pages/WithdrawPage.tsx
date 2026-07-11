@@ -111,7 +111,7 @@ export default function WithdrawPage() {
           </div>
           <div className="rounded-lg p-3 text-xs flex items-start gap-2" style={{ background: 'rgba(251,146,60,0.08)', border: '1px solid rgba(251,146,60,0.2)', color: '#fb923c' }}>
             <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} className="shrink-0 mt-0.5"><path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
-            <span>Withdrawals are reviewed by our team within 24 hours. Ensure your details are correct — funds sent to wrong addresses cannot be recovered.</span>
+            <span>Withdrawals are reviewed by our team within 24 hours. Double-check your details. Funds sent to a wrong address cannot be recovered.</span>
           </div>
           {error && (
             <div className="rounded-lg p-3 text-xs" style={{ background: 'rgba(255,90,114,0.08)', border: '1px solid rgba(255,90,114,0.2)', color: '#fca5a5' }}>

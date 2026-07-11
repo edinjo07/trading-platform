@@ -126,9 +126,9 @@ function MoverRow({ symbol, name, assetClass, onClick, last }: { symbol: string;
         <polyline points={pts} fill="none" stroke={up ? S.bull : S.bear} strokeWidth={1.5} strokeLinejoin="round" strokeLinecap="round"/>
       </svg>
       <div style={{ textAlign: 'right', minWidth: 70 }}>
-        <p style={{ fontSize: 13, fontWeight: 700, color: S.text1, margin: 0, fontFamily: 'ui-monospace,monospace' }}>{t ? formatPrice(t.price, symbol) : '—'}</p>
+        <p style={{ fontSize: 13, fontWeight: 700, color: S.text1, margin: 0, fontFamily: 'ui-monospace,monospace' }}>{t ? formatPrice(t.price, symbol) : ', '}</p>
         <p style={{ fontSize: 12, fontWeight: 600, color: up ? S.bull : S.bear, margin: 0, fontFamily: 'ui-monospace,monospace' }}>
-          {t ? (up ? '+' : '') + t.changePercent.toFixed(2) + '%' : '—'}
+          {t ? (up ? '+' : '') + t.changePercent.toFixed(2) + '%' : ', '}
         </p>
       </div>
     </button>
@@ -146,7 +146,7 @@ function TradedTile({ symbol, name, assetClass, onClick }: { symbol: string; nam
       <AssetIcon symbol={symbol} assetClass={assetClass ?? 'stock'} size={42} />
       <p style={{ fontSize: 12, fontWeight: 700, color: S.text1, margin: 0, textAlign: 'center', lineHeight: 1.2 }}>{name.split('/')[0]}</p>
       <p style={{ fontSize: 10.5, fontWeight: 700, color: up ? S.bull : S.bear, margin: 0, fontFamily: 'ui-monospace,monospace' }}>
-        {t ? (up ? '+' : '') + t.changePercent.toFixed(2) + '%' : '—'}
+        {t ? (up ? '+' : '') + t.changePercent.toFixed(2) + '%' : ', '}
       </p>
     </button>
   )
@@ -752,7 +752,7 @@ export default function DashboardPage() {
             </div>
             <button onClick={() => handleDeposit(100000)} disabled={depositing}
               style={{ width: '100%', padding: 14, borderRadius: 14, background: 'rgba(24,201,138,0.12)', border: '1px solid rgba(24,201,138,0.3)', color: '#18c98a', fontSize: 14, fontWeight: 700, cursor: depositing ? 'not-allowed' : 'pointer', marginBottom: 12 }}>
-              {currencySymbol(depositCurrency)}100,000 — Top up to max
+              {currencySymbol(depositCurrency)}100,000, Top up to max
             </button>
             {depositError && <div style={{ background: 'rgba(220,56,38,0.1)', border: '1px solid rgba(220,56,38,0.25)', borderRadius: 10, padding: '10px 14px', marginBottom: 12, fontSize: 12, color: '#ff6b6b' }}>{depositError}</div>}
             <button onClick={() => setShowDeposit(false)} style={{ width: '100%', padding: 13, borderRadius: 14, background: 'rgba(var(--ink),0.05)', border: '1px solid rgba(var(--ink),0.09)', color: 'rgba(var(--ink),0.6)', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>Cancel</button>

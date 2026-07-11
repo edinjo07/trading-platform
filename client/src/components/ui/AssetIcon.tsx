@@ -63,7 +63,7 @@ const CLASS_COLOR: Record<string, { bg: string; fg: string }> = {
 
 /* ─── 3D coin treatment ─────────────────────────────────────────────────────────
    Every symbol renders as a dimensional token: light from above (top highlight),
-   soft bottom shade inside, and a tight contact shadow lifting it off the page —
+   soft bottom shade inside, and a tight contact shadow lifting it off the page , 
    the Tesla / Apple / BTC marks read like minted coins, not flat favicons.     */
 const COIN_SHADOW =
   'inset 0 1.5px 1px rgba(255,255,255,0.22), inset 0 -2px 4px rgba(10,6,14,0.4), ' +

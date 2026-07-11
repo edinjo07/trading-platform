@@ -22,7 +22,7 @@ function currentDevice(): string {
   const ua = typeof navigator !== 'undefined' ? navigator.userAgent : ''
   const os = /Windows/.test(ua) ? 'Windows' : /Mac/.test(ua) ? 'macOS' : /Android/.test(ua) ? 'Android' : /iPhone|iPad/.test(ua) ? 'iOS' : 'Unknown OS'
   const br = /Edg\//.test(ua) ? 'Edge' : /Chrome\//.test(ua) ? 'Chrome' : /Firefox\//.test(ua) ? 'Firefox' : /Safari\//.test(ua) ? 'Safari' : 'Browser'
-  return `${os} — ${br}`
+  return `${os}, ${br}`
 }
 
 const ACCOUNT_LABELS: Record<AccountType, string> = {
@@ -670,7 +670,7 @@ export default function ProfilePage() {
                   <div>
                     <div className="text-sm font-medium text-text-primary">Authenticator App</div>
                     <div className="text-xs text-text-muted">
-                      {twoFA ? 'Enabled — your account is protected' : 'Not yet configured'}
+                      {twoFA ? 'Enabled, your account is protected' : 'Not yet configured'}
                     </div>
                   </div>
                 </div>
@@ -796,9 +796,9 @@ export default function ProfilePage() {
                 value={selectedCurrency}
                 onChange={v => setSelectedCurrency(v as Currency)}
                 options={[
-                  { value: 'USD', label: 'USD — US Dollar' },
-                  { value: 'EUR', label: 'EUR — Euro' },
-                  { value: 'GBP', label: 'GBP — British Pound' },
+                  { value: 'USD', label: 'USD, US Dollar' },
+                  { value: 'EUR', label: 'EUR, Euro' },
+                  { value: 'GBP', label: 'GBP, British Pound' },
                 ]}
               />
               <SelectField
@@ -806,12 +806,12 @@ export default function ProfilePage() {
                 value={timezone}
                 onChange={setTimezone}
                 options={[
-                  { value: 'UTC',    label: 'UTC — Greenwich' },
-                  { value: 'UTC+1',  label: 'UTC+1 — Central European' },
-                  { value: 'UTC+2',  label: 'UTC+2 — Eastern European' },
-                  { value: 'UTC-5',  label: 'UTC-5 — Eastern US' },
-                  { value: 'UTC-8',  label: 'UTC-8 — Pacific US' },
-                  { value: 'UTC+8',  label: 'UTC+8 — Singapore / HK' },
+                  { value: 'UTC',    label: 'UTC, Greenwich' },
+                  { value: 'UTC+1',  label: 'UTC+1, Central European' },
+                  { value: 'UTC+2',  label: 'UTC+2, Eastern European' },
+                  { value: 'UTC-5',  label: 'UTC-5, Eastern US' },
+                  { value: 'UTC-8',  label: 'UTC-8, Pacific US' },
+                  { value: 'UTC+8',  label: 'UTC+8, Singapore / HK' },
                 ]}
               />
             </div>
@@ -820,7 +820,7 @@ export default function ProfilePage() {
           {/* Account mode */}
           <Card title="Account Mode" description="Switch between your live funded account and the demo environment">
             <p className="text-xs text-text-muted mb-4 max-w-lg">
-              Demo accounts use $100,000 of practice capital — no real funds at risk. Switching mode does not affect open positions.
+              Demo accounts use $100,000 of practice capital, no real funds at risk. Switching mode does not affect open positions.
             </p>
             <div className="grid grid-cols-2 gap-3 max-w-sm">
               {(['demo', 'real'] as const).map(m => (

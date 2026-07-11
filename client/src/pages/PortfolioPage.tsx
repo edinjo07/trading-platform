@@ -48,7 +48,7 @@ function MarginGauge({ level }: { level: number | null }) {
     return (
       <div>
         <p style={{ fontSize: 10.5, color: S.text3, margin: '0 0 4px', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 600 }}>Margin Level</p>
-        <p style={{ fontSize: 16, fontWeight: 700, color: S.text2, margin: 0 }}>—</p>
+        <p style={{ fontSize: 16, fontWeight: 700, color: S.text2, margin: 0 }}>, </p>
         <p style={{ fontSize: 10.5, color: S.text3, margin: '3px 0 0' }}>No leverage in use</p>
       </div>
     )
@@ -184,7 +184,7 @@ function SltpEditor({ pos, currency, onDone }: { pos: Position; currency: string
           <span style={{ fontSize: 10.5, color: S.text3 }}>{hint}</span>
         </div>
         <div style={{ display: 'flex', gap: 5 }}>
-          <input type="number" value={val} onChange={e => set(e.target.value)} placeholder="—"
+          <input type="number" value={val} onChange={e => set(e.target.value)} placeholder=", "
             style={{
               flex: 1, minWidth: 0, background: 'rgba(var(--ink),0.05)',
               border: `1px solid ${invalid ? S.bear : valid ? accent : S.border}`,
@@ -290,7 +290,7 @@ function PositionsTable({ positions, currency, onClose, closingId }: {
                     {pos.take_profit != null && (
                       <span style={{ fontSize: 10.5, fontWeight: 600, padding: '2px 7px', borderRadius: 7, background: 'var(--t-bull-s)', color: S.bull, fontFamily: 'ui-monospace,monospace' }}>TP {formatPrice(pos.take_profit, pos.symbol)}</span>
                     )}
-                    {pos.stop_loss == null && pos.take_profit == null && <span style={{ fontSize: 12, color: S.text3 }}>—</span>}
+                    {pos.stop_loss == null && pos.take_profit == null && <span style={{ fontSize: 12, color: S.text3 }}>, </span>}
                   </div>
                   <span style={{ ...cell, justifyContent: 'flex-end', color: S.text2 }}>{formatCurrency(pos.margin, 2, currency)}</span>
                   {/* P&L */}
@@ -544,7 +544,7 @@ export default function PortfolioPage() {
           <EmptyState
             icon={<svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.3}><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>}
             title="Manage your price alerts"
-            desc="Get notified the moment a price level is reached — set and review alerts on the Alerts page."
+            desc="Get notified the moment a price level is reached, set and review alerts on the Alerts page."
             cta="Go to Alerts" onCta={() => navigate('/dashboard/alerts')} />
         )}
       </div>

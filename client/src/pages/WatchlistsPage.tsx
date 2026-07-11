@@ -36,7 +36,7 @@ function AssetCard({ symbol, name, assetClass, baseAsset, quoteAsset }: {
   const pts = useMemo(() => seedSparkline(symbol, up), [symbol, up])
 
   const fmt = (v: number) => {
-    if (!v) return '—'
+    if (!v) return ', '
     if (v >= 10000) return v.toFixed(1)
     if (v >= 100)   return v.toFixed(2)
     if (v >= 1)     return v.toFixed(4)

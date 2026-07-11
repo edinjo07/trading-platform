@@ -298,7 +298,7 @@ function MarginCalc() {
         <ResultRow label="Required Margin" value={`${fmt(margin)} ${acctCur}`} color="#7aa7ff" />
         <ResultRow label="Position Notional Value" value={`${fmt(notional)} ${acctCur}`} />
         <ResultRow label="Leverage Used" value={leverage} />
-        <ResultRow label="Margin Level (if only trade)" value={lotsNum > 0 ? `${fmt((notional / margin) * 100)}%` : '—'} color="#18c98a" />
+        <ResultRow label="Margin Level (if only trade)" value={lotsNum > 0 ? `${fmt((notional / margin) * 100)}%` : ', '} color="#18c98a" />
       </div>
     </div>
   )

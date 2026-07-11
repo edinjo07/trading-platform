@@ -194,7 +194,7 @@ function DocCard({ step, title, subtitle, accent, typeOptions, docType, setDocTy
         {status === 'pending' && (
           <div style={{ display: 'flex', gap: 10, padding: 13, borderRadius: 11, background: 'var(--t-warn-s)', border: `1px solid ${S.warn}33` }}>
             <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke={S.warn} strokeWidth={2} style={{ flexShrink: 0, marginTop: 1 }}><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            <p style={{ fontSize: 12, color: S.warn, margin: 0, lineHeight: 1.4 }}>Under review — we'll notify you once it's checked, usually within 1–2 business days.</p>
+            <p style={{ fontSize: 12, color: S.warn, margin: 0, lineHeight: 1.4 }}>Under review, we'll notify you once it's checked, usually within 1–2 business days.</p>
           </div>
         )}
         {status === 'verified' && (
@@ -223,7 +223,7 @@ const ID_REQUIREMENTS = [
   'Valid and not expired',
   'All four corners visible',
   'Full name & date of birth readable',
-  'In colour — black & white not accepted',
+  'In colour, black & white not accepted',
 ]
 const POA_REQUIREMENTS = [
   'Issued within the last 3 months',
@@ -278,7 +278,7 @@ export default function KYCPage() {
 
   const heroColor = overall === 'verified' ? S.bull : overall === 'rejected' ? S.bear : overall === 'pending' ? S.warn : S.accent
   const heroMsg   = overall === 'verified'
-    ? 'Your identity is fully verified — all limits unlocked.'
+    ? 'Your identity is fully verified, all limits unlocked.'
     : overall === 'rejected'
     ? 'A document needs attention. Re-upload a clearer copy below.'
     : overall === 'pending'
@@ -389,14 +389,14 @@ export default function KYCPage() {
                   <p style={{ fontSize: 14, fontWeight: 800, color: S.text1, margin: 0 }}>Under review</p>
                 </div>
                 <p style={{ fontSize: 13, color: S.text2, margin: 0, lineHeight: 1.5 }}>
-                  Submitted {record.submitted_at ? new Date(record.submitted_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric' }) : 'recently'}. Our team typically reviews documents within <strong style={{ color: S.text1 }}>1–2 business days</strong> — you'll get a notification when it's done.
+                  Submitted {record.submitted_at ? new Date(record.submitted_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric' }) : 'recently'}. Our team typically reviews documents within <strong style={{ color: S.text1 }}>1–2 business days</strong>, you'll get a notification when it's done.
                 </p>
               </div>
             ) : (
               <div style={{ background: S.surface, border: `1px solid ${S.border}`, borderRadius: 18, padding: 20 }}>
                 <p style={{ fontSize: 14, fontWeight: 800, color: S.text1, margin: '0 0 4px' }}>{canSubmitAll ? 'Ready to submit' : 'Add your documents'}</p>
                 <p style={{ fontSize: 13, color: S.text3, margin: '0 0 16px', lineHeight: 1.5 }}>
-                  {canSubmitAll ? 'Submit for review — you\'ll be notified once verified.' : 'Pick a document type and upload a file for each step to continue.'}
+                  {canSubmitAll ? 'Submit for review, you\'ll be notified once verified.' : 'Pick a document type and upload a file for each step to continue.'}
                 </p>
                 <button onClick={handleSubmit} disabled={!canSubmitAll || submitting}
                   style={{ width: '100%', padding: 13, borderRadius: 11, border: 'none', fontSize: 14, fontWeight: 700, cursor: (!canSubmitAll || submitting) ? 'not-allowed' : 'pointer',

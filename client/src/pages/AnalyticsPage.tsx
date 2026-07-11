@@ -331,16 +331,16 @@ function PnlCalendar({ trades }: { trades: TradeRecord[] }) {
             {
               icon: <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke={G} strokeWidth={2}><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>,
               label: 'Win Days',
-              value: tradingDays > 0 ? `${winDays} (${Math.round(winDays/tradingDays*100)}%)` : '—',
+              value: tradingDays > 0 ? `${winDays} (${Math.round(winDays/tradingDays*100)}%)` : ', ',
               color: G,
             },
             {
               icon: <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke={G} strokeWidth={2}><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>,
-              label: 'Best Day', value: bestDay > 0 ? fmtShort(bestDay) : '—', color: G,
+              label: 'Best Day', value: bestDay > 0 ? fmtShort(bestDay) : ', ', color: G,
             },
             {
               icon: <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke={R} strokeWidth={2}><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg>,
-              label: 'Worst Day', value: worstDay < 0 ? fmtShort(worstDay) : '—', color: R,
+              label: 'Worst Day', value: worstDay < 0 ? fmtShort(worstDay) : ', ', color: R,
             },
           ].map(s => (
             <div key={s.label} style={{ padding: '8px 10px', borderRadius: 10, background: 'rgba(var(--ink),0.03)', border: '1px solid rgba(var(--ink),0.06)' }}>
@@ -493,7 +493,7 @@ function PnlCalendar({ trades }: { trades: TradeRecord[] }) {
                     </span>
                   </>
                 ) : (
-                  <span style={{ fontSize: 10.5, color: '#1e3a5f' }}>—</span>
+                  <span style={{ fontSize: 10.5, color: '#1e3a5f' }}>, </span>
                 )}
               </div>
             </div>

@@ -207,14 +207,14 @@ export default function OrdersPage() {
                         <span style={{ fontSize: 10.5, fontWeight: 800, padding: '3px 9px', borderRadius: 7, background: buy ? 'var(--t-bull-s)' : 'var(--t-bear-s)', color: buy ? S.bull : S.bear }}>{o.side.toUpperCase()}</span>
                       </div>
                       <span style={cellR}>{o.quantity.toFixed(o.quantity < 1 ? 4 : 2)}</span>
-                      <span style={cellR}>{o.fill_price ? formatPrice(o.fill_price, o.symbol) : '—'}</span>
+                      <span style={cellR}>{o.fill_price ? formatPrice(o.fill_price, o.symbol) : ', '}</span>
                       <span style={{ ...cellR, color: S.text2 }}>{formatCurrency(value)}</span>
-                      <span style={{ ...cellR, color: S.text3 }}>{o.commission ? formatCurrency(o.commission) : '—'}</span>
+                      <span style={{ ...cellR, color: S.text3 }}>{o.commission ? formatCurrency(o.commission) : ', '}</span>
                       {/* SL / TP */}
                       <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', alignItems: 'center' }}>
                         {o.stop_loss != null && <span style={{ fontSize: 10.5, fontWeight: 600, padding: '2px 6px', borderRadius: 6, background: 'var(--t-bear-s)', color: S.bear, fontFamily: 'ui-monospace,monospace' }}>SL</span>}
                         {o.take_profit != null && <span style={{ fontSize: 10.5, fontWeight: 600, padding: '2px 6px', borderRadius: 6, background: 'var(--t-bull-s)', color: S.bull, fontFamily: 'ui-monospace,monospace' }}>TP</span>}
-                        {o.stop_loss == null && o.take_profit == null && <span style={{ fontSize: 12, color: S.text3 }}>—</span>}
+                        {o.stop_loss == null && o.take_profit == null && <span style={{ fontSize: 12, color: S.text3 }}>, </span>}
                       </div>
                       {/* Status */}
                       <div style={{ display: 'flex', alignItems: 'center' }}>

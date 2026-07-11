@@ -300,7 +300,7 @@ function BotCard({ bot, selected, onClick }: { bot: Bot; selected: boolean; onCl
     : lastLog ? lastLog.message
     : bot.status === 'running' ? 'Monitoring the market…'
     : bot.status === 'stopped' ? 'Stopped'
-    : 'Idle — ready to deploy'
+    : 'Idle, ready to deploy'
   const actColor = lastLog ? (LOG_CFG[lastLog.level]?.color ?? C.text3) : C.text3
 
   return (
@@ -584,7 +584,7 @@ const STRAT_DESC: Record<BotStrategy, string> = {
 
 const STRAT_HOWTO: Record<BotStrategy, string> = {
   ma_crossover: "Enters when a fast moving average crosses above a slow one (a 'golden cross'), confirmed by RSI and the broader 50-period trend. Exits on the opposite cross.",
-  rsi:          'Buys when momentum is oversold and turning back up, sells when overbought — each entry confirmed by the MACD histogram so it doesn’t fight the trend.',
+  rsi:          'Buys when momentum is oversold and turning back up, sells when overbought, each entry confirmed by the MACD histogram so it doesn’t fight the trend.',
   macd:         'Trades MACD signal-line crossovers, filtered by the 50-period trend bias and guarded against entering at RSI extremes.',
   momentum:     'Enters on strong breakouts beyond the recent price range, gated by volatility (ATR) so it only fires on genuine momentum, not chop.',
 }
@@ -635,7 +635,7 @@ function StrategyPreview({ strategy }: { strategy: BotStrategy }) {
     <div style={{ borderRadius: 10, border: `1px solid ${C.border}`, background: C.bg, padding: 10 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
         <span style={{ color: col, display: 'flex' }}>{STRAT_ICONS[strategy]}</span>
-        <span style={{ fontSize: 12, fontWeight: 800, color: C.text1 }}>{m.label} — how it trades</span>
+        <span style={{ fontSize: 12, fontWeight: 800, color: C.text1 }}>{m.label}, how it trades</span>
       </div>
       <svg width="100%" height={H} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" style={{ display: 'block' }}>
         {body}
@@ -666,7 +666,7 @@ function CreateBotModal({ onClose, onCreate }: { onClose: () => void; onCreate: 
   const [maxDT,     setMaxDT]     = useState('')
   const [confirmB,  setConfirmB]  = useState(1)
   const [useNews,   setUseNews]   = useState(false)
-  const [newsConf,  setNewsConf]  = useState(40)   // % — news veto/boost threshold
+  const [newsConf,  setNewsConf]  = useState(40)   // %, news veto/boost threshold
   const [loading,   setLoading]   = useState(false)
   const [err,       setErr]       = useState<string | null>(null)
 
@@ -891,7 +891,7 @@ function CreateBotModal({ onClose, onCreate }: { onClose: () => void; onCreate: 
                       maxDL        && { dot: C.amber, node: <>Halt after <b style={{ color: C.text1 }}>${maxDL}</b> daily loss</> },
                       maxDT        && { dot: C.amber, node: <>Cap at <b style={{ color: C.text1 }}>{maxDT}</b> trades/day</> },
                       confirmB > 1 && { dot: C.violet, node: <>Require <b style={{ color: C.text1 }}>{confirmB}</b> consecutive signals</> },
-                      useNews      && { dot: C.blue,  node: <>News event filter — veto &amp; boost at <b style={{ color: C.text1 }}>{newsConf}%</b> confidence</> },
+                      useNews      && { dot: C.blue,  node: <>News event filter, veto &amp; boost at <b style={{ color: C.text1 }}>{newsConf}%</b> confidence</> },
                     ].filter(Boolean) as { dot: string; node: React.ReactNode }[]).map((g, i) => (
                       <p key={i} style={{ fontSize: 12, color: C.text2, margin: '0 0 3px', display: 'flex', alignItems: 'center', gap: 7 }}>
                         <span style={{ width: 6, height: 6, borderRadius: 99, background: g.dot, flexShrink: 0 }}/>
@@ -1224,11 +1224,11 @@ export default function BotsPage() {
       {/* Metrics grid */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr) repeat(3, 1fr)', borderBottom: `1px solid ${C.border}`, flexShrink: 0 }}>
         <MetricCard label="Total P&L"    value={fmtPnl(selected.pnl)} color={selected.pnl >= 0 ? C.green : C.red}/>
-        <MetricCard label="Win Rate"     value={selected.trades > 0 ? `${((selected.wins/selected.trades)*100).toFixed(1)}%` : '—'} color={C.blue}/>
+        <MetricCard label="Win Rate"     value={selected.trades > 0 ? `${((selected.wins/selected.trades)*100).toFixed(1)}%` : ', '} color={C.blue}/>
         <MetricCard label="Trades"       value={String(selected.trades)} color={C.amber} sub={`${selected.wins}W · ${selected.losses}L`}/>
-        <MetricCard label="Max Drawdown" value={selected.maxDrawdown > 0 ? `$${selected.maxDrawdown.toFixed(2)}` : '—'} color={C.red}/>
+        <MetricCard label="Max Drawdown" value={selected.maxDrawdown > 0 ? `$${selected.maxDrawdown.toFixed(2)}` : ', '} color={C.red}/>
         <MetricCard label="Today"        value={String(selected.dailyTrades)} color={C.text2} sub="trades"/>
-        <MetricCard label="Daily Loss"   value={selected.dailyLoss > 0 ? `$${selected.dailyLoss.toFixed(2)}` : '—'} color={selected.dailyLoss > 0 ? C.red : C.text3}/>
+        <MetricCard label="Daily Loss"   value={selected.dailyLoss > 0 ? `$${selected.dailyLoss.toFixed(2)}` : ', '} color={selected.dailyLoss > 0 ? C.red : C.text3}/>
       </div>
 
       {/* Equity chart */}
@@ -1310,7 +1310,7 @@ export default function BotsPage() {
     { label: 'Active',  value: String(activeCount),          color: C.green },
     { label: 'Trades',  value: String(totalTrades),          color: C.amber },
     { label: 'Net P&L', value: fmtPnl(totalPnl),            color: totalPnl >= 0 ? C.green : C.red },
-    { label: 'Win',     value: winRate ? winRate + '%' : '—', color: C.blue  },
+    { label: 'Win',     value: winRate ? winRate + '%' : ', ', color: C.blue  },
   ]
 
   return (

@@ -235,8 +235,8 @@ function EventTimeline({ events, onTap }: { events: EconomicEvent[]; onTap: (e: 
                   <div style={{ display:'flex', alignItems:'center', gap:8 }}>
                     <span style={{ fontSize:10.5, fontWeight:700, color:'#4b5563' }}>{ev.currency}</span>
                     <span style={{ fontSize:10.5, color:'#1f2937' }}>·</span>
-                    {ev.forecast !== '—' && <span style={{ fontSize:10.5, color:'#374151' }}>Fcst: <span style={{ color:'#6b7280', fontFamily:'monospace' }}>{ev.forecast}</span></span>}
-                    {ev.previous !== '—' && <span style={{ fontSize:10.5, color:'#374151' }}>Prev: <span style={{ color:'#4b5563', fontFamily:'monospace' }}>{ev.previous}</span></span>}
+                    {ev.forecast !== ', ' && <span style={{ fontSize:10.5, color:'#374151' }}>Fcst: <span style={{ color:'#6b7280', fontFamily:'monospace' }}>{ev.forecast}</span></span>}
+                    {ev.previous !== ', ' && <span style={{ fontSize:10.5, color:'#374151' }}>Prev: <span style={{ color:'#4b5563', fontFamily:'monospace' }}>{ev.previous}</span></span>}
                   </div>
                 </div>
 
@@ -251,7 +251,7 @@ function EventTimeline({ events, onTap }: { events: EconomicEvent[]; onTap: (e: 
                       {(isBeat || isMiss) && <div style={{ fontSize:10.5, fontWeight:800, color: isBeat ? '#18c98a' : '#ff5a72' }}>{isBeat ? '▲BEAT' : '▼MISS'}</div>}
                     </div>
                   ) : (
-                    <span style={{ fontSize:10.5, color:'#1f2937', fontStyle:'italic' }}>—</span>
+                    <span style={{ fontSize:10.5, color:'#1f2937', fontStyle:'italic' }}>, </span>
                   )}
                 </div>
 

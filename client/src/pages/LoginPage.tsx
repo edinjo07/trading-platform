@@ -240,7 +240,7 @@ export default function LoginPage() {
       <div style={{ padding: '14px 24px', borderTop: '1px solid var(--t-border)' }}>
         <p style={{ fontSize: 12, color: 'var(--t-text-3)', lineHeight: 1.65, margin: '0 auto', maxWidth: 640, textAlign: 'center' }}>
           <strong style={{ color: 'var(--t-text-2)' }}>Risk warning:</strong>{' '}
-          Trading derivatives carries a high risk of losing capital — only trade with money you can afford to lose.
+          Trading derivatives carries a high risk of losing capital, only trade with money you can afford to lose.
           Derivatives may not be suitable for all investors; make sure you fully understand the risks involved.
         </p>
       </div>

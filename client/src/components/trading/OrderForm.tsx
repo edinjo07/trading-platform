@@ -310,7 +310,7 @@ export default function OrderForm() {
     if (!quantity || quantity <= 0) { setError('Enter a valid quantity'); return }
     // Both buy (long) and sell (short) open an independent position that needs margin
     if (portfolio !== null && totalCostLocal > cash) {
-      setError(`Insufficient funds — need ${formatCurrency(totalCostLocal, 2, currency)}, have ${formatCurrency(cash, 2, currency)}`); return
+      setError(`Insufficient funds, need ${formatCurrency(totalCostLocal, 2, currency)}, have ${formatCurrency(cash, 2, currency)}`); return
     }
 
     setSubmitting(true)
