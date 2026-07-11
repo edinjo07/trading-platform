@@ -11,16 +11,13 @@ import type { Ticker, MarketSymbol } from '../types'
 /* ════════════════════════════════════════════════════════════════════════════
    TradeX. The homepage.
 
-   This is a trading platform and the homepage has to prove it in the first
-   second: a live chart, live prices, and a clear way to earn. The markets
-   endpoints are public, so everything the visitor sees here is real.
+   A trading platform that proves itself: live prices, a live chart, and a
+   clear pitch on how money gets made here. TradePilot is the star product.
+   The hero photo is the car at golden hour; the text owns the left, the
+   car owns the right, and nothing covers it.
 
-   The story stays: the car is the company, the engine is the trading
-   (TradePilot and Manual), the driver is you. But the product leads and
-   the story supports.
-
-   The feeling stays too: golden hour at the circuit. Warm espresso darks,
-   ember glows, cream story pages. Blue only as a small machine tag.
+   The story: the car is the company, the engine is the trading, the driver
+   is you. Golden hour palette. Blue only as a small machine tag.
    ════════════════════════════════════════════════════════════════════════════ */
 
 /* ── Palette: dusk, not midnight ─────────────────────────────────────────── */
@@ -94,6 +91,24 @@ const STEPS = [
   { n: 2, title: 'Practice flat out', body: 'A $100,000 practice balance on live prices. Same engine, same telemetry, zero risk.' },
   { n: 3, title: 'Lights out',        body: 'Go live when your numbers say you are ready. The engine is already warm.' },
 ]
+
+/* Simulated 90-day TradePilot practice run: 100 → 138.4, honest drawdowns.
+   Deterministic walk so every visitor sees the same curve. */
+const EQUITY: number[] = (() => {
+  const out: number[] = []
+  let v = 100
+  let seed = 42
+  const rnd = () => { seed = (seed * 1103515245 + 12345) % 2147483648; return seed / 2147483648 }
+  for (let i = 0; i < 90; i++) {
+    const drift = 0.55
+    const shock = (rnd() - 0.47) * 3.2
+    v = Math.max(88, v + drift + shock)
+    out.push(v)
+  }
+  // pin the ending so the headline number is exact
+  const scale = 138.4 / out[out.length - 1]
+  return out.map((x, i) => 100 + (x - 100) * ((scale - 1) * (i / (out.length - 1)) + 1))
+})()
 
 /* ── Small pieces ─────────────────────────────────────────────────────────── */
 
@@ -223,7 +238,7 @@ function HeroChart({ symbol }: { symbol: string }) {
   return <div ref={boxRef} style={{ width: '100%', height: '100%' }} />
 }
 
-/* ── Live trade card: the product, in the hero ───────────────────────────── */
+/* ── Live trade card ──────────────────────────────────────────────────────── */
 
 function LiveTradeCard({ tickers, go }: { tickers: Record<string, Ticker>; go: () => void }) {
   const [sym, setSym] = useState('BTCUSD')
@@ -237,7 +252,6 @@ function LiveTradeCard({ tickers, go }: { tickers: Record<string, Ticker>; go: (
       boxShadow: '0 1px 2px rgba(10,6,3,0.5), 0 30px 80px rgba(10,6,3,0.5)',
       padding: 18, display: 'flex', flexDirection: 'column', gap: 14, minWidth: 0,
     }}>
-      {/* Symbol tabs */}
       <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
         {HERO_SYMBOLS.map(s => (
           <button key={s} onClick={() => setSym(s)}
@@ -253,7 +267,6 @@ function LiveTradeCard({ tickers, go }: { tickers: Record<string, Ticker>; go: (
         ))}
       </div>
 
-      {/* Price header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
         <AssetIcon symbol={sym} assetClass={HERO_CLASS[sym] ?? 'crypto'} size={38} />
         <div style={{ flex: 1, minWidth: 0 }}>
@@ -274,12 +287,10 @@ function LiveTradeCard({ tickers, go }: { tickers: Record<string, Ticker>; go: (
         )}
       </div>
 
-      {/* The chart */}
-      <div style={{ height: 230, minWidth: 0 }}>
+      <div style={{ height: 210, minWidth: 0 }}>
         <HeroChart symbol={sym} />
       </div>
 
-      {/* Sell / Buy, same encoding as the platform */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
         <button onClick={go} className="lx-trade-btn" style={{
           padding: '11px 0', borderRadius: 12, border: '1px solid rgba(255,90,114,0.3)',
@@ -297,6 +308,91 @@ function LiveTradeCard({ tickers, go }: { tickers: Record<string, Ticker>; go: (
 
       <div style={{ fontSize: 11, color: DIM, textAlign: 'center' }}>
         Live prices, straight from the engine. No account needed to watch.
+      </div>
+    </div>
+  )
+}
+
+/* ── TradePilot console: the star product, pitched ───────────────────────── */
+
+function PilotConsole({ go }: { go: () => void }) {
+  const min = Math.min(...EQUITY)
+  const max = Math.max(...EQUITY)
+  const W = 560, H = 190
+  const pts = EQUITY.map((v, i) => {
+    const x = (i / (EQUITY.length - 1)) * W
+    const y = H - ((v - min) / (max - min)) * (H - 16) - 8
+    return `${x.toFixed(1)},${y.toFixed(1)}`
+  })
+  const line = pts.join(' ')
+  const fill = `0,${H} ${line} ${W},${H}`
+
+  return (
+    <div style={{
+      background: NIGHT2, border: '1px solid rgba(111,157,255,0.16)', borderRadius: 22,
+      boxShadow: '0 1px 2px rgba(10,6,3,0.5), 0 30px 80px rgba(10,6,3,0.45)',
+      padding: 'clamp(20px, 2.6vw, 28px)', display: 'flex', flexDirection: 'column', gap: 16, minWidth: 0,
+    }}>
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+        <span style={{
+          fontSize: 11, fontWeight: 800, letterSpacing: '0.14em', color: BLUE,
+          border: '1px solid rgba(111,157,255,0.3)', borderRadius: 999, padding: '4px 12px',
+        }}>PU-01 · TRADEPILOT</span>
+        <span style={{ fontSize: 12.5, fontWeight: 700, color: IVORY }}>Momentum-X</span>
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginLeft: 'auto', fontSize: 11, fontWeight: 800, letterSpacing: '0.12em', color: BULL }}>
+          <span style={{ width: 7, height: 7, borderRadius: '50%', background: BULL, boxShadow: '0 0 8px rgba(24,201,138,0.6)', animation: 'lx-pulse 1.8s ease-in-out infinite' }} />
+          RUNNING
+        </span>
+      </div>
+
+      {/* Equity curve */}
+      <div style={{ position: 'relative' }}>
+        <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" style={{ width: '100%', height: 180, display: 'block' }}>
+          <defs>
+            <linearGradient id="lx-eq" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="rgba(24,201,138,0.3)" />
+              <stop offset="100%" stopColor="rgba(24,201,138,0)" />
+            </linearGradient>
+          </defs>
+          <polygon points={fill} fill="url(#lx-eq)" />
+          <polyline points={line} fill="none" stroke={BULL} strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
+        </svg>
+        <div style={{ position: 'absolute', top: 6, right: 8, textAlign: 'right' }}>
+          <div style={{ fontFamily: MONO, fontSize: 26, fontWeight: 800, color: BULL }}>+38.4%</div>
+          <div style={{ fontSize: 10.5, letterSpacing: '0.1em', textTransform: 'uppercase', color: DIM }}>90-day practice run</div>
+        </div>
+      </div>
+
+      {/* Stats */}
+      <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+        {[['$100k → $138.4k', 'equity'], ['64%', 'win rate'], ['7.8%', 'max drawdown'], ['1,204', 'trades']].map(([v, l]) => (
+          <div key={l} style={{
+            flex: '1 1 100px', padding: '10px 14px', borderRadius: 12,
+            background: 'rgba(26,19,16,0.6)', border: '1px solid rgba(242,184,75,0.07)',
+          }}>
+            <div style={{ fontFamily: MONO, fontSize: 14.5, fontWeight: 700, color: IVORY, whiteSpace: 'nowrap' }}>{v}</div>
+            <div style={{ fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: DIM, marginTop: 2 }}>{l}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Live-log flavor */}
+      <div style={{ fontFamily: MONO, fontSize: 11.5, lineHeight: 1.9, color: DIM, background: 'rgba(26,19,16,0.6)', borderRadius: 12, padding: '10px 14px', border: '1px solid rgba(242,184,75,0.06)' }}>
+        <div><span style={{ color: BULL }}>▲ BUY</span> BTCUSD 0.050 @ 67,410.25 <span style={{ color: BULL }}>+$128.40</span></div>
+        <div><span style={{ color: BEAR }}>▼ SELL</span> EURUSD 25,000 @ 1.08442 <span style={{ color: BULL }}>+$61.20</span></div>
+        <div><span style={{ color: BULL }}>▲ BUY</span> XAUUSD 4.0 @ 2,331.80 <span style={{ color: DIM }}>running…</span></div>
+      </div>
+
+      <button onClick={go} className="lx-gold" style={{
+        background: GOLD_G, color: '#221503', border: 'none', cursor: 'pointer',
+        borderRadius: 12, fontWeight: 800, fontSize: 15, padding: '15px 0',
+        boxShadow: '0 2px 6px rgba(20,10,4,0.35), 0 10px 30px rgba(242,184,75,0.18)',
+      }}>
+        Deploy TradePilot free
+      </button>
+      <div style={{ fontSize: 10.5, color: DIM, textAlign: 'center', lineHeight: 1.5 }}>
+        Simulated practice results on live prices. Markets carry risk and returns are never guaranteed.
       </div>
     </div>
   )
@@ -327,7 +423,6 @@ function MarketsBoard({ tickers, meta, go }: {
 
   return (
     <div>
-      {/* Tabs */}
       <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 18 }}>
         {MARKET_TABS.map(t => (
           <button key={t.key} onClick={() => setTab(t.key)}
@@ -343,7 +438,6 @@ function MarketsBoard({ tickers, meta, go }: {
         ))}
       </div>
 
-      {/* Board */}
       <div style={{
         borderRadius: 18, border: '1px solid rgba(242,184,75,0.1)', overflow: 'hidden',
         background: 'rgba(36,26,20,0.55)',
@@ -419,7 +513,6 @@ export default function LandingPage() {
     return () => window.removeEventListener('scroll', fn)
   }, [])
 
-  // Live public data: symbols once, tickers on a 5s heartbeat
   useEffect(() => {
     let dead = false
     getSymbols().then(list => {
@@ -442,7 +535,6 @@ export default function LandingPage() {
 
   const go = () => navigate(isAuthenticated ? '/dashboard' : '/login?mode=register')
 
-  // Marquee: live if we have it, fallback if not
   const marquee = useMemo(() => {
     const live = FALLBACK_TICKER.map(f => {
       const t = tickers[f.sym]
@@ -460,8 +552,8 @@ export default function LandingPage() {
         @keyframes lx-pulse { 0%,100% { opacity: 1 } 50% { opacity: 0.55 } }
         @keyframes lx-rise { from { opacity: 0; transform: translateY(14px) } to { opacity: 1; transform: none } }
         .lx-rise { animation: lx-rise 0.7s cubic-bezier(0.2,0.7,0.3,1) both }
-        .lx-gold { transition: transform 0.18s ease, box-shadow 0.18s ease }
-        .lx-gold:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(20,10,4,0.4), 0 16px 44px rgba(242,184,75,0.28) }
+        .lx-gold { transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease }
+        .lx-gold:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(20,10,4,0.4), 0 16px 44px rgba(242,184,75,0.28); filter: brightness(1.04) }
         .lx-gold:active { transform: translateY(0) }
         .lx-ghost { transition: border-color 0.18s ease, background 0.18s ease }
         .lx-ghost:hover { border-color: rgba(242,184,75,0.5); background: rgba(242,184,75,0.06) }
@@ -471,6 +563,11 @@ export default function LandingPage() {
         .lx-mrow:hover { background: rgba(242,184,75,0.06) }
         .lx-trade-btn { transition: filter 0.15s, transform 0.15s }
         .lx-trade-btn:hover { filter: brightness(1.25); transform: translateY(-1px) }
+        .lx-msplit { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(320px, 1fr); gap: clamp(24px, 3.5vw, 44px); align-items: start }
+        .lx-psplit { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: clamp(28px, 4.5vw, 64px); align-items: center }
+        @media (max-width: 960px) {
+          .lx-msplit, .lx-psplit { grid-template-columns: 1fr }
+        }
         @media (max-width: 720px) {
           .lx-navlinks { display: none }
           .lx-mgrid, .lx-mhead { grid-template-columns: 1fr 110px 80px !important }
@@ -494,36 +591,30 @@ export default function LandingPage() {
           <Wordmark />
         </div>
         <div className="lx-navlinks" style={{ display: 'flex', gap: 28, alignItems: 'center' }}>
+          <a className="lx-navlink" href="#pilot">TradePilot</a>
           <a className="lx-navlink" href="#markets">Markets</a>
-          <a className="lx-navlink" href="#earn">Ways to earn</a>
           <a className="lx-navlink" href="#story">The story</a>
         </div>
         <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
           <button onClick={() => navigate('/login')} className="lx-navlink" style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
             Sign in
           </button>
-          <GoldBtn onClick={go}>Start trading</GoldBtn>
+          <GoldBtn onClick={go}>Claim $100,000 free</GoldBtn>
         </div>
       </nav>
 
-      {/* ── Hero: the product, live ─────────────────────────────────────────── */}
+      {/* ── Hero: the car at golden hour, the pitch on the left ────────────── */}
       <header style={{
-        position: 'relative',
+        position: 'relative', minHeight: '100svh', display: 'flex', flexDirection: 'column', justifyContent: 'center',
         background: `
-          radial-gradient(1100px 600px at 85% 10%, rgba(224,122,74,0.1), transparent 60%),
-          linear-gradient(180deg, rgba(26,19,16,0.6) 0%, rgba(26,19,16,0.85) 70%, ${NIGHT} 100%),
+          linear-gradient(180deg, rgba(26,19,16,0.35) 0%, rgba(26,19,16,0.15) 45%, rgba(26,19,16,0.9) 92%, ${NIGHT} 100%),
+          linear-gradient(95deg, rgba(26,19,16,0.78) 0%, rgba(26,19,16,0.42) 42%, rgba(26,19,16,0.05) 68%, transparent 100%),
           url(/hero-bg.jpg) center / cover no-repeat,
           ${NIGHT}
         `,
       }}>
-        <div style={{
-          maxWidth: 1240, margin: '0 auto',
-          padding: '120px clamp(18px, 4vw, 44px) 120px',
-          display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-          gap: 'clamp(32px, 5vw, 64px)', alignItems: 'center',
-        }}>
-          {/* Left: the promise */}
-          <div>
+        <div style={{ width: '100%', maxWidth: 1240, margin: '0 auto', padding: '130px clamp(18px, 4vw, 44px) 110px' }}>
+          <div style={{ maxWidth: 620 }}>
             <div className="lx-rise" style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
               <StartLights lit={5} size={9} />
               <span style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', color: GOLD }}>
@@ -532,56 +623,59 @@ export default function LandingPage() {
             </div>
 
             <h1 className="lx-rise" style={{
-              fontSize: 'clamp(40px, 5.6vw, 68px)', lineHeight: 1.02, letterSpacing: '-0.03em',
+              fontSize: 'clamp(42px, 6.4vw, 82px)', lineHeight: 1.0, letterSpacing: '-0.03em',
               fontWeight: 800, color: IVORY, margin: 0, animationDelay: '0.08s',
+              textShadow: '0 2px 30px rgba(10,6,3,0.5)',
             }}>
               Trade the world's markets.
               <br />
               <span style={{ background: GOLD_G, WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' }}>
-                Built to help you win.
+                Earn in both directions.
               </span>
             </h1>
 
             <p className="lx-rise" style={{
-              maxWidth: 500, fontSize: 'clamp(15px, 1.8vw, 17px)', lineHeight: 1.65,
-              color: BODY, margin: '24px 0 30px', animationDelay: '0.16s',
+              maxWidth: 520, fontSize: 'clamp(15px, 1.8vw, 17.5px)', lineHeight: 1.65,
+              color: '#d9cdbb', margin: '24px 0 12px', animationDelay: '0.16s',
+              textShadow: '0 1px 12px rgba(10,6,3,0.6)',
             }}>
-              Go long or short on 250+ instruments with raw spreads and leverage
-              up to 1:1000. Trade it yourself, or let TradePilot run the laps for you.
-              Start with a free $100,000 practice account and go live when you're ready to earn.
+              Long when it rises. Short when it falls. 250+ instruments, raw spreads,
+              and leverage up to 1:1000, where $500 of margin commands $500,000 of
+              market power.
+            </p>
+            <p className="lx-rise" style={{
+              maxWidth: 520, fontSize: 'clamp(15px, 1.8vw, 17.5px)', lineHeight: 1.65,
+              color: '#d9cdbb', margin: '0 0 32px', animationDelay: '0.2s',
+              textShadow: '0 1px 12px rgba(10,6,3,0.6)',
+            }}>
+              Or skip the wheel entirely and let <span style={{ color: GOLD, fontWeight: 700 }}>TradePilot</span> trade
+              for you, day and night.
             </p>
 
-            <div className="lx-rise" style={{ display: 'flex', gap: 14, flexWrap: 'wrap', alignItems: 'center', animationDelay: '0.24s' }}>
-              <GoldBtn onClick={go} big>Start trading free</GoldBtn>
-              <GhostBtn onClick={() => document.getElementById('markets')?.scrollIntoView({ behavior: 'smooth' })}>
-                See live markets
+            <div className="lx-rise" style={{ display: 'flex', gap: 14, flexWrap: 'wrap', alignItems: 'center', animationDelay: '0.26s' }}>
+              <GoldBtn onClick={go} big>Claim your free $100,000</GoldBtn>
+              <GhostBtn onClick={() => document.getElementById('pilot')?.scrollIntoView({ behavior: 'smooth' })}>
+                Meet TradePilot
               </GhostBtn>
             </div>
+            <p className="lx-rise" style={{ fontSize: 13, color: '#b3a48f', marginTop: 16, animationDelay: '0.3s' }}>
+              Practice account · 60 seconds to open · no card, no catch
+            </p>
 
-            {/* Proof row */}
-            <div className="lx-rise" style={{ display: 'flex', gap: 'clamp(20px, 3vw, 40px)', flexWrap: 'wrap', marginTop: 40, animationDelay: '0.3s' }}>
+            <div className="lx-rise" style={{ display: 'flex', gap: 'clamp(20px, 3vw, 40px)', flexWrap: 'wrap', marginTop: 40, animationDelay: '0.34s' }}>
               {[['250+', 'instruments'], ['0.0', 'pip spreads'], ['1:1000', 'leverage'], ['<40ms', 'execution']].map(([v, l]) => (
                 <div key={l}>
-                  <div style={{ fontFamily: MONO, fontSize: 22, fontWeight: 700, color: IVORY }}>{v}</div>
-                  <div style={{ fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: DIM, marginTop: 3 }}>{l}</div>
+                  <div style={{ fontFamily: MONO, fontSize: 22, fontWeight: 700, color: IVORY, textShadow: '0 1px 12px rgba(10,6,3,0.6)' }}>{v}</div>
+                  <div style={{ fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#b3a48f', marginTop: 3 }}>{l}</div>
                 </div>
               ))}
             </div>
-
-            <p className="lx-rise" style={{ fontSize: 12, letterSpacing: '0.16em', textTransform: 'uppercase', color: DIM, marginTop: 36, animationDelay: '0.36s' }}>
-              Engineered to win · Driven by you
-            </p>
-          </div>
-
-          {/* Right: the product, alive */}
-          <div className="lx-rise" style={{ animationDelay: '0.2s', minWidth: 0 }}>
-            <LiveTradeCard tickers={tickers} go={go} />
           </div>
         </div>
 
         {/* Ticker marquee */}
         <div style={{
-          position: 'relative', overflow: 'hidden',
+          position: 'absolute', bottom: 0, left: 0, right: 0, overflow: 'hidden',
           borderTop: '1px solid rgba(242,184,75,0.1)', background: 'rgba(26,19,16,0.72)',
           backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', padding: '11px 0',
         }}>
@@ -597,9 +691,50 @@ export default function LandingPage() {
         </div>
       </header>
 
-      {/* ── Live markets ────────────────────────────────────────────────────── */}
+      {/* ── TradePilot: the star product ─────────────────────────────────────── */}
+      <section id="pilot" style={{
+        background: `radial-gradient(1000px 520px at 90% -10%, rgba(111,157,255,0.06), transparent 60%), radial-gradient(800px 460px at 5% 110%, rgba(224,122,74,0.09), transparent 60%), ${NIGHT}`,
+        padding: 'clamp(72px, 9vw, 120px) clamp(18px, 4vw, 44px)',
+      }}>
+        <div style={{ maxWidth: 1240, margin: '0 auto' }}>
+          <div className="lx-psplit">
+            <div>
+              <Eyebrow>PU-01 · TradePilot</Eyebrow>
+              <h2 style={{
+                fontFamily: SERIF, fontWeight: 550, fontSize: 'clamp(32px, 4.6vw, 56px)',
+                lineHeight: 1.08, letterSpacing: '-0.015em', color: IVORY, margin: '0 0 20px',
+              }}>
+                The engine that earns while you sleep.
+              </h2>
+              <p style={{ fontSize: 16.5, lineHeight: 1.75, color: BODY, margin: '0 0 14px', maxWidth: 480 }}>
+                Markets do not keep office hours. TradePilot doesn't either. It reads
+                every tick, around the clock, and trades your strategy without fear,
+                without greed, without ever checking its phone at the worst moment.
+              </p>
+              <p style={{ fontSize: 16.5, lineHeight: 1.75, color: BODY, margin: '0 0 14px', maxWidth: 480 }}>
+                You choose the strategy. You cap the risk with a hard stop and a daily
+                limit. Then you press start and get your evenings back while the engine
+                hunts for the next move.
+              </p>
+              <p style={{ fontSize: 16.5, lineHeight: 1.75, color: IVORY, fontWeight: 600, margin: '0 0 30px', maxWidth: 480 }}>
+                Every tick is a chance to earn. TradePilot doesn't miss one.
+              </p>
+              <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', alignItems: 'center' }}>
+                <GoldBtn onClick={go} big>Deploy TradePilot free</GoldBtn>
+                <GhostBtn onClick={() => document.getElementById('markets')?.scrollIntoView({ behavior: 'smooth' })}>
+                  See the markets it hunts
+                </GhostBtn>
+              </div>
+            </div>
+
+            <PilotConsole go={go} />
+          </div>
+        </div>
+      </section>
+
+      {/* ── Live markets + live trade card ──────────────────────────────────── */}
       <section id="markets" style={{
-        background: `radial-gradient(900px 480px at 90% 0%, rgba(242,184,75,0.06), transparent 60%), ${NIGHT}`,
+        background: `radial-gradient(900px 480px at 90% 0%, rgba(242,184,75,0.06), transparent 60%), #20170f`,
         padding: 'clamp(72px, 9vw, 110px) clamp(18px, 4vw, 44px)',
       }}>
         <div style={{ maxWidth: 1240, margin: '0 auto' }}>
@@ -614,13 +749,16 @@ export default function LandingPage() {
             Every price on this page is live, right now, no account needed.
             Pick a market, go long or short, and profit from the move in either direction.
           </p>
-          <MarketsBoard tickers={tickers} meta={meta} go={go} />
+          <div className="lx-msplit">
+            <MarketsBoard tickers={tickers} meta={meta} go={go} />
+            <LiveTradeCard tickers={tickers} go={go} />
+          </div>
         </div>
       </section>
 
       {/* ── Ways to earn ────────────────────────────────────────────────────── */}
       <section id="earn" style={{
-        background: `radial-gradient(900px 480px at 10% 0%, rgba(224,122,74,0.09), transparent 60%), #20170f`,
+        background: `radial-gradient(900px 480px at 10% 0%, rgba(224,122,74,0.09), transparent 60%), ${NIGHT}`,
         padding: 'clamp(72px, 9vw, 110px) clamp(18px, 4vw, 44px)',
       }}>
         <div style={{ maxWidth: 1240, margin: '0 auto' }}>
@@ -636,7 +774,6 @@ export default function LandingPage() {
           </p>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
-            {/* Manual */}
             <article style={{
               background: NIGHT2, border: '1px solid rgba(242,184,75,0.16)', borderRadius: 20,
               padding: 'clamp(24px, 3vw, 36px)',
@@ -651,8 +788,8 @@ export default function LandingPage() {
               </h3>
               <p style={{ fontSize: 14.5, lineHeight: 1.7, color: BODY, margin: '0 0 22px' }}>
                 Spot the move, take it. One-tap orders on raw spreads with execution
-                in milliseconds. Long when it rises, short when it falls. You earn
-                on the move, not the direction.
+                in milliseconds. A 1% move on a $50,000 position is $500, and with
+                leverage you don't need $50,000 to open it.
               </p>
               <div style={{ display: 'flex', gap: 22, flexWrap: 'wrap' }}>
                 {[['0.0', 'pip spreads'], ['<40ms', 'execution'], ['1:1000', 'leverage']].map(([v, l]) => (
@@ -664,7 +801,6 @@ export default function LandingPage() {
               </div>
             </article>
 
-            {/* TradePilot */}
             <article style={{
               background: NIGHT2, border: '1px solid rgba(111,157,255,0.14)', borderRadius: 20,
               padding: 'clamp(24px, 3vw, 36px)',
@@ -678,9 +814,9 @@ export default function LandingPage() {
                 Let TradePilot work
               </h3>
               <p style={{ fontSize: 14.5, lineHeight: 1.7, color: BODY, margin: '0 0 22px' }}>
-                Pick a strategy, cap the risk, press start. The bot watches every tick
-                around the clock and trades your plan without fear or greed. You
-                check the telemetry. It does the laps.
+                Pick a strategy, cap the risk, press start. The bot compounds every
+                edge it finds, day and night, weekends included. You check the
+                telemetry. It does the laps.
               </p>
               <div style={{ display: 'flex', gap: 22, flexWrap: 'wrap' }}>
                 {[['24/7', 'on track'], ['5s', 'tick cycle'], ['0', 'emotions']].map(([v, l]) => (
@@ -692,7 +828,6 @@ export default function LandingPage() {
               </div>
             </article>
 
-            {/* Demo */}
             <article style={{
               background: NIGHT2, border: '1px solid rgba(24,201,138,0.16)', borderRadius: 20,
               padding: 'clamp(24px, 3vw, 36px)',
@@ -721,7 +856,6 @@ export default function LandingPage() {
             </article>
           </div>
 
-          {/* Safety line */}
           <div style={{
             display: 'flex', gap: 16, padding: '20px 24px', borderRadius: 16, marginTop: 20,
             background: 'rgba(36,26,20,0.55)', border: '1px solid rgba(242,184,75,0.07)',
@@ -730,8 +864,27 @@ export default function LandingPage() {
             <p style={{ fontSize: 13.5, lineHeight: 1.65, color: BODY, margin: 0 }}>
               <span style={{ color: IVORY, fontWeight: 700 }}>The safety cell comes standard.</span>{' '}
               Stop loss, take profit, margin protection and daily limits are built into the
-              chassis, not bolted on. Fast is nothing without control.
+              chassis, not bolted on. Leverage multiplies losses as fast as gains; the safety
+              cell is why our drivers walk away from bad laps.
             </p>
+          </div>
+
+          {/* Mid-page CTA band */}
+          <div style={{
+            marginTop: 44, borderRadius: 20, padding: 'clamp(28px, 4vw, 44px)',
+            background: `radial-gradient(600px 300px at 15% 0%, rgba(242,184,75,0.14), transparent 60%), ${NIGHT2}`,
+            border: '1px solid rgba(242,184,75,0.18)',
+            display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 20,
+          }}>
+            <div>
+              <div style={{ fontFamily: SERIF, fontSize: 'clamp(22px, 3vw, 30px)', fontWeight: 550, color: IVORY, letterSpacing: '-0.01em' }}>
+                Your $100,000 practice account is waiting.
+              </div>
+              <div style={{ fontSize: 14, color: BODY, marginTop: 6 }}>
+                60 seconds to open. No card. Deploy TradePilot on day one.
+              </div>
+            </div>
+            <GoldBtn onClick={go} big>Claim it now</GoldBtn>
           </div>
         </div>
       </section>
@@ -800,7 +953,7 @@ export default function LandingPage() {
               <p style={{ fontSize: 16, lineHeight: 1.75, color: INK2, margin: '0 0 32px', maxWidth: 460 }}>
                 You bring the judgment, the patience, the nerve. We bring everything else.
               </p>
-              <GoldBtn onClick={go} big>Start trading free</GoldBtn>
+              <GoldBtn onClick={go} big>Take the seat</GoldBtn>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
@@ -841,10 +994,10 @@ export default function LandingPage() {
             Lights out.
           </h2>
           <p style={{ fontSize: 17, lineHeight: 1.7, color: BODY, margin: '0 0 36px', maxWidth: 480 }}>
-            The markets are open. The engine is warm. One seat is still empty,
-            and it has your name on it.
+            The markets are open. The engine is warm. Your $100,000 practice
+            account takes sixty seconds to claim.
           </p>
-          <GoldBtn onClick={go} big>Start trading free</GoldBtn>
+          <GoldBtn onClick={go} big>Start earning your way</GoldBtn>
           <p style={{ fontSize: 12, letterSpacing: '0.18em', textTransform: 'uppercase', color: DIM, marginTop: 44 }}>
             The X is the apex
           </p>
@@ -862,8 +1015,8 @@ export default function LandingPage() {
             <Wordmark />
           </div>
           <div style={{ display: 'flex', gap: 22 }}>
+            <a className="lx-navlink" href="#pilot">TradePilot</a>
             <a className="lx-navlink" href="#markets">Markets</a>
-            <a className="lx-navlink" href="#earn">Ways to earn</a>
             <a className="lx-navlink" href="#story">The story</a>
             <button onClick={() => navigate('/login')} className="lx-navlink" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
               Sign in
@@ -872,8 +1025,9 @@ export default function LandingPage() {
         </div>
         <div style={{ maxWidth: 1240, margin: '18px auto 0' }}>
           <p style={{ fontSize: 12, lineHeight: 1.6, color: DIM, margin: 0 }}>
-            Trading involves real risk and leverage can work against you. Practice accounts
-            use virtual funds on live prices, so you can learn the limit before you race it.
+            Trading involves real risk and leverage multiplies losses as well as gains.
+            Simulated results do not guarantee future returns. Practice accounts use
+            virtual funds on live prices, so you can learn the limit before you race it.
             © {new Date().getFullYear()} TradeX. Engineered to win. Driven by you.
           </p>
         </div>
