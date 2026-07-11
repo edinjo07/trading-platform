@@ -443,14 +443,14 @@ function MarketsBoard({ tickers, meta, go }: {
         background: 'rgba(36,26,20,0.55)',
       }}>
         <div className="lx-mhead" style={{
-          display: 'grid', gridTemplateColumns: '1fr 130px 110px 90px', gap: 12,
+          display: 'grid', gridTemplateColumns: '1fr 120px 90px 172px', gap: 12,
           padding: '12px 20px', borderBottom: '1px solid rgba(242,184,75,0.08)',
           fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: DIM,
         }}>
           <span>Market</span>
           <span style={{ textAlign: 'right' }}>Price</span>
           <span style={{ textAlign: 'right' }}>24h</span>
-          <span />
+          <span style={{ textAlign: 'center' }}>Sell / Buy</span>
         </div>
 
         {rows.length === 0 && (
@@ -464,7 +464,7 @@ function MarketsBoard({ tickers, meta, go }: {
           const m = meta[t.symbol]
           return (
             <div key={t.symbol} className="lx-mrow lx-mgrid" onClick={go} style={{
-              display: 'grid', gridTemplateColumns: '1fr 130px 110px 90px', gap: 12, alignItems: 'center',
+              display: 'grid', gridTemplateColumns: '1fr 120px 90px 172px', gap: 12, alignItems: 'center',
               padding: '12px 20px', borderBottom: '1px solid rgba(242,184,75,0.05)', cursor: 'pointer',
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
@@ -482,8 +482,17 @@ function MarketsBoard({ tickers, meta, go }: {
               <div style={{ textAlign: 'right', fontFamily: MONO, fontSize: 13, fontWeight: 700, color: up ? BULL : BEAR }}>
                 {fmtPct(t.changePercent)}
               </div>
-              <div style={{ textAlign: 'right' }}>
-                <span style={{ fontSize: 12.5, fontWeight: 800, color: GOLD }}>Trade →</span>
+              <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
+                <button className="lx-mini" onClick={e => { e.stopPropagation(); go() }} style={{
+                  background: 'rgba(255,90,114,0.12)', color: BEAR, border: '1px solid rgba(255,90,114,0.28)',
+                }}>
+                  {t.bid ? formatPrice(t.bid, t.symbol) : 'Sell'}
+                </button>
+                <button className="lx-mini" onClick={e => { e.stopPropagation(); go() }} style={{
+                  background: 'rgba(24,201,138,0.12)', color: BULL, border: '1px solid rgba(24,201,138,0.28)',
+                }}>
+                  {t.ask ? formatPrice(t.ask, t.symbol) : 'Buy'}
+                </button>
               </div>
             </div>
           )
@@ -504,11 +513,15 @@ export default function LandingPage() {
   const { token } = useAuthStore()
   const isAuthenticated = !!token
   const [scrolled, setScrolled] = useState(false)
+  const [showBar, setShowBar] = useState(false)
   const [tickers, setTickers] = useState<Record<string, Ticker>>({})
   const [meta, setMeta] = useState<Record<string, MarketSymbol>>({})
 
   useEffect(() => {
-    const fn = () => setScrolled(window.scrollY > 24)
+    const fn = () => {
+      setScrolled(window.scrollY > 24)
+      setShowBar(window.scrollY > window.innerHeight * 0.8)
+    }
     window.addEventListener('scroll', fn, { passive: true })
     return () => window.removeEventListener('scroll', fn)
   }, [])
@@ -565,13 +578,45 @@ export default function LandingPage() {
         .lx-trade-btn:hover { filter: brightness(1.25); transform: translateY(-1px) }
         .lx-msplit { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(320px, 1fr); gap: clamp(24px, 3.5vw, 44px); align-items: start }
         .lx-psplit { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: clamp(28px, 4.5vw, 64px); align-items: center }
+        .lx-hero {
+          background:
+            linear-gradient(180deg, rgba(26,19,16,0.35) 0%, rgba(26,19,16,0.15) 45%, rgba(26,19,16,0.9) 92%, ${NIGHT} 100%),
+            linear-gradient(95deg, rgba(26,19,16,0.78) 0%, rgba(26,19,16,0.42) 42%, rgba(26,19,16,0.05) 68%, transparent 100%),
+            url(/hero-bg.jpg) center / cover no-repeat,
+            ${NIGHT};
+        }
+        .lx-mini { border: none; cursor: pointer; border-radius: 9px; font-weight: 800; font-size: 11.5px;
+          font-family: ${MONO}; padding: 7px 0; width: 76px; transition: filter 0.15s, transform 0.15s }
+        .lx-mini:hover { filter: brightness(1.3); transform: translateY(-1px) }
+        .lx-sticky { display: none }
+        .lx-sticky-spacer { display: none }
         @media (max-width: 960px) {
           .lx-msplit, .lx-psplit { grid-template-columns: 1fr }
         }
         @media (max-width: 720px) {
           .lx-navlinks { display: none }
-          .lx-mgrid, .lx-mhead { grid-template-columns: 1fr 110px 80px !important }
+          .lx-hero {
+            background:
+              linear-gradient(180deg, rgba(26,19,16,0.5) 0%, rgba(26,19,16,0.28) 40%, rgba(26,19,16,0.92) 90%, ${NIGHT} 100%),
+              url(/hero-bg.jpg) 68% center / cover no-repeat,
+              ${NIGHT};
+          }
+          .lx-mgrid, .lx-mhead { grid-template-columns: 1fr 104px 74px !important }
           .lx-mgrid > :nth-child(4), .lx-mhead > :nth-child(4) { display: none }
+          .lx-sticky {
+            display: block; position: fixed; left: 0; right: 0; bottom: 0; z-index: 120;
+            padding: 10px 14px calc(env(safe-area-inset-bottom) + 10px);
+            background: rgba(26,19,16,0.92); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+            border-top: 1px solid rgba(242,184,75,0.16);
+            transform: translateY(110%); transition: transform 0.3s cubic-bezier(0.2,0.7,0.3,1);
+          }
+          .lx-sticky.lx-on { transform: translateY(0) }
+          .lx-sticky-spacer { display: block; height: 84px }
+        }
+        @media (max-width: 520px) {
+          .lx-navcta { display: none }
+          .lx-hero-ctas { flex-direction: column; align-items: stretch !important }
+          .lx-hero-ctas > button { width: 100% }
         }
       `}</style>
 
@@ -599,19 +644,13 @@ export default function LandingPage() {
           <button onClick={() => navigate('/login')} className="lx-navlink" style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
             Sign in
           </button>
-          <GoldBtn onClick={go}>Claim $100,000 free</GoldBtn>
+          <span className="lx-navcta"><GoldBtn onClick={go}>Claim $100,000 free</GoldBtn></span>
         </div>
       </nav>
 
       {/* ── Hero: the car at golden hour, the pitch on the left ────────────── */}
-      <header style={{
+      <header className="lx-hero" style={{
         position: 'relative', minHeight: '100svh', display: 'flex', flexDirection: 'column', justifyContent: 'center',
-        background: `
-          linear-gradient(180deg, rgba(26,19,16,0.35) 0%, rgba(26,19,16,0.15) 45%, rgba(26,19,16,0.9) 92%, ${NIGHT} 100%),
-          linear-gradient(95deg, rgba(26,19,16,0.78) 0%, rgba(26,19,16,0.42) 42%, rgba(26,19,16,0.05) 68%, transparent 100%),
-          url(/hero-bg.jpg) center / cover no-repeat,
-          ${NIGHT}
-        `,
       }}>
         <div style={{ width: '100%', maxWidth: 1240, margin: '0 auto', padding: '130px clamp(18px, 4vw, 44px) 110px' }}>
           <div style={{ maxWidth: 620 }}>
@@ -652,11 +691,9 @@ export default function LandingPage() {
               for you, day and night.
             </p>
 
-            <div className="lx-rise" style={{ display: 'flex', gap: 14, flexWrap: 'wrap', alignItems: 'center', animationDelay: '0.26s' }}>
+            <div className="lx-rise lx-hero-ctas" style={{ display: 'flex', gap: 14, flexWrap: 'wrap', alignItems: 'center', animationDelay: '0.26s' }}>
               <GoldBtn onClick={go} big>Claim your free $100,000</GoldBtn>
-              <GhostBtn onClick={() => document.getElementById('pilot')?.scrollIntoView({ behavior: 'smooth' })}>
-                Meet TradePilot
-              </GhostBtn>
+              <GhostBtn onClick={go}>Try the free demo</GhostBtn>
             </div>
             <p className="lx-rise" style={{ fontSize: 13, color: '#b3a48f', marginTop: 16, animationDelay: '0.3s' }}>
               Practice account · 60 seconds to open · no card, no catch
@@ -690,6 +727,40 @@ export default function LandingPage() {
           </div>
         </div>
       </header>
+
+      {/* ── Trust band: the numbers, right after the promise ────────────────── */}
+      <section style={{ background: '#20170f', borderBottom: '1px solid rgba(242,184,75,0.07)', padding: '26px clamp(18px, 4vw, 44px)' }}>
+        <div style={{
+          maxWidth: 1240, margin: '0 auto',
+          display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+          gap: 'clamp(16px, 3vw, 32px)', alignItems: 'center',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <img src="/le-fonti-awards-gold.svg" alt="Le Fonti Awards" width={46} height={46} style={{ flexShrink: 0 }} />
+            <div>
+              <div style={{ fontSize: 12.5, fontWeight: 750, color: IVORY, lineHeight: 1.3 }}>Le Fonti Awards</div>
+              <div style={{ fontSize: 11, color: DIM }}>Trading experience</div>
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <img src="/award-trophy.svg" alt="Award" width={42} height={42} style={{ flexShrink: 0 }} />
+            <div>
+              <div style={{ fontSize: 12.5, fontWeight: 750, color: IVORY, lineHeight: 1.3 }}>4.8 / 5 rating</div>
+              <div style={{ fontSize: 11, color: DIM }}>from our drivers</div>
+            </div>
+          </div>
+          {[['250+', 'instruments, 6 asset classes'], ['<40ms', 'average execution'], ['24/7', 'markets and support']].map(([v, l]) => (
+            <div key={l}>
+              <div style={{ fontFamily: MONO, fontSize: 19, fontWeight: 700, color: GOLD }}>{v}</div>
+              <div style={{ fontSize: 11, color: DIM, marginTop: 2 }}>{l}</div>
+            </div>
+          ))}
+        </div>
+        <p style={{ maxWidth: 1240, margin: '18px auto 0', fontSize: 11.5, lineHeight: 1.5, color: DIM }}>
+          Leverage multiplies losses as well as gains. Trade with money you can afford to lose,
+          and practice free for as long as you like first.
+        </p>
+      </section>
 
       {/* ── TradePilot: the star product ─────────────────────────────────────── */}
       <section id="pilot" style={{
@@ -1003,6 +1074,18 @@ export default function LandingPage() {
           </p>
         </div>
       </section>
+
+      {/* ── Sticky mobile CTA: the seat follows you ─────────────────────────── */}
+      <div className={`lx-sticky${showBar ? ' lx-on' : ''}`}>
+        <button onClick={go} className="lx-gold" style={{
+          background: GOLD_G, color: '#221503', border: 'none', cursor: 'pointer',
+          borderRadius: 14, fontWeight: 800, fontSize: 15, padding: '15px 0', width: '100%',
+          boxShadow: '0 2px 6px rgba(20,10,4,0.35), 0 10px 30px rgba(242,184,75,0.2)',
+        }}>
+          Claim your free $100,000
+        </button>
+      </div>
+      <div className="lx-sticky-spacer" />
 
       {/* ── Footer ──────────────────────────────────────────────────────────── */}
       <footer style={{ background: NIGHT, borderTop: '1px solid rgba(242,184,75,0.08)', padding: '36px clamp(18px, 4vw, 44px)' }}>
