@@ -515,6 +515,17 @@ export default function LandingPage() {
   const [scrolled, setScrolled] = useState(false)
   const [showBar, setShowBar] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [pagesOpen, setPagesOpen] = useState(false)
+  const pagesRef = useRef<HTMLDivElement>(null)
+
+  // Close the desktop Pages dropdown on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (pagesRef.current && !pagesRef.current.contains(e.target as Node)) setPagesOpen(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
   const [tickers, setTickers] = useState<Record<string, Ticker>>({})
   const [meta, setMeta] = useState<Record<string, MarketSymbol>>({})
 
@@ -557,9 +568,27 @@ export default function LandingPage() {
   const goTo = (path: string) => { setMenuOpen(false); navigate(path) }
   const jump = (id: string) => {
     setMenuOpen(false)
+    setPagesOpen(false)
     // wait for the drawer to release the scroll lock before jumping
     setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' }), 60)
   }
+
+  // The full page map: real routes plus everything waiting inside the platform
+  const PAGE_LINKS: [string, () => void][] = [
+    ['TradePilot in depth', () => goTo('/trading-pilot')],
+    ['Account types & plans', () => goTo('/account-types')],
+    ['Sign in', () => goTo('/login')],
+  ]
+  const PLATFORM_LINKS: [string, () => void][] = [
+    ['WebTrader', go],
+    ['Market scanner', go],
+    ['Analytics & telemetry', go],
+    ['Leaderboard', go],
+    ['Economic calendar', go],
+    ['Forex calculators', go],
+    ['Trading Web TV', go],
+    ['Blog & insights', go],
+  ]
 
   const marquee = useMemo(() => {
     const live = FALLBACK_TICKER.map(f => {
@@ -667,11 +696,59 @@ export default function LandingPage() {
         <div className="lx-navlinks" style={{ display: 'flex', gap: 26, alignItems: 'center' }}>
           <a className="lx-navlink" href="#pilot">TradePilot</a>
           <a className="lx-navlink" href="#markets">Markets</a>
-          <a className="lx-navlink" href="#cockpit">Platform</a>
           <button onClick={() => goTo('/account-types')} className="lx-navlink" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
             Account types
           </button>
           <a className="lx-navlink" href="#story">The story</a>
+
+          {/* Pages dropdown */}
+          <div ref={pagesRef} style={{ position: 'relative' }}>
+            <button onClick={() => setPagesOpen(o => !o)} className="lx-navlink"
+              style={{
+                background: 'none', cursor: 'pointer', padding: '7px 14px', borderRadius: 999,
+                border: `1px solid ${pagesOpen ? 'rgba(242,184,75,0.4)' : 'rgba(242,184,75,0.18)'}`,
+                color: pagesOpen ? GOLD : BODY, display: 'inline-flex', alignItems: 'center', gap: 6,
+              }}>
+              Pages
+              <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.4}
+                style={{ transform: pagesOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.18s' }}>
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
+            </button>
+
+            {pagesOpen && (
+              <div style={{
+                position: 'absolute', top: 'calc(100% + 10px)', right: 0, width: 460,
+                display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0,
+                background: 'rgba(30,22,17,0.97)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+                border: '1px solid rgba(242,184,75,0.16)', borderRadius: 16, overflow: 'hidden',
+                boxShadow: '0 2px 6px rgba(10,6,3,0.5), 0 30px 80px rgba(10,6,3,0.6)',
+              }}>
+                <div style={{ padding: '18px 20px', borderRight: '1px solid rgba(242,184,75,0.08)' }}>
+                  <div style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: GOLD, marginBottom: 12 }}>
+                    Pages
+                  </div>
+                  {PAGE_LINKS.map(([label, fn]) => (
+                    <button key={label} onClick={fn} className="lx-navlink"
+                      style={{ display: 'block', width: '100%', textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer', padding: '8px 0', fontSize: 14 }}>
+                      {label}
+                    </button>
+                  ))}
+                </div>
+                <div style={{ padding: '18px 20px' }}>
+                  <div style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: GOLD, marginBottom: 12 }}>
+                    Inside the platform
+                  </div>
+                  {PLATFORM_LINKS.map(([label, fn]) => (
+                    <button key={label} onClick={fn} className="lx-navlink"
+                      style={{ display: 'block', width: '100%', textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer', padding: '7px 0', fontSize: 13.5 }}>
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
         <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
           <button onClick={() => navigate('/login')} className="lx-navlink lx-navsignin" style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
@@ -713,9 +790,18 @@ export default function LandingPage() {
           <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', color: DIM, margin: '24px 6px 4px' }}>
             Pages
           </div>
-          <button className="lx-dsub" onClick={() => goTo('/trading-pilot')}>TradePilot in depth</button>
-          <button className="lx-dsub" onClick={() => goTo('/account-types')}>Account types &amp; plans</button>
-          <button className="lx-dsub" onClick={() => goTo('/login')}>Sign in</button>
+          {PAGE_LINKS.map(([label, fn]) => (
+            <button key={label} className="lx-dsub" onClick={fn}>{label}</button>
+          ))}
+
+          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', color: DIM, margin: '20px 6px 4px' }}>
+            Inside the platform
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', columnGap: 8 }}>
+            {PLATFORM_LINKS.map(([label, fn]) => (
+              <button key={label} className="lx-dsub" onClick={fn}>{label}</button>
+            ))}
+          </div>
         </div>
 
         <div style={{ paddingTop: 14 }}>
