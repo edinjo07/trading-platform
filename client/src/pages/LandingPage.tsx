@@ -249,6 +249,28 @@ function QuoteTile({ t, symbol, go }: { t?: Ticker; symbol: string; go: () => vo
   )
 }
 
+/* ── Full-width CTA band: the ask, repeated like the majors do ────────────── */
+
+function CtaBand({ title, sub, cta, go }: { title: string; sub: string; cta: string; go: () => void }) {
+  return (
+    <div style={{
+      borderRadius: 18, padding: 'clamp(26px, 3.6vw, 42px)',
+      background: `radial-gradient(700px 340px at 12% 0%, rgba(242,184,75,0.16), transparent 60%), ${'#1c1717'}`,
+      border: '1px solid rgba(242,184,75,0.22)',
+      boxShadow: '0 1px 2px rgba(6,4,4,0.5), 0 24px 70px rgba(242,184,75,0.07)',
+      display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 20,
+    }}>
+      <div>
+        <div style={{ fontSize: 'clamp(20px, 2.6vw, 28px)', fontWeight: 800, letterSpacing: '-0.02em', color: IVORY }}>
+          {title}
+        </div>
+        <div style={{ fontSize: 14, color: BODY, marginTop: 6 }}>{sub}</div>
+      </div>
+      <GoldBtn onClick={go} big>{cta}</GoldBtn>
+    </div>
+  )
+}
+
 /* ── TradePilot console ───────────────────────────────────────────────────── */
 
 function PilotConsole({ go }: { go: () => void }) {
@@ -525,6 +547,14 @@ export default function LandingPage() {
           width: 42px; height: 42px; cursor: pointer; align-items: center; justify-content: center; flex-shrink: 0 }
         .lx-sticky { display: none }
         .lx-sticky-spacer { display: none }
+        .lx-dsticky {
+          position: fixed; left: 0; right: 0; bottom: 0; z-index: 120;
+          background: ${PAPER}; border-top: 1px solid rgba(36,29,22,0.12);
+          box-shadow: 0 -10px 40px rgba(6,4,4,0.35);
+          transform: translateY(110%); transition: transform 0.35s cubic-bezier(0.2,0.7,0.3,1);
+        }
+        .lx-dsticky.lx-on { transform: translateY(0) }
+        @media (max-width: 720px) { .lx-dsticky { display: none } }
         .lx-ratingband { display: flex; align-items: center; justify-content: space-between; gap: 18px; flex-wrap: wrap }
         @media (max-width: 960px) {
           .lx-qsplit, .lx-psplit { grid-template-columns: 1fr }
@@ -760,10 +790,17 @@ export default function LandingPage() {
             1:1000 leverage and TradePilot automation. Plan ahead and never
             miss an opportunity.
           </p>
-          <div className="lx-rise" style={{ animationDelay: '0.2s' }}>
+          <div className="lx-rise" style={{ display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap', animationDelay: '0.2s' }}>
             <GoldBtn onClick={go} big>Open an Account</GoldBtn>
+            <LineBtn onClick={go} big>Try a Free Demo</LineBtn>
           </div>
-          <div className="lx-rise" style={{ display: 'flex', justifyContent: 'center', marginTop: 44, animationDelay: '0.28s' }}>
+          <p className="lx-rise" style={{
+            fontSize: 13.5, fontWeight: 600, color: '#cfc3b0', marginTop: 16, animationDelay: '0.24s',
+            textShadow: '0 1px 10px rgba(6,4,4,0.6)',
+          }}>
+            Free $100,000 demo · 60 seconds to open · no card needed
+          </p>
+          <div className="lx-rise" style={{ display: 'flex', justifyContent: 'center', marginTop: 38, animationDelay: '0.3s' }}>
             <StartLights lit={5} size={8} />
           </div>
         </div>
@@ -890,6 +927,15 @@ export default function LandingPage() {
             short and profit from the move in either direction.
           </p>
           <MarketsBoard tickers={tickers} meta={meta} go={go} />
+
+          <div style={{ marginTop: 28 }}>
+            <CtaBand
+              title="250+ markets. One account."
+              sub="Open it in 60 seconds and trade every instrument on this board."
+              cta="Open an Account"
+              go={go}
+            />
+          </div>
         </div>
       </section>
 
@@ -952,6 +998,15 @@ export default function LandingPage() {
                 </div>
               </div>
             ))}
+          </div>
+
+          <div style={{ marginTop: 28 }}>
+            <CtaBand
+              title="Your free $100,000 demo is waiting."
+              sub="Every tool above, unlocked from the first practice trade. No card, no catch."
+              cta="Claim the Free Demo"
+              go={go}
+            />
           </div>
         </div>
       </section>
@@ -1058,6 +1113,28 @@ export default function LandingPage() {
         <GoldBtn onClick={go} wide big>Open an Account · free $100k demo</GoldBtn>
       </div>
       <div className="lx-sticky-spacer" />
+
+      {/* ══ Sticky desktop conversion band, the reference's bottom strip ══ */}
+      <div className={`lx-dsticky${showBar ? ' lx-on' : ''}`}>
+        <div style={{
+          maxWidth: 1280, margin: '0 auto', padding: '10px clamp(18px, 4vw, 44px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 18, flexWrap: 'wrap',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <span style={{ fontSize: 18, fontWeight: 800, color: INK, letterSpacing: '-0.02em' }}>Excellent</span>
+            <span style={{ display: 'inline-flex', gap: 3 }}>
+              <Star /><Star /><Star /><Star /><Star />
+            </span>
+            <span style={{ fontSize: 12.5, fontWeight: 600, color: 'rgba(36,29,22,0.65)' }}>
+              4.8 / 5 · free $100,000 demo
+            </span>
+          </div>
+          <div style={{ display: 'flex', gap: 10 }}>
+            <GoldBtn onClick={go}>Open an Account</GoldBtn>
+            <LineBtn onClick={() => goTo('/trading-scams')} dark>24/7 Support</LineBtn>
+          </div>
+        </div>
+      </div>
 
       {/* ══ Footer ══ */}
       <footer style={{ background: NIGHT, borderTop: `1px solid ${HAIR}`, padding: '52px clamp(18px, 4vw, 44px) 36px' }}>
