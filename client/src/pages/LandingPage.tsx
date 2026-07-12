@@ -1,28 +1,29 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { createChart, ColorType, IChartApi, UTCTimestamp } from 'lightweight-charts'
 import { useAuthStore } from '../store/authStore'
 import { BrandMark } from '../components/ui/BrandMark'
 import AssetIcon from '../components/ui/AssetIcon'
-import { getTickers, getSymbols, getCandles } from '../api/markets'
+import { getTickers, getSymbols } from '../api/markets'
 import { formatPrice } from '../utils/formatters'
 import type { Ticker, MarketSymbol } from '../types'
 
 /* ════════════════════════════════════════════════════════════════════════════
-   TradeX. The homepage of a broker, not a brochure.
+   TradeX homepage, IC-Markets grade.
 
-   Rule one: the product is the hero. A live WebTrader frame with real
-   prices opens the page; markets, pricing and tools follow in broker
-   order. The F1 identity survives as a signature, not a theme: gold as
-   the accent, the start lights, the closing shot of the car, and the
-   motto at the end. Everything else is data.
+   Structure mirrors the reference: utility bar → main nav (tagline +
+   racing badge + More menu) → full-bleed photo hero with one huge
+   centered headline and one CTA → light ratings band → big stats strip →
+   the quote board ("Raw Spread Advantage") → TradePilot → live markets →
+   platform → pricing → closer → footer.
+
+   Ours beats the reference in one way: every quote on the board is live.
+   Palette stays TradeX: near-black warm ground, Victory Gold CTAs,
+   neon bull-green digits on the board.
    ════════════════════════════════════════════════════════════════════════════ */
 
-/* ── Palette: deep warm dark, sleek not sooty ────────────────────────────── */
-
-const NIGHT   = '#161011'
-const NIGHT2  = '#201818'
-const PANEL   = '#1b1414'
+const NIGHT   = '#121010'
+const NIGHT2  = '#1c1717'
+const PANEL   = '#171313'
 const IVORY   = '#f7f2e6'
 const BODY    = '#c9bcae'
 const DIM     = '#8d7d6a'
@@ -30,31 +31,16 @@ const GOLD    = '#f2b84b'
 const GOLD_G  = 'linear-gradient(120deg, #f9d98c 0%, #f2b84b 45%, #dd9c2f 100%)'
 const BLUE    = '#6f9dff'
 const BULL    = '#18c98a'
+const NEON    = '#2ee6a0'   // quote-board digits, brighter than P&L green
 const BEAR    = '#ff5a72'
+const PAPER   = '#f4efe4'
+const INK     = '#241d16'
 
 const SERIF = "'Fraunces', Georgia, serif"
 const MONO  = "'JetBrains Mono', monospace"
 const HAIR  = 'rgba(242,184,75,0.09)'
 
-/* ── Static fallbacks (used until live data arrives) ─────────────────────── */
-
-const FALLBACK_TICKER = [
-  { sym: 'BTCUSD', price: '67,420.50', chg: '+2.41%', up: true  },
-  { sym: 'ETHUSD', price: '3,512.80',  chg: '+1.83%', up: true  },
-  { sym: 'XAUUSD', price: '2,334.10',  chg: '+0.34%', up: true  },
-  { sym: 'EURUSD', price: '1.08420',   chg: '+0.12%', up: true  },
-  { sym: 'NVDA',   price: '875.40',    chg: '+3.14%', up: true  },
-  { sym: 'US500',  price: '5,320.4',   chg: '-0.22%', up: false },
-  { sym: 'AAPL',   price: '189.24',    chg: '-0.61%', up: false },
-  { sym: 'SOLUSD', price: '143.20',    chg: '+4.22%', up: true  },
-  { sym: 'GBPUSD', price: '1.26350',   chg: '-0.08%', up: false },
-  { sym: 'WTI',    price: '78.42',     chg: '+1.05%', up: true  },
-]
-
-const HERO_SYMBOLS = ['BTCUSD', 'ETHUSD', 'XAUUSD', 'EURUSD', 'NVDA']
-const HERO_CLASS: Record<string, string> = {
-  BTCUSD: 'crypto', ETHUSD: 'crypto', XAUUSD: 'commodity', EURUSD: 'forex', NVDA: 'stock',
-}
+const BOARD_SYMBOLS = ['EURUSD', 'GBPUSD', 'XAUUSD', 'BTCUSD']
 const POPULAR = ['BTCUSD', 'ETHUSD', 'SOLUSD', 'XAUUSD', 'EURUSD', 'GBPUSD', 'NVDA', 'AAPL', 'TSLA', 'US500']
 
 const MARKET_TABS: { key: string; label: string }[] = [
@@ -65,20 +51,6 @@ const MARKET_TABS: { key: string; label: string }[] = [
   { key: 'commodity', label: 'Commodities' },
   { key: 'index',     label: 'Indices' },
 ]
-
-/* Simulated 90-day TradePilot practice run, deterministic walk. */
-const EQUITY: number[] = (() => {
-  const out: number[] = []
-  let v = 100
-  let seed = 42
-  const rnd = () => { seed = (seed * 1103515245 + 12345) % 2147483648; return seed / 2147483648 }
-  for (let i = 0; i < 90; i++) {
-    v = Math.max(88, v + 0.55 + (rnd() - 0.47) * 3.2)
-    out.push(v)
-  }
-  const scale = 138.4 / out[out.length - 1]
-  return out.map((x, i) => 100 + (x - 100) * ((scale - 1) * (i / (out.length - 1)) + 1))
-})()
 
 const PLANS = [
   {
@@ -98,11 +70,39 @@ const PLANS = [
   },
 ]
 
-/* ── Small pieces ─────────────────────────────────────────────────────────── */
+/* Simulated 90-day TradePilot practice run, deterministic walk. */
+const EQUITY: number[] = (() => {
+  const out: number[] = []
+  let v = 100
+  let seed = 42
+  const rnd = () => { seed = (seed * 1103515245 + 12345) % 2147483648; return seed / 2147483648 }
+  for (let i = 0; i < 90; i++) {
+    v = Math.max(88, v + 0.55 + (rnd() - 0.47) * 3.2)
+    out.push(v)
+  }
+  const scale = 138.4 / out[out.length - 1]
+  return out.map((x, i) => 100 + (x - 100) * ((scale - 1) * (i / (out.length - 1)) + 1))
+})()
+
+/* ── Helpers ──────────────────────────────────────────────────────────────── */
+
+function fmtPct(p: number) { return `${p >= 0 ? '+' : ''}${p.toFixed(2)}%` }
+
+/* Broker-style big-digit price: 1.14143 → ["1.14", "14", "3"] */
+function splitDigits(price: number, symbol: string): [string, string, string] {
+  if (symbol === 'EURUSD' || symbol === 'GBPUSD') {
+    const s = price.toFixed(5)
+    return [s.slice(0, 4), s.slice(4, 6), s.slice(6)]
+  }
+  const s = price.toFixed(2)
+  const [int, dec] = s.split('.')
+  const intFmt = Number(int).toLocaleString('en-US')
+  return [`${intFmt}.`, dec, '']
+}
 
 function Wordmark() {
   return (
-    <span className="font-extrabold tracking-tight text-lg">
+    <span style={{ fontWeight: 800, letterSpacing: '-0.02em', fontSize: 19 }}>
       <span style={{ color: IVORY }}>Trade</span>
       <span style={{ color: GOLD }}>X</span>
     </span>
@@ -113,33 +113,28 @@ function GoldBtn({ children, onClick, big = false, wide = false }: {
   children: React.ReactNode; onClick: () => void; big?: boolean; wide?: boolean
 }) {
   return (
-    <button
-      onClick={onClick}
-      className="lx-gold"
-      style={{
-        background: GOLD_G, color: '#221503', border: 'none', cursor: 'pointer',
-        borderRadius: 12, fontWeight: 800, letterSpacing: '0.01em',
-        fontSize: big ? 16 : 14, padding: big ? '16px 36px' : '11px 22px',
-        width: wide ? '100%' : undefined,
-        boxShadow: '0 2px 6px rgba(20,10,4,0.35), 0 10px 30px rgba(242,184,75,0.18)',
-      }}
-    >
+    <button onClick={onClick} className="lx-gold" style={{
+      background: GOLD_G, color: '#221503', border: 'none', cursor: 'pointer',
+      borderRadius: 10, fontWeight: 800, letterSpacing: '0.01em',
+      fontSize: big ? 16 : 13.5, padding: big ? '16px 40px' : '10px 22px',
+      width: wide ? '100%' : undefined,
+      boxShadow: '0 2px 6px rgba(16,9,4,0.4), 0 10px 30px rgba(242,184,75,0.2)',
+    }}>
       {children}
     </button>
   )
 }
 
-function GhostBtn({ children, onClick }: { children: React.ReactNode; onClick: () => void }) {
+function LineBtn({ children, onClick, dark = false, big = false }: {
+  children: React.ReactNode; onClick: () => void; dark?: boolean; big?: boolean
+}) {
   return (
-    <button
-      onClick={onClick}
-      className="lx-ghost"
-      style={{
-        background: 'transparent', cursor: 'pointer', borderRadius: 12,
-        fontWeight: 600, fontSize: 14, padding: '12px 24px',
-        color: IVORY, border: '1px solid rgba(247,242,230,0.22)',
-      }}
-    >
+    <button onClick={onClick} className="lx-ghost" style={{
+      background: 'transparent', cursor: 'pointer', borderRadius: 10,
+      fontWeight: 700, fontSize: big ? 15 : 13.5, padding: big ? '15px 34px' : '10px 22px',
+      color: dark ? INK : IVORY,
+      border: `1.5px solid ${dark ? 'rgba(36,29,22,0.4)' : 'rgba(247,242,230,0.3)'}`,
+    }}>
       {children}
     </button>
   )
@@ -159,8 +154,8 @@ function Eyebrow({ children }: { children: React.ReactNode }) {
 function H2({ children }: { children: React.ReactNode }) {
   return (
     <h2 style={{
-      fontSize: 'clamp(28px, 3.8vw, 44px)', fontWeight: 800, letterSpacing: '-0.025em',
-      lineHeight: 1.08, color: IVORY, margin: '0 0 14px',
+      fontSize: 'clamp(30px, 4vw, 48px)', fontWeight: 800, letterSpacing: '-0.025em',
+      lineHeight: 1.06, color: IVORY, margin: '0 0 14px',
     }}>
       {children}
     </h2>
@@ -181,194 +176,74 @@ function StartLights({ lit, size = 12 }: { lit: number; size?: number }) {
   )
 }
 
-function fmtPct(p: number) { return `${p >= 0 ? '+' : ''}${p.toFixed(2)}%` }
-
-/* ── Live chart: real candles, warm skin, no chrome ──────────────────────── */
-
-function HeroChart({ symbol, height = 240 }: { symbol: string; height?: number }) {
-  const boxRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    let dead = false
-    if (!boxRef.current) return
-    const chart = createChart(boxRef.current, {
-      layout: {
-        background: { type: ColorType.Solid, color: 'transparent' },
-        textColor: DIM, fontFamily: MONO, fontSize: 10,
-      },
-      grid: { vertLines: { visible: false }, horzLines: { color: 'rgba(242,184,75,0.05)' } },
-      rightPriceScale: { borderVisible: false, scaleMargins: { top: 0.12, bottom: 0.05 } },
-      timeScale: { visible: false },
-      crosshair: {
-        vertLine: { visible: false, labelVisible: false },
-        horzLine: { visible: false, labelVisible: false },
-      },
-      handleScroll: false,
-      handleScale: false,
-    })
-
-    getCandles(symbol, '15m', 96)
-      .then(candles => {
-        if (dead || candles.length === 0) return
-        const up = candles[candles.length - 1].close >= candles[0].close
-        const series = chart.addAreaSeries({
-          lineColor: up ? BULL : BEAR, lineWidth: 2,
-          topColor: up ? 'rgba(24,201,138,0.28)' : 'rgba(255,90,114,0.24)',
-          bottomColor: 'rgba(22,16,17,0)',
-          priceLineVisible: false, lastValueVisible: true,
-          crosshairMarkerVisible: false,
-        })
-        series.setData(candles.map(c => ({ time: c.time as UTCTimestamp, value: c.close })))
-        chart.timeScale().fitContent()
-      })
-      .catch(() => { /* header still shows; the page must never break */ })
-
-    const onResize = () => {
-      if (boxRef.current) chart.applyOptions({ width: boxRef.current.clientWidth, height: boxRef.current.clientHeight })
-    }
-    onResize()
-    const ro = new ResizeObserver(onResize)
-    ro.observe(boxRef.current)
-    return () => { dead = true; ro.disconnect(); chart.remove() }
-  }, [symbol])
-
-  return <div ref={boxRef} style={{ width: '100%', height }} />
+function Star() {
+  return (
+    <span style={{
+      width: 26, height: 26, display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+      background: GOLD, borderRadius: 4,
+    }}>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="#221503">
+        <path d="M12 2l2.9 6.26 6.86.55-5.22 4.48 1.6 6.7L12 16.4 5.86 20l1.6-6.7L2.24 8.8l6.86-.55L12 2z" />
+      </svg>
+    </span>
+  )
 }
 
-/* ── The hero: a live WebTrader frame ─────────────────────────────────────── */
+/* ── The quote board: live, neon, broker-grade ────────────────────────────── */
 
-function PlatformFrame({ tickers, go }: { tickers: Record<string, Ticker>; go: () => void }) {
-  const [sym, setSym] = useState('BTCUSD')
-  const [lev, setLev] = useState(100)
-  const t = tickers[sym]
+function QuoteTile({ t, symbol, go }: { t?: Ticker; symbol: string; go: () => void }) {
   const up = (t?.changePercent ?? 0) >= 0
+  const bid = t?.bid ?? t?.price ?? 0
+  const ask = t?.ask ?? (t ? t.price * 1.0002 : 0)
+  const [bp, bb, bs] = splitDigits(bid, symbol)
+  const [ap, ab, as_] = splitDigits(ask, symbol)
+  const spread = t?.spread ?? (ask - bid)
+  const spreadLabel = symbol === 'EURUSD' || symbol === 'GBPUSD'
+    ? (spread * 10000).toFixed(1)
+    : spread.toFixed(2)
 
   return (
-    <div className="lx-frame" style={{ position: 'relative' }}>
-      {/* under-glow */}
-      <div style={{
-        position: 'absolute', inset: '12% -6% -8% -6%', borderRadius: 40, filter: 'blur(60px)',
-        background: 'radial-gradient(50% 60% at 50% 60%, rgba(242,184,75,0.16), rgba(111,157,255,0.07) 60%, transparent 80%)',
-        pointerEvents: 'none',
-      }} />
+    <div style={{ background: '#0e0b0b', border: '1px solid rgba(46,230,160,0.1)', borderRadius: 10, overflow: 'hidden' }}>
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 12px', borderBottom: '1px solid rgba(46,230,160,0.08)' }}>
+        <span style={{ fontSize: 13, fontWeight: 800, color: IVORY, letterSpacing: '0.02em' }}>{symbol}</span>
+        <svg width="26" height="12" viewBox="0 0 26 12" fill="none" stroke={up ? NEON : BEAR} strokeWidth="1.5" style={{ marginLeft: 'auto' }}>
+          <polyline points="1,9 6,6 10,8 15,3 19,5 25,1" />
+        </svg>
+        <span style={{ fontSize: 11.5, fontFamily: MONO, fontWeight: 700, color: up ? NEON : BEAR }}>
+          {t ? fmtPct(t.changePercent) : '--'}
+        </span>
+        <span style={{ color: up ? NEON : BEAR, fontSize: 9 }}>{up ? '▲' : '▼'}</span>
+      </div>
 
-      <div style={{
-        position: 'relative', borderRadius: 18, overflow: 'hidden',
-        background: 'rgba(27,20,20,0.92)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)',
-        border: '1px solid rgba(242,184,75,0.18)',
-        boxShadow: '0 1px 2px rgba(8,5,5,0.6), 0 40px 100px rgba(8,5,5,0.6)',
-      }}>
-        {/* Browser bar */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', borderBottom: `1px solid ${HAIR}`, background: 'rgba(22,16,17,0.8)' }}>
-          <div style={{ display: 'flex', gap: 6 }}>
-            <span style={{ width: 11, height: 11, borderRadius: '50%', background: '#ff5f57' }} />
-            <span style={{ width: 11, height: 11, borderRadius: '50%', background: '#febc2e' }} />
-            <span style={{ width: 11, height: 11, borderRadius: '50%', background: '#28c840' }} />
-          </div>
-          <div style={{
-            flex: 1, maxWidth: 280, margin: '0 auto', textAlign: 'center',
-            fontSize: 11, fontFamily: MONO, color: DIM, background: 'rgba(242,184,75,0.05)',
-            border: `1px solid ${HAIR}`, borderRadius: 8, padding: '4px 12px',
-            whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-          }}>
-            app.tradex.pro/webtrader
-          </div>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 10, fontWeight: 800, letterSpacing: '0.12em', color: BULL }}>
-            <span style={{ width: 6, height: 6, borderRadius: '50%', background: BULL, animation: 'lx-pulse 1.8s ease-in-out infinite' }} />
-            LIVE
-          </span>
-        </div>
-
-        {/* Symbol tabs */}
-        <div style={{ display: 'flex', gap: 2, padding: '10px 12px 0', flexWrap: 'wrap' }}>
-          {HERO_SYMBOLS.map(s => (
-            <button key={s} onClick={() => setSym(s)}
-              style={{
-                padding: '6px 12px', borderRadius: 8, fontSize: 11.5, fontWeight: 700, cursor: 'pointer',
-                fontFamily: MONO,
-                background: sym === s ? 'rgba(242,184,75,0.12)' : 'transparent',
-                color: sym === s ? GOLD : DIM,
-                border: `1px solid ${sym === s ? 'rgba(242,184,75,0.3)' : 'transparent'}`,
-              }}>
-              {s}
-            </button>
-          ))}
-        </div>
-
-        {/* Chart + trade panel */}
-        <div className="lx-frame-body" style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) 172px', gap: 0 }}>
-          <div style={{ padding: '4px 0 0 4px', minWidth: 0 }}>
-            <HeroChart symbol={sym} height={252} />
-          </div>
-
-          <div style={{ borderLeft: `1px solid ${HAIR}`, padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 10 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <AssetIcon symbol={sym} assetClass={HERO_CLASS[sym] ?? 'crypto'} size={26} />
-              <div style={{ minWidth: 0 }}>
-                <div style={{ fontSize: 14, fontWeight: 800, fontFamily: MONO, color: IVORY, lineHeight: 1.1 }}>
-                  {t ? formatPrice(t.price, sym) : '––'}
-                </div>
-                <div style={{ fontSize: 10.5, fontFamily: MONO, fontWeight: 700, color: up ? BULL : BEAR }}>
-                  {t ? fmtPct(t.changePercent) : ''}
-                </div>
-              </div>
-            </div>
-
-            <button onClick={go} className="lx-trade-btn" style={{
-              padding: '9px 0', borderRadius: 10, border: '1px solid rgba(255,90,114,0.3)',
-              background: 'rgba(255,90,114,0.1)', color: BEAR, fontWeight: 800, fontSize: 12, cursor: 'pointer', fontFamily: MONO,
-            }}>
-              SELL {t?.bid ? formatPrice(t.bid, sym) : ''}
-            </button>
-            <button onClick={go} className="lx-trade-btn" style={{
-              padding: '9px 0', borderRadius: 10, border: '1px solid rgba(24,201,138,0.3)',
-              background: 'rgba(24,201,138,0.1)', color: BULL, fontWeight: 800, fontSize: 12, cursor: 'pointer', fontFamily: MONO,
-            }}>
-              BUY {t?.ask ? formatPrice(t.ask, sym) : ''}
-            </button>
-
-            <div>
-              <div style={{ fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: DIM, marginBottom: 6 }}>Leverage</div>
-              <div style={{ display: 'flex', gap: 4 }}>
-                {[10, 100, 500].map(l => (
-                  <button key={l} onClick={() => setLev(l)}
-                    style={{
-                      flex: 1, padding: '5px 0', borderRadius: 7, fontSize: 10.5, fontWeight: 700, cursor: 'pointer', fontFamily: MONO,
-                      background: lev === l ? 'rgba(111,157,255,0.14)' : 'rgba(247,242,230,0.04)',
-                      color: lev === l ? BLUE : DIM,
-                      border: `1px solid ${lev === l ? 'rgba(111,157,255,0.35)' : 'transparent'}`,
-                    }}>
-                    1:{l}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div style={{ fontSize: 10.5, color: DIM, lineHeight: 1.5 }}>
-              $500 margin controls{' '}
-              <span style={{ color: IVORY, fontFamily: MONO }}>${(500 * lev).toLocaleString()}</span>
-            </div>
-
-            <div style={{ marginTop: 'auto' }}>
-              <GoldBtn onClick={go} wide>Start trading</GoldBtn>
+      {/* Bid / Ask big digits */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, padding: '10px 12px 8px' }}>
+        {[['Bid', bp, bb, bs], ['Ask', ap, ab, as_]].map(([label, pre, bigd, sup]) => (
+          <div key={label as string}>
+            <div style={{ fontSize: 10, color: DIM, letterSpacing: '0.08em', marginBottom: 2 }}>{label}</div>
+            <div style={{ fontFamily: MONO, color: NEON, textShadow: '0 0 14px rgba(46,230,160,0.35)', lineHeight: 1, whiteSpace: 'nowrap' }}>
+              <span style={{ fontSize: 14 }}>{pre}</span>
+              <span style={{ fontSize: 27, fontWeight: 700 }}>{bigd}</span>
+              {sup ? <sup style={{ fontSize: 12, top: '-0.7em', position: 'relative' }}>{sup}</sup> : null}
             </div>
           </div>
-        </div>
+        ))}
+      </div>
 
-        {/* Bottom stats */}
-        <div style={{ display: 'flex', gap: 18, padding: '9px 14px', borderTop: `1px solid ${HAIR}`, background: 'rgba(22,16,17,0.6)', flexWrap: 'wrap' }}>
-          {[
-            ['24H HIGH', t ? formatPrice(t.high24h, sym) : '––'],
-            ['24H LOW', t ? formatPrice(t.low24h, sym) : '––'],
-            ['VOL', t ? (t.volume24h >= 1e9 ? `${(t.volume24h / 1e9).toFixed(2)}B` : t.volume24h >= 1e6 ? `${(t.volume24h / 1e6).toFixed(2)}M` : `${(t.volume24h / 1e3).toFixed(0)}K`) : '––'],
-            ['SPREAD', t?.spread ? t.spread.toFixed(t.spread < 0.01 ? 5 : 2) : 'RAW'],
-          ].map(([l, v]) => (
-            <span key={l} style={{ fontSize: 10, fontFamily: MONO }}>
-              <span style={{ color: DIM }}>{l} </span>
-              <span style={{ color: BODY }}>{v}</span>
-            </span>
-          ))}
-        </div>
+      {/* Spread + Buy/Sell */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 12px 10px' }}>
+        <span style={{
+          fontSize: 10.5, fontFamily: MONO, color: BODY, background: 'rgba(247,242,230,0.05)',
+          border: '1px solid rgba(247,242,230,0.08)', borderRadius: 6, padding: '3px 9px',
+        }}>
+          Spread <span style={{ color: IVORY, fontWeight: 700 }}>{t ? spreadLabel : '--'}</span>
+        </span>
+        <button onClick={go} className="lx-mini" style={{ marginLeft: 'auto', width: 52, background: 'rgba(46,230,160,0.12)', color: NEON, border: '1px solid rgba(46,230,160,0.3)' }}>
+          BUY
+        </button>
+        <button onClick={go} className="lx-mini" style={{ width: 52, background: 'rgba(255,90,114,0.1)', color: BEAR, border: '1px solid rgba(255,90,114,0.28)' }}>
+          SELL
+        </button>
       </div>
     </div>
   )
@@ -391,7 +266,7 @@ function PilotConsole({ go }: { go: () => void }) {
   return (
     <div style={{
       background: NIGHT2, border: '1px solid rgba(111,157,255,0.16)', borderRadius: 20,
-      boxShadow: '0 1px 2px rgba(8,5,5,0.5), 0 30px 80px rgba(8,5,5,0.45)',
+      boxShadow: '0 1px 2px rgba(6,4,4,0.5), 0 30px 80px rgba(6,4,4,0.45)',
       padding: 'clamp(20px, 2.6vw, 28px)', display: 'flex', flexDirection: 'column', gap: 16, minWidth: 0,
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
@@ -427,18 +302,12 @@ function PilotConsole({ go }: { go: () => void }) {
         {[['$100k → $138.4k', 'equity'], ['64%', 'win rate'], ['7.8%', 'max drawdown'], ['1,204', 'trades']].map(([v, l]) => (
           <div key={l} style={{
             flex: '1 1 100px', padding: '10px 14px', borderRadius: 12,
-            background: 'rgba(22,16,17,0.6)', border: `1px solid ${HAIR}`,
+            background: 'rgba(14,11,11,0.6)', border: `1px solid ${HAIR}`,
           }}>
             <div style={{ fontFamily: MONO, fontSize: 14.5, fontWeight: 700, color: IVORY, whiteSpace: 'nowrap' }}>{v}</div>
             <div style={{ fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: DIM, marginTop: 2 }}>{l}</div>
           </div>
         ))}
-      </div>
-
-      <div style={{ fontFamily: MONO, fontSize: 11.5, lineHeight: 1.9, color: DIM, background: 'rgba(22,16,17,0.6)', borderRadius: 12, padding: '10px 14px', border: `1px solid ${HAIR}` }}>
-        <div><span style={{ color: BULL }}>▲ BUY</span> BTCUSD 0.050 @ 67,410.25 <span style={{ color: BULL }}>+$128.40</span></div>
-        <div><span style={{ color: BEAR }}>▼ SELL</span> EURUSD 25,000 @ 1.08442 <span style={{ color: BULL }}>+$61.20</span></div>
-        <div><span style={{ color: BULL }}>▲ BUY</span> XAUUSD 4.0 @ 2,331.80 <span style={{ color: DIM }}>running…</span></div>
       </div>
 
       <GoldBtn onClick={go} wide big>Deploy TradePilot free</GoldBtn>
@@ -489,9 +358,7 @@ function MarketsBoard({ tickers, meta, go }: {
         ))}
       </div>
 
-      <div style={{
-        borderRadius: 18, border: `1px solid ${HAIR}`, overflow: 'hidden', background: PANEL,
-      }}>
+      <div style={{ borderRadius: 16, border: `1px solid ${HAIR}`, overflow: 'hidden', background: PANEL }}>
         <div className="lx-mhead" style={{
           display: 'grid', gridTemplateColumns: '1fr 120px 90px 172px', gap: 12,
           padding: '12px 20px', borderBottom: `1px solid ${HAIR}`,
@@ -500,7 +367,7 @@ function MarketsBoard({ tickers, meta, go }: {
           <span>Market</span>
           <span style={{ textAlign: 'right' }}>Price</span>
           <span style={{ textAlign: 'right' }}>24h</span>
-          <span style={{ textAlign: 'center' }}>Sell / Buy</span>
+          <span style={{ textAlign: 'center' }}>Buy / Sell</span>
         </div>
 
         {rows.length === 0 && (
@@ -534,24 +401,20 @@ function MarketsBoard({ tickers, meta, go }: {
               </div>
               <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
                 <button className="lx-mini" onClick={e => { e.stopPropagation(); go() }} style={{
-                  background: 'rgba(255,90,114,0.12)', color: BEAR, border: '1px solid rgba(255,90,114,0.28)',
-                }}>
-                  {t.bid ? formatPrice(t.bid, t.symbol) : 'Sell'}
-                </button>
-                <button className="lx-mini" onClick={e => { e.stopPropagation(); go() }} style={{
-                  background: 'rgba(24,201,138,0.12)', color: BULL, border: '1px solid rgba(24,201,138,0.28)',
+                  width: 76, background: 'rgba(24,201,138,0.12)', color: BULL, border: '1px solid rgba(24,201,138,0.28)',
                 }}>
                   {t.ask ? formatPrice(t.ask, t.symbol) : 'Buy'}
+                </button>
+                <button className="lx-mini" onClick={e => { e.stopPropagation(); go() }} style={{
+                  width: 76, background: 'rgba(255,90,114,0.12)', color: BEAR, border: '1px solid rgba(255,90,114,0.28)',
+                }}>
+                  {t.bid ? formatPrice(t.bid, t.symbol) : 'Sell'}
                 </button>
               </div>
             </div>
           )
         })}
       </div>
-
-      <p style={{ fontSize: 12.5, color: DIM, marginTop: 14 }}>
-        Live prices, no account needed. 250+ instruments inside, this is the front row.
-      </p>
     </div>
   )
 }
@@ -565,14 +428,14 @@ export default function LandingPage() {
   const [scrolled, setScrolled] = useState(false)
   const [showBar, setShowBar] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
-  const [pagesOpen, setPagesOpen] = useState(false)
-  const pagesRef = useRef<HTMLDivElement>(null)
+  const [moreOpen, setMoreOpen] = useState(false)
+  const moreRef = useRef<HTMLDivElement>(null)
   const [tickers, setTickers] = useState<Record<string, Ticker>>({})
   const [meta, setMeta] = useState<Record<string, MarketSymbol>>({})
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (pagesRef.current && !pagesRef.current.contains(e.target as Node)) setPagesOpen(false)
+      if (moreRef.current && !moreRef.current.contains(e.target as Node)) setMoreOpen(false)
     }
     document.addEventListener('mousedown', handler)
     return () => document.removeEventListener('mousedown', handler)
@@ -607,20 +470,15 @@ export default function LandingPage() {
     return () => { dead = true; clearInterval(iv) }
   }, [])
 
-  useEffect(() => {
-    document.body.style.overflow = menuOpen ? 'hidden' : ''
-    return () => { document.body.style.overflow = '' }
-  }, [menuOpen])
-
-  const go = () => { setMenuOpen(false); navigate(isAuthenticated ? '/dashboard' : '/login?mode=register') }
-  const goTo = (path: string) => { setMenuOpen(false); navigate(path) }
+  const go = () => { setMenuOpen(false); setMoreOpen(false); navigate(isAuthenticated ? '/dashboard' : '/login?mode=register') }
+  const goTo = (path: string) => { setMenuOpen(false); setMoreOpen(false); navigate(path) }
   const jump = (id: string) => {
     setMenuOpen(false)
-    setPagesOpen(false)
+    setMoreOpen(false)
     setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' }), 60)
   }
 
-  const PAGE_LINKS: [string, () => void][] = [
+  const COMPANY_LINKS: [string, () => void][] = [
     ['TradePilot in depth', () => goTo('/trading-pilot')],
     ['Account types & plans', () => goTo('/account-types')],
     ['Trading scams & safety', () => goTo('/trading-scams')],
@@ -637,373 +495,384 @@ export default function LandingPage() {
     ['Blog & insights', go],
   ]
 
-  const marquee = useMemo(() => {
-    const live = FALLBACK_TICKER.map(f => {
-      const t = tickers[f.sym]
-      return t
-        ? { sym: f.sym, price: formatPrice(t.price, f.sym), chg: fmtPct(t.changePercent), up: t.changePercent >= 0 }
-        : f
-    })
-    return [...live, ...live]
-  }, [tickers])
-
   return (
     <div style={{ background: NIGHT, color: BODY, fontFamily: "'Inter', system-ui, sans-serif", overflowX: 'hidden' }}>
       <style>{`
-        @keyframes lx-marquee { from { transform: translateX(0) } to { transform: translateX(-50%) } }
         @keyframes lx-pulse { 0%,100% { opacity: 1 } 50% { opacity: 0.55 } }
         @keyframes lx-rise { from { opacity: 0; transform: translateY(14px) } to { opacity: 1; transform: none } }
         .lx-rise { animation: lx-rise 0.7s cubic-bezier(0.2,0.7,0.3,1) both }
         .lx-gold { transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease }
-        .lx-gold:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(20,10,4,0.4), 0 16px 44px rgba(242,184,75,0.28); filter: brightness(1.04) }
+        .lx-gold:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(16,9,4,0.45), 0 16px 44px rgba(242,184,75,0.3); filter: brightness(1.04) }
         .lx-gold:active { transform: translateY(0) }
         .lx-ghost { transition: border-color 0.18s ease, background 0.18s ease }
-        .lx-ghost:hover { border-color: rgba(242,184,75,0.5); background: rgba(242,184,75,0.06) }
-        .lx-navlink { color: ${BODY}; text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.15s; }
+        .lx-ghost:hover { border-color: rgba(242,184,75,0.55); background: rgba(242,184,75,0.06) }
+        .lx-navlink { color: ${BODY}; text-decoration: none; font-size: 14.5px; font-weight: 600; transition: color 0.15s;
+          background: none; border: none; cursor: pointer; padding: 0 }
         .lx-navlink:hover { color: ${IVORY} }
+        .lx-ulink { color: ${DIM}; font-size: 12px; font-weight: 600; background: none; border: none; cursor: pointer;
+          padding: 0; transition: color 0.15s; white-space: nowrap }
+        .lx-ulink:hover { color: ${IVORY} }
         .lx-mrow { transition: background 0.15s }
         .lx-mrow:hover { background: rgba(242,184,75,0.06) }
-        .lx-trade-btn { transition: filter 0.15s, transform 0.15s }
-        .lx-trade-btn:hover { filter: brightness(1.25); transform: translateY(-1px) }
-        .lx-mini { border: none; cursor: pointer; border-radius: 9px; font-weight: 800; font-size: 11.5px;
-          font-family: ${MONO}; padding: 7px 0; width: 76px; transition: filter 0.15s, transform 0.15s }
+        .lx-mini { border: none; cursor: pointer; border-radius: 8px; font-weight: 800; font-size: 11px;
+          font-family: ${MONO}; padding: 7px 0; transition: filter 0.15s, transform 0.15s }
         .lx-mini:hover { filter: brightness(1.3); transform: translateY(-1px) }
-        .lx-hsplit { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: clamp(28px, 4vw, 60px); align-items: center }
+        .lx-qsplit { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(28px, 4.5vw, 72px); align-items: center }
         .lx-psplit { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: clamp(28px, 4.5vw, 64px); align-items: center }
-        .lx-frame { transform: perspective(1600px) rotateY(-5deg) rotateX(1.5deg); transition: transform 0.4s ease }
-        .lx-frame:hover { transform: perspective(1600px) rotateY(-2deg) rotateX(0.5deg) }
-        .lx-sticky { display: none }
-        .lx-sticky-spacer { display: none }
+        .lx-menu { overflow: hidden; max-height: 0; opacity: 0; transition: max-height 0.32s ease, opacity 0.25s ease }
+        .lx-menu.lx-on { max-height: 720px; opacity: 1 }
         .lx-burger { display: none; background: none; border: 1px solid rgba(242,184,75,0.25); border-radius: 10px;
           width: 42px; height: 42px; cursor: pointer; align-items: center; justify-content: center; flex-shrink: 0 }
-        .lx-drawer { position: fixed; inset: 0; z-index: 200; background: rgba(22,16,17,0.97);
-          backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-          display: flex; flex-direction: column; padding: 18px;
-          opacity: 0; pointer-events: none; transition: opacity 0.25s ease }
-        .lx-drawer.lx-on { opacity: 1; pointer-events: auto }
-        .lx-dlink { background: none; border: none; cursor: pointer; text-align: left; padding: 15px 6px;
-          font-size: 22px; font-weight: 750; letter-spacing: -0.01em; color: ${IVORY};
-          border-bottom: 1px solid rgba(242,184,75,0.08) }
-        .lx-dlink:active { color: ${GOLD} }
-        .lx-dsub { background: none; border: none; cursor: pointer; text-align: left; padding: 10px 6px;
-          font-size: 15px; font-weight: 600; color: ${BODY} }
-        .lx-dsub:active { color: ${IVORY} }
+        .lx-sticky { display: none }
+        .lx-sticky-spacer { display: none }
+        .lx-ratingband { display: flex; align-items: center; justify-content: space-between; gap: 18px; flex-wrap: wrap }
         @media (max-width: 960px) {
-          .lx-hsplit, .lx-psplit { grid-template-columns: 1fr }
-          .lx-frame { transform: none }
-          .lx-frame:hover { transform: none }
+          .lx-qsplit, .lx-psplit { grid-template-columns: 1fr }
+        }
+        @media (max-width: 860px) {
+          .lx-utility { display: none !important }
+          .lx-navlinks { display: none !important }
+          .lx-navlogin { display: none !important }
+          .lx-burger { display: flex }
         }
         @media (max-width: 720px) {
-          .lx-navlinks { display: none }
-          .lx-burger { display: flex }
-          .lx-navsignin { display: none }
           .lx-mgrid, .lx-mhead { grid-template-columns: 1fr 104px 74px !important }
           .lx-mgrid > :nth-child(4), .lx-mhead > :nth-child(4) { display: none }
           .lx-sticky {
             display: block; position: fixed; left: 0; right: 0; bottom: 0; z-index: 120;
             padding: 10px 14px calc(env(safe-area-inset-bottom) + 10px);
-            background: rgba(22,16,17,0.92); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+            background: rgba(18,16,16,0.94); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
             border-top: 1px solid rgba(242,184,75,0.16);
             transform: translateY(110%); transition: transform 0.3s cubic-bezier(0.2,0.7,0.3,1);
           }
           .lx-sticky.lx-on { transform: translateY(0) }
           .lx-sticky-spacer { display: block; height: 84px }
         }
-        @media (max-width: 520px) {
-          .lx-navcta { display: none }
-          .lx-hero-ctas { flex-direction: column; align-items: stretch !important }
-          .lx-hero-ctas > button { width: 100% }
-          .lx-frame-body { grid-template-columns: 1fr !important }
-          .lx-frame-body > div:last-child { border-left: none !important; border-top: 1px solid ${HAIR} }
+        @media (max-width: 560px) {
+          .lx-board { grid-template-columns: 1fr !important }
+          .lx-hero-h1 { font-size: clamp(38px, 11vw, 54px) !important }
         }
       `}</style>
 
-      {/* ── Nav ─────────────────────────────────────────────────────────────── */}
-      <nav style={{
-        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '14px clamp(18px, 4vw, 44px)',
-        background: scrolled ? 'rgba(22,16,17,0.88)' : 'transparent',
-        backdropFilter: scrolled ? 'blur(14px)' : 'none',
-        WebkitBackdropFilter: scrolled ? 'blur(14px)' : 'none',
-        borderBottom: scrolled ? `1px solid ${HAIR}` : '1px solid transparent',
-        transition: 'all 0.3s ease',
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-          <BrandMark size={30} />
-          <Wordmark />
+      {/* ══ Header block: utility bar + main nav + mobile menu ══ */}
+      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100 }}>
+        {/* Utility bar */}
+        <div className="lx-utility" style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 14,
+          padding: '7px clamp(18px, 4vw, 44px)',
+          background: 'rgba(12,10,10,0.94)', borderBottom: '1px solid rgba(247,242,230,0.05)',
+        }}>
+          <div style={{ display: 'flex', gap: 18 }}>
+            <button className="lx-ulink" onClick={() => goTo('/login')}>CLIENT</button>
+            <button className="lx-ulink" onClick={go}>BLOG</button>
+            <button className="lx-ulink" onClick={() => goTo('/trading-scams')}>SAFETY</button>
+          </div>
+          <div style={{ display: 'flex', gap: 18, alignItems: 'center' }}>
+            <span style={{
+              fontSize: 10, fontWeight: 800, letterSpacing: '0.08em', color: '#221503',
+              background: GOLD_G, borderRadius: 999, padding: '2px 9px',
+            }}>NEW</span>
+            <button className="lx-ulink" onClick={() => goTo('/trading-pilot')}>TradePilot</button>
+            <button className="lx-ulink" onClick={go}>WebTrader</button>
+            <button className="lx-ulink" onClick={go}>Start Trading</button>
+            <button className="lx-ulink" onClick={go}>Try a Free Demo</button>
+            <span className="lx-ulink" style={{ cursor: 'default' }}>EN</span>
+          </div>
         </div>
-        <div className="lx-navlinks" style={{ display: 'flex', gap: 26, alignItems: 'center' }}>
-          <a className="lx-navlink" href="#markets">Markets</a>
-          <a className="lx-navlink" href="#pilot">TradePilot</a>
-          <a className="lx-navlink" href="#plans">Pricing</a>
-          <a className="lx-navlink" href="#cockpit">Platform</a>
 
-          <div ref={pagesRef} style={{ position: 'relative' }}>
-            <button onClick={() => setPagesOpen(o => !o)} className="lx-navlink"
-              style={{
-                background: 'none', cursor: 'pointer', padding: '7px 14px', borderRadius: 999,
-                border: `1px solid ${pagesOpen ? 'rgba(242,184,75,0.4)' : 'rgba(242,184,75,0.18)'}`,
-                color: pagesOpen ? GOLD : BODY, display: 'inline-flex', alignItems: 'center', gap: 6,
-              }}>
-              Pages
-              <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.4}
-                style={{ transform: pagesOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.18s' }}>
-                <polyline points="6 9 12 15 18 9" />
-              </svg>
-            </button>
-
-            {pagesOpen && (
-              <div style={{
-                position: 'absolute', top: 'calc(100% + 10px)', right: 0, width: 460,
-                display: 'grid', gridTemplateColumns: '1fr 1fr',
-                background: 'rgba(27,20,20,0.97)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
-                border: '1px solid rgba(242,184,75,0.16)', borderRadius: 16, overflow: 'hidden',
-                boxShadow: '0 2px 6px rgba(8,5,5,0.5), 0 30px 80px rgba(8,5,5,0.6)',
-              }}>
-                <div style={{ padding: '18px 20px', borderRight: `1px solid ${HAIR}` }}>
-                  <div style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: GOLD, marginBottom: 12 }}>
-                    Pages
-                  </div>
-                  {PAGE_LINKS.map(([label, fn]) => (
-                    <button key={label} onClick={fn} className="lx-navlink"
-                      style={{ display: 'block', width: '100%', textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer', padding: '8px 0', fontSize: 14 }}>
-                      {label}
-                    </button>
-                  ))}
-                </div>
-                <div style={{ padding: '18px 20px' }}>
-                  <div style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: GOLD, marginBottom: 12 }}>
-                    Inside the platform
-                  </div>
-                  {PLATFORM_LINKS.map(([label, fn]) => (
-                    <button key={label} onClick={fn} className="lx-navlink"
-                      style={{ display: 'block', width: '100%', textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer', padding: '7px 0', fontSize: 13.5 }}>
-                      {label}
-                    </button>
-                  ))}
-                </div>
+        {/* Main nav */}
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 'clamp(14px, 2.5vw, 34px)',
+          padding: '13px clamp(18px, 4vw, 44px)',
+          background: scrolled || menuOpen ? 'rgba(18,16,16,0.95)' : 'rgba(18,16,16,0.72)',
+          backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)',
+          borderBottom: `1px solid ${scrolled || menuOpen ? HAIR : 'transparent'}`,
+          transition: 'all 0.3s ease',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', flexShrink: 0 }}
+               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+            <BrandMark size={32} />
+            <div>
+              <Wordmark />
+              <div style={{ fontSize: 9.5, letterSpacing: '0.14em', textTransform: 'uppercase', color: DIM, marginTop: 1 }}>
+                Engineered to win
               </div>
-            )}
+            </div>
+          </div>
+
+          {/* Racing badge, like the reference's F1 sponsorship slot */}
+          <div className="lx-navlinks" style={{ display: 'flex', alignItems: 'center', gap: 8, paddingLeft: 18, borderLeft: '1px solid rgba(247,242,230,0.08)' }}>
+            <StartLights lit={5} size={6} />
+            <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.14em', color: BODY }}>APEX RACING</span>
+          </div>
+
+          <div className="lx-navlinks" style={{ display: 'flex', gap: 'clamp(16px, 2.2vw, 30px)', alignItems: 'center', marginLeft: 'auto' }}>
+            <button className="lx-navlink" onClick={() => jump('quotes')}>Trading</button>
+            <button className="lx-navlink" onClick={() => jump('pilot')}>TradePilot</button>
+            <button className="lx-navlink" onClick={() => jump('platform')}>Platforms</button>
+            <button className="lx-navlink" onClick={() => jump('pricing')}>Pricing</button>
+
+            {/* More dropdown */}
+            <div ref={moreRef} style={{ position: 'relative' }}>
+              <button className="lx-navlink" onClick={() => setMoreOpen(o => !o)}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: moreOpen ? IVORY : undefined }}>
+                More
+                <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.4}
+                  style={{ transform: moreOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.18s' }}>
+                  <polyline points="6 9 12 15 18 9" />
+                </svg>
+              </button>
+              {moreOpen && (
+                <div style={{
+                  position: 'absolute', top: 'calc(100% + 14px)', right: 0, width: 440,
+                  display: 'grid', gridTemplateColumns: '1fr 1fr',
+                  background: 'rgba(24,19,19,0.98)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+                  border: '1px solid rgba(242,184,75,0.16)', borderRadius: 14, overflow: 'hidden',
+                  boxShadow: '0 2px 6px rgba(6,4,4,0.5), 0 30px 80px rgba(6,4,4,0.6)',
+                }}>
+                  <div style={{ padding: '16px 18px', borderRight: `1px solid ${HAIR}` }}>
+                    <div style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: GOLD, marginBottom: 10 }}>
+                      Company
+                    </div>
+                    {COMPANY_LINKS.map(([label, fn]) => (
+                      <button key={label} onClick={fn} className="lx-navlink"
+                        style={{ display: 'block', width: '100%', textAlign: 'left', padding: '7px 0', fontSize: 13.5 }}>
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                  <div style={{ padding: '16px 18px' }}>
+                    <div style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: GOLD, marginBottom: 10 }}>
+                      Platform
+                    </div>
+                    {PLATFORM_LINKS.map(([label, fn]) => (
+                      <button key={label} onClick={fn} className="lx-navlink"
+                        style={{ display: 'block', width: '100%', textAlign: 'left', padding: '6px 0', fontSize: 13 }}>
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginLeft: 'auto' }}>
+            <span className="lx-navlinks"><GoldBtn onClick={go}>Start Trading</GoldBtn></span>
+            <span className="lx-navlogin"><LineBtn onClick={() => navigate('/login')}>Client Login</LineBtn></span>
+            <button className="lx-burger" aria-label="Menu" aria-expanded={menuOpen} onClick={() => setMenuOpen(o => !o)}>
+              {menuOpen ? (
+                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke={GOLD} strokeWidth={2} strokeLinecap="round">
+                  <line x1="6" y1="6" x2="18" y2="18" /><line x1="18" y1="6" x2="6" y2="18" />
+                </svg>
+              ) : (
+                <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke={GOLD} strokeWidth={2} strokeLinecap="round">
+                  <line x1="4" y1="7" x2="20" y2="7" /><line x1="4" y1="12" x2="20" y2="12" /><line x1="4" y1="17" x2="14" y2="17" />
+                </svg>
+              )}
+            </button>
           </div>
         </div>
-        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-          <button onClick={() => navigate('/login')} className="lx-navlink lx-navsignin" style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
-            Sign in
-          </button>
-          <span className="lx-navcta"><GoldBtn onClick={go}>Open account</GoldBtn></span>
-          <button className="lx-burger" aria-label="Menu" onClick={() => setMenuOpen(true)}>
-            <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke={GOLD} strokeWidth={2} strokeLinecap="round">
-              <line x1="4" y1="7" x2="20" y2="7" /><line x1="4" y1="12" x2="20" y2="12" /><line x1="4" y1="17" x2="14" y2="17" />
-            </svg>
-          </button>
-        </div>
-      </nav>
 
-      {/* ── Mobile drawer ───────────────────────────────────────────────────── */}
-      <div className={`lx-drawer${menuOpen ? ' lx-on' : ''}`}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <BrandMark size={30} />
-            <Wordmark />
-          </div>
-          <button aria-label="Close menu" onClick={() => setMenuOpen(false)} style={{
-            background: 'none', border: '1px solid rgba(242,184,75,0.25)', borderRadius: 10,
-            width: 42, height: 42, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}>
-            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke={GOLD} strokeWidth={2} strokeLinecap="round">
-              <line x1="6" y1="6" x2="18" y2="18" /><line x1="18" y1="6" x2="6" y2="18" />
-            </svg>
-          </button>
-        </div>
-
-        <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
-          <button className="lx-dlink" onClick={() => jump('markets')}>Live markets</button>
-          <button className="lx-dlink" onClick={() => jump('pilot')}>TradePilot</button>
-          <button className="lx-dlink" onClick={() => jump('plans')}>Pricing</button>
-          <button className="lx-dlink" onClick={() => jump('cockpit')}>The platform</button>
-
-          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', color: DIM, margin: '24px 6px 4px' }}>
-            Pages
-          </div>
-          {PAGE_LINKS.map(([label, fn]) => (
-            <button key={label} className="lx-dsub" onClick={fn}>{label}</button>
-          ))}
-
-          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', color: DIM, margin: '20px 6px 4px' }}>
-            Inside the platform
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', columnGap: 8 }}>
-            {PLATFORM_LINKS.map(([label, fn]) => (
-              <button key={label} className="lx-dsub" onClick={fn}>{label}</button>
+        {/* Mobile menu: simple slide-down dropdown, all pages */}
+        <div className={`lx-menu${menuOpen ? ' lx-on' : ''}`} style={{
+          background: 'rgba(18,16,16,0.98)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+          borderBottom: menuOpen ? `1px solid ${HAIR}` : 'none',
+        }}>
+          <div style={{ padding: '10px clamp(18px, 4vw, 44px) 20px', maxHeight: '72vh', overflowY: 'auto' }}>
+            {[
+              ['Trading', () => jump('quotes')],
+              ['TradePilot', () => jump('pilot')],
+              ['Platforms', () => jump('platform')],
+              ['Pricing', () => jump('pricing')],
+              ['Live markets', () => jump('markets')],
+            ].map(([label, fn]) => (
+              <button key={label as string} onClick={fn as () => void} style={{
+                display: 'block', width: '100%', textAlign: 'left', background: 'none', border: 'none',
+                cursor: 'pointer', padding: '13px 0', fontSize: 17, fontWeight: 700, color: IVORY,
+                borderBottom: '1px solid rgba(242,184,75,0.07)',
+              }}>
+                {label as string}
+              </button>
             ))}
-          </div>
-        </div>
 
-        <div style={{ paddingTop: 14 }}>
-          <GoldBtn onClick={go} wide big>Open account</GoldBtn>
-          <p style={{ fontSize: 12, color: DIM, textAlign: 'center', margin: '10px 0 0' }}>
-            Free $100,000 demo · 60 seconds · no card
-          </p>
+            <div style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: GOLD, margin: '16px 0 6px' }}>
+              Company
+            </div>
+            {COMPANY_LINKS.map(([label, fn]) => (
+              <button key={label} onClick={fn} style={{
+                display: 'block', width: '100%', textAlign: 'left', background: 'none', border: 'none',
+                cursor: 'pointer', padding: '9px 0', fontSize: 15, fontWeight: 600, color: BODY,
+              }}>
+                {label}
+              </button>
+            ))}
+
+            <div style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: GOLD, margin: '14px 0 6px' }}>
+              Platform
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 12px' }}>
+              {PLATFORM_LINKS.map(([label, fn]) => (
+                <button key={label} onClick={fn} style={{
+                  textAlign: 'left', background: 'none', border: 'none',
+                  cursor: 'pointer', padding: '8px 0', fontSize: 14, fontWeight: 600, color: BODY,
+                }}>
+                  {label}
+                </button>
+              ))}
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 16 }}>
+              <LineBtn onClick={() => goTo('/login')}>Client Login</LineBtn>
+              <GoldBtn onClick={go}>Start Trading</GoldBtn>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* ── Hero: the platform, live ────────────────────────────────────────── */}
+      {/* ══ Hero: full-bleed photo, one huge headline, one CTA ══ */}
       <header style={{
-        position: 'relative',
+        position: 'relative', minHeight: '92svh', display: 'flex', alignItems: 'center', justifyContent: 'center',
+        textAlign: 'center',
         background: `
-          radial-gradient(1200px 640px at 78% 8%, rgba(242,184,75,0.09), transparent 60%),
-          radial-gradient(900px 520px at 10% 100%, rgba(111,157,255,0.05), transparent 60%),
+          linear-gradient(180deg, rgba(18,16,16,0.62) 0%, rgba(18,16,16,0.4) 55%, ${NIGHT} 100%),
+          url(/hero-bg.jpg) center 30% / cover no-repeat,
           ${NIGHT}
         `,
+        padding: '150px clamp(18px, 4vw, 44px) 80px',
       }}>
-        <div className="lx-hsplit" style={{
-          maxWidth: 1280, margin: '0 auto',
-          padding: '128px clamp(18px, 4vw, 44px) 96px',
-        }}>
-          {/* Left: the pitch */}
-          <div>
-            <div className="lx-rise" style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 22 }}>
-              <StartLights lit={5} size={8} />
-              <span style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', color: GOLD }}>
-                Crypto · Forex · Stocks · Gold · Indices
-              </span>
-            </div>
-
-            <h1 className="lx-rise" style={{
-              fontSize: 'clamp(40px, 5.6vw, 72px)', lineHeight: 1.0, letterSpacing: '-0.035em',
-              fontWeight: 800, color: IVORY, margin: 0, animationDelay: '0.08s',
-            }}>
-              Trade the world's markets.
-              <br />
-              <span style={{ background: GOLD_G, WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' }}>
-                Earn in both directions.
-              </span>
-            </h1>
-
-            <p className="lx-rise" style={{
-              maxWidth: 500, fontSize: 'clamp(15px, 1.8vw, 17px)', lineHeight: 1.65,
-              color: BODY, margin: '24px 0 30px', animationDelay: '0.16s',
-            }}>
-              250+ instruments with raw spreads from 0.0 pips, leverage to 1:1000
-              and execution under 40 ms. Trade it yourself or let TradePilot run
-              day and night. Every account starts with a free $100,000 demo.
-            </p>
-
-            <div className="lx-rise lx-hero-ctas" style={{ display: 'flex', gap: 14, flexWrap: 'wrap', alignItems: 'center', animationDelay: '0.24s' }}>
-              <GoldBtn onClick={go} big>Open account</GoldBtn>
-              <GhostBtn onClick={go}>Try the free demo</GhostBtn>
-            </div>
-            <p className="lx-rise" style={{ fontSize: 13, color: DIM, marginTop: 14, animationDelay: '0.28s' }}>
-              60 seconds to open · no card · practice on live prices
-            </p>
-
-            <div className="lx-rise" style={{ display: 'flex', gap: 'clamp(20px, 3vw, 40px)', flexWrap: 'wrap', marginTop: 38, animationDelay: '0.32s' }}>
-              {[['250+', 'instruments'], ['0.0', 'pip spreads'], ['1:1000', 'leverage'], ['<40ms', 'execution']].map(([v, l]) => (
-                <div key={l}>
-                  <div style={{ fontFamily: MONO, fontSize: 21, fontWeight: 700, color: IVORY }}>{v}</div>
-                  <div style={{ fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: DIM, marginTop: 3 }}>{l}</div>
-                </div>
-              ))}
-            </div>
+        <div style={{ maxWidth: 900, margin: '0 auto' }}>
+          <h1 className="lx-rise lx-hero-h1" style={{
+            fontSize: 'clamp(44px, 7.6vw, 100px)', lineHeight: 1.02, letterSpacing: '-0.03em',
+            fontWeight: 800, color: '#ffffff', margin: 0,
+            textShadow: '0 4px 40px rgba(6,4,4,0.6)',
+          }}>
+            React Before
+            <br />
+            the Market Moves
+          </h1>
+          <p className="lx-rise" style={{
+            fontSize: 'clamp(16px, 2.2vw, 22px)', lineHeight: 1.5, color: '#e8dfd0',
+            margin: '26px auto 34px', maxWidth: 620, animationDelay: '0.12s',
+            textShadow: '0 2px 20px rgba(6,4,4,0.6)',
+          }}>
+            Trade 250+ global markets 24 hours a day with raw spreads,
+            1:1000 leverage and TradePilot automation. Plan ahead and never
+            miss an opportunity.
+          </p>
+          <div className="lx-rise" style={{ animationDelay: '0.2s' }}>
+            <GoldBtn onClick={go} big>Open an Account</GoldBtn>
           </div>
-
-          {/* Right: the product */}
-          <div className="lx-rise" style={{ animationDelay: '0.18s', minWidth: 0 }}>
-            <PlatformFrame tickers={tickers} go={go} />
-          </div>
-        </div>
-
-        {/* Ticker marquee */}
-        <div style={{
-          position: 'relative', overflow: 'hidden',
-          borderTop: `1px solid ${HAIR}`, background: 'rgba(22,16,17,0.72)', padding: '11px 0',
-        }}>
-          <div style={{ display: 'flex', width: 'max-content', animation: 'lx-marquee 42s linear infinite' }}>
-            {marquee.map((t, i) => (
-              <span key={i} style={{ display: 'inline-flex', gap: 8, alignItems: 'baseline', padding: '0 26px', whiteSpace: 'nowrap' }}>
-                <span style={{ fontSize: 12, fontWeight: 700, color: DIM, letterSpacing: '0.04em' }}>{t.sym}</span>
-                <span style={{ fontSize: 12, fontFamily: MONO, color: IVORY }}>{t.price}</span>
-                <span style={{ fontSize: 12, fontFamily: MONO, color: t.up ? BULL : BEAR }}>{t.chg}</span>
-              </span>
-            ))}
+          <div className="lx-rise" style={{ display: 'flex', justifyContent: 'center', marginTop: 44, animationDelay: '0.28s' }}>
+            <StartLights lit={5} size={8} />
           </div>
         </div>
       </header>
 
-      {/* ── Trust band ──────────────────────────────────────────────────────── */}
-      <section style={{ background: '#1a1312', borderBottom: `1px solid ${HAIR}`, padding: '26px clamp(18px, 4vw, 44px)' }}>
+      {/* ══ Ratings band (light) ══ */}
+      <section style={{ background: PAPER, padding: '18px clamp(18px, 4vw, 44px)' }}>
+        <div className="lx-ratingband" style={{ maxWidth: 1280, margin: '0 auto' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
+            <span style={{ fontSize: 22, fontWeight: 800, color: INK, letterSpacing: '-0.02em' }}>Excellent</span>
+            <span style={{ display: 'inline-flex', gap: 3 }}>
+              <Star /><Star /><Star /><Star /><Star />
+            </span>
+            <span style={{ fontSize: 13.5, fontWeight: 600, color: 'rgba(36,29,22,0.65)' }}>
+              4.8 / 5 · rated by our traders
+            </span>
+            <img src="/le-fonti-awards-gold.svg" alt="Le Fonti Awards" width={34} height={34} />
+          </div>
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+            <GoldBtn onClick={go}>Open an Account</GoldBtn>
+            <LineBtn onClick={() => goTo('/trading-scams')} dark>24/7 Support</LineBtn>
+          </div>
+        </div>
+      </section>
+
+      {/* ══ Stats strip ══ */}
+      <section style={{
+        background: `linear-gradient(180deg, rgba(242,184,75,0.05), transparent), #171212`,
+        borderBottom: `1px solid ${HAIR}`, padding: '34px clamp(18px, 4vw, 44px)',
+      }}>
         <div style={{
           maxWidth: 1280, margin: '0 auto',
           display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-          gap: 'clamp(16px, 3vw, 32px)', alignItems: 'center',
+          gap: 'clamp(18px, 3vw, 40px)', textAlign: 'center',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <img src="/le-fonti-awards-gold.svg" alt="Le Fonti Awards" width={46} height={46} style={{ flexShrink: 0 }} />
-            <div>
-              <div style={{ fontSize: 12.5, fontWeight: 750, color: IVORY, lineHeight: 1.3 }}>Le Fonti Awards</div>
-              <div style={{ fontSize: 11, color: DIM }}>Trading experience</div>
-            </div>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <img src="/award-trophy.svg" alt="Award" width={42} height={42} style={{ flexShrink: 0 }} />
-            <div>
-              <div style={{ fontSize: 12.5, fontWeight: 750, color: IVORY, lineHeight: 1.3 }}>4.8 / 5 rating</div>
-              <div style={{ fontSize: 11, color: DIM }}>from our traders</div>
-            </div>
-          </div>
-          {[['250+', 'instruments, 6 asset classes'], ['<40ms', 'average execution'], ['24/7', 'markets and support']].map(([v, l]) => (
+          {[
+            ['0.0', 'PIP SPREADS*'],
+            ['1:1000', 'LEVERAGE'],
+            ['<40ms', 'EXECUTION'],
+            ['250+', 'TRADABLE INSTRUMENTS'],
+            ['24/7', 'DEDICATED SUPPORT'],
+          ].map(([v, l]) => (
             <div key={l}>
-              <div style={{ fontFamily: MONO, fontSize: 19, fontWeight: 700, color: GOLD }}>{v}</div>
-              <div style={{ fontSize: 11, color: DIM, marginTop: 2 }}>{l}</div>
+              <div style={{ fontFamily: MONO, fontSize: 'clamp(28px, 3.4vw, 44px)', fontWeight: 700, color: IVORY, letterSpacing: '-0.02em' }}>{v}</div>
+              <div style={{ fontSize: 11, letterSpacing: '0.18em', color: DIM, marginTop: 6, fontWeight: 700 }}>{l}</div>
             </div>
           ))}
         </div>
-        <p style={{ maxWidth: 1280, margin: '18px auto 0', fontSize: 11.5, lineHeight: 1.5, color: DIM }}>
-          Leverage multiplies losses as well as gains. Trade with money you can afford to lose,
-          and practice free for as long as you like first.
-        </p>
       </section>
 
-      {/* ── Live markets ────────────────────────────────────────────────────── */}
-      <section id="markets" style={{ background: NIGHT, padding: 'clamp(64px, 8vw, 100px) clamp(18px, 4vw, 44px)' }}>
-        <div style={{ maxWidth: 1280, margin: '0 auto' }}>
-          <Eyebrow>Live markets</Eyebrow>
-          <H2>Markets move. Money moves with them.</H2>
-          <p style={{ maxWidth: 540, fontSize: 16, lineHeight: 1.7, color: BODY, margin: '0 0 32px' }}>
-            Every price below is live right now. Go long or short and profit
-            from the move in either direction.
-          </p>
-          <MarketsBoard tickers={tickers} meta={meta} go={go} />
+      {/* ══ The Raw Spread Advantage: live quote board ══ */}
+      <section id="quotes" style={{ background: NIGHT, padding: 'clamp(64px, 8vw, 110px) clamp(18px, 4vw, 44px)' }}>
+        <div className="lx-qsplit" style={{ maxWidth: 1280, margin: '0 auto' }}>
+          {/* Quote board */}
+          <div className="lx-board" style={{
+            display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10,
+            padding: 14, borderRadius: 16, background: '#0b0909',
+            border: '1px solid rgba(46,230,160,0.12)',
+            boxShadow: '0 0 80px rgba(46,230,160,0.05), 0 30px 80px rgba(6,4,4,0.5)',
+          }}>
+            {BOARD_SYMBOLS.map(s => (
+              <QuoteTile key={s} symbol={s} t={tickers[s]} go={go} />
+            ))}
+          </div>
+
+          {/* Pitch */}
+          <div>
+            <H2>The Raw Spread Advantage</H2>
+            <p style={{ fontSize: 16.5, lineHeight: 1.75, color: BODY, margin: '0 0 14px', maxWidth: 500 }}>
+              Raw spreads are the difference you have been waiting for. Trade with
+              spreads from 0.0 pips, no requotes, best possible prices and no
+              restrictions.
+            </p>
+            <p style={{ fontSize: 16.5, lineHeight: 1.75, color: BODY, margin: '0 0 28px', maxWidth: 500 }}>
+              TradeX is the platform of choice for high volume traders, scalpers
+              and robots. And unlike the brochures, every quote on this board is
+              live right now.
+            </p>
+            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+              <GoldBtn onClick={go} big>Start Trading</GoldBtn>
+              <LineBtn onClick={go} big>Try a Free Demo</LineBtn>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* ── TradePilot ──────────────────────────────────────────────────────── */}
+      {/* ══ TradePilot ══ */}
       <section id="pilot" style={{
-        background: `radial-gradient(1000px 520px at 90% -10%, rgba(111,157,255,0.06), transparent 60%), #1a1312`,
+        background: `radial-gradient(1000px 520px at 90% -10%, rgba(111,157,255,0.06), transparent 60%), #171212`,
         padding: 'clamp(64px, 8vw, 100px) clamp(18px, 4vw, 44px)',
         borderTop: `1px solid ${HAIR}`, borderBottom: `1px solid ${HAIR}`,
       }}>
         <div style={{ maxWidth: 1280, margin: '0 auto' }}>
           <div className="lx-psplit">
             <div>
-              <Eyebrow>TradePilot automation</Eyebrow>
+              <Eyebrow>Automated trading</Eyebrow>
               <H2>The engine that earns while you sleep.</H2>
               <p style={{ fontSize: 16, lineHeight: 1.75, color: BODY, margin: '0 0 14px', maxWidth: 480 }}>
                 Markets do not keep office hours. TradePilot doesn't either. It reads
                 every tick, around the clock, and trades your strategy without fear,
                 without greed, without hesitation.
               </p>
-              <p style={{ fontSize: 16, lineHeight: 1.75, color: BODY, margin: '0 0 14px', maxWidth: 480 }}>
-                Four strategies, hard stops on every trade, a daily loss circuit-breaker,
-                and full telemetry on every decision it makes.
+              <p style={{ fontSize: 16, lineHeight: 1.75, color: BODY, margin: '0 0 28px', maxWidth: 480 }}>
+                Four strategies, hard stops on every trade, a daily loss
+                circuit-breaker, and full telemetry on every decision it makes.
               </p>
-              <p style={{ fontSize: 16, lineHeight: 1.75, color: IVORY, fontWeight: 600, margin: '0 0 28px', maxWidth: 480 }}>
-                Every tick is a chance to earn. TradePilot doesn't miss one.
-              </p>
-              <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', alignItems: 'center' }}>
+              <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
                 <GoldBtn onClick={go} big>Deploy TradePilot free</GoldBtn>
-                <GhostBtn onClick={() => goTo('/trading-pilot')}>Explore in depth</GhostBtn>
+                <LineBtn onClick={() => goTo('/trading-pilot')} big>Explore in depth</LineBtn>
               </div>
             </div>
             <PilotConsole go={go} />
@@ -1011,8 +880,25 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── Inside the platform ─────────────────────────────────────────────── */}
-      <section id="cockpit" style={{ background: NIGHT, padding: 'clamp(64px, 8vw, 100px) clamp(18px, 4vw, 44px)' }}>
+      {/* ══ Live markets ══ */}
+      <section id="markets" style={{ background: NIGHT, padding: 'clamp(64px, 8vw, 100px) clamp(18px, 4vw, 44px)' }}>
+        <div style={{ maxWidth: 1280, margin: '0 auto' }}>
+          <Eyebrow>Global markets</Eyebrow>
+          <H2>Markets move. Money moves with them.</H2>
+          <p style={{ maxWidth: 540, fontSize: 16, lineHeight: 1.7, color: BODY, margin: '0 0 32px' }}>
+            Every price below is live right now, no account needed. Go long or
+            short and profit from the move in either direction.
+          </p>
+          <MarketsBoard tickers={tickers} meta={meta} go={go} />
+        </div>
+      </section>
+
+      {/* ══ Platform tools ══ */}
+      <section id="platform" style={{
+        background: `radial-gradient(900px 480px at 50% -10%, rgba(242,184,75,0.05), transparent 60%), #171212`,
+        padding: 'clamp(64px, 8vw, 100px) clamp(18px, 4vw, 44px)',
+        borderTop: `1px solid ${HAIR}`,
+      }}>
         <div style={{ maxWidth: 1280, margin: '0 auto' }}>
           <Eyebrow>The platform</Eyebrow>
           <H2>Everything a serious trader needs.</H2>
@@ -1070,11 +956,9 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── Pricing / account plans ─────────────────────────────────────────── */}
-      <section id="plans" style={{
-        background: `radial-gradient(900px 480px at 50% -10%, rgba(242,184,75,0.06), transparent 60%), #1a1312`,
-        padding: 'clamp(64px, 8vw, 100px) clamp(18px, 4vw, 44px)',
-        borderTop: `1px solid ${HAIR}`,
+      {/* ══ Pricing ══ */}
+      <section id="pricing" style={{
+        background: NIGHT, padding: 'clamp(64px, 8vw, 100px) clamp(18px, 4vw, 44px)', borderTop: `1px solid ${HAIR}`,
       }}>
         <div style={{ maxWidth: 1280, margin: '0 auto' }}>
           <Eyebrow>Transparent pricing</Eyebrow>
@@ -1087,12 +971,12 @@ export default function LandingPage() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 18 }}>
             {PLANS.map(p => (
               <article key={p.name} style={{
-                position: 'relative', borderRadius: 20, padding: 'clamp(24px, 3vw, 32px)',
+                position: 'relative', borderRadius: 18, padding: 'clamp(24px, 3vw, 32px)',
                 background: NIGHT2,
                 border: `1px solid ${p.popular ? 'rgba(242,184,75,0.45)' : HAIR}`,
                 boxShadow: p.popular
-                  ? '0 1px 2px rgba(8,5,5,0.5), 0 24px 70px rgba(242,184,75,0.1)'
-                  : '0 1px 2px rgba(8,5,5,0.5), 0 18px 50px rgba(8,5,5,0.35)',
+                  ? '0 1px 2px rgba(6,4,4,0.5), 0 24px 70px rgba(242,184,75,0.1)'
+                  : '0 1px 2px rgba(6,4,4,0.5), 0 18px 50px rgba(6,4,4,0.35)',
               }}>
                 {p.popular && (
                   <span style={{
@@ -1117,7 +1001,7 @@ export default function LandingPage() {
                 {p.popular
                   ? <GoldBtn onClick={go} wide>Open {p.name} account</GoldBtn>
                   : <button onClick={go} className="lx-ghost" style={{
-                      background: 'transparent', cursor: 'pointer', borderRadius: 12, width: '100%',
+                      background: 'transparent', cursor: 'pointer', borderRadius: 10, width: '100%',
                       fontWeight: 700, fontSize: 14, padding: '12px 0',
                       color: IVORY, border: '1px solid rgba(247,242,230,0.22)',
                     }}>
@@ -1136,15 +1020,16 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── The closer: the only place the car appears ──────────────────────── */}
+      {/* ══ Closer ══ */}
       <section style={{
         position: 'relative',
         background: `
-          linear-gradient(180deg, ${NIGHT} 0%, rgba(22,16,17,0.55) 30%, rgba(22,16,17,0.75) 100%),
-          url(/hero-bg.jpg) center 40% / cover no-repeat,
+          linear-gradient(180deg, ${NIGHT} 0%, rgba(18,16,16,0.55) 30%, rgba(18,16,16,0.78) 100%),
+          url(/hero-bg.jpg) center 45% / cover no-repeat,
           ${NIGHT}
         `,
         padding: 'clamp(90px, 12vw, 150px) clamp(18px, 4vw, 44px)', textAlign: 'center',
+        borderTop: `1px solid ${HAIR}`,
       }}>
         <div style={{ maxWidth: 820, margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <div style={{ animation: 'lx-pulse 2.4s ease-in-out infinite' }}>
@@ -1153,43 +1038,28 @@ export default function LandingPage() {
           <h2 style={{
             fontFamily: SERIF, fontWeight: 550, fontSize: 'clamp(36px, 5.4vw, 64px)',
             lineHeight: 1.05, letterSpacing: '-0.02em', color: IVORY, margin: '28px 0 14px',
-            textShadow: '0 2px 30px rgba(8,5,5,0.6)',
+            textShadow: '0 2px 30px rgba(6,4,4,0.6)',
           }}>
             Lights out.
           </h2>
-          <p style={{ fontSize: 17, lineHeight: 1.7, color: '#ddd2c2', margin: '0 0 14px', maxWidth: 480, textShadow: '0 1px 12px rgba(8,5,5,0.6)' }}>
+          <p style={{ fontSize: 17, lineHeight: 1.7, color: '#ddd2c2', margin: '0 0 26px', maxWidth: 480, textShadow: '0 1px 12px rgba(6,4,4,0.6)' }}>
             The markets are open. The engine is warm. Your free $100,000 demo
             takes sixty seconds to claim.
           </p>
-
-          {/* Three steps, one line each */}
-          <div style={{ display: 'flex', gap: 'clamp(18px, 4vw, 44px)', flexWrap: 'wrap', justifyContent: 'center', margin: '18px 0 34px' }}>
-            {[['1', 'Open your account'], ['2', 'Practice on $100k'], ['3', 'Go live and earn']].map(([n, l]) => (
-              <div key={n} style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
-                <span style={{
-                  width: 24, height: 24, borderRadius: '50%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                  background: 'rgba(242,184,75,0.14)', border: '1px solid rgba(242,184,75,0.4)',
-                  color: GOLD, fontSize: 12, fontWeight: 800, fontFamily: MONO,
-                }}>{n}</span>
-                <span style={{ fontSize: 14, fontWeight: 600, color: '#ddd2c2', textShadow: '0 1px 10px rgba(8,5,5,0.6)' }}>{l}</span>
-              </div>
-            ))}
-          </div>
-
-          <GoldBtn onClick={go} big>Open your account</GoldBtn>
-          <p style={{ fontSize: 12, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#b3a48f', marginTop: 40, textShadow: '0 1px 10px rgba(8,5,5,0.6)' }}>
+          <GoldBtn onClick={go} big>Open an Account</GoldBtn>
+          <p style={{ fontSize: 12, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#b3a48f', marginTop: 40, textShadow: '0 1px 10px rgba(6,4,4,0.6)' }}>
             Engineered to win · Driven by you
           </p>
         </div>
       </section>
 
-      {/* ── Sticky mobile CTA ───────────────────────────────────────────────── */}
+      {/* ══ Sticky mobile CTA ══ */}
       <div className={`lx-sticky${showBar ? ' lx-on' : ''}`}>
-        <GoldBtn onClick={go} wide big>Open account · free $100k demo</GoldBtn>
+        <GoldBtn onClick={go} wide big>Open an Account · free $100k demo</GoldBtn>
       </div>
       <div className="lx-sticky-spacer" />
 
-      {/* ── Footer ──────────────────────────────────────────────────────────── */}
+      {/* ══ Footer ══ */}
       <footer style={{ background: NIGHT, borderTop: `1px solid ${HAIR}`, padding: '52px clamp(18px, 4vw, 44px) 36px' }}>
         <div style={{
           maxWidth: 1280, margin: '0 auto',
@@ -1218,7 +1088,7 @@ export default function LandingPage() {
                 ['WebTrader', go],
                 ['TradePilot bots', () => goTo('/trading-pilot')],
                 ['Account types', () => goTo('/account-types')],
-                ['Pricing', () => jump('plans')],
+                ['Pricing', () => jump('pricing')],
               ] as [string, () => void][],
             },
             {
@@ -1251,7 +1121,7 @@ export default function LandingPage() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {col.links.map(([label, fn]) => (
                   <button key={label} onClick={fn} className="lx-navlink"
-                    style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, textAlign: 'left', fontSize: 13.5 }}>
+                    style={{ textAlign: 'left', fontSize: 13.5, fontWeight: 500 }}>
                     {label}
                   </button>
                 ))}
@@ -1262,10 +1132,11 @@ export default function LandingPage() {
 
         <div style={{ maxWidth: 1280, margin: '36px auto 0', borderTop: `1px solid ${HAIR}`, paddingTop: 20 }}>
           <p style={{ fontSize: 12, lineHeight: 1.6, color: DIM, margin: 0 }}>
+            *Spreads from 0.0 pips on Raw Spread accounts during liquid sessions.
             Trading involves real risk and leverage multiplies losses as well as gains.
             Simulated results do not guarantee future returns. Practice accounts use
-            virtual funds on live prices, so you can learn the limit before you race it.
-            © {new Date().getFullYear()} TradeX. Engineered to win. Driven by you.
+            virtual funds on live prices. © {new Date().getFullYear()} TradeX.
+            Engineered to win. Driven by you.
           </p>
         </div>
       </footer>

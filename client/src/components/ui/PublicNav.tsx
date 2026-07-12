@@ -111,7 +111,7 @@ export default function PublicNav() {
         }}>
           <div style={{ padding: '14px clamp(16px, 4vw, 40px) 20px' }}>
             <div style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: GOLD, margin: '6px 0 4px' }}>
-              Pages
+              Company
             </div>
             {PAGES.map(([label, fn]) => (
               <button key={label} onClick={fn} style={{
