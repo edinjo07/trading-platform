@@ -1,5 +1,6 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
+import PublicNav from '../components/ui/PublicNav'
 
 const ACCOUNTS = [
   {
@@ -110,28 +111,8 @@ export default function AccountTypesPage() {
   return (
     <div style={{ background: '#1a1310', minHeight: '100vh', color: '#c7b8a5', fontFamily: "-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif" }}>
 
-      {/* ── Navbar ── */}
-      <nav style={{ position: 'sticky', top: 0, zIndex: 50, background: 'rgba(0,0,0,0.92)', backdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(242,184,75,0.09)' }}>
-        <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 24px', height: 60, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }} onClick={() => navigate('/')}>
-            <div style={{ width: 30, height: 30, borderRadius: 8, background: 'linear-gradient(135deg,#4f8cff,#3b78f0)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="white" strokeWidth={2.5}>
-                <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/>
-              </svg>
-            </div>
-            <span style={{ fontWeight: 700, fontSize: 16, color: '#fff' }}>TradeX<span style={{ color: '#7aa7ff' }}> Pro</span></span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <a href="/" style={{ color: '#c7b8a5', fontSize: 13, textDecoration: 'none' }}>Home</a>
-            <a href="/#features" style={{ color: '#c7b8a5', fontSize: 13, textDecoration: 'none' }}>Features</a>
-            <button
-              onClick={() => navigate('/login')}
-              style={{ background: 'linear-gradient(135deg,#4f8cff,#3b78f0)', color: '#fff', border: 'none', borderRadius: 10, padding: '8px 20px', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
-              Open Account
-            </button>
-          </div>
-        </div>
-      </nav>
+      {/* ── Navbar: shared public header with the mobile pages dropdown ── */}
+      <PublicNav />
 
       {/* ── Hero ── */}
       <div style={{ background: 'linear-gradient(180deg,rgba(79,140,255,0.06) 0%,#000 60%)', borderBottom: '1px solid rgba(242,184,75,0.09)', padding: '72px 24px 56px', textAlign: 'center' }}>

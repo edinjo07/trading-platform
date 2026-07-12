@@ -1,6 +1,7 @@
 ﻿import React, { useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
+import PublicNav from '../components/ui/PublicNav'
 
 // ─── Strategy data ────────────────────────────────────────────────────────────
 const STRATEGIES = [
@@ -147,44 +148,9 @@ function NeuralGrid() {
   )
 }
 
-// ─── Navbar ───────────────────────────────────────────────────────────────────
+// ─── Navbar: shared public header with the mobile pages dropdown ─────────────
 function Navbar() {
-  const navigate = useNavigate()
-  const { user } = useAuthStore()
-  return (
-    <nav className="fixed top-0 left-0 right-0 z-50"
-      style={{ background: 'rgba(6,9,15,0.85)', backdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(79,140,255,0.1)' }}>
-      <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-        <button onClick={() => navigate('/')} className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center"
-               style={{ background: 'linear-gradient(135deg, #4f8cff, #3b78f0)' }}>
-            <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-              <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
-              <polyline points="16 7 22 7 22 13" />
-            </svg>
-          </div>
-          <span className="font-bold text-lg text-white tracking-tight">
-            TradeX<span style={{ color: '#7aa7ff' }}> Pro</span>
-          </span>
-        </button>
-        <div className="flex items-center gap-3">
-          <button onClick={() => navigate('/')}
-            className="text-sm font-medium px-4 py-2 transition-colors"
-            style={{ color: '#8899aa' }}
-            onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = '#fff'}
-            onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = '#8899aa'}>
-            ← Back to Home
-          </button>
-          <button
-            onClick={() => navigate(user ? '/dashboard/bots' : '/login')}
-            className="text-sm font-semibold px-5 py-2 rounded-lg transition-all"
-            style={{ background: 'linear-gradient(135deg,#4f8cff,#3b78f0)', color: '#fff', boxShadow: '0 0 20px rgba(79,140,255,0.3)' }}>
-            Launch Pilot
-          </button>
-        </div>
-      </div>
-    </nav>
-  )
+  return <PublicNav />
 }
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
