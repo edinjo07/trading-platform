@@ -259,9 +259,9 @@ function PnlCalendar({ trades }: { trades: TradeRecord[] }) {
   return (
     <div style={{
       borderRadius: 18, overflow: 'hidden',
-      background: 'linear-gradient(180deg, rgba(79,140,255,0.04) 0%, rgba(0,0,0,0) 60%)',
+      background: 'linear-gradient(180deg, rgba(242,184,75,0.04) 0%, rgba(6,4,4,0) 60%)',
       border: '1px solid rgba(var(--ink),0.09)',
-      boxShadow: '0 8px 40px rgba(0,0,0,0.35), inset 0 1px 0 rgba(var(--ink),0.06)',
+      boxShadow: '0 8px 40px rgba(6,4,4,0.35), inset 0 1px 0 rgba(var(--ink),0.06)',
     }}>
 
       {/* ── Top header ──────────────────────────────────────────────────────── */}
@@ -273,12 +273,12 @@ function PnlCalendar({ trades }: { trades: TradeRecord[] }) {
             <div style={{
               width: 36, height: 36, borderRadius: 10, flexShrink: 0,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              background: 'linear-gradient(135deg, rgba(79,140,255,0.2), rgba(6,182,212,0.1))',
-              border: '1px solid rgba(79,140,255,0.25)',
-              boxShadow: '0 0 12px rgba(79,140,255,0.15)',
+              background: 'linear-gradient(135deg, rgba(242,184,75,0.2), rgba(224,122,74,0.1))',
+              border: '1px solid rgba(242,184,75,0.25)',
+              boxShadow: '0 0 12px rgba(242,184,75,0.15)',
             }}>
               {/* Calendar icon */}
-              <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#7aa7ff" strokeWidth={1.8}>
+              <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#f2b84b" strokeWidth={1.8}>
                 <rect x="3" y="4" width="18" height="18" rx="2"/>
                 <line x1="16" y1="2" x2="16" y2="6"/>
                 <line x1="8" y1="2" x2="8" y2="6"/>
@@ -325,22 +325,22 @@ function PnlCalendar({ trades }: { trades: TradeRecord[] }) {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 16 }}>
           {[
             {
-              icon: <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#7aa7ff" strokeWidth={2}><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
-              label: 'Trading Days', value: String(tradingDays), color: '#7aa7ff',
+              icon: <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#f2b84b" strokeWidth={2}><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
+              label: 'Trading Days', value: String(tradingDays), color: '#f2b84b',
             },
             {
               icon: <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke={G} strokeWidth={2}><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>,
               label: 'Win Days',
-              value: tradingDays > 0 ? `${winDays} (${Math.round(winDays/tradingDays*100)}%)` : ', ',
+              value: tradingDays > 0 ? `${winDays} (${Math.round(winDays/tradingDays*100)}%)` : '—',
               color: G,
             },
             {
               icon: <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke={G} strokeWidth={2}><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>,
-              label: 'Best Day', value: bestDay > 0 ? fmtShort(bestDay) : ', ', color: G,
+              label: 'Best Day', value: bestDay > 0 ? fmtShort(bestDay) : '—', color: G,
             },
             {
               icon: <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke={R} strokeWidth={2}><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg>,
-              label: 'Worst Day', value: worstDay < 0 ? fmtShort(worstDay) : ', ', color: R,
+              label: 'Worst Day', value: worstDay < 0 ? fmtShort(worstDay) : '—', color: R,
             },
           ].map(s => (
             <div key={s.label} style={{ padding: '8px 10px', borderRadius: 10, background: 'rgba(var(--ink),0.03)', border: '1px solid rgba(var(--ink),0.06)' }}>
@@ -362,7 +362,7 @@ function PnlCalendar({ trades }: { trades: TradeRecord[] }) {
           {['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d => (
             <div key={d} style={{ textAlign: 'center', fontSize: 10.5, fontWeight: 700, color: MUTED, textTransform: 'uppercase', letterSpacing: '0.07em', paddingBottom: 4 }}>{d}</div>
           ))}
-          <div style={{ textAlign: 'center', fontSize: 10.5, fontWeight: 700, color: '#1e3a5f', textTransform: 'uppercase', letterSpacing: '0.07em' }}>Week</div>
+          <div style={{ textAlign: 'center', fontSize: 10.5, fontWeight: 700, color: '#8d7d6a', textTransform: 'uppercase', letterSpacing: '0.07em' }}>Week</div>
         </div>
 
         {/* Weeks */}
@@ -396,16 +396,16 @@ function PnlCalendar({ trades }: { trades: TradeRecord[] }) {
 
                 const pnlColor2 = data
                   ? data.pnl >= 0 ? G : R
-                  : inFuture ? '#1e293b' : MUTED
+                  : inFuture ? '#8d7d6a' : MUTED
 
                 const borderStyle = isToday
-                  ? `1px solid rgba(56,189,248,0.7)`
+                  ? `1px solid rgba(242,184,75,0.7)`
                   : data
                   ? `1px solid ${data.pnl >= 0 ? 'rgba(24,201,138,0.25)' : 'rgba(255,90,114,0.25)'}`
                   : '1px solid var(--t-surface)'
 
                 const glowShadow = isToday
-                  ? '0 0 0 2px rgba(56,189,248,0.15), inset 0 0 10px rgba(56,189,248,0.05)'
+                  ? '0 0 0 2px rgba(242,184,75,0.15), inset 0 0 10px rgba(242,184,75,0.05)'
                   : data && intensity > 0.5
                   ? `inset 0 0 12px ${data.pnl >= 0 ? 'rgba(24,201,138,0.08)' : 'rgba(255,90,114,0.08)'}`
                   : 'none'
@@ -442,7 +442,7 @@ function PnlCalendar({ trades }: { trades: TradeRecord[] }) {
                     {/* Day number */}
                     <span style={{
                       fontSize: 12, fontWeight: isToday ? 800 : 600, alignSelf: 'flex-start',
-                      color: isToday ? '#7aa7ff' : data ? 'var(--t-text-2)' : inFuture ? '#1e293b' : 'var(--t-text-3)',
+                      color: isToday ? '#f2b84b' : data ? 'var(--t-text-2)' : inFuture ? '#8d7d6a' : 'var(--t-text-3)',
                       lineHeight: 1,
                     }}>{day}</span>
 
@@ -493,7 +493,7 @@ function PnlCalendar({ trades }: { trades: TradeRecord[] }) {
                     </span>
                   </>
                 ) : (
-                  <span style={{ fontSize: 10.5, color: '#1e3a5f' }}>, </span>
+                  <span style={{ fontSize: 10.5, color: '#8d7d6a' }}>—</span>
                 )}
               </div>
             </div>
@@ -510,10 +510,10 @@ function PnlCalendar({ trades }: { trades: TradeRecord[] }) {
             <div style={{
               position: 'absolute', left: Math.min(tooltip.x, 500), top: tooltip.y + 6,
               zIndex: 50, pointerEvents: 'none',
-              background: 'rgba(10,14,26,0.97)', backdropFilter: 'blur(12px)',
+              background: 'rgba(28,23,23,0.97)', backdropFilter: 'blur(12px)',
               border: `1px solid ${d.pnl >= 0 ? 'rgba(24,201,138,0.35)' : 'rgba(255,90,114,0.35)'}`,
               borderRadius: 12, padding: '10px 14px', minWidth: 160,
-              boxShadow: `0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px var(--t-surface)`,
+              boxShadow: `0 8px 32px rgba(6,4,4,0.5), 0 0 0 1px var(--t-surface)`,
             }}>
               <p style={{ fontSize: 12, fontWeight: 700, color: 'var(--t-text-2)', margin: '0 0 6px' }}>{dateLabel}</p>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 16, marginBottom: 4 }}>
@@ -683,7 +683,7 @@ function PerformanceAttribution({ data }: { data: Attribution | null }) {
 
       {/* Bots vs Manual */}
       <div className="grid grid-cols-2 gap-3 mb-5">
-        <div className="rounded-lg p-3" style={{ background: 'rgba(79,140,255,0.06)', border: '1px solid rgba(79,140,255,0.15)' }}>
+        <div className="rounded-lg p-3" style={{ background: 'rgba(242,184,75,0.06)', border: '1px solid rgba(242,184,75,0.15)' }}>
           <p className="text-2xs uppercase tracking-wider text-text-muted mb-1 flex items-center gap-1.5">
             <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><rect x="5" y="8" width="14" height="11" rx="2"/><path d="M12 8V5M8 5h8M9 13h.01M15 13h.01M9.5 16.5h5"/></svg>
             Bots
@@ -791,7 +791,7 @@ export default function AnalyticsPage() {
   return (
     <div className="flex flex-col h-full overflow-y-auto">
       {/* Header */}
-      <div className="px-6 pt-6 pb-4 shrink-0 flex items-center justify-between">
+      <div className="px-4 sm:px-6 pt-5 sm:pt-6 pb-4 shrink-0 flex items-center justify-between gap-3 flex-wrap">
         <div>
           <h1 className="text-xl font-bold text-text-primary">Performance Analytics</h1>
           <p className="text-xs text-text-muted mt-0.5">Live trading statistics, equity curve &amp; trade journal</p>
@@ -808,7 +808,7 @@ export default function AnalyticsPage() {
           </div>
           <button onClick={() => loadAnalytics().then(() => setLastUpdated(Date.now()))}
             className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
-            style={{ background: 'rgba(79,140,255,0.1)', border: '1px solid rgba(79,140,255,0.2)', color: '#7aa7ff' }}>
+            style={{ background: 'rgba(242,184,75,0.1)', border: '1px solid rgba(242,184,75,0.2)', color: '#f2b84b' }}>
             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
             </svg>
@@ -817,7 +817,7 @@ export default function AnalyticsPage() {
         </div>
       </div>
 
-      <div className="px-6 pb-6 flex flex-col gap-5">
+      <div className="px-3 sm:px-6 pb-6 flex flex-col gap-4 sm:gap-5">
         {empty ? (
           <div className="flex flex-col items-center justify-center py-20 gap-4 rounded-xl"
                style={{ background: 'var(--t-surface)', border: '1px solid var(--t-border)' }}>
@@ -857,7 +857,7 @@ export default function AnalyticsPage() {
                   <button key={key} onClick={() => setRange(key)}
                     className="px-3.5 py-1.5 rounded-md text-xs font-bold transition-all"
                     style={range === key
-                      ? { background: 'rgba(79,140,255,0.15)', color: '#7aa7ff', border: '1px solid rgba(79,140,255,0.35)' }
+                      ? { background: 'rgba(242,184,75,0.15)', color: '#f2b84b', border: '1px solid rgba(242,184,75,0.35)' }
                       : { background: 'transparent', color: 'var(--t-text-2)', border: '1px solid transparent' }}>
                     {label}
                   </button>
@@ -903,7 +903,7 @@ export default function AnalyticsPage() {
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <h3 className="text-sm font-semibold text-text-primary">Equity Curve</h3>
-                  <span className="text-2xs font-semibold px-1.5 py-0.5 rounded" style={{ background: 'rgba(79,140,255,0.1)', color: '#7aa7ff' }}>
+                  <span className="text-2xs font-semibold px-1.5 py-0.5 rounded" style={{ background: 'rgba(242,184,75,0.1)', color: '#f2b84b' }}>
                     {range === 'all' ? 'All time' : range.toUpperCase()}
                   </span>
                   {(stats?.openPositions ?? 0) > 0 && (
@@ -929,7 +929,7 @@ export default function AnalyticsPage() {
                       <button key={mo} onClick={() => setChartMode(mo)}
                         className="px-2 py-0.5 rounded text-2xs font-bold transition-all"
                         style={chartMode === mo
-                          ? { background: 'rgba(79,140,255,0.15)', color: '#7aa7ff' }
+                          ? { background: 'rgba(242,184,75,0.15)', color: '#f2b84b' }
                           : { background: 'transparent', color: 'var(--t-text-2)' }}>
                         {mo === 'value' ? '$' : '%'}
                       </button>
