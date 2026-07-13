@@ -169,21 +169,22 @@ function QuickAction({ label, icon, onClick, primary }: { label: string; icon: R
   )
 }
 
-// ─── Category cards ─────────────────────────────────────────────────────────────
+// ─── Category cards — each fronted by a real, premium asset logo ────────────────
 const CATEGORIES = [
-  { label: 'Energy',    accent: '#22c55e', gradient: 'linear-gradient(145deg, #0f2318 0%, #071a0e 100%)', img: <svg width="48" height="48" fill="none" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="#22c55e" fillOpacity=".15" stroke="#22c55e" strokeWidth={1.5} strokeLinejoin="round"/></svg> },
-  { label: 'Gas & Oil', accent: '#7aa7ff', gradient: 'linear-gradient(145deg, #0e1829 0%, #070f1d 100%)', img: <svg width="48" height="48" fill="none" viewBox="0 0 24 24"><ellipse cx="12" cy="16" rx="6" ry="4" fill="#7aa7ff" fillOpacity=".12" stroke="#7aa7ff" strokeWidth={1.4}/><path d="M6 16V9a6 6 0 0112 0v7" stroke="#7aa7ff" strokeWidth={1.4} strokeLinecap="round"/></svg> },
-  { label: 'Big Tech',  accent: '#a78bfa', gradient: 'linear-gradient(145deg, #1a0f2e 0%, #110820 100%)', img: <svg width="48" height="48" fill="none" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="13" rx="2" fill="#a78bfa" fillOpacity=".1" stroke="#a78bfa" strokeWidth={1.4}/><path d="M8 21h8M12 16v5" stroke="#a78bfa" strokeWidth={1.4} strokeLinecap="round"/></svg> },
-  { label: 'Crypto',    accent: '#f6b24a', gradient: 'linear-gradient(145deg, #1f1208 0%, #150c04 100%)', img: <svg width="48" height="48" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="#f6b24a" fillOpacity=".1" stroke="#f6b24a" strokeWidth={1.4}/><path d="M9 8h4.5a2 2 0 010 4H9m0-4v4m0 0h5a2 2 0 010 4H9m0-4v4" stroke="#f6b24a" strokeWidth={1.3} strokeLinecap="round"/></svg> },
+  { label: 'Big Tech', sym: 'NVDA',   cls: 'stock',     accent: '#a78bfa', gradient: 'linear-gradient(145deg, #1a0f2e 0%, #120a1f 100%)' },
+  { label: 'Crypto',   sym: 'BTCUSD', cls: 'crypto',    accent: '#f6b24a', gradient: 'linear-gradient(145deg, #201406 0%, #150c04 100%)' },
+  { label: 'Gold',     sym: 'XAUUSD', cls: 'commodity', accent: '#f2b84b', gradient: 'linear-gradient(145deg, #241a08 0%, #17100a 100%)' },
+  { label: 'Oil',      sym: 'WTI',    cls: 'commodity', accent: '#22c55e', gradient: 'linear-gradient(145deg, #0f2318 0%, #0a1a10 100%)' },
 ]
 
+// ─── Discover markets — real representative logos, not colour swatches ──────────
 const DISCOVER = [
-  { label: 'Shares',      color: '#60a5fa', bg: 'rgba(96,165,250,0.12)' },
-  { label: 'Indices',     color: '#a78bfa', bg: 'rgba(167,139,250,0.12)' },
-  { label: 'Commodities', color: '#f6b24a', bg: 'rgba(246,178,74,0.12)' },
-  { label: 'Forex',       color: '#34d399', bg: 'rgba(52,211,153,0.12)' },
-  { label: 'ETF',         color: '#fb923c', bg: 'rgba(251,146,60,0.12)' },
-  { label: 'Cryptos',     color: '#f6b24a', bg: 'rgba(246,178,74,0.12)' },
+  { label: 'Shares',      sym: 'AAPL',   cls: 'stock'     },
+  { label: 'Indices',     sym: 'US500',  cls: 'index'     },
+  { label: 'Commodities', sym: 'XAUUSD', cls: 'commodity' },
+  { label: 'Forex',       sym: 'EURUSD', cls: 'forex'     },
+  { label: 'ETFs',        sym: 'SPY',    cls: 'stock'     },
+  { label: 'Crypto',      sym: 'BTCUSD', cls: 'crypto'    },
 ]
 
 const ACCOUNTS: { id: string; label: string; sub: string; mode: AccountMode; currency: Currency }[] = [
@@ -424,9 +425,12 @@ export default function DashboardPage() {
                 <div style={{ display: 'flex', gap: 4, padding: 3, borderRadius: 10, background: 'rgba(var(--ink),0.04)', border: `1px solid ${S.border}` }}>
                   {(['risers', 'fallers'] as const).map(t => (
                     <button key={t} onClick={() => setMoversTab(t)}
-                      style={{ padding: '5px 12px', borderRadius: 7, fontSize: 12, fontWeight: 700, border: 'none', cursor: 'pointer',
-                        background: moversTab === t ? S.surface : 'transparent', color: moversTab === t ? S.text1 : S.text3 }}>
-                      {t === 'risers' ? '↑ Risers' : '↓ Fallers'}
+                      style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '5px 12px', borderRadius: 7, fontSize: 12, fontWeight: 700, border: 'none', cursor: 'pointer',
+                        background: moversTab === t ? S.surface : 'transparent', color: moversTab === t ? (t === 'risers' ? S.bull : S.bear) : S.text3 }}>
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
+                        {t === 'risers' ? <path d="M12 4l8 10h-6v6h-4v-6H4z"/> : <path d="M12 20l-8-10h6V4h4v6h6z"/>}
+                      </svg>
+                      {t === 'risers' ? 'Risers' : 'Fallers'}
                     </button>
                   ))}
                 </div>
@@ -535,7 +539,7 @@ export default function DashboardPage() {
                         </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ fontSize: 13, fontWeight: 700, color: S.text1 }}>{a.symbol}</div>
-                          <div style={{ fontSize: 12, color: S.text3, fontFamily: 'ui-monospace,monospace' }}>{isAbove ? '↑ Above' : '↓ Below'} {formatPrice(a.targetPrice, a.symbol)}</div>
+                          <div style={{ fontSize: 12, color: S.text3, fontFamily: 'ui-monospace,monospace' }}>{isAbove ? 'Above' : 'Below'} {formatPrice(a.targetPrice, a.symbol)}</div>
                         </div>
                         <span style={{ fontSize: 10.5, fontWeight: 700, padding: '3px 8px', borderRadius: 99, background: `${statusColor}22`, color: statusColor }}>{statusLabel}</span>
                       </button>
@@ -580,7 +584,9 @@ export default function DashboardPage() {
               <button key={cat.label} onClick={() => navigate('/dashboard/watchlists')}
                 style={{ flexShrink: 0, width: 168, height: 102, borderRadius: 16, background: cat.gradient, border: `1px solid ${cat.accent}33`, cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'space-between', padding: '13px 15px', overflow: 'hidden', position: 'relative' }}>
                 <div style={{ position: 'absolute', right: -10, bottom: -10, width: 72, height: 72, borderRadius: '50%', background: cat.accent, opacity: 0.12, filter: 'blur(16px)', pointerEvents: 'none' }} />
-                <div style={{ position: 'absolute', right: 10, top: 10, opacity: 0.9 }}>{cat.img}</div>
+                <div style={{ position: 'absolute', right: 12, top: 12, opacity: 0.98, filter: 'drop-shadow(0 4px 10px rgba(6,4,4,0.5))' }}>
+                  <AssetIcon symbol={cat.sym} assetClass={cat.cls} size={44} />
+                </div>
                 <span style={{ fontSize: 14, fontWeight: 800, color: '#fff', textAlign: 'left', lineHeight: 1.3, zIndex: 1 }}>{cat.label}</span>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 4, zIndex: 1 }}>
                   <span style={{ fontSize: 12, fontWeight: 700, color: cat.accent }}>Explore</span>
@@ -595,12 +601,10 @@ export default function DashboardPage() {
         <div style={{ marginTop: 40 }}>
           <SectionHeader title="Discover markets" onMore={() => navigate('/dashboard/watchlists')} />
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6" style={{ gap: 10 }}>
-            {DISCOVER.map(({ label, color, bg }) => (
+            {DISCOVER.map(({ label, sym, cls }) => (
               <button key={label} onClick={() => navigate('/dashboard/watchlists')}
-                style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '13px 14px', borderRadius: 13, background: S.surface, border: `1px solid ${S.border}`, cursor: 'pointer', textAlign: 'left' }}>
-                <div style={{ width: 34, height: 34, borderRadius: 9, flexShrink: 0, background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <span style={{ width: 12, height: 12, borderRadius: 4, background: color }} />
-                </div>
+                style={{ display: 'flex', alignItems: 'center', gap: 11, padding: '12px 14px', borderRadius: 13, background: S.surface, border: `1px solid ${S.border}`, cursor: 'pointer', textAlign: 'left' }}>
+                <AssetIcon symbol={sym} assetClass={cls} size={32} />
                 <span style={{ fontSize: 13, fontWeight: 700, color: S.text1, flex: 1 }}>{label}</span>
                 <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke={S.text3} strokeWidth={2.5}><polyline points="9 18 15 12 9 6"/></svg>
               </button>

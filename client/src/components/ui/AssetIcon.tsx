@@ -32,6 +32,9 @@ const STOCK_DOMAIN: Record<string, string> = {
   LDOS:  'leidos.com',              CACI:  'caci.com',
   XOM:   'exxonmobil.com',          CVX:   'chevron.com',
   COP:   'conocophillips.com',
+  // ETF issuers (representative logos for ETF tickers)
+  SPY:   'ssga.com',                IVV:   'blackrock.com',
+  QQQ:   'invesco.com',             VOO:   'vanguard.com',
 }
 
 // ─── Forex: currency → ISO 3166-1 alpha-2 country code ───────────────────────
