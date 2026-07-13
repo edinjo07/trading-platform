@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
 import { BrandMark } from '../components/ui/BrandMark'
 import AssetIcon from '../components/ui/AssetIcon'
+import SupportWidget from '../components/ui/SupportWidget'
 import { getTickers, getSymbols } from '../api/markets'
 import { formatPrice } from '../utils/formatters'
 import type { Ticker, MarketSymbol } from '../types'
@@ -1338,6 +1339,8 @@ export default function LandingPage() {
           </p>
         </div>
       </footer>
+
+      <SupportWidget />
     </div>
   )
 }
