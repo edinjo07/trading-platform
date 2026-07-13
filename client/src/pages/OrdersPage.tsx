@@ -15,6 +15,8 @@ const S = {
   bear:     'var(--t-bear)',
   accent:   'var(--t-accent)',
 }
+const GOLD = '#f2b84b'
+const MONO = 'ui-monospace, "JetBrains Mono", monospace'
 
 function exportOrdersToCSV(orders: Order[]) {
   const headers = ['ID', 'Symbol', 'Type', 'Side', 'Quantity', 'Fill Price', 'Value', 'Commission', 'Status', 'Created']
@@ -38,7 +40,7 @@ function Kpi({ label, value, color }: { label: string; value: string; color?: st
   return (
     <div style={{ background: S.surface, border: `1px solid ${S.border}`, borderRadius: 14, padding: '13px 15px', boxShadow: 'var(--t-shadow-sm)' }}>
       <p style={{ fontSize: 10.5, color: S.text3, margin: '0 0 5px', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 600 }}>{label}</p>
-      <p style={{ fontSize: 18, fontWeight: 800, color: color ?? S.text1, margin: 0, fontFamily: 'ui-monospace,monospace', fontVariantNumeric: 'tabular-nums' }}>{value}</p>
+      <p style={{ fontSize: 18, fontWeight: 800, color: color ?? S.text1, margin: 0, fontFamily: MONO, fontVariantNumeric: 'tabular-nums' }}>{value}</p>
     </div>
   )
 }
@@ -56,7 +58,7 @@ function Segment<T extends string>({ options, value, onChange }: { options: { ke
               boxShadow: active ? 'var(--t-shadow-sm)' : 'none' }}>
             {o.label}
             {o.count != null && (
-              <span style={{ fontSize: 10.5, fontWeight: 700, padding: '1px 6px', borderRadius: 99, background: active ? S.accent : 'rgba(var(--ink),0.1)', color: active ? '#fff' : S.text3 }}>{o.count}</span>
+              <span style={{ fontSize: 10.5, fontWeight: 700, padding: '1px 6px', borderRadius: 99, background: active ? GOLD : 'rgba(var(--ink),0.1)', color: active ? '#221503' : S.text3 }}>{o.count}</span>
             )}
           </button>
         )
@@ -70,6 +72,59 @@ const HEAD: { l: string; align?: 'right' }[] = [
   { l: 'Instrument' }, { l: 'Side' }, { l: 'Qty', align: 'right' }, { l: 'Fill Price', align: 'right' },
   { l: 'Value', align: 'right' }, { l: 'Comm.', align: 'right' }, { l: 'SL / TP' }, { l: 'Status' }, { l: 'Time', align: 'right' },
 ]
+
+// ── Mobile order card ─────────────────────────────────────────────────────────
+function OrderCard({ o }: { o: Order }) {
+  const buy = o.side === 'buy'
+  const filled = o.status === 'filled'
+  const value = o.quantity * (o.fill_price || 0)
+  return (
+    <div style={{ display: 'flex', gap: 11, background: S.surface, border: `1px solid ${S.border}`, borderRadius: 14, padding: '13px 14px', boxShadow: 'var(--t-shadow-sm)' }}>
+      <span style={{ width: 3, alignSelf: 'stretch', borderRadius: 99, background: buy ? S.bull : S.bear, flexShrink: 0 }} />
+      <div style={{ flex: 1, minWidth: 0 }}>
+        {/* Title row */}
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10 }}>
+          <div style={{ minWidth: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+              <span style={{ fontSize: 15, fontWeight: 800, color: S.text1, letterSpacing: '-0.01em' }}>{o.symbol}</span>
+              <span style={{ fontSize: 10, fontWeight: 800, padding: '1px 6px', borderRadius: 6, background: buy ? 'var(--t-bull-s)' : 'var(--t-bear-s)', color: buy ? S.bull : S.bear }}>{o.side.toUpperCase()}</span>
+            </div>
+            <div style={{ fontSize: 10.5, fontWeight: 600, color: S.text3, textTransform: 'capitalize', marginTop: 2 }}>
+              {o.type}{o.leverage > 1 ? ` · ${o.leverage}x` : ''} · {formatDate(o.created_at)}
+            </div>
+          </div>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 10.5, fontWeight: 700, padding: '3px 9px', borderRadius: 99, textTransform: 'capitalize', background: filled ? 'var(--t-bull-s)' : 'var(--t-bear-s)', color: filled ? S.bull : S.bear, flexShrink: 0 }}>
+            <span style={{ width: 5, height: 5, borderRadius: 99, background: filled ? S.bull : S.bear }} />
+            {o.status}
+          </span>
+        </div>
+
+        {/* Stats grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginTop: 12 }}>
+          {[
+            ['Qty', o.quantity.toFixed(o.quantity < 1 ? 4 : 2)],
+            ['Fill', o.fill_price ? formatPrice(o.fill_price, o.symbol) : 'market'],
+            ['Value', formatCurrency(value, 0)],
+            ['Comm', o.commission ? formatCurrency(o.commission) : '—'],
+          ].map(([l, v]) => (
+            <div key={l}>
+              <div style={{ fontSize: 9.5, color: S.text3, textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 600 }}>{l}</div>
+              <div style={{ fontSize: 12.5, color: S.text1, fontFamily: MONO, fontVariantNumeric: 'tabular-nums', marginTop: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{v}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* SL / TP chips */}
+        {(o.stop_loss != null || o.take_profit != null) && (
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 10 }}>
+            {o.stop_loss != null && <span style={{ fontSize: 10.5, fontWeight: 600, padding: '2px 8px', borderRadius: 7, background: 'var(--t-bear-s)', color: S.bear, fontFamily: MONO }}>SL {formatPrice(o.stop_loss, o.symbol)}</span>}
+            {o.take_profit != null && <span style={{ fontSize: 10.5, fontWeight: 600, padding: '2px 8px', borderRadius: 7, background: 'var(--t-bull-s)', color: S.bull, fontFamily: MONO }}>TP {formatPrice(o.take_profit, o.symbol)}</span>}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
 
 export default function OrdersPage() {
   const { orders, loadOrders } = useTradingStore()
@@ -108,29 +163,36 @@ export default function OrdersPage() {
 
   return (
     <div className="h-full overflow-y-auto" style={{ background: 'transparent' }}>
-      <div style={{ maxWidth: 1240, margin: '0 auto', padding: '28px 20px 110px' }}>
+      <style>{`
+        .od-cards { display: none }
+        @media (max-width: 768px) {
+          .od-table { display: none }
+          .od-cards { display: flex; flex-direction: column; gap: 10px }
+        }
+      `}</style>
+
+      <div style={{ maxWidth: 1240, margin: '0 auto', padding: '24px clamp(14px, 4vw, 20px) 120px' }}>
 
         {/* ── Header ──────────────────────────────────────────────────────── */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', marginBottom: 20 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', marginBottom: 18 }}>
           <div>
             <h1 style={{ fontSize: 22, fontWeight: 800, color: S.text1, margin: 0, letterSpacing: '-0.01em' }}>Orders</h1>
             <p style={{ fontSize: 13, color: S.text3, margin: '3px 0 0' }}>Execution history across this account</p>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 11px', borderRadius: 9, background: 'var(--t-bull-s)', border: `1px solid ${S.bull}33` }}>
               <span style={{ width: 6, height: 6, borderRadius: 99, background: S.bull }} className="animate-pulse2" />
               <span style={{ fontSize: 10.5, fontWeight: 700, color: S.bull }}>LIVE</span>
-              <span style={{ fontSize: 10.5, color: S.text3, fontFamily: 'ui-monospace,monospace' }}>
+              <span style={{ fontSize: 10.5, color: S.text3, fontFamily: MONO }}>
                 {new Date(lastUpdated).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
               </span>
             </div>
-            <button onClick={refresh}
-              style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 13px', borderRadius: 9, background: 'var(--t-accent-s)', border: `1px solid ${S.accent}33`, color: S.accent, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+            <button onClick={refresh} title="Refresh"
+              style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 11px', borderRadius: 9, background: 'rgba(var(--ink),0.05)', border: `1px solid ${S.border}`, color: S.text2, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
               <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-              Refresh
             </button>
             <button onClick={() => exportOrdersToCSV(orders)} disabled={orders.length === 0}
-              style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 13px', borderRadius: 9, background: 'var(--t-bull-s)', border: `1px solid ${S.bull}33`, color: S.bull, fontSize: 12, fontWeight: 700, cursor: orders.length === 0 ? 'not-allowed' : 'pointer', opacity: orders.length === 0 ? 0.5 : 1 }}>
+              style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 9, background: 'var(--t-bull-s)', border: `1px solid ${S.bull}33`, color: S.bull, fontSize: 12, fontWeight: 700, cursor: orders.length === 0 ? 'not-allowed' : 'pointer', opacity: orders.length === 0 ? 0.5 : 1 }}>
               <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
               Export
             </button>
@@ -165,7 +227,7 @@ export default function OrdersPage() {
           </div>
         </div>
 
-        {/* ── Table ───────────────────────────────────────────────────────── */}
+        {/* ── Empty state ─────────────────────────────────────────────────── */}
         {filtered.length === 0 ? (
           <div style={{ background: S.surface, border: `1px solid ${S.border}`, borderRadius: 16, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '56px 24px', gap: 12 }}>
             <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'rgba(var(--ink),0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: S.text3 }}>
@@ -177,59 +239,61 @@ export default function OrdersPage() {
             </p>
           </div>
         ) : (
-          <div style={{ background: S.surface, border: `1px solid ${S.border}`, borderRadius: 16, overflow: 'hidden', boxShadow: 'var(--t-shadow-sm)' }}>
-            <div style={{ overflowX: 'auto' }}>
-              <div style={{ minWidth: 920 }}>
-                {/* Header */}
-                <div style={{ display: 'grid', gridTemplateColumns: COLS, gap: 14, padding: '12px 18px', borderBottom: `1px solid ${S.border}`, background: 'rgba(var(--ink),0.015)' }}>
-                  {HEAD.map((h, i) => (
-                    <span key={i} style={{ fontSize: 10.5, fontWeight: 700, color: S.text3, textTransform: 'uppercase', letterSpacing: '0.06em', textAlign: h.align ?? 'left' }}>{h.l}</span>
-                  ))}
-                </div>
-                {/* Rows */}
-                {filtered.map((o, idx) => {
-                  const buy = o.side === 'buy'
-                  const filled = o.status === 'filled'
-                  const value = o.quantity * (o.fill_price || 0)
-                  const cellR: React.CSSProperties = { fontSize: 13, color: S.text1, fontFamily: 'ui-monospace,monospace', fontVariantNumeric: 'tabular-nums', display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }
-                  return (
-                    <div key={o.id} style={{ display: 'grid', gridTemplateColumns: COLS, gap: 14, padding: '13px 18px', alignItems: 'center', borderBottom: idx === filtered.length - 1 ? 'none' : '1px solid rgba(174,166,186,0.08)' }}>
-                      {/* Instrument */}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 9, minWidth: 0 }}>
-                        <span style={{ width: 3, height: 26, borderRadius: 99, background: buy ? S.bull : S.bear, flexShrink: 0 }} />
-                        <div style={{ minWidth: 0 }}>
-                          <div style={{ fontSize: 14, fontWeight: 800, color: S.text1 }}>{o.symbol}</div>
-                          <div style={{ fontSize: 10.5, fontWeight: 600, color: S.text3, textTransform: 'capitalize' }}>{o.type}{o.leverage > 1 ? ` · ${o.leverage}x` : ''}</div>
+          <>
+            {/* ── Desktop table ── */}
+            <div className="od-table" style={{ background: S.surface, border: `1px solid ${S.border}`, borderRadius: 16, overflow: 'hidden', boxShadow: 'var(--t-shadow-sm)' }}>
+              <div style={{ overflowX: 'auto' }}>
+                <div style={{ minWidth: 920 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: COLS, gap: 14, padding: '12px 18px', borderBottom: `1px solid ${S.border}`, background: 'rgba(var(--ink),0.015)' }}>
+                    {HEAD.map((h, i) => (
+                      <span key={i} style={{ fontSize: 10.5, fontWeight: 700, color: S.text3, textTransform: 'uppercase', letterSpacing: '0.06em', textAlign: h.align ?? 'left' }}>{h.l}</span>
+                    ))}
+                  </div>
+                  {filtered.map((o, idx) => {
+                    const buy = o.side === 'buy'
+                    const filled = o.status === 'filled'
+                    const value = o.quantity * (o.fill_price || 0)
+                    const cellR: React.CSSProperties = { fontSize: 13, color: S.text1, fontFamily: MONO, fontVariantNumeric: 'tabular-nums', display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }
+                    return (
+                      <div key={o.id} style={{ display: 'grid', gridTemplateColumns: COLS, gap: 14, padding: '13px 18px', alignItems: 'center', borderBottom: idx === filtered.length - 1 ? 'none' : '1px solid rgba(214,196,170,0.08)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 9, minWidth: 0 }}>
+                          <span style={{ width: 3, height: 26, borderRadius: 99, background: buy ? S.bull : S.bear, flexShrink: 0 }} />
+                          <div style={{ minWidth: 0 }}>
+                            <div style={{ fontSize: 14, fontWeight: 800, color: S.text1 }}>{o.symbol}</div>
+                            <div style={{ fontSize: 10.5, fontWeight: 600, color: S.text3, textTransform: 'capitalize' }}>{o.type}{o.leverage > 1 ? ` · ${o.leverage}x` : ''}</div>
+                          </div>
                         </div>
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                          <span style={{ fontSize: 10.5, fontWeight: 800, padding: '3px 9px', borderRadius: 7, background: buy ? 'var(--t-bull-s)' : 'var(--t-bear-s)', color: buy ? S.bull : S.bear }}>{o.side.toUpperCase()}</span>
+                        </div>
+                        <span style={cellR}>{o.quantity.toFixed(o.quantity < 1 ? 4 : 2)}</span>
+                        <span style={cellR}>{o.fill_price ? formatPrice(o.fill_price, o.symbol) : '—'}</span>
+                        <span style={{ ...cellR, color: S.text2 }}>{formatCurrency(value)}</span>
+                        <span style={{ ...cellR, color: S.text3 }}>{o.commission ? formatCurrency(o.commission) : '—'}</span>
+                        <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', alignItems: 'center' }}>
+                          {o.stop_loss != null && <span style={{ fontSize: 10.5, fontWeight: 600, padding: '2px 6px', borderRadius: 6, background: 'var(--t-bear-s)', color: S.bear, fontFamily: MONO }}>SL</span>}
+                          {o.take_profit != null && <span style={{ fontSize: 10.5, fontWeight: 600, padding: '2px 6px', borderRadius: 6, background: 'var(--t-bull-s)', color: S.bull, fontFamily: MONO }}>TP</span>}
+                          {o.stop_loss == null && o.take_profit == null && <span style={{ fontSize: 12, color: S.text3 }}>—</span>}
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 10.5, fontWeight: 700, padding: '3px 9px', borderRadius: 99, textTransform: 'capitalize', background: filled ? 'var(--t-bull-s)' : 'var(--t-bear-s)', color: filled ? S.bull : S.bear }}>
+                            <span style={{ width: 5, height: 5, borderRadius: 99, background: filled ? S.bull : S.bear }} />
+                            {o.status}
+                          </span>
+                        </div>
+                        <span style={{ ...cellR, color: S.text3, fontSize: 12, textAlign: 'right' }}>{formatDate(o.created_at)}</span>
                       </div>
-                      {/* Side */}
-                      <div style={{ display: 'flex', alignItems: 'center' }}>
-                        <span style={{ fontSize: 10.5, fontWeight: 800, padding: '3px 9px', borderRadius: 7, background: buy ? 'var(--t-bull-s)' : 'var(--t-bear-s)', color: buy ? S.bull : S.bear }}>{o.side.toUpperCase()}</span>
-                      </div>
-                      <span style={cellR}>{o.quantity.toFixed(o.quantity < 1 ? 4 : 2)}</span>
-                      <span style={cellR}>{o.fill_price ? formatPrice(o.fill_price, o.symbol) : ', '}</span>
-                      <span style={{ ...cellR, color: S.text2 }}>{formatCurrency(value)}</span>
-                      <span style={{ ...cellR, color: S.text3 }}>{o.commission ? formatCurrency(o.commission) : ', '}</span>
-                      {/* SL / TP */}
-                      <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', alignItems: 'center' }}>
-                        {o.stop_loss != null && <span style={{ fontSize: 10.5, fontWeight: 600, padding: '2px 6px', borderRadius: 6, background: 'var(--t-bear-s)', color: S.bear, fontFamily: 'ui-monospace,monospace' }}>SL</span>}
-                        {o.take_profit != null && <span style={{ fontSize: 10.5, fontWeight: 600, padding: '2px 6px', borderRadius: 6, background: 'var(--t-bull-s)', color: S.bull, fontFamily: 'ui-monospace,monospace' }}>TP</span>}
-                        {o.stop_loss == null && o.take_profit == null && <span style={{ fontSize: 12, color: S.text3 }}>, </span>}
-                      </div>
-                      {/* Status */}
-                      <div style={{ display: 'flex', alignItems: 'center' }}>
-                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 10.5, fontWeight: 700, padding: '3px 9px', borderRadius: 99, textTransform: 'capitalize', background: filled ? 'var(--t-bull-s)' : 'var(--t-bear-s)', color: filled ? S.bull : S.bear }}>
-                          <span style={{ width: 5, height: 5, borderRadius: 99, background: filled ? S.bull : S.bear }} />
-                          {o.status}
-                        </span>
-                      </div>
-                      <span style={{ ...cellR, color: S.text3, fontSize: 12, textAlign: 'right' }}>{formatDate(o.created_at)}</span>
-                    </div>
-                  )
-                })}
+                    )
+                  })}
+                </div>
               </div>
             </div>
-          </div>
+
+            {/* ── Mobile cards ── */}
+            <div className="od-cards">
+              {filtered.map(o => <OrderCard key={o.id} o={o} />)}
+            </div>
+          </>
         )}
       </div>
     </div>
