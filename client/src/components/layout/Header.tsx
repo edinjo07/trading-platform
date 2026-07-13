@@ -99,8 +99,8 @@ export default function Header({ onMenuClick }: HeaderProps) {
     <header
       className="chrome-dark flex items-center gap-2 sm:gap-3 px-3 sm:px-4 shrink-0"
       style={{
-        background: '#0a0a0a',
-        borderBottom: '1px solid rgba(255,255,255,0.08)',
+        background: '#141010',
+        borderBottom: '1px solid rgba(247,242,230,0.08)',
         height: '56px',
       }}
     >
@@ -144,7 +144,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
       ) : (
         <div className="hidden sm:flex gap-2">
           {[48, 32, 32].map((w, i) => (
-            <div key={i} className="h-4 rounded animate-pulse" style={{ width: `${w}px`, background: 'rgba(255,255,255,0.05)' }} />
+            <div key={i} className="h-4 rounded animate-pulse" style={{ width: `${w}px`, background: 'rgba(247,242,230,0.05)' }} />
           ))}
         </div>
       )}
@@ -180,7 +180,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
 
         {/* Balance chip */}
         <div className="hidden sm:block px-3 py-1.5 rounded-lg text-xs"
-             style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
+             style={{ background: 'rgba(247,242,230,0.04)', border: '1px solid rgba(247,242,230,0.07)' }}>
           <span className="text-text-secondary">Balance </span>
           <span className="text-text-primary font-mono font-semibold">{formatCurrency(portfolio?.cashBalance ?? user?.balance ?? 0)}</span>
         </div>
@@ -192,7 +192,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
             style={showMore
               ? { background: 'rgba(79,140,255,0.12)', color: '#7aa7ff', border: '1px solid rgba(79,140,255,0.25)' }
-              : { background: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.6)', border: '1px solid rgba(255,255,255,0.07)' }
+              : { background: 'rgba(247,242,230,0.04)', color: 'rgba(247,242,230,0.6)', border: '1px solid rgba(247,242,230,0.07)' }
             }
           >
             More
@@ -204,13 +204,13 @@ export default function Header({ onMenuClick }: HeaderProps) {
 
           {showMore && (
             <div className="absolute top-full right-0 mt-1.5 w-56 rounded-xl overflow-hidden z-50"
-                 style={{ background: '#141414', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 16px 48px rgba(0,0,0,0.6)' }}>
+                 style={{ background: '#1c1717', border: '1px solid rgba(247,242,230,0.08)', boxShadow: '0 16px 48px rgba(6,4,4,0.6)' }}>
               {MORE_LINKS.map(link => (
                 <button
                   key={link.path}
                   onClick={() => { navigate(link.path); setShowMore(false) }}
                   className="w-full flex items-center gap-3 px-4 py-3 text-left transition-colors"
-                  style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}
+                  style={{ borderBottom: '1px solid rgba(247,242,230,0.05)' }}
                   onMouseEnter={e => (e.currentTarget.style.background = 'rgba(79,140,255,0.06)')}
                   onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
                 >
@@ -232,9 +232,9 @@ export default function Header({ onMenuClick }: HeaderProps) {
         <button
           onClick={toggleTheme}
           className="w-8 h-8 rounded-lg flex items-center justify-center transition-all shrink-0"
-          style={{ color: 'rgba(255,255,255,0.5)', border: '1px solid rgba(255,255,255,0.09)' }}
-          onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = '#fff'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(255,255,255,0.2)' }}
-          onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = 'rgba(255,255,255,0.5)'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(255,255,255,0.09)' }}
+          style={{ color: 'rgba(247,242,230,0.5)', border: '1px solid rgba(247,242,230,0.09)' }}
+          onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = '#fff'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(247,242,230,0.2)' }}
+          onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = 'rgba(247,242,230,0.5)'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(247,242,230,0.09)' }}
           title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
           aria-label="Toggle theme"
         >

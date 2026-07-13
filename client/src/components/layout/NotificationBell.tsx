@@ -39,7 +39,7 @@ function Row({ n, onRead, onRemove }: { n: AppNotification; onRead: (id: string)
       style={{
         display: 'flex', gap: 11, padding: '11px 14px', cursor: n.read ? 'default' : 'pointer',
         background: n.read ? 'transparent' : 'rgba(79,140,255,0.04)',
-        borderBottom: '1px solid rgba(255,255,255,0.05)', position: 'relative',
+        borderBottom: '1px solid rgba(247,242,230,0.05)', position: 'relative',
       }}
     >
       {!n.read && <span style={{ position: 'absolute', left: 5, top: '50%', transform: 'translateY(-50%)', width: 5, height: 5, borderRadius: '50%', background: '#7aa7ff' }} />}
@@ -55,7 +55,7 @@ function Row({ n, onRead, onRemove }: { n: AppNotification; onRead: (id: string)
       </div>
       {hover && (
         <button onClick={e => { e.stopPropagation(); onRemove(n.id) }} title="Dismiss"
-          style={{ position: 'absolute', top: 8, right: 8, width: 20, height: 20, borderRadius: 6, background: 'rgba(255,255,255,0.06)', border: 'none', color: 'var(--t-text-3)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1 }}>
+          style={{ position: 'absolute', top: 8, right: 8, width: 20, height: 20, borderRadius: 6, background: 'rgba(247,242,230,0.06)', border: 'none', color: 'var(--t-text-3)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1 }}>
           <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.4}><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
       )}
@@ -87,7 +87,7 @@ export default function NotificationBell() {
       <button
         onClick={toggle}
         className="w-8 h-8 rounded-lg flex items-center justify-center transition-all"
-        style={{ color: open ? '#7aa7ff' : 'rgba(255,255,255,0.55)', border: `1px solid ${open ? 'rgba(79,140,255,0.3)' : 'rgba(255,255,255,0.09)'}`, background: open ? 'rgba(79,140,255,0.1)' : 'transparent' }}
+        style={{ color: open ? '#7aa7ff' : 'rgba(247,242,230,0.55)', border: `1px solid ${open ? 'rgba(79,140,255,0.3)' : 'rgba(247,242,230,0.09)'}`, background: open ? 'rgba(79,140,255,0.1)' : 'transparent' }}
         aria-label="Notifications"
         title="Notifications"
       >
@@ -98,7 +98,7 @@ export default function NotificationBell() {
           <span style={{
             position: 'absolute', top: -4, right: -4, minWidth: 16, height: 16, padding: '0 4px',
             borderRadius: 9, background: '#ff5a72', color: '#fff', fontSize: 10.5, fontWeight: 800,
-            display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #0a0a0a',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #141010',
           }}>
             {unread > 9 ? '9+' : unread}
           </span>
@@ -109,11 +109,11 @@ export default function NotificationBell() {
         <div style={{
           position: 'absolute', top: '100%', right: 0, marginTop: 8, zIndex: 60,
           width: 'min(380px, calc(100vw - 24px))', maxHeight: '72vh',
-          background: '#0c1018', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 14,
-          boxShadow: '0 20px 60px rgba(0,0,0,0.6)', overflow: 'hidden', display: 'flex', flexDirection: 'column',
+          background: '#0c1018', border: '1px solid rgba(247,242,230,0.1)', borderRadius: 14,
+          boxShadow: '0 20px 60px rgba(6,4,4,0.6)', overflow: 'hidden', display: 'flex', flexDirection: 'column',
         }}>
           {/* Header */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 14px', borderBottom: '1px solid rgba(255,255,255,0.08)', flexShrink: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 14px', borderBottom: '1px solid rgba(247,242,230,0.08)', flexShrink: 0 }}>
             <span style={{ fontSize: 14, fontWeight: 800, color: 'var(--t-text-1)' }}>
               Notifications{unread > 0 ? ` · ${unread}` : ''}
             </span>
@@ -147,7 +147,7 @@ export default function NotificationBell() {
           </div>
 
           {/* Footer */}
-          <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', flexShrink: 0 }}>
+          <div style={{ borderTop: '1px solid rgba(247,242,230,0.08)', flexShrink: 0 }}>
             <button onClick={() => { setOpen(false); nav('/dashboard/notifications') }}
               style={{ width: '100%', padding: '11px', background: 'none', border: 'none', color: '#7aa7ff', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
               See all notifications

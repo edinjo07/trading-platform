@@ -65,7 +65,7 @@ export default function Layout() {
       {mobileOpen && (
         <div
           className="fixed inset-0 z-40 lg:hidden"
-          style={{ background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(2px)' }}
+          style={{ background: 'rgba(6,4,4,0.65)', backdropFilter: 'blur(2px)' }}
           onClick={closeMobile}
         />
       )}
@@ -87,10 +87,10 @@ export default function Layout() {
       <nav
         className="chrome-dark lg:hidden fixed bottom-0 left-0 right-0 z-30 flex items-end"
         style={{
-          background: 'rgba(0,0,0,0.96)',
+          background: 'rgba(6,4,4,0.96)',
           backdropFilter: 'blur(20px)',
           WebkitBackdropFilter: 'blur(20px)',
-          borderTop: '1px solid rgba(255,255,255,0.08)',
+          borderTop: '1px solid rgba(247,242,230,0.08)',
           paddingBottom: 'env(safe-area-inset-bottom)',
         }}
       >
@@ -106,10 +106,10 @@ export default function Layout() {
           >
             {({ isActive }) => (
               <>
-                <span style={{ color: isActive ? '#fff' : 'rgba(255,255,255,0.38)' }}>
+                <span style={{ color: isActive ? '#fff' : 'rgba(247,242,230,0.38)' }}>
                   {item.icon(isActive)}
                 </span>
-                <span className="text-[10.5px] font-medium" style={{ color: isActive ? '#fff' : 'rgba(255,255,255,0.38)' }}>
+                <span className="text-[10.5px] font-medium" style={{ color: isActive ? '#fff' : 'rgba(247,242,230,0.38)' }}>
                   {item.label}
                 </span>
               </>
@@ -125,13 +125,13 @@ export default function Layout() {
           >
             <div style={{
               width: 52, height: 52, borderRadius: '50%',
-              background: '#fff',
+              background: 'linear-gradient(120deg, #f9d98c 0%, #f2b84b 45%, #dd9c2f 100%)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              boxShadow: '0 4px 16px rgba(255,255,255,0.15)',
+              boxShadow: '0 4px 18px rgba(242,184,75,0.4), inset 0 1px 0 rgba(255,255,255,0.35)',
               marginBottom: 2,
               marginTop: -8,
             }}>
-              <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#000" strokeWidth={2.5}>
+              <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#221503" strokeWidth={2.5}>
                 <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
               </svg>
             </div>
@@ -150,10 +150,10 @@ export default function Layout() {
           >
             {({ isActive }) => (
               <>
-                <span style={{ color: isActive ? '#fff' : 'rgba(255,255,255,0.38)' }}>
+                <span style={{ color: isActive ? '#fff' : 'rgba(247,242,230,0.38)' }}>
                   {item.icon(isActive)}
                 </span>
-                <span className="text-[10.5px] font-medium" style={{ color: isActive ? '#fff' : 'rgba(255,255,255,0.38)' }}>
+                <span className="text-[10.5px] font-medium" style={{ color: isActive ? '#fff' : 'rgba(247,242,230,0.38)' }}>
                   {item.label}
                 </span>
               </>

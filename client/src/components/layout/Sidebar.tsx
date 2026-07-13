@@ -90,32 +90,31 @@ export default function Sidebar({ mobileOpen, onClose, onOpenMarkets }: SidebarP
                   fixed inset-y-0 left-0 z-50 w-[270px]
                   ${mobileOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'}
                   ${collapsed ? 'lg:w-[68px]' : 'lg:w-[232px]'}`}
-      style={{ background: '#0a0a0a', borderRight: '1px solid rgba(255,255,255,0.06)' }}
+      style={{ background: '#141010', borderRight: '1px solid rgba(247,242,230,0.06)' }}
     >
 
       {/* ── Logo ─────────────────────────────────────────────────────────────── */}
       <div className="flex items-center shrink-0 px-3"
-           style={{ height: 56, borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+           style={{ height: 56, borderBottom: '1px solid rgba(247,242,230,0.06)' }}>
         <div className="flex items-center gap-2.5 flex-1 min-w-0">
           <BrandMark size={32} />
           {!collapsed && (
-            <span className="font-bold text-sm tracking-tight select-none">
-              <span style={{ color: '#e9eef8' }}>Trade</span>
-              <span style={{ color: '#4f8cff' }}>X</span>
-              <span style={{ color: '#5f6d85' }}> Pro</span>
+            <span className="font-extrabold text-base tracking-tight select-none">
+              <span style={{ color: '#f7f2e6' }}>Trade</span>
+              <span style={{ color: '#f2b84b' }}>X</span>
             </span>
           )}
         </div>
         <button onClick={() => setCollapsed(c => !c)}
           className="hidden lg:flex items-center justify-center w-7 h-7 rounded-lg shrink-0 transition-colors"
-          style={{ color: 'rgba(255,255,255,0.3)' }}
+          style={{ color: 'rgba(247,242,230,0.3)' }}
           onMouseEnter={e => (e.currentTarget.style.color = '#fff')}
-          onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.3)')}>
+          onMouseLeave={e => (e.currentTarget.style.color = 'rgba(247,242,230,0.3)')}>
           {collapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
         </button>
         <button onClick={onClose}
           className="lg:hidden flex items-center justify-center w-7 h-7 rounded-lg shrink-0"
-          style={{ color: 'rgba(255,255,255,0.4)' }}>
+          style={{ color: 'rgba(247,242,230,0.4)' }}>
           <X size={15} />
         </button>
       </div>
@@ -154,10 +153,10 @@ export default function Sidebar({ mobileOpen, onClose, onOpenMarkets }: SidebarP
         {NAV_GROUPS.map((group, gi) => (
           <div key={gi}>
             {gi > 0 && (
-              <div style={{ height: 1, background: 'rgba(255,255,255,0.05)', margin: '8px 4px 10px' }} />
+              <div style={{ height: 1, background: 'rgba(247,242,230,0.05)', margin: '8px 4px 10px' }} />
             )}
             {group.label && !collapsed && (
-              <p style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '0.1em', color: 'rgba(255,255,255,0.22)', textTransform: 'uppercase', paddingLeft: 10, marginBottom: 4 }}>
+              <p style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '0.1em', color: 'rgba(247,242,230,0.22)', textTransform: 'uppercase', paddingLeft: 10, marginBottom: 4 }}>
                 {group.label}
               </p>
             )}
@@ -176,15 +175,15 @@ export default function Sidebar({ mobileOpen, onClose, onOpenMarkets }: SidebarP
                       justifyContent: collapsed ? 'center' : 'flex-start',
                       background: isOnTrade ? `rgba(24,201,138,0.12)` : 'transparent',
                     }}
-                    onMouseEnter={e => { if (!isOnTrade) (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.05)' }}
+                    onMouseEnter={e => { if (!isOnTrade) (e.currentTarget as HTMLElement).style.background = 'rgba(247,242,230,0.05)' }}
                     onMouseLeave={e => { if (!isOnTrade) (e.currentTarget as HTMLElement).style.background = 'transparent' }}
                   >
                     <div className="shrink-0 flex items-center justify-center rounded-lg"
-                         style={{ width: 32, height: 32, background: isOnTrade ? 'rgba(24,201,138,0.2)' : 'rgba(255,255,255,0.06)' }}>
-                      <Icon size={16} strokeWidth={2} color={isOnTrade ? item.color : 'rgba(255,255,255,0.6)'} />
+                         style={{ width: 32, height: 32, background: isOnTrade ? 'rgba(24,201,138,0.2)' : 'rgba(247,242,230,0.06)' }}>
+                      <Icon size={16} strokeWidth={2} color={isOnTrade ? item.color : 'rgba(247,242,230,0.6)'} />
                     </div>
                     {!collapsed && (
-                      <span style={{ fontSize: 13, fontWeight: 500, color: isOnTrade ? '#fff' : 'rgba(255,255,255,0.7)' }}>
+                      <span style={{ fontSize: 13, fontWeight: 500, color: isOnTrade ? '#fff' : 'rgba(247,242,230,0.7)' }}>
                         {item.label}
                       </span>
                     )}
@@ -205,7 +204,7 @@ export default function Sidebar({ mobileOpen, onClose, onOpenMarkets }: SidebarP
                   })}
                   onMouseEnter={e => {
                     const el = e.currentTarget as HTMLElement
-                    if (!el.style.background.includes('14)')) el.style.background = 'rgba(255,255,255,0.05)'
+                    if (!el.style.background.includes('14)')) el.style.background = 'rgba(247,242,230,0.05)'
                   }}
                   onMouseLeave={e => {
                     const el = e.currentTarget as HTMLElement
@@ -215,11 +214,11 @@ export default function Sidebar({ mobileOpen, onClose, onOpenMarkets }: SidebarP
                   {({ isActive }) => (
                     <>
                       <div className="shrink-0 flex items-center justify-center rounded-lg"
-                           style={{ width: 32, height: 32, background: isActive ? `${item.color}22` : 'rgba(255,255,255,0.06)', transition: 'all 0.15s' }}>
-                        <Icon size={16} strokeWidth={2} color={isActive ? item.color : 'rgba(255,255,255,0.6)'} />
+                           style={{ width: 32, height: 32, background: isActive ? `${item.color}22` : 'rgba(247,242,230,0.06)', transition: 'all 0.15s' }}>
+                        <Icon size={16} strokeWidth={2} color={isActive ? item.color : 'rgba(247,242,230,0.6)'} />
                       </div>
                       {!collapsed && (
-                        <span style={{ fontSize: 13, fontWeight: 500, color: isActive ? '#fff' : 'rgba(255,255,255,0.7)', transition: 'color 0.15s' }}>
+                        <span style={{ fontSize: 13, fontWeight: 500, color: isActive ? '#fff' : 'rgba(247,242,230,0.7)', transition: 'color 0.15s' }}>
                           {item.label}
                         </span>
                       )}
@@ -233,21 +232,21 @@ export default function Sidebar({ mobileOpen, onClose, onOpenMarkets }: SidebarP
 
         {/* ── Discover ─────────────────────────────────────────────────────── */}
         <div>
-          <div style={{ height: 1, background: 'rgba(255,255,255,0.05)', margin: '8px 4px 10px' }} />
+          <div style={{ height: 1, background: 'rgba(247,242,230,0.05)', margin: '8px 4px 10px' }} />
           <button onClick={() => setDiscoverOpen(o => !o)}
             title={collapsed ? 'Discover' : undefined}
             className="flex items-center w-full rounded-xl transition-all duration-150"
             style={{ gap: collapsed ? 0 : 12, padding: collapsed ? 10 : '9px 12px', justifyContent: collapsed ? 'center' : 'flex-start' }}
-            onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.05)')}
+            onMouseEnter={e => (e.currentTarget.style.background = 'rgba(247,242,230,0.05)')}
             onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
             <div className="shrink-0 flex items-center justify-center rounded-lg"
-                 style={{ width: 32, height: 32, background: 'rgba(255,255,255,0.06)' }}>
-              <Globe size={16} strokeWidth={2} color="rgba(255,255,255,0.6)" />
+                 style={{ width: 32, height: 32, background: 'rgba(247,242,230,0.06)' }}>
+              <Globe size={16} strokeWidth={2} color="rgba(247,242,230,0.6)" />
             </div>
             {!collapsed && (
               <>
-                <span style={{ fontSize: 13, fontWeight: 500, color: 'rgba(255,255,255,0.7)', flex: 1, textAlign: 'left' }}>Discover</span>
-                <ChevronDown size={12} strokeWidth={2.5} color="rgba(255,255,255,0.3)"
+                <span style={{ fontSize: 13, fontWeight: 500, color: 'rgba(247,242,230,0.7)', flex: 1, textAlign: 'left' }}>Discover</span>
+                <ChevronDown size={12} strokeWidth={2.5} color="rgba(247,242,230,0.3)"
                   style={{ transition: 'transform 0.2s', transform: discoverOpen ? 'rotate(180deg)' : 'none' }} />
               </>
             )}
@@ -265,17 +264,17 @@ export default function Sidebar({ mobileOpen, onClose, onOpenMarkets }: SidebarP
                   borderRadius: 12, textDecoration: 'none', transition: 'all 0.15s',
                   background: isActive ? `${item.color}14` : 'transparent',
                 })}
-                onMouseEnter={e => { const el = e.currentTarget as HTMLElement; if (!el.style.background.includes('14)')) el.style.background = 'rgba(255,255,255,0.05)' }}
+                onMouseEnter={e => { const el = e.currentTarget as HTMLElement; if (!el.style.background.includes('14)')) el.style.background = 'rgba(247,242,230,0.05)' }}
                 onMouseLeave={e => { const el = e.currentTarget as HTMLElement; if (!el.style.background.includes('14)')) el.style.background = 'transparent' }}
               >
                 {({ isActive }) => (
                   <>
                     <div className="shrink-0 flex items-center justify-center rounded-lg"
-                         style={{ width: 32, height: 32, background: isActive ? `${item.color}22` : 'rgba(255,255,255,0.06)' }}>
-                      <Icon size={16} strokeWidth={2} color={isActive ? item.color : 'rgba(255,255,255,0.6)'} />
+                         style={{ width: 32, height: 32, background: isActive ? `${item.color}22` : 'rgba(247,242,230,0.06)' }}>
+                      <Icon size={16} strokeWidth={2} color={isActive ? item.color : 'rgba(247,242,230,0.6)'} />
                     </div>
                     {!collapsed && (
-                      <span style={{ fontSize: 13, fontWeight: 500, color: isActive ? '#fff' : 'rgba(255,255,255,0.7)' }}>
+                      <span style={{ fontSize: 13, fontWeight: 500, color: isActive ? '#fff' : 'rgba(247,242,230,0.7)' }}>
                         {item.label}
                       </span>
                     )}
@@ -289,21 +288,21 @@ export default function Sidebar({ mobileOpen, onClose, onOpenMarkets }: SidebarP
 
       {/* ── Profile footer ───────────────────────────────────────────────────── */}
       <div ref={profileRef} className="shrink-0 px-3 py-3 relative"
-           style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+           style={{ borderTop: '1px solid rgba(247,242,230,0.06)' }}>
 
         {profileOpen && (
           <div className="absolute left-3 right-3 bottom-full mb-2 z-50 rounded-2xl overflow-hidden"
-               style={{ background: '#141414', border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 -20px 60px rgba(0,0,0,0.9)' }}>
+               style={{ background: '#1c1717', border: '1px solid rgba(247,242,230,0.1)', boxShadow: '0 -20px 60px rgba(6,4,4,0.9)' }}>
             {/* User header */}
             <div className="flex items-center gap-3 px-4 py-3.5"
-                 style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+                 style={{ borderBottom: '1px solid rgba(247,242,230,0.07)' }}>
               <div className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold text-white shrink-0"
                    style={{ background: 'linear-gradient(135deg,#4f8cff,#3b78f0)', boxShadow: '0 0 12px rgba(79,140,255,0.3)' }}>
                 {user?.username?.[0]?.toUpperCase() ?? 'U'}
               </div>
               <div className="min-w-0">
                 <p style={{ fontSize: 13, fontWeight: 600, color: '#f0f0f0', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.username}</p>
-                <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.38)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.email}</p>
+                <p style={{ fontSize: 12, color: 'rgba(247,242,230,0.38)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.email}</p>
               </div>
             </div>
 
@@ -320,9 +319,9 @@ export default function Sidebar({ mobileOpen, onClose, onOpenMarkets }: SidebarP
                 <button key={item.label}
                   onClick={() => { navigate(item.path); setProfileOpen(false); onClose() }}
                   className="w-full flex items-center gap-3 px-4 py-2.5 text-left transition-all"
-                  style={{ color: 'rgba(255,255,255,0.65)', borderBottom: '1px solid rgba(255,255,255,0.04)' }}
-                  onMouseEnter={e => { const el = e.currentTarget; el.style.background = 'rgba(255,255,255,0.04)'; el.style.color = '#fff' }}
-                  onMouseLeave={e => { const el = e.currentTarget; el.style.background = ''; el.style.color = 'rgba(255,255,255,0.65)' }}
+                  style={{ color: 'rgba(247,242,230,0.65)', borderBottom: '1px solid rgba(247,242,230,0.04)' }}
+                  onMouseEnter={e => { const el = e.currentTarget; el.style.background = 'rgba(247,242,230,0.04)'; el.style.color = '#fff' }}
+                  onMouseLeave={e => { const el = e.currentTarget; el.style.background = ''; el.style.color = 'rgba(247,242,230,0.65)' }}
                 >
                   <Icon size={14} strokeWidth={1.8} style={{ flexShrink: 0, opacity: 0.6 }} />
                   <span style={{ fontSize: 13, fontWeight: 500 }}>{item.label}</span>
@@ -331,15 +330,15 @@ export default function Sidebar({ mobileOpen, onClose, onOpenMarkets }: SidebarP
             })}
 
             {/* Mode switcher */}
-            <div className="px-4 py-3" style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}>
-              <p style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '0.1em', color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', marginBottom: 8 }}>Account Mode</p>
+            <div className="px-4 py-3" style={{ borderTop: '1px solid rgba(247,242,230,0.07)' }}>
+              <p style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '0.1em', color: 'rgba(247,242,230,0.25)', textTransform: 'uppercase', marginBottom: 8 }}>Account Mode</p>
               <div className="flex gap-2">
                 {(['demo', 'real'] as const).map(m => (
                   <button key={m} onClick={() => { setAccountMode(m); setProfileOpen(false) }}
                     className="flex-1 py-2 rounded-xl transition-all"
                     style={user?.accountMode === m
                       ? { background: m === 'real' ? 'rgba(24,201,138,0.15)' : 'rgba(246,178,74,0.15)', color: m === 'real' ? '#18c98a' : '#f6b24a', border: `1px solid ${m === 'real' ? 'rgba(24,201,138,0.3)' : 'rgba(246,178,74,0.3)'}`, fontSize: 12, fontWeight: 600 }
-                      : { background: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.4)', border: '1px solid rgba(255,255,255,0.08)', fontSize: 12, fontWeight: 600 }
+                      : { background: 'rgba(247,242,230,0.04)', color: 'rgba(247,242,230,0.4)', border: '1px solid rgba(247,242,230,0.08)', fontSize: 12, fontWeight: 600 }
                     }>
                     {m === 'real' ? 'Live' : 'Demo'}
                   </button>
@@ -350,7 +349,7 @@ export default function Sidebar({ mobileOpen, onClose, onOpenMarkets }: SidebarP
             {/* Sign out */}
             <button onClick={() => { logout(); setProfileOpen(false) }}
               className="w-full flex items-center gap-3 px-4 py-3 transition-all"
-              style={{ color: '#f43f5e', borderTop: '1px solid rgba(255,255,255,0.07)', fontSize: 13, fontWeight: 500 }}
+              style={{ color: '#f43f5e', borderTop: '1px solid rgba(247,242,230,0.07)', fontSize: 13, fontWeight: 500 }}
               onMouseEnter={e => (e.currentTarget.style.background = 'rgba(244,63,94,0.07)')}
               onMouseLeave={e => (e.currentTarget.style.background = '')}>
               <LogOut size={14} strokeWidth={2} />
@@ -363,9 +362,9 @@ export default function Sidebar({ mobileOpen, onClose, onOpenMarkets }: SidebarP
         {!collapsed ? (
           <button onClick={() => setProfileOpen(o => !o)}
             className="w-full flex items-center gap-3 rounded-xl transition-all px-3 py-2.5"
-            style={{ background: profileOpen ? 'rgba(79,140,255,0.08)' : 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}
-            onMouseEnter={e => { if (!profileOpen) e.currentTarget.style.background = 'rgba(255,255,255,0.07)' }}
-            onMouseLeave={e => { if (!profileOpen) e.currentTarget.style.background = 'rgba(255,255,255,0.04)' }}>
+            style={{ background: profileOpen ? 'rgba(79,140,255,0.08)' : 'rgba(247,242,230,0.04)', border: '1px solid rgba(247,242,230,0.07)' }}
+            onMouseEnter={e => { if (!profileOpen) e.currentTarget.style.background = 'rgba(247,242,230,0.07)' }}
+            onMouseLeave={e => { if (!profileOpen) e.currentTarget.style.background = 'rgba(247,242,230,0.04)' }}>
             <div className="w-8 h-8 rounded-full shrink-0 flex items-center justify-center text-xs font-bold text-white"
                  style={{ background: 'linear-gradient(135deg,#4f8cff,#3b78f0)' }}>
               {user?.username?.[0]?.toUpperCase() ?? 'U'}
@@ -374,16 +373,16 @@ export default function Sidebar({ mobileOpen, onClose, onOpenMarkets }: SidebarP
               <p style={{ fontSize: 12, fontWeight: 600, color: '#f0f0f0', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.username}</p>
               <div className="flex items-center gap-1.5 mt-0.5">
                 <span className="w-1.5 h-1.5 rounded-full" style={{ background: user?.accountMode === 'real' ? '#18c98a' : '#f6b24a' }} />
-                <span style={{ fontSize: 10.5, color: 'rgba(255,255,255,0.38)' }}>{user?.accountMode === 'real' ? 'Live' : 'Demo'}</span>
+                <span style={{ fontSize: 10.5, color: 'rgba(247,242,230,0.38)' }}>{user?.accountMode === 'real' ? 'Live' : 'Demo'}</span>
               </div>
             </div>
-            <ChevronDown size={12} strokeWidth={2.5} color="rgba(255,255,255,0.28)"
+            <ChevronDown size={12} strokeWidth={2.5} color="rgba(247,242,230,0.28)"
               style={{ flexShrink: 0, transition: 'transform 0.2s', transform: profileOpen ? 'rotate(180deg)' : 'none' }} />
           </button>
         ) : (
           <button onClick={() => setProfileOpen(o => !o)} title={user?.username ?? 'Profile'}
             className="w-full flex items-center justify-center py-2 rounded-xl"
-            style={{ background: 'rgba(255,255,255,0.04)' }}>
+            style={{ background: 'rgba(247,242,230,0.04)' }}>
             <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white"
                  style={{ background: 'linear-gradient(135deg,#4f8cff,#3b78f0)' }}>
               {user?.username?.[0]?.toUpperCase() ?? 'U'}
