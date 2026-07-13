@@ -20,7 +20,7 @@ type Msg = { from: 'bot' | 'user'; text: string; email?: boolean }
 const TOPICS: { q: string; a: string; email?: boolean }[] = [
   { q: 'How do I fund my account?', a: 'Open the app, go to Deposit, choose bank transfer, card or crypto, and pick an amount. Demo accounts can top up instantly with practice funds — no card needed.' },
   { q: 'Is my money safe?',         a: 'Client funds are held separately from company funds, every trade carries optional stop-loss and margin protection, and practice accounts use virtual money so you can learn risk-free first.' },
-  { q: 'I forgot my password',      a: 'On the sign-in screen tap “Forgot password?”, enter your email, and we’ll send a secure reset link. It expires after a short while for your safety.' },
+  { q: 'I can’t sign in',           a: 'If you’re signed in, you can change your password any time under Profile → Security. Locked out of your account? Email our team and we’ll help you regain access:', email: true },
   { q: 'What are the spreads & fees?', a: 'Raw Spread accounts start from 0.0 pips with a $3.50/lot commission; Standard is commission-free from 1.0 pip. No deposit, withdrawal or inactivity fees.' },
   { q: 'Talk to a human',           a: `Our team replies within a few hours. Email us and we’ll pick it up:`, email: true },
 ]

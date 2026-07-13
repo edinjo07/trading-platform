@@ -10,7 +10,6 @@ import { BrandMark } from './components/ui/BrandMark'
 // 43-page admin CRM never ships to a normal trader.
 import Layout from './components/layout/Layout'
 import LoginPage from './pages/LoginPage'
-const ResetPasswordPage = lazy(() => import('./pages/ResetPasswordPage'))
 
 // ── Public / marketing (lazy) ──
 const LandingPage        = lazy(() => import('./pages/LandingPage'))
@@ -122,7 +121,6 @@ export default function App() {
       <Suspense fallback={<PageLoader />}>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/" element={<LandingPage />} />
         <Route path="/trading-pilot" element={<TradingPilotPage />} />
         <Route path="/account-types" element={<AccountTypesPage />} />
