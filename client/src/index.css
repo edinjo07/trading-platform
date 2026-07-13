@@ -127,6 +127,12 @@ html {
 
   html, body, #root { @apply h-full; }
 
+  html {
+    /* Stop mobile browsers from inflating our carefully-scaled type */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
   body {
     background-color: var(--t-bg);
     background-image: var(--t-bg-glow);
@@ -138,7 +144,14 @@ html {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     transition: background-color 0.25s ease, color 0.25s ease;
+    /* App feel: the document itself never rubber-bands or pull-to-refreshes;
+       each screen owns its own scroll. Taps don't flash grey. */
+    overscroll-behavior: none;
+    -webkit-tap-highlight-color: transparent;
   }
+
+  /* Interactive elements: no 300ms tap delay, no grey flash */
+  button, a, [role="button"] { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 
   /* Slim dark scrollbar */
   ::-webkit-scrollbar { width: 4px; height: 4px; }
