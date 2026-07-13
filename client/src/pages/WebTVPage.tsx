@@ -4,72 +4,14 @@ import api from '../api/client'
 // ─── Live channels ────────────────────────────────────────────────────────────
 
 const LIVE_CHANNELS = [
-  {
-    id:          'bloomberg',
-    name:        'Bloomberg',
-    label:       'Bloomberg Markets',
-    tag:         'MARKETS',
-    desc:        '24/7 global market & business news',
-    channelId:   'UCIALMKvObZNtJ6AmdCLP7Lg',
-    accent:      '#f5821f',
-    watchUrl:    'https://www.bloomberg.com/live-tv',
-    logoLetter:  'B',
-  },
-  {
-    id:          'cnbc',
-    name:        'CNBC',
-    label:       'CNBC Television',
-    tag:         'US STOCKS',
-    desc:        'Markets, NYSE floor coverage & earnings',
-    channelId:   'UCrp_UI8XtuYfpiqluWLD7Lw',
-    accent:      '#0091D5',
-    watchUrl:    'https://www.cnbc.com/live-tv/',
-    logoLetter:  'C',
-  },
-  {
-    id:          'yahoo',
-    name:        'Yahoo Finance',
-    label:       'Yahoo Finance Live',
-    tag:         'FINANCE',
-    desc:        'Stocks, earnings & market analysis',
-    channelId:   'UCEAZeUIeJs0IjQiqTCdVSIg',
-    accent:      '#6001D2',
-    watchUrl:    'https://finance.yahoo.com/live/',
-    logoLetter:  'Y',
-  },
-  {
-    id:          'reuters',
-    name:        'Reuters',
-    label:       'Reuters Television',
-    tag:         'GLOBAL',
-    desc:        'Breaking financial & world news',
-    channelId:   'UChqUTb7kYRX8-EiaN3XFrSQ',
-    accent:      '#ff6600',
-    watchUrl:    'https://www.reuters.com/video/live',
-    logoLetter:  'R',
-  },
-  {
-    id:          'foxbiz',
-    name:        'Fox Business',
-    label:       'Fox Business Network',
-    tag:         'US BUSINESS',
-    desc:        'US business, economy & policy',
-    channelId:   'UCF9IOB2TExg3QIBupFtBDxg',
-    accent:      '#1a56db',
-    watchUrl:    'https://www.foxbusiness.com/live',
-    logoLetter:  'F',
-  },
-  {
-    id:          'aljazeera',
-    name:        'Al Jazeera',
-    label:       'Al Jazeera English',
-    tag:         'WORLD NEWS',
-    desc:        'Global news, economics & markets',
-    channelId:   'UCNye-wNBqNL5ZzHSJdde38g',
-    accent:      '#c41920',
-    watchUrl:    'https://www.aljazeera.com/live/',
-    logoLetter:  'A',
-  },
+  { id:"bloomberg", name:"Bloomberg",      label:"Bloomberg Television",  tag:"MARKETS",  desc:"24/7 global markets & business",   channelId:"UCIALMKvObZNtJ6AmdCLP7Lg", accent:"#f5821f", watchUrl:"https://www.youtube.com/@markets/live",         logoLetter:"B"  },
+  { id:"yahoo",     name:"Yahoo Finance",  label:"Yahoo Finance Live",    tag:"FINANCE",  desc:"Stocks, earnings & market analysis", channelId:"UCEAZeUIeJs0IjQiqTCdVSIg", accent:"#6001d2", watchUrl:"https://www.youtube.com/@YahooFinance/live",    logoLetter:"Y"  },
+  { id:"schwab",    name:"Schwab Network", label:"Schwab Network",        tag:"TRADING",  desc:"All-day markets & trading coverage", channelId:"UCqoSrYgusd8ZddtMoWhjHYA", accent:"#00a0df", watchUrl:"https://www.youtube.com/@SchwabNetwork/live",   logoLetter:"S"  },
+  { id:"cnbc",      name:"CNBC",           label:"CNBC Television",       tag:"US STOCKS",desc:"US markets, earnings & business",   channelId:"UCvJJ_dzjViJCoLf5uKUTwoA", accent:"#0079c1", watchUrl:"https://www.youtube.com/@CNBC/live",            logoLetter:"C"  },
+  { id:"cheddar",   name:"Cheddar",        label:"Cheddar Business",      tag:"BUSINESS", desc:"Business, markets & tech news",     channelId:"UC04KsGq3npibMCE9Td3mVDg", accent:"#f5b800", watchUrl:"https://www.youtube.com/@cheddar/live",         logoLetter:"Cd" },
+  { id:"cna",       name:"CNA",            label:"CNA (Channel NewsAsia)",tag:"ASIA",     desc:"Asian markets & world business",    channelId:"UC83jt4dlz1Gjl58fzQrrKZg", accent:"#cc0000", watchUrl:"https://www.youtube.com/@channelnewsasia/live", logoLetter:"NA" },
+  { id:"sky",       name:"Sky News",       label:"Sky News",              tag:"WORLD",    desc:"World news & market headlines",     channelId:"UCoMdktPbSTixAyNGwb-UYkQ", accent:"#d81921", watchUrl:"https://www.youtube.com/@SkyNews/live",         logoLetter:"Sk" },
+  { id:"dw",        name:"DW News",        label:"DW News",               tag:"GLOBAL",   desc:"Global news & economics",           channelId:"UCknLrEdhRCp1aegoMqRaCZg", accent:"#00a5dc", watchUrl:"https://www.youtube.com/@dwnews/live",          logoLetter:"DW" },
 ] as const
 
 type ChannelId = typeof LIVE_CHANNELS[number]['id']
@@ -417,7 +359,7 @@ export default function WebTVPage() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, paddingTop: 8, borderTop: '1px solid #111' }}>
           <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#ff5a72', animation: 'tv-pulse 2s infinite' }}/>
           <span style={{ fontSize: 10.5, color: '#6e6353' }}>
-            Live streams: Bloomberg · CNBC · Yahoo Finance · Reuters · Fox Business · Al Jazeera · On-demand: Trading Central
+            Live streams: Bloomberg · Yahoo Finance · Schwab Network · CNBC · Cheddar · CNA · Sky News · DW · On-demand: Trading Central
           </span>
         </div>
       </div>
