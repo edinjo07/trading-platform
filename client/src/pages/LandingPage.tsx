@@ -441,6 +441,85 @@ function MarketsBoard({ tickers, meta, go }: {
   )
 }
 
+/* ── "Trade major companies" — a CSS-3D scene of floating brand logos ──────── */
+
+const COMPANIES = [
+  { sym: 'AAPL', name: 'Apple',     domain: 'apple.com',     x: 50, y: 44, z: 90,  s: 92, d: '0s'   },
+  { sym: 'NVDA', name: 'NVIDIA',    domain: 'nvidia.com',    x: 16, y: 20, z: 40,  s: 74, d: '0.6s' },
+  { sym: 'TSLA', name: 'Tesla',     domain: 'tesla.com',     x: 84, y: 24, z: 30,  s: 72, d: '1.1s' },
+  { sym: 'AMZN', name: 'Amazon',    domain: 'amazon.com',    x: 20, y: 76, z: 20,  s: 66, d: '1.6s' },
+  { sym: 'MSFT', name: 'Microsoft', domain: 'microsoft.com', x: 82, y: 74, z: 55,  s: 70, d: '0.3s' },
+  { sym: 'GOOGL',name: 'Google',    domain: 'google.com',    x: 50, y: 90, z: 10,  s: 60, d: '1.9s' },
+  { sym: 'META', name: 'Meta',      domain: 'meta.com',      x: 88, y: 50, z: 70,  s: 58, d: '0.9s' },
+]
+
+function CompaniesScene({ tickers, go }: { tickers: Record<string, Ticker>; go: () => void }) {
+  const stageRef = useRef<HTMLDivElement>(null)
+  const BASE = 'rotateY(-15deg) rotateX(8deg)'
+
+  const onMove = (e: React.MouseEvent) => {
+    const el = stageRef.current
+    if (!el) return
+    const r = el.getBoundingClientRect()
+    const px = (e.clientX - r.left) / r.width - 0.5
+    const py = (e.clientY - r.top) / r.height - 0.5
+    el.style.transform = `rotateY(${-15 + px * 22}deg) rotateX(${8 - py * 20}deg)`
+  }
+  const onLeave = () => { if (stageRef.current) stageRef.current.style.transform = BASE }
+
+  return (
+    <div
+      className="lx-scene"
+      onMouseMove={onMove}
+      onMouseLeave={onLeave}
+      style={{ perspective: '1400px', width: '100%', minHeight: 420, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+    >
+      <div ref={stageRef} className="lx-stage" style={{
+        position: 'relative', width: 'min(440px, 88vw)', height: 400,
+        transformStyle: 'preserve-3d', transform: BASE, transition: 'transform 0.25s ease-out',
+      }}>
+        {/* soft radial floor glow */}
+        <div style={{
+          position: 'absolute', inset: '18% -10% -14% -10%', borderRadius: '50%', filter: 'blur(60px)',
+          background: 'radial-gradient(50% 60% at 50% 50%, rgba(242,184,75,0.16), rgba(111,157,255,0.06) 60%, transparent 80%)',
+          transform: 'translateZ(-40px)', pointerEvents: 'none',
+        }} />
+        {COMPANIES.map(c => {
+          const t = tickers[c.sym]
+          const up = (t?.changePercent ?? 0) >= 0
+          const pct = t ? `${up ? '+' : ''}${t.changePercent.toFixed(2)}%` : null
+          return (
+            <div key={c.sym} style={{
+              position: 'absolute', left: `${c.x}%`, top: `${c.y}%`,
+              transform: `translate(-50%,-50%) translateZ(${c.z}px)`, transformStyle: 'preserve-3d',
+            }}>
+              <button onClick={go} className="lx-float lx-chip" style={{ animationDelay: c.d, width: c.s, cursor: 'pointer', border: 'none', background: 'none', padding: 0 }}>
+                <div style={{
+                  width: c.s, height: c.s, borderRadius: c.s * 0.26,
+                  background: 'linear-gradient(180deg, #ffffff 0%, #eceaf0 100%)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  boxShadow: `0 ${c.z * 0.4 + 10}px ${c.z * 0.6 + 26}px rgba(6,4,4,0.55), inset 0 1px 0 rgba(255,255,255,0.9)`,
+                }}>
+                  <img src={`https://icons.duckduckgo.com/ip3/${c.domain}.ico`} alt={c.name} loading="lazy"
+                       style={{ width: '58%', height: '58%', objectFit: 'contain' }} />
+                </div>
+                {pct && (
+                  <div style={{
+                    position: 'absolute', bottom: -10, left: '50%', transform: 'translateX(-50%)',
+                    fontSize: 10.5, fontWeight: 800, fontFamily: MONO, padding: '2px 7px', borderRadius: 999,
+                    whiteSpace: 'nowrap', color: up ? '#0c2a1e' : '#3a0f16',
+                    background: up ? BULL : BEAR, boxShadow: '0 4px 12px rgba(6,4,4,0.4)',
+                  }}>{pct}</div>
+                )}
+              </button>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
 /* ── The page ─────────────────────────────────────────────────────────────── */
 
 export default function LandingPage() {
@@ -936,6 +1015,48 @@ export default function LandingPage() {
               go={go}
             />
           </div>
+        </div>
+      </section>
+
+      {/* ══ Trade major companies — CSS-3D logo scene ══ */}
+      <section id="companies" style={{
+        background: `radial-gradient(900px 500px at 82% 30%, rgba(111,157,255,0.06), transparent 60%), #171212`,
+        padding: 'clamp(64px, 8vw, 100px) clamp(18px, 4vw, 44px)',
+        borderTop: `1px solid ${HAIR}`, borderBottom: `1px solid ${HAIR}`, overflow: 'hidden',
+      }}>
+        <style>{`
+          @keyframes lx-float { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-12px) } }
+          .lx-float { animation: lx-float 5.5s ease-in-out infinite }
+          .lx-chip { transition: filter 0.18s ease }
+          .lx-chip:hover { filter: brightness(1.06) }
+          @media (prefers-reduced-motion: reduce) { .lx-float { animation: none } .lx-stage { transition: none } }
+        `}</style>
+        <div className="lx-psplit" style={{ maxWidth: 1280, margin: '0 auto' }}>
+          <div>
+            <Eyebrow>Stocks &amp; shares</Eyebrow>
+            <H2>Trade the companies you know.</H2>
+            <p style={{ fontSize: 16.5, lineHeight: 1.75, color: BODY, margin: '0 0 14px', maxWidth: 500 }}>
+              Apple, Tesla, NVIDIA, Amazon and hundreds more of the world's biggest names,
+              all on one account. Go long when you believe, short when you don't.
+            </p>
+            <p style={{ fontSize: 16.5, lineHeight: 1.75, color: BODY, margin: '0 0 30px', maxWidth: 500 }}>
+              Fractional sizing, tight spreads and leverage up to 1:20 on shares, so a
+              headline name is never out of reach.
+            </p>
+            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
+              <GoldBtn onClick={go} big>Trade stocks now</GoldBtn>
+              <LineBtn onClick={() => jump('markets')} big>Browse all markets</LineBtn>
+            </div>
+            <div style={{ display: 'flex', gap: 'clamp(20px,3vw,40px)', flexWrap: 'wrap', marginTop: 34 }}>
+              {[['250+', 'US & global shares'], ['1:20', 'leverage on stocks'], ['0', 'commission tiers']].map(([v, l]) => (
+                <div key={l}>
+                  <div style={{ fontFamily: MONO, fontSize: 21, fontWeight: 700, color: IVORY }}>{v}</div>
+                  <div style={{ fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: DIM, marginTop: 3 }}>{l}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <CompaniesScene tickers={tickers} go={go} />
         </div>
       </section>
 
