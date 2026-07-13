@@ -2,6 +2,7 @@
 import { authenticate, AuthRequest } from '../middleware/auth'
 import { getSentiment, getBloombergNews, getEconomicCalendar, getMacroNews } from '../services/newsService'
 import { getNewsImpact } from '../services/newsImpactService'
+import { getLiveVideoId } from '../services/webtvService'
 
 const router = Router()
 
@@ -32,6 +33,17 @@ router.get('/macro', authenticate, async (_req, res) => {
     res.json(news)
   } catch (err: unknown) {
     res.status(500).json({ error: err instanceof Error ? err.message : 'Failed' })
+  }
+})
+
+/** GET /api/news/webtv/:channelId — resolve a channel's current live video id */
+router.get('/webtv/:channelId', authenticate, async (req, res) => {
+  try {
+    const channelId = String(req.params.channelId).replace(/[^\w-]/g, '')
+    if (!channelId) { res.status(400).json({ videoId: null, isLive: false }); return }
+    res.json(await getLiveVideoId(channelId))
+  } catch (err: unknown) {
+    res.status(200).json({ videoId: null, isLive: false })
   }
 })
 

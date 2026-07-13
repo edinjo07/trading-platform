@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
+import api from '../api/client'
 
 // ─── Live channels ────────────────────────────────────────────────────────────
 
@@ -109,71 +110,96 @@ function timeAgoShort(mins: number) {
 
 // ─── Live player ──────────────────────────────────────────────────────────────
 
+type LiveState = { status: 'loading' | 'live' | 'offline'; videoId: string | null }
+
 function LivePlayer({ channel }: { channel: typeof LIVE_CHANNELS[number] }) {
-  const [showFallback, setShowFallback] = useState(false)
-  const iframeRef = useRef<HTMLIFrameElement>(null)
+  const [live, setLive] = useState<LiveState>({ status: 'loading', videoId: null })
 
-  // Show fallback if iframe doesn't respond in 8 seconds
+  // Resolve the channel's *current* live video id from our backend (YouTube
+  // killed the old channel-based live embed). Re-resolve on channel switch.
   useEffect(() => {
-    setShowFallback(false)
-    const t = setTimeout(() => setShowFallback(true), 8_000)
-    return () => clearTimeout(t)
-  }, [channel.id])
+    let dead = false
+    setLive({ status: 'loading', videoId: null })
+    api.get<{ videoId: string | null; isLive: boolean }>(`/news/webtv/${channel.channelId}`)
+      .then(({ data }) => {
+        if (dead) return
+        setLive(data.videoId
+          ? { status: 'live', videoId: data.videoId }
+          : { status: 'offline', videoId: null })
+      })
+      .catch(() => { if (!dead) setLive({ status: 'offline', videoId: null }) })
+    return () => { dead = true }
+  }, [channel.id, channel.channelId])
 
-  const embedUrl = `https://www.youtube.com/embed/live_stream?channel=${channel.channelId}&autoplay=1&rel=0&modestbranding=1`
+  const embedUrl = live.videoId
+    ? `https://www.youtube.com/embed/${live.videoId}?autoplay=1&rel=0&modestbranding=1`
+    : null
 
   return (
-    <div style={{ position: 'relative', width: '100%', borderRadius: 16, overflow: 'hidden', background: '#111', border: `1px solid rgba(255,255,255,0.07)` }}>
+    <div style={{ position: 'relative', width: '100%', borderRadius: 16, overflow: 'hidden', background: '#1c1717', border: `1px solid rgba(242,184,75,0.1)` }}>
       {/* 16:9 player */}
-      <div style={{ position: 'relative', paddingTop: '56.25%' }}>
-        <iframe
-          ref={iframeRef}
-          key={channel.id}
-          src={embedUrl}
-          title={channel.label}
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
-          allowFullScreen
-          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 'none', display: 'block' }}
-        />
-        {/* Gradient overlay at top for LIVE badge */}
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 48, background: 'linear-gradient(to bottom, rgba(0,0,0,0.7), transparent)', pointerEvents: 'none' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 12px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '3px 9px', borderRadius: 6, background: '#ff5a72' }}>
-              <div style={{ width: 5, height: 5, borderRadius: '50%', background: '#fff', animation: 'tv-pulse 1.5s ease-in-out infinite' }}/>
-              <span style={{ fontSize: 10.5, fontWeight: 900, color: '#fff', letterSpacing: '0.08em' }}>LIVE</span>
+      <div style={{ position: 'relative', paddingTop: '56.25%', background: '#0f0b0b' }}>
+        {embedUrl ? (
+          <iframe
+            key={live.videoId!}
+            src={embedUrl}
+            title={channel.label}
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+            allowFullScreen
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 'none', display: 'block' }}
+          />
+        ) : (
+          /* Loading / offline placeholder */
+          <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12, padding: 20, textAlign: 'center' }}>
+            <div style={{ width: 46, height: 46, borderRadius: 12, background: channel.accent, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: 20, color: '#fff' }}>
+              {channel.logoLetter}
             </div>
-            <span style={{ fontSize: 12, fontWeight: 700, color: '#fff', textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}>{channel.label}</span>
+            {live.status === 'loading' ? (
+              <span style={{ fontSize: 13, color: '#c9bcae', fontWeight: 600 }}>Finding {channel.name}'s live stream…</span>
+            ) : (
+              <>
+                <span style={{ fontSize: 13.5, color: '#f7f2e6', fontWeight: 700 }}>{channel.name} isn't live right now</span>
+                <a href={channel.watchUrl} target="_blank" rel="noopener noreferrer"
+                   style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '9px 18px', borderRadius: 10, background: 'linear-gradient(120deg,#f9d98c,#dd9c2f)', color: '#221503', fontSize: 12.5, fontWeight: 800, textDecoration: 'none' }}>
+                  Watch on {channel.name}
+                  <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/></svg>
+                </a>
+              </>
+            )}
           </div>
-        </div>
+        )}
+        {/* Gradient overlay at top for LIVE badge (only when actually live) */}
+        {embedUrl && (
+          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 48, background: 'linear-gradient(to bottom, rgba(0,0,0,0.7), transparent)', pointerEvents: 'none' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 12px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '3px 9px', borderRadius: 6, background: '#ff5a72' }}>
+                <div style={{ width: 5, height: 5, borderRadius: '50%', background: '#fff', animation: 'tv-pulse 1.5s ease-in-out infinite' }}/>
+                <span style={{ fontSize: 10.5, fontWeight: 900, color: '#fff', letterSpacing: '0.08em' }}>LIVE</span>
+              </div>
+              <span style={{ fontSize: 12, fontWeight: 700, color: '#fff', textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}>{channel.label}</span>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Channel info bar */}
-      <div style={{ padding: '12px 14px', background: '#111', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+      <div style={{ padding: '12px 14px', background: '#1c1717', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           {/* Channel logo */}
           <div style={{ width: 36, height: 36, borderRadius: 10, background: channel.accent, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontWeight: 900, fontSize: 16, color: '#fff' }}>
             {channel.logoLetter}
           </div>
           <div>
-            <div style={{ fontSize: 13, fontWeight: 800, color: '#fff' }}>{channel.name}</div>
-            <div style={{ fontSize: 12, color: '#4b5563' }}>{channel.desc}</div>
+            <div style={{ fontSize: 13, fontWeight: 800, color: '#f7f2e6' }}>{channel.name}</div>
+            <div style={{ fontSize: 12, color: '#8d7d6a' }}>{channel.desc}</div>
           </div>
         </div>
         <a href={channel.watchUrl} target="_blank" rel="noopener noreferrer"
-           style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 12px', borderRadius: 10, background: '#1a1a1a', border: '1px solid #2d2d2d', color: '#6b7280', fontSize: 12, fontWeight: 700, textDecoration: 'none', flexShrink: 0 }}>
+           style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 12px', borderRadius: 10, background: 'rgba(242,184,75,0.08)', border: '1px solid rgba(242,184,75,0.2)', color: '#f2b84b', fontSize: 12, fontWeight: 700, textDecoration: 'none', flexShrink: 0 }}>
           Open Live
           <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/></svg>
         </a>
       </div>
-
-      {/* Fallback notice after timeout */}
-      {showFallback && (
-        <div style={{ padding: '8px 14px 14px', background: '#111', borderTop: '1px solid #1a1a1a' }}>
-          <p style={{ fontSize: 12, color: '#374151', margin: 0, lineHeight: 1.5 }}>
-            If the stream doesn't load, click "Open Live" to watch on {channel.name}'s website. Some channels restrict embedding.
-          </p>
-        </div>
-      )}
     </div>
   )
 }
@@ -185,11 +211,11 @@ function VideoCard({ video, onTap }: { video: typeof VIDEOS[0]; onTap: () => voi
   return (
     <button onClick={onTap} style={{
       flexShrink: 0, width: 'calc(65vw - 16px)', maxWidth: 240, minWidth: 180,
-      borderRadius: 14, background: '#111', border: '1px solid rgba(255,255,255,0.06)',
+      borderRadius: 14, background: '#1c1717', border: '1px solid rgba(255,255,255,0.06)',
       padding: 0, textAlign: 'left', cursor: 'pointer', overflow: 'hidden', display: 'flex', flexDirection: 'column',
     }}>
       {/* Thumbnail */}
-      <div style={{ position: 'relative', width: '100%', paddingTop: '56.25%', background: '#1a1a1a', flexShrink: 0 }}>
+      <div style={{ position: 'relative', width: '100%', paddingTop: '56.25%', background: '#241d1d', flexShrink: 0 }}>
         <img src={`https://img.youtube.com/vi/${video.youtubeId}/mqdefault.jpg`} alt={video.title} loading="lazy"
              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
              onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}/>
@@ -214,7 +240,7 @@ function VideoCard({ video, onTap }: { video: typeof VIDEOS[0]; onTap: () => voi
           {video.title}
         </p>
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 6 }}>
-          <span style={{ fontSize: 10.5, color: '#374151' }}>{video.source}</span>
+          <span style={{ fontSize: 10.5, color: '#6e6353' }}>{video.source}</span>
         </div>
       </div>
     </button>
@@ -233,15 +259,15 @@ function VideoSheet({ video, onClose }: { video: typeof VIDEOS[0]; onClose: () =
       <div onClick={e => e.stopPropagation()}
            onTouchStart={e => { touchY.current = e.touches[0].clientY }}
            onTouchEnd={e => { if (e.changedTouches[0].clientY - touchY.current > 80) onClose() }}
-           style={{ width: '100%', maxHeight: '92dvh', background: '#111', borderRadius: '20px 20px 0 0', overflow: 'hidden', display: 'flex', flexDirection: 'column', animation: 'tv-slideUp 0.25s ease-out' }}>
+           style={{ width: '100%', maxHeight: '92dvh', background: '#1c1717', borderRadius: '20px 20px 0 0', overflow: 'hidden', display: 'flex', flexDirection: 'column', animation: 'tv-slideUp 0.25s ease-out' }}>
 
         {/* Drag handle */}
         <div style={{ display: 'flex', justifyContent: 'center', paddingTop: 10, flexShrink: 0 }}>
-          <div style={{ width: 36, height: 4, borderRadius: 2, background: '#2d2d2d' }}/>
+          <div style={{ width: 36, height: 4, borderRadius: 2, background: '#2e2525' }}/>
         </div>
 
         {/* YouTube embed */}
-        <div style={{ position: 'relative', paddingTop: '56.25%', background: '#000', flexShrink: 0 }}>
+        <div style={{ position: 'relative', paddingTop: '56.25%', background: '#141010', flexShrink: 0 }}>
           <iframe
             src={`https://www.youtube.com/embed/${video.youtubeId}?autoplay=1&rel=0&modestbranding=1`}
             title={video.title}
@@ -255,9 +281,9 @@ function VideoSheet({ video, onClose }: { video: typeof VIDEOS[0]; onClose: () =
           {/* Category + source */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
             <span style={{ fontSize: 10.5, fontWeight: 800, padding: '2px 8px', borderRadius: 6, background: `${color}18`, color, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{video.cat}</span>
-            <span style={{ fontSize: 12, color: '#374151' }}>{video.source}</span>
-            <span style={{ fontSize: 12, color: '#1f2937' }}>·</span>
-            <span style={{ fontSize: 12, color: '#374151' }}>{video.duration}</span>
+            <span style={{ fontSize: 12, color: '#6e6353' }}>{video.source}</span>
+            <span style={{ fontSize: 12, color: '#6e6353' }}>·</span>
+            <span style={{ fontSize: 12, color: '#6e6353' }}>{video.duration}</span>
           </div>
           <h2 style={{ fontSize: 18, fontWeight: 800, color: '#fff', margin: '0 0 12px', lineHeight: 1.35 }}>{video.title}</h2>
         </div>
@@ -268,7 +294,7 @@ function VideoSheet({ video, onClose }: { video: typeof VIDEOS[0]; onClose: () =
             <svg width="18" height="18" viewBox="0 0 24 24" fill="#ff0000"><path d="M23.5 6.2s-.2-1.6-.9-2.3c-.9-.9-1.9-.9-2.3-.9C17.1 2.8 12 2.8 12 2.8s-5.1 0-8.3.2c-.4 0-1.4 0-2.3.9-.7.7-.9 2.3-.9 2.3S.2 8 .2 9.8v1.7c0 1.8.3 3.6.3 3.6s.2 1.6.9 2.3c.9.9 2.1.9 2.6.9C5.7 18.5 12 18.5 12 18.5s5.1 0 8.3-.2c.4 0 1.4 0 2.3-.9.7-.7.9-2.3.9-2.3s.3-1.8.3-3.6V9.8c0-1.8-.3-3.6-.3-3.6zM9.7 14.1V7.8l6.3 3.2-6.3 3.1z"/></svg>
             Watch on YouTube
           </a>
-          <button onClick={onClose} style={{ width: '100%', padding: '12px 0', borderRadius: 14, background: '#1a1a1a', border: '1px solid #2d2d2d', color: '#6b7280', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>Close</button>
+          <button onClick={onClose} style={{ width: '100%', padding: '12px 0', borderRadius: 14, background: '#241d1d', border: '1px solid #2d2d2d', color: '#8d7d6a', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>Close</button>
         </div>
       </div>
     </div>
@@ -290,7 +316,7 @@ export default function WebTVPage() {
   const secondary = filtered.slice(8)
 
   return (
-    <div style={{ background: '#000', minHeight: '100%', paddingBottom: 40 }}>
+    <div style={{ background: '#141010', minHeight: '100%', paddingBottom: 40 }}>
       <style>{`
         @keyframes tv-pulse   { 0%,100%{opacity:1} 50%{opacity:0.4} }
         @keyframes tv-slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
@@ -298,7 +324,7 @@ export default function WebTVPage() {
       `}</style>
 
       {/* ── Sticky top bar ──────────────────────────────────────────────── */}
-      <div style={{ position: 'sticky', top: 0, zIndex: 20, background: 'rgba(0,0,0,0.92)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', padding: '12px 16px 0' }}>
+      <div style={{ position: 'sticky', top: 0, zIndex: 20, background: 'rgba(20,16,16,0.92)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', padding: '12px 16px 0' }}>
         {/* Title */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
           <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#fff" strokeWidth={2}><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3H8M12 3v4"/><polygon points="10 11 16 14 10 17 10 11" fill="#fff" stroke="none"/></svg>
@@ -317,11 +343,11 @@ export default function WebTVPage() {
               <button key={ch.id} onClick={() => setActiveChannel(ch.id as ChannelId)} style={{
                 flexShrink: 0, display: 'flex', alignItems: 'center', gap: 6,
                 padding: '7px 14px', borderRadius: 20, cursor: 'pointer', border: 'none', transition: 'all 0.15s',
-                background: isActive ? '#fff' : '#1a1a1a',
-                color:      isActive ? '#000' : '#6b7280',
+                background: isActive ? '#f2b84b' : '#241d1d',
+                color:      isActive ? '#221503' : '#8d7d6a',
                 fontSize: 12, fontWeight: 700,
               }}>
-                <div style={{ width: 18, height: 18, borderRadius: 5, background: isActive ? ch.accent : '#2d2d2d', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10.5, fontWeight: 900, color: '#fff', flexShrink: 0, transition: 'all 0.15s' }}>
+                <div style={{ width: 18, height: 18, borderRadius: 5, background: isActive ? ch.accent : '#2e2525', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10.5, fontWeight: 900, color: '#fff', flexShrink: 0, transition: 'all 0.15s' }}>
                   {ch.logoLetter}
                 </div>
                 {ch.name}
@@ -356,8 +382,8 @@ export default function WebTVPage() {
             return (
               <button key={cat} onClick={() => setVideoCat(cat)} style={{
                 flexShrink: 0, padding: '6px 14px', borderRadius: 20, fontSize: 12, fontWeight: 700, cursor: 'pointer', border: 'none', transition: 'all 0.15s',
-                background: isActive ? '#fff' : '#1a1a1a',
-                color:      isActive ? '#000' : '#6b7280',
+                background: isActive ? '#f2b84b' : '#241d1d',
+                color:      isActive ? '#221503' : '#8d7d6a',
               }}>{cat}</button>
             )
           })}
@@ -390,7 +416,7 @@ export default function WebTVPage() {
         {/* Footer attribution */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, paddingTop: 8, borderTop: '1px solid #111' }}>
           <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#ff5a72', animation: 'tv-pulse 2s infinite' }}/>
-          <span style={{ fontSize: 10.5, color: '#1f2937' }}>
+          <span style={{ fontSize: 10.5, color: '#6e6353' }}>
             Live streams: Bloomberg · CNBC · Yahoo Finance · Reuters · Fox Business · Al Jazeera · On-demand: Trading Central
           </span>
         </div>
