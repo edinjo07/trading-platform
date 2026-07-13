@@ -116,7 +116,7 @@ function MoverRow({ symbol, name, assetClass, onClick, last }: { symbol: string;
   const pts = useMemo(() => seedSparkline(symbol, up), [symbol, up])
   return (
     <button onClick={onClick}
-      style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '11px 0', background: 'none', border: 'none', cursor: 'pointer', width: '100%', borderBottom: last ? 'none' : '1px solid rgba(174,166,186,0.08)' }}>
+      style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '11px 0', background: 'none', border: 'none', cursor: 'pointer', width: '100%', borderBottom: last ? 'none' : '1px solid rgba(214,196,170,0.08)' }}>
       <AssetIcon symbol={symbol} assetClass={assetClass ?? 'stock'} size={38} />
       <div style={{ flex: 1, textAlign: 'left', minWidth: 0 }}>
         <p style={{ fontSize: 13, fontWeight: 700, color: S.text1, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{name}</p>
@@ -126,9 +126,9 @@ function MoverRow({ symbol, name, assetClass, onClick, last }: { symbol: string;
         <polyline points={pts} fill="none" stroke={up ? S.bull : S.bear} strokeWidth={1.5} strokeLinejoin="round" strokeLinecap="round"/>
       </svg>
       <div style={{ textAlign: 'right', minWidth: 70 }}>
-        <p style={{ fontSize: 13, fontWeight: 700, color: S.text1, margin: 0, fontFamily: 'ui-monospace,monospace' }}>{t ? formatPrice(t.price, symbol) : ', '}</p>
+        <p style={{ fontSize: 13, fontWeight: 700, color: S.text1, margin: 0, fontFamily: 'ui-monospace,monospace' }}>{t ? formatPrice(t.price, symbol) : '—'}</p>
         <p style={{ fontSize: 12, fontWeight: 600, color: up ? S.bull : S.bear, margin: 0, fontFamily: 'ui-monospace,monospace' }}>
-          {t ? (up ? '+' : '') + t.changePercent.toFixed(2) + '%' : ', '}
+          {t ? (up ? '+' : '') + t.changePercent.toFixed(2) + '%' : '—'}
         </p>
       </div>
     </button>
@@ -146,7 +146,7 @@ function TradedTile({ symbol, name, assetClass, onClick }: { symbol: string; nam
       <AssetIcon symbol={symbol} assetClass={assetClass ?? 'stock'} size={42} />
       <p style={{ fontSize: 12, fontWeight: 700, color: S.text1, margin: 0, textAlign: 'center', lineHeight: 1.2 }}>{name.split('/')[0]}</p>
       <p style={{ fontSize: 10.5, fontWeight: 700, color: up ? S.bull : S.bear, margin: 0, fontFamily: 'ui-monospace,monospace' }}>
-        {t ? (up ? '+' : '') + t.changePercent.toFixed(2) + '%' : ', '}
+        {t ? (up ? '+' : '') + t.changePercent.toFixed(2) + '%' : '—'}
       </p>
     </button>
   )
@@ -324,7 +324,7 @@ export default function DashboardPage() {
 
   return (
     <div className="h-full overflow-y-auto" style={{ background: 'transparent' }}>
-      <div style={{ maxWidth: 1240, margin: '0 auto', padding: '28px 20px 110px' }}>
+      <div style={{ maxWidth: 1240, margin: '0 auto', padding: '24px clamp(14px, 4vw, 20px) 120px' }}>
 
         {/* ── Greeting ─────────────────────────────────────────────────────── */}
         <div style={{ marginBottom: 28 }}>
@@ -611,7 +611,7 @@ export default function DashboardPage() {
 
       {/* ════════════ Account switcher / creator bottom sheet ════════════ */}
       {showSwitcher && (
-        <div onClick={closeSwitcher} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.72)', zIndex: 1000, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
+        <div onClick={closeSwitcher} style={{ position: 'fixed', inset: 0, background: 'rgba(6,4,4,0.72)', zIndex: 1000, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
           <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: 480, background: 'var(--sheet)', borderRadius: '22px 22px 0 0', padding: '16px 16px 40px', maxHeight: '85vh', overflowY: 'auto' }}>
             <div style={{ width: 36, height: 4, borderRadius: 2, background: 'rgba(var(--ink),0.18)', margin: '0 auto 20px' }} />
 
@@ -723,7 +723,7 @@ export default function DashboardPage() {
                   <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ color: 'rgba(var(--ink),0.4)' }} strokeWidth={1.8}><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                   <span style={{ fontSize: 12, color: 'rgba(var(--ink),0.4)' }}>{createMode === 'demo' ? 'Demo accounts start with $100,000 practice balance' : 'Real accounts require a deposit after creation'}</span>
                 </div>
-                {createError && <div style={{ background: 'rgba(220,56,38,0.1)', border: '1px solid rgba(220,56,38,0.25)', borderRadius: 10, padding: '10px 14px', marginBottom: 12, fontSize: 12, color: '#ff6b6b' }}>{createError}</div>}
+                {createError && <div style={{ background: 'rgba(220,56,38,0.1)', border: '1px solid rgba(220,56,38,0.25)', borderRadius: 10, padding: '10px 14px', marginBottom: 12, fontSize: 12, color: '#ff7080' }}>{createError}</div>}
                 <button onClick={handleCreateAccount} disabled={creating}
                   style={{ width: '100%', padding: 14, borderRadius: 14, background: creating ? 'rgba(79,140,255,0.4)' : '#4f8cff', color: '#fff', fontSize: 14, fontWeight: 700, cursor: creating ? 'not-allowed' : 'pointer', border: 'none' }}>
                   {creating ? 'Creating…' : 'Create Account'}
@@ -736,7 +736,7 @@ export default function DashboardPage() {
 
       {/* ════════════ Deposit bottom sheet ════════════ */}
       {showDeposit && (
-        <div onClick={() => setShowDeposit(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.72)', zIndex: 1000, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
+        <div onClick={() => setShowDeposit(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(6,4,4,0.72)', zIndex: 1000, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
           <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: 480, background: 'var(--sheet)', borderRadius: '22px 22px 0 0', padding: '16px 16px 48px', maxHeight: '75vh', overflowY: 'auto' }}>
             <div style={{ width: 36, height: 4, borderRadius: 2, background: 'rgba(var(--ink),0.18)', margin: '0 auto 20px' }} />
             <h3 style={{ fontSize: 18, fontWeight: 700, color: 'rgb(var(--ink))', marginBottom: 4, textAlign: 'center' }}>Deposit Funds</h3>
@@ -752,9 +752,9 @@ export default function DashboardPage() {
             </div>
             <button onClick={() => handleDeposit(100000)} disabled={depositing}
               style={{ width: '100%', padding: 14, borderRadius: 14, background: 'rgba(24,201,138,0.12)', border: '1px solid rgba(24,201,138,0.3)', color: '#18c98a', fontSize: 14, fontWeight: 700, cursor: depositing ? 'not-allowed' : 'pointer', marginBottom: 12 }}>
-              {currencySymbol(depositCurrency)}100,000, Top up to max
+              {currencySymbol(depositCurrency)}100,000 · Top up to max
             </button>
-            {depositError && <div style={{ background: 'rgba(220,56,38,0.1)', border: '1px solid rgba(220,56,38,0.25)', borderRadius: 10, padding: '10px 14px', marginBottom: 12, fontSize: 12, color: '#ff6b6b' }}>{depositError}</div>}
+            {depositError && <div style={{ background: 'rgba(220,56,38,0.1)', border: '1px solid rgba(220,56,38,0.25)', borderRadius: 10, padding: '10px 14px', marginBottom: 12, fontSize: 12, color: '#ff7080' }}>{depositError}</div>}
             <button onClick={() => setShowDeposit(false)} style={{ width: '100%', padding: 13, borderRadius: 14, background: 'rgba(var(--ink),0.05)', border: '1px solid rgba(var(--ink),0.09)', color: 'rgba(var(--ink),0.6)', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
           </div>
         </div>
