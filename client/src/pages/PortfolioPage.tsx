@@ -1,8 +1,8 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react'
+import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTradingStore } from '../store/tradingStore'
 import { useAuthStore } from '../store/authStore'
-import { formatCurrency, formatPrice, formatPnl } from '../utils/formatters'
+import { formatCurrency, formatPrice } from '../utils/formatters'
 import type { Position, Order } from '../types'
 
 // ── Theme palette (all tokens flip with light/dark) ───────────────────────────
@@ -19,11 +19,40 @@ const S = {
   warn:     'var(--t-warn)',
   accent:   'var(--t-accent)',
 }
+const GOLD   = '#f2b84b'
+const GOLD_G = 'linear-gradient(120deg, #f9d98c 0%, #f2b84b 45%, #dd9c2f 100%)'
+const MONO   = 'ui-monospace, "JetBrains Mono", monospace'
 const pnlCol = (v: number) => (v >= 0 ? S.bull : S.bear)
 const sign   = (v: number) => (v >= 0 ? '+' : '')
 
 // Distinct hues for the exposure breakdown
-const HUES = ['#4f8cff', '#8b5cf6', '#f6b24a', '#18c98a', '#ec4899', '#14b8a6', '#f43f5e', '#a3e635']
+const HUES = ['#f2b84b', '#6f9dff', '#18c98a', '#e0894a', '#a78bfa', '#14b8a6', '#ff5a72', '#a3e635']
+
+// ───────────────────────────────────────────────────────────────────────────────
+// Flash number — briefly tints on every change so live P&L feels alive
+// ───────────────────────────────────────────────────────────────────────────────
+function FlashNumber({ value, children, style }: { value: number; children: React.ReactNode; style?: React.CSSProperties }) {
+  const prev = useRef(value)
+  const [flash, setFlash] = useState<'up' | 'down' | null>(null)
+  useEffect(() => {
+    const p = prev.current
+    prev.current = value
+    if (value === p) return
+    setFlash(value > p ? 'up' : 'down')
+    const t = setTimeout(() => setFlash(null), 550)
+    return () => clearTimeout(t)
+  }, [value])
+  return (
+    <span style={{
+      ...style,
+      borderRadius: 6, padding: flash ? '1px 5px' : '1px 0', margin: flash ? '0 -5px' : 0,
+      background: flash === 'up' ? 'var(--t-bull-s)' : flash === 'down' ? 'var(--t-bear-s)' : 'transparent',
+      transition: 'background 0.5s ease, padding 0.2s ease',
+    }}>
+      {children}
+    </span>
+  )
+}
 
 // ───────────────────────────────────────────────────────────────────────────────
 // Small metric tile
@@ -34,7 +63,7 @@ function Metric({ label, value, color, mono = true, sub }: {
   return (
     <div>
       <p style={{ fontSize: 10.5, color: S.text3, margin: '0 0 4px', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 600 }}>{label}</p>
-      <p style={{ fontSize: 16, fontWeight: 700, color: color ?? S.text1, margin: 0, fontFamily: mono ? 'ui-monospace,monospace' : 'inherit', fontVariantNumeric: 'tabular-nums' }}>{value}</p>
+      <p style={{ fontSize: 16, fontWeight: 700, color: color ?? S.text1, margin: 0, fontFamily: mono ? MONO : 'inherit', fontVariantNumeric: 'tabular-nums' }}>{value}</p>
       {sub && <p style={{ fontSize: 10.5, color: S.text3, margin: '3px 0 0' }}>{sub}</p>}
     </div>
   )
@@ -48,12 +77,11 @@ function MarginGauge({ level }: { level: number | null }) {
     return (
       <div>
         <p style={{ fontSize: 10.5, color: S.text3, margin: '0 0 4px', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 600 }}>Margin Level</p>
-        <p style={{ fontSize: 16, fontWeight: 700, color: S.text2, margin: 0 }}>, </p>
+        <p style={{ fontSize: 16, fontWeight: 700, color: S.text2, margin: 0 }}>—</p>
         <p style={{ fontSize: 10.5, color: S.text3, margin: '3px 0 0' }}>No leverage in use</p>
       </div>
     )
   }
-  // Health: ≥200% comfortable, 100–200% caution, <100% danger (closeout ≤50%)
   const color = level >= 200 ? S.bull : level >= 100 ? S.warn : S.bear
   const label = level >= 200 ? 'Healthy' : level >= 100 ? 'Caution' : level > 50 ? 'At risk' : 'Closeout'
   const fill  = Math.max(4, Math.min(100, (level / 300) * 100))
@@ -63,12 +91,11 @@ function MarginGauge({ level }: { level: number | null }) {
         <p style={{ fontSize: 10.5, color: S.text3, margin: 0, textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 600 }}>Margin Level</p>
         <span style={{ fontSize: 10.5, fontWeight: 700, color }}>{label}</span>
       </div>
-      <p style={{ fontSize: 16, fontWeight: 700, color, margin: '0 0 6px', fontFamily: 'ui-monospace,monospace', fontVariantNumeric: 'tabular-nums' }}>
+      <p style={{ fontSize: 16, fontWeight: 700, color, margin: '0 0 6px', fontFamily: MONO, fontVariantNumeric: 'tabular-nums' }}>
         {level >= 1000 ? `${Math.round(level)}%` : `${level.toFixed(1)}%`}
       </p>
       <div style={{ position: 'relative', height: 5, borderRadius: 99, background: 'rgba(var(--ink),0.08)', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', inset: 0, width: `${fill}%`, background: color, borderRadius: 99, transition: 'width 0.4s ease' }} />
-        {/* 100% caution marker */}
         <div style={{ position: 'absolute', top: -2, bottom: -2, left: `${(100 / 300) * 100}%`, width: 1.5, background: 'rgba(var(--ink),0.35)' }} />
       </div>
     </div>
@@ -102,18 +129,16 @@ function ExposureCard({ positions, currency }: { positions: Position[]; currency
     <div style={{ background: S.surface, border: `1px solid ${S.border}`, borderRadius: 16, padding: 18, boxShadow: 'var(--t-shadow-sm)' }}>
       <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 14 }}>
         <p style={{ fontSize: 12, fontWeight: 700, color: S.text1, margin: 0 }}>Exposure by instrument</p>
-        <span style={{ fontSize: 12, color: S.text3, fontFamily: 'ui-monospace,monospace' }}>
+        <span style={{ fontSize: 12, color: S.text3, fontFamily: MONO }}>
           {formatCurrency(items.total, 2, currency)} notional
         </span>
       </div>
-      {/* Stacked bar */}
       <div style={{ display: 'flex', height: 10, borderRadius: 99, overflow: 'hidden', gap: 2, marginBottom: 14 }}>
         {items.rows.map(r => (
           <div key={r.symbol} title={`${r.symbol} · ${r.pct.toFixed(1)}%`}
             style={{ width: `${r.pct}%`, background: r.hue, minWidth: 3 }} />
         ))}
       </div>
-      {/* Legend */}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px 18px' }}>
         {items.rows.map(r => (
           <div key={r.symbol} style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
@@ -122,7 +147,7 @@ function ExposureCard({ positions, currency }: { positions: Position[]; currency
             <span style={{ fontSize: 10.5, fontWeight: 700, padding: '1px 6px', borderRadius: 6, color: r.side === 'long' ? S.bull : S.bear, background: r.side === 'long' ? 'var(--t-bull-s)' : 'var(--t-bear-s)' }}>
               {r.side === 'long' ? 'LONG' : 'SHORT'}
             </span>
-            <span style={{ fontSize: 12, color: S.text3, fontFamily: 'ui-monospace,monospace' }}>{r.pct.toFixed(1)}%</span>
+            <span style={{ fontSize: 12, color: S.text3, fontFamily: MONO }}>{r.pct.toFixed(1)}%</span>
           </div>
         ))}
       </div>
@@ -131,7 +156,7 @@ function ExposureCard({ positions, currency }: { positions: Position[]; currency
 }
 
 // ───────────────────────────────────────────────────────────────────────────────
-// Inline SL / TP editor (expands under a position row)
+// Inline SL / TP editor (expands under a position row / card)
 // ───────────────────────────────────────────────────────────────────────────────
 function SltpEditor({ pos, currency, onDone }: { pos: Position; currency: string; onDone: () => void }) {
   const { updatePositionSltp } = useTradingStore()
@@ -178,18 +203,18 @@ function SltpEditor({ pos, currency, onDone }: { pos: Position; currency: string
     const invalid = err !== ''
     const valid   = val.trim() !== '' && !invalid
     return (
-      <div style={{ flex: 1, minWidth: 200 }}>
+      <div style={{ flex: 1, minWidth: 150 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 5 }}>
           <span style={{ fontSize: 12, fontWeight: 700, color: accent }}>{label}</span>
           <span style={{ fontSize: 10.5, color: S.text3 }}>{hint}</span>
         </div>
         <div style={{ display: 'flex', gap: 5 }}>
-          <input type="number" value={val} onChange={e => set(e.target.value)} placeholder=", "
+          <input type="number" value={val} onChange={e => set(e.target.value)} placeholder="—"
             style={{
               flex: 1, minWidth: 0, background: 'rgba(var(--ink),0.05)',
               border: `1px solid ${invalid ? S.bear : valid ? accent : S.border}`,
               borderRadius: 9, color: S.text1, fontSize: 14, padding: '9px 12px',
-              outline: 'none', fontFamily: 'ui-monospace,monospace',
+              outline: 'none', fontFamily: MONO,
             }} />
           {val.trim() !== '' && (
             <button onClick={() => set('')} title="Remove"
@@ -201,7 +226,7 @@ function SltpEditor({ pos, currency, onDone }: { pos: Position; currency: string
         {invalid ? (
           <p style={{ fontSize: 10.5, color: S.bear, margin: '4px 0 0' }}>{err}</p>
         ) : est != null ? (
-          <p style={{ fontSize: 10.5, margin: '4px 0 0', color: pnlCol(est), fontFamily: 'ui-monospace,monospace' }}>
+          <p style={{ fontSize: 10.5, margin: '4px 0 0', color: pnlCol(est), fontFamily: MONO }}>
             est. {sign(est)}{formatCurrency(est, 2, currency)}
           </p>
         ) : null}
@@ -234,6 +259,112 @@ function SltpEditor({ pos, currency, onDone }: { pos: Position; currency: string
 }
 
 // ───────────────────────────────────────────────────────────────────────────────
+// Diverging P&L bar — entry is the centre; the fill runs toward profit or loss
+// ───────────────────────────────────────────────────────────────────────────────
+function PnlBar({ pct }: { pct: number }) {
+  const up = pct >= 0
+  const w  = Math.min(50, Math.abs(pct) * 4)   // 12.5% move fills the half
+  return (
+    <div style={{ position: 'relative', height: 6, borderRadius: 99, background: 'rgba(var(--ink),0.07)', overflow: 'hidden' }}>
+      {/* centre tick = entry */}
+      <div style={{ position: 'absolute', left: '50%', top: 0, bottom: 0, width: 1.5, background: 'rgba(var(--ink),0.28)', transform: 'translateX(-50%)', zIndex: 2 }} />
+      <div style={{
+        position: 'absolute', top: 0, bottom: 0,
+        left: up ? '50%' : `${50 - w}%`, width: `${w}%`,
+        background: up ? S.bull : S.bear, borderRadius: 99, transition: 'all 0.4s ease',
+      }} />
+    </div>
+  )
+}
+
+// ───────────────────────────────────────────────────────────────────────────────
+// Mobile position card
+// ───────────────────────────────────────────────────────────────────────────────
+function PositionCard({ pos, currency, onClose, closing, editing, onToggleEdit }: {
+  pos: Position; currency: string; onClose: (id: string) => void; closing: boolean; editing: boolean; onToggleEdit: () => void
+}) {
+  const isLong = pos.side === 'long'
+  return (
+    <div style={{ background: S.surface, border: `1px solid ${S.border}`, borderRadius: 16, overflow: 'hidden', boxShadow: 'var(--t-shadow-sm)' }}>
+      <div style={{ display: 'flex', gap: 11, padding: '14px 15px 0' }}>
+        <span style={{ width: 3, alignSelf: 'stretch', borderRadius: 99, background: isLong ? S.bull : S.bear, flexShrink: 0 }} />
+        <div style={{ flex: 1, minWidth: 0 }}>
+          {/* Title row */}
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10 }}>
+            <div style={{ minWidth: 0 }}>
+              <div style={{ fontSize: 16, fontWeight: 800, color: S.text1, letterSpacing: '-0.01em' }}>{pos.symbol}</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 2 }}>
+                <span style={{ fontSize: 10.5, fontWeight: 800, padding: '1px 7px', borderRadius: 6, color: isLong ? S.bull : S.bear, background: isLong ? 'var(--t-bull-s)' : 'var(--t-bear-s)' }}>{isLong ? 'BUY' : 'SELL'}</span>
+                {pos.leverage > 1 && <span style={{ fontSize: 10.5, fontWeight: 700, color: S.text3 }}>{pos.leverage}× leverage</span>}
+              </div>
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              <FlashNumber value={pos.unrealizedPnl} style={{ fontSize: 17, fontWeight: 800, color: pnlCol(pos.unrealizedPnl), fontFamily: MONO, fontVariantNumeric: 'tabular-nums', display: 'inline-block' }}>
+                {sign(pos.unrealizedPnl)}{formatCurrency(pos.unrealizedPnl, 2, currency)}
+              </FlashNumber>
+              <div style={{ fontSize: 12, fontWeight: 700, color: pnlCol(pos.unrealizedPnl), fontFamily: MONO }}>
+                {sign(pos.unrealizedPnlPct)}{pos.unrealizedPnlPct.toFixed(2)}%
+              </div>
+            </div>
+          </div>
+
+          {/* P&L bar */}
+          <div style={{ margin: '12px 0 10px' }}>
+            <PnlBar pct={pos.unrealizedPnlPct} />
+          </div>
+
+          {/* Stats grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 12 }}>
+            {[
+              ['Units', pos.quantity.toFixed(pos.quantity < 1 ? 4 : 2)],
+              ['Open', formatPrice(pos.avg_price, pos.symbol)],
+              ['Current', formatPrice(pos.currentPrice, pos.symbol)],
+              ['Margin', formatCurrency(pos.margin, 0, currency)],
+            ].map(([l, v]) => (
+              <div key={l}>
+                <div style={{ fontSize: 9.5, color: S.text3, textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 600 }}>{l}</div>
+                <div style={{ fontSize: 12.5, color: S.text1, fontFamily: MONO, fontVariantNumeric: 'tabular-nums', marginTop: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{v}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* SL / TP chips */}
+          {(pos.stop_loss != null || pos.take_profit != null) && (
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 12 }}>
+              {pos.stop_loss != null && (
+                <span style={{ fontSize: 10.5, fontWeight: 600, padding: '3px 8px', borderRadius: 7, background: 'var(--t-bear-s)', color: S.bear, fontFamily: MONO }}>SL {formatPrice(pos.stop_loss, pos.symbol)}</span>
+              )}
+              {pos.take_profit != null && (
+                <span style={{ fontSize: 10.5, fontWeight: 600, padding: '3px 8px', borderRadius: 7, background: 'var(--t-bull-s)', color: S.bull, fontFamily: MONO }}>TP {formatPrice(pos.take_profit, pos.symbol)}</span>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Actions */}
+      <div style={{ display: 'flex', gap: 8, padding: '0 15px 15px' }}>
+        <button onClick={onToggleEdit}
+          style={{ flex: 1, padding: '11px 0', borderRadius: 10, background: editing ? 'var(--t-accent-s)' : 'rgba(var(--ink),0.05)', border: `1px solid ${editing ? S.accent : S.border}`, color: editing ? S.accent : S.text2, fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          {pos.stop_loss != null || pos.take_profit != null ? 'Edit SL / TP' : 'Add SL / TP'}
+        </button>
+        <button disabled={closing} onClick={() => onClose(pos.id)}
+          style={{ flex: 1, padding: '11px 0', borderRadius: 10, background: 'var(--t-bear-s)', border: `1px solid ${S.bear}`, color: S.bear, fontSize: 13, fontWeight: 800, cursor: closing ? 'not-allowed' : 'pointer', opacity: closing ? 0.5 : 1 }}>
+          {closing ? 'Closing…' : `Close · ${sign(pos.unrealizedPnl)}${formatCurrency(pos.unrealizedPnl, 0, currency)}`}
+        </button>
+      </div>
+
+      {editing && (
+        <div style={{ padding: '0 15px 15px' }}>
+          <SltpEditor pos={pos} currency={currency} onDone={onToggleEdit} />
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ───────────────────────────────────────────────────────────────────────────────
 // Positions table (desktop) — horizontal scroll on narrow screens
 // ───────────────────────────────────────────────────────────────────────────────
 const COLS = '1.4fr 0.9fr 1fr 1fr 1.3fr 1fr 1.2fr auto'
@@ -243,32 +374,28 @@ const HEAD: { l: string; align?: 'right' }[] = [
   { l: 'P&L', align: 'right' }, { l: '' },
 ]
 
-function PositionsTable({ positions, currency, onClose, closingId }: {
+function PositionsTable({ positions, currency, onClose, closingId, editingId, setEditingId }: {
   positions: Position[]; currency: string; onClose: (id: string) => void; closingId: string | null
+  editingId: string | null; setEditingId: (id: string | null) => void
 }) {
-  const [editingId, setEditingId] = useState<string | null>(null)
-
-  const cell: React.CSSProperties = { fontSize: 13, color: S.text1, fontFamily: 'ui-monospace,monospace', fontVariantNumeric: 'tabular-nums', display: 'flex', alignItems: 'center' }
+  const cell: React.CSSProperties = { fontSize: 13, color: S.text1, fontFamily: MONO, fontVariantNumeric: 'tabular-nums', display: 'flex', alignItems: 'center' }
 
   return (
     <div style={{ background: S.surface, border: `1px solid ${S.border}`, borderRadius: 16, overflow: 'hidden', boxShadow: 'var(--t-shadow-sm)' }}>
       <div style={{ overflowX: 'auto' }}>
         <div style={{ minWidth: 820 }}>
-          {/* Header */}
           <div style={{ display: 'grid', gridTemplateColumns: COLS, gap: 14, padding: '12px 18px', borderBottom: `1px solid ${S.border}`, background: 'rgba(var(--ink),0.015)' }}>
             {HEAD.map((h, i) => (
               <span key={i} style={{ fontSize: 10.5, fontWeight: 700, color: S.text3, textTransform: 'uppercase', letterSpacing: '0.06em', textAlign: h.align ?? 'left' }}>{h.l}</span>
             ))}
           </div>
-          {/* Rows */}
           {positions.map((pos, idx) => {
             const isLong = pos.side === 'long'
             const closing = closingId === pos.id
             const editing = editingId === pos.id
             return (
-              <div key={pos.id} style={{ borderBottom: idx === positions.length - 1 ? 'none' : '1px solid rgba(174,166,186,0.08)' }}>
+              <div key={pos.id} style={{ borderBottom: idx === positions.length - 1 ? 'none' : '1px solid rgba(214,196,170,0.08)' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: COLS, gap: 14, padding: '13px 18px', alignItems: 'center' }}>
-                  {/* Instrument */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
                     <span style={{ width: 3, height: 26, borderRadius: 99, background: isLong ? S.bull : S.bear, flexShrink: 0 }} />
                     <div style={{ minWidth: 0 }}>
@@ -282,27 +409,24 @@ function PositionsTable({ positions, currency, onClose, closingId }: {
                   <span style={{ ...cell, justifyContent: 'flex-end' }}>{pos.quantity.toFixed(pos.quantity < 1 ? 4 : 2)}</span>
                   <span style={{ ...cell, justifyContent: 'flex-end' }}>{formatPrice(pos.avg_price, pos.symbol)}</span>
                   <span style={{ ...cell, justifyContent: 'flex-end' }}>{formatPrice(pos.currentPrice, pos.symbol)}</span>
-                  {/* SL/TP chips */}
                   <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
                     {pos.stop_loss != null && (
-                      <span style={{ fontSize: 10.5, fontWeight: 600, padding: '2px 7px', borderRadius: 7, background: 'var(--t-bear-s)', color: S.bear, fontFamily: 'ui-monospace,monospace' }}>SL {formatPrice(pos.stop_loss, pos.symbol)}</span>
+                      <span style={{ fontSize: 10.5, fontWeight: 600, padding: '2px 7px', borderRadius: 7, background: 'var(--t-bear-s)', color: S.bear, fontFamily: MONO }}>SL {formatPrice(pos.stop_loss, pos.symbol)}</span>
                     )}
                     {pos.take_profit != null && (
-                      <span style={{ fontSize: 10.5, fontWeight: 600, padding: '2px 7px', borderRadius: 7, background: 'var(--t-bull-s)', color: S.bull, fontFamily: 'ui-monospace,monospace' }}>TP {formatPrice(pos.take_profit, pos.symbol)}</span>
+                      <span style={{ fontSize: 10.5, fontWeight: 600, padding: '2px 7px', borderRadius: 7, background: 'var(--t-bull-s)', color: S.bull, fontFamily: MONO }}>TP {formatPrice(pos.take_profit, pos.symbol)}</span>
                     )}
-                    {pos.stop_loss == null && pos.take_profit == null && <span style={{ fontSize: 12, color: S.text3 }}>, </span>}
+                    {pos.stop_loss == null && pos.take_profit == null && <span style={{ fontSize: 12, color: S.text3 }}>—</span>}
                   </div>
                   <span style={{ ...cell, justifyContent: 'flex-end', color: S.text2 }}>{formatCurrency(pos.margin, 2, currency)}</span>
-                  {/* P&L */}
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-                    <span style={{ fontSize: 14, fontWeight: 700, color: pnlCol(pos.unrealizedPnl), fontFamily: 'ui-monospace,monospace', fontVariantNumeric: 'tabular-nums' }}>
+                    <FlashNumber value={pos.unrealizedPnl} style={{ fontSize: 14, fontWeight: 700, color: pnlCol(pos.unrealizedPnl), fontFamily: MONO, fontVariantNumeric: 'tabular-nums', display: 'inline-block' }}>
                       {sign(pos.unrealizedPnl)}{formatCurrency(pos.unrealizedPnl, 2, currency)}
-                    </span>
-                    <span style={{ fontSize: 12, fontWeight: 600, color: pnlCol(pos.unrealizedPnl), fontFamily: 'ui-monospace,monospace' }}>
+                    </FlashNumber>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: pnlCol(pos.unrealizedPnl), fontFamily: MONO }}>
                       {sign(pos.unrealizedPnlPct)}{pos.unrealizedPnlPct.toFixed(2)}%
                     </span>
                   </div>
-                  {/* Actions */}
                   <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
                     <button onClick={() => setEditingId(editing ? null : pos.id)} title="Edit SL / TP"
                       style={{ padding: '7px 9px', borderRadius: 8, background: editing ? S.accent : 'rgba(var(--ink),0.05)', border: `1px solid ${editing ? S.accent : S.border}`, color: editing ? '#fff' : S.text2, cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
@@ -335,13 +459,13 @@ function OrderRow({ order, last }: { order: Order; last: boolean }) {
   const isBuy = order.side === 'buy'
   const filled = order.status === 'filled'
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '13px 18px', borderBottom: last ? 'none' : '1px solid rgba(174,166,186,0.08)' }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '13px 18px', borderBottom: last ? 'none' : '1px solid rgba(214,196,170,0.08)' }}>
       <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 38, height: 38, borderRadius: 10, flexShrink: 0, background: isBuy ? 'var(--t-bull-s)' : 'var(--t-bear-s)', color: isBuy ? S.bull : S.bear, fontSize: 10.5, fontWeight: 800 }}>
         {order.side.toUpperCase()}
       </span>
       <div style={{ flex: 1, minWidth: 0 }}>
         <p style={{ fontSize: 13, fontWeight: 700, color: S.text1, margin: 0 }}>{order.symbol}</p>
-        <p style={{ fontSize: 12, color: S.text3, margin: '2px 0 0', fontFamily: 'ui-monospace,monospace' }}>
+        <p style={{ fontSize: 12, color: S.text3, margin: '2px 0 0', fontFamily: MONO }}>
           {order.quantity} units · {order.fill_price ? formatPrice(order.fill_price, order.symbol) : 'market'}
         </p>
       </div>
@@ -359,7 +483,7 @@ function OrderRow({ order, last }: { order: Order; last: boolean }) {
 // ───────────────────────────────────────────────────────────────────────────────
 // Empty state
 // ───────────────────────────────────────────────────────────────────────────────
-function EmptyState({ icon, title, desc, cta, onCta }: { icon: React.ReactNode; title: string; desc: string; cta?: string; onCta?: () => void }) {
+function EmptyState({ icon, title, desc, cta, onCta, gold }: { icon: React.ReactNode; title: string; desc: string; cta?: string; onCta?: () => void; gold?: boolean }) {
   return (
     <div style={{ background: S.surface, border: `1px solid ${S.border}`, borderRadius: 16, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '56px 24px', gap: 12 }}>
       <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'rgba(var(--ink),0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: S.text3 }}>{icon}</div>
@@ -367,7 +491,11 @@ function EmptyState({ icon, title, desc, cta, onCta }: { icon: React.ReactNode; 
       <p style={{ fontSize: 13, color: S.text3, margin: 0, textAlign: 'center', maxWidth: 280 }}>{desc}</p>
       {cta && (
         <button onClick={onCta}
-          style={{ marginTop: 6, padding: '10px 22px', borderRadius: 10, background: S.accent, border: 'none', color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>{cta}</button>
+          style={gold
+            ? { marginTop: 6, padding: '12px 26px', borderRadius: 10, background: GOLD_G, border: 'none', color: '#221503', fontSize: 13.5, fontWeight: 800, cursor: 'pointer', boxShadow: '0 6px 22px rgba(242,184,75,0.28)' }
+            : { marginTop: 6, padding: '10px 22px', borderRadius: 10, background: S.accent, border: 'none', color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
+          {cta}
+        </button>
       )}
     </div>
   )
@@ -386,6 +514,7 @@ export default function PortfolioPage() {
 
   const [tab, setTab] = useState<Tab>('positions')
   const [closingId, setClosingId] = useState<string | null>(null)
+  const [editingId, setEditingId] = useState<string | null>(null)
   const [lastUpdated, setLastUpdated] = useState<number>(Date.now())
 
   const refresh = useCallback(() => {
@@ -413,53 +542,72 @@ export default function PortfolioPage() {
     try { await closePosition(id) } finally { setClosingId(null) }
   }
 
-  const tabs: { key: Tab; label: string; count?: number }[] = [
-    { key: 'positions', label: 'Open Positions', count: positions.length },
-    { key: 'orders',    label: 'Order History',  count: orders.length },
-    { key: 'alerts',    label: 'Price Alerts' },
+  const tabs: { key: Tab; label: string; short: string; count?: number }[] = [
+    { key: 'positions', label: 'Open Positions', short: 'Positions', count: positions.length },
+    { key: 'orders',    label: 'Order History',  short: 'Orders', count: orders.length },
+    { key: 'alerts',    label: 'Price Alerts',   short: 'Alerts' },
   ]
+
+  const btnBase: React.CSSProperties = { display: 'flex', alignItems: 'center', gap: 6, padding: '8px 13px', borderRadius: 9, fontSize: 12, fontWeight: 700, cursor: 'pointer' }
 
   return (
     <div className="h-full overflow-y-auto" style={{ background: 'transparent' }}>
-      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '28px 20px 110px' }}>
+      <style>{`
+        .pf-cards { display: none }
+        .pf-tab-short { display: none }
+        @media (max-width: 768px) {
+          .pf-table { display: none }
+          .pf-cards { display: flex; flex-direction: column; gap: 12px }
+        }
+        @media (max-width: 440px) {
+          .pf-tab-full { display: none }
+          .pf-tab-short { display: inline }
+        }
+      `}</style>
+
+      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '24px clamp(14px, 4vw, 20px) 120px' }}>
 
         {/* ── Header ──────────────────────────────────────────────────────── */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', marginBottom: 20 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', marginBottom: 18 }}>
           <div>
             <h1 style={{ fontSize: 22, fontWeight: 800, color: S.text1, margin: 0, letterSpacing: '-0.01em' }}>Portfolio</h1>
             <p style={{ fontSize: 13, color: S.text3, margin: '3px 0 0' }}>Open positions, exposure &amp; account health</p>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 11px', borderRadius: 9, background: 'var(--t-bull-s)', border: `1px solid ${S.bull}33` }}>
               <span style={{ width: 6, height: 6, borderRadius: 99, background: S.bull }} className="animate-pulse2" />
               <span style={{ fontSize: 10.5, fontWeight: 700, color: S.bull }}>LIVE</span>
-              <span style={{ fontSize: 10.5, color: S.text3, fontFamily: 'ui-monospace,monospace' }}>
+              <span style={{ fontSize: 10.5, color: S.text3, fontFamily: MONO }}>
                 {new Date(lastUpdated).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
               </span>
             </div>
-            <button onClick={refresh}
-              style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 13px', borderRadius: 9, background: 'var(--t-accent-s)', border: `1px solid ${S.accent}33`, color: S.accent, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+            <button onClick={refresh} title="Refresh" style={{ ...btnBase, padding: '8px 11px', background: 'rgba(var(--ink),0.05)', border: `1px solid ${S.border}`, color: S.text2 }}>
               <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-              Refresh
             </button>
-            <button onClick={() => navigate('/dashboard/analytics')}
-              style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 13px', borderRadius: 9, background: 'rgba(var(--ink),0.05)', border: `1px solid ${S.border}`, color: S.text2, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
-              <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-              Analytics
+            <button onClick={() => navigate('/dashboard/trade')}
+              style={{ ...btnBase, padding: '9px 18px', background: GOLD_G, border: 'none', color: '#221503', fontWeight: 800, boxShadow: '0 4px 16px rgba(242,184,75,0.25)' }}>
+              <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.4}><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              New Trade
             </button>
           </div>
         </div>
 
         {/* ── Equity hero ─────────────────────────────────────────────────── */}
-        <div style={{ background: S.surface, border: `1px solid ${S.border}`, borderRadius: 18, padding: 22, marginBottom: 16, boxShadow: 'var(--t-shadow-sm)' }}>
+        <div style={{
+          background: 'radial-gradient(760px 340px at 100% -30%, rgba(242,184,75,0.08), transparent 62%), var(--t-surface)',
+          border: `1px solid ${S.border}`, borderRadius: 18, padding: 22, marginBottom: 16, boxShadow: 'var(--t-shadow-md)',
+          position: 'relative', overflow: 'hidden',
+        }}>
+          {/* gold top hairline */}
+          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: GOLD_G, opacity: 0.7 }} />
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
             <div>
               <p style={{ fontSize: 12, color: S.text3, margin: '0 0 6px', textTransform: 'uppercase', letterSpacing: '0.07em', fontWeight: 600 }}>Total Equity</p>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, flexWrap: 'wrap' }}>
-                <span style={{ fontSize: 34, fontWeight: 800, color: S.text1, fontFamily: 'ui-monospace,monospace', fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.02em' }}>
+                <FlashNumber value={equity} style={{ fontSize: 'clamp(28px, 7vw, 34px)', fontWeight: 800, color: S.text1, fontFamily: MONO, fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.02em', display: 'inline-block' }}>
                   {formatCurrency(equity, 2, currency)}
-                </span>
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 99, background: totalPnl >= 0 ? 'var(--t-bull-s)' : 'var(--t-bear-s)', color: pnlCol(totalPnl), fontSize: 13, fontWeight: 700, fontFamily: 'ui-monospace,monospace' }}>
+                </FlashNumber>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 99, background: totalPnl >= 0 ? 'var(--t-bull-s)' : 'var(--t-bear-s)', color: pnlCol(totalPnl), fontSize: 13, fontWeight: 700, fontFamily: MONO }}>
                   <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.4}>
                     {totalPnl >= 0 ? <polyline points="18 15 12 9 6 15"/> : <polyline points="6 9 12 15 18 9"/>}
                   </svg>
@@ -470,15 +618,14 @@ export default function PortfolioPage() {
             {(upnl !== 0 || positions.length > 0) && (
               <div style={{ textAlign: 'right' }}>
                 <p style={{ fontSize: 12, color: S.text3, margin: '0 0 4px', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 600 }}>Open P&amp;L · {positions.length} pos</p>
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 22, fontWeight: 800, color: pnlCol(upnl), fontFamily: 'ui-monospace,monospace', fontVariantNumeric: 'tabular-nums' }}>
+                <FlashNumber value={upnl} style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 22, fontWeight: 800, color: pnlCol(upnl), fontFamily: MONO, fontVariantNumeric: 'tabular-nums' }}>
                   <span style={{ width: 7, height: 7, borderRadius: 99, background: pnlCol(upnl) }} className="animate-pulse2" />
                   {sign(upnl)}{formatCurrency(upnl, 2, currency)}
-                </span>
+                </FlashNumber>
               </div>
             )}
           </div>
 
-          {/* Metric strip */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 16, marginTop: 22, paddingTop: 20, borderTop: `1px solid ${S.border}` }}>
             <Metric label="Available" value={formatCurrency(cash, 2, currency)} sub="Free to trade" />
             <Metric label="Margin Used" value={formatCurrency(marginUsed, 2, currency)} sub={`${positions.length} open`} />
@@ -507,9 +654,10 @@ export default function PortfolioPage() {
                   color: active ? S.text1 : S.text3, fontSize: 13, fontWeight: 700, whiteSpace: 'nowrap',
                   boxShadow: active ? 'var(--t-shadow-sm)' : 'none', transition: 'all 0.15s',
                 }}>
-                {t.label}
+                <span className="pf-tab-full">{t.label}</span>
+                <span className="pf-tab-short">{t.short}</span>
                 {t.count != null && t.count > 0 && (
-                  <span style={{ fontSize: 10.5, fontWeight: 700, padding: '1px 7px', borderRadius: 99, background: active ? S.accent : 'rgba(var(--ink),0.12)', color: active ? '#fff' : S.text2 }}>{t.count}</span>
+                  <span style={{ fontSize: 10.5, fontWeight: 700, padding: '1px 7px', borderRadius: 99, background: active ? GOLD : 'rgba(var(--ink),0.12)', color: active ? '#221503' : S.text2 }}>{t.count}</span>
                 )}
               </button>
             )
@@ -523,8 +671,24 @@ export default function PortfolioPage() {
                 icon={<svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.3}><circle cx="11" cy="11" r="8"/><circle cx="11" cy="11" r="4"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>}
                 title="No open positions"
                 desc="Explore the markets and place your first trade to start building your portfolio."
-                cta="Browse markets" onCta={() => navigate('/dashboard/trade')} />
-            : <PositionsTable positions={positions} currency={currency} onClose={handleClose} closingId={closingId} />
+                cta="Browse markets" onCta={() => navigate('/dashboard/trade')} gold />
+            : (
+              <>
+                {/* Desktop table */}
+                <div className="pf-table">
+                  <PositionsTable positions={positions} currency={currency} onClose={handleClose} closingId={closingId} editingId={editingId} setEditingId={setEditingId} />
+                </div>
+                {/* Mobile cards */}
+                <div className="pf-cards">
+                  {positions.map(pos => (
+                    <PositionCard key={pos.id} pos={pos} currency={currency}
+                      onClose={handleClose} closing={closingId === pos.id}
+                      editing={editingId === pos.id}
+                      onToggleEdit={() => setEditingId(editingId === pos.id ? null : pos.id)} />
+                  ))}
+                </div>
+              </>
+            )
         )}
 
         {tab === 'orders' && (
@@ -544,7 +708,7 @@ export default function PortfolioPage() {
           <EmptyState
             icon={<svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.3}><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>}
             title="Manage your price alerts"
-            desc="Get notified the moment a price level is reached, set and review alerts on the Alerts page."
+            desc="Get notified the moment a price level is reached. Set and review alerts on the Alerts page."
             cta="Go to Alerts" onCta={() => navigate('/dashboard/alerts')} />
         )}
       </div>
