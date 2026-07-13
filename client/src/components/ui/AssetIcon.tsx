@@ -64,32 +64,19 @@ const CLASS_COLOR: Record<string, { bg: string; fg: string }> = {
   bond:      { bg: '#18c98a22', fg: '#34d399' },
 }
 
-/* ─── 3D coin treatment ─────────────────────────────────────────────────────────
-   Every symbol renders as a dimensional token: light from above (top highlight),
-   soft bottom shade inside, and a tight contact shadow lifting it off the page , 
-   the Tesla / Apple / BTC marks read like minted coins, not flat favicons.     */
-const COIN_SHADOW =
-  'inset 0 1.5px 1px rgba(255,255,255,0.22), inset 0 -2px 4px rgba(10,6,14,0.4), ' +
-  '0 2px 5px rgba(10,6,14,0.45), 0 1px 1.5px rgba(10,6,14,0.5)'
-
+/* ─── Icon chip ──────────────────────────────────────────────────────────────
+   Flat circular container: the mark on a clean disc with a hairline border.
+   No 3D coin treatment (no gradient sheen / contact shadow).                  */
 function Coin({ size, children, bg }: { size: number; children: React.ReactNode; bg?: string }) {
   return (
     <div style={{
       width: size, height: size, borderRadius: '50%', flexShrink: 0,
       display: 'flex', alignItems: 'center', justifyContent: 'center',
-      background: `linear-gradient(165deg, rgba(255,255,255,0.13) 0%, rgba(255,255,255,0.02) 40%, rgba(10,6,14,0.25) 100%), ${bg ?? 'var(--t-surface-3, #322c40)'}`,
-      boxShadow: COIN_SHADOW,
-      border: '1px solid rgba(255,255,255,0.09)',
+      background: bg ?? 'var(--t-surface-3, #2e2525)',
+      border: '1px solid var(--t-border)',
       position: 'relative', overflow: 'hidden',
     }}>
       {children}
-      {/* glass sheen across the upper arc */}
-      <span aria-hidden style={{
-        position: 'absolute', left: '8%', right: '8%', top: '5%', height: '42%',
-        borderRadius: '50%',
-        background: 'linear-gradient(180deg, rgba(255,255,255,0.16), rgba(255,255,255,0))',
-        pointerEvents: 'none',
-      }} />
     </div>
   )
 }
@@ -235,7 +222,7 @@ export default function AssetIcon({ symbol, assetClass, baseAsset, quoteAsset, s
     const domain = STOCK_DOMAIN[symbol]
     if (domain && !imgErr) {
       return (
-        <Coin size={size} bg="linear-gradient(180deg, #ffffff 0%, #e8e6ee 100%)">
+        <Coin size={size} bg="#ffffff">
           <img
             src={`https://icons.duckduckgo.com/ip3/${domain}.ico`}
             alt={symbol}

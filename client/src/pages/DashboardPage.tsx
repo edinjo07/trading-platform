@@ -584,7 +584,7 @@ export default function DashboardPage() {
               <button key={cat.label} onClick={() => navigate('/dashboard/watchlists')}
                 style={{ flexShrink: 0, width: 168, height: 102, borderRadius: 16, background: cat.gradient, border: `1px solid ${cat.accent}33`, cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'space-between', padding: '13px 15px', overflow: 'hidden', position: 'relative' }}>
                 <div style={{ position: 'absolute', right: -10, bottom: -10, width: 72, height: 72, borderRadius: '50%', background: cat.accent, opacity: 0.12, filter: 'blur(16px)', pointerEvents: 'none' }} />
-                <div style={{ position: 'absolute', right: 12, top: 12, opacity: 0.98, filter: 'drop-shadow(0 4px 10px rgba(6,4,4,0.5))' }}>
+                <div style={{ position: 'absolute', right: 12, top: 12, opacity: 0.98 }}>
                   <AssetIcon symbol={cat.sym} assetClass={cat.cls} size={44} />
                 </div>
                 <span style={{ fontSize: 14, fontWeight: 800, color: '#fff', textAlign: 'left', lineHeight: 1.3, zIndex: 1 }}>{cat.label}</span>
