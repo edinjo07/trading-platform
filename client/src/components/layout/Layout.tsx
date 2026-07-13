@@ -32,6 +32,15 @@ const BOTTOM_NAV = [
       <path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2" fill="none" stroke="currentColor" strokeWidth="1.8"/>
     </svg>
   },
+  {
+    path: '/dashboard/bots', end: false, label: 'Bots',
+    icon: (active: boolean) => <svg className="w-[22px] h-[22px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={active ? 2.2 : 1.8} strokeLinecap="round" strokeLinejoin="round">
+      <rect x="5" y="8" width="14" height="11" rx="2" fill={active ? 'currentColor' : 'none'} stroke="currentColor"/>
+      <path d="M12 8V4M8 4h8" stroke={active ? '#141010' : 'currentColor'}/>
+      <circle cx="9.5" cy="13" r="1" fill={active ? '#141010' : 'currentColor'} stroke="none"/>
+      <circle cx="14.5" cy="13" r="1" fill={active ? '#141010' : 'currentColor'} stroke="none"/>
+    </svg>
+  },
 ]
 
 function BottomTab({ item, onClick }: { item: typeof BOTTOM_NAV[number]; onClick: () => void }) {
@@ -156,19 +165,9 @@ export default function Layout() {
           </button>
         </div>
 
-        {/* Right group: Portfolio + Menu */}
+        {/* Right group: Portfolio + Bots (the full menu lives in the header ☰) */}
         <BottomTab item={BOTTOM_NAV[2]} onClick={closeMobile} />
-        <button
-          onClick={() => setMobileOpen(true)}
-          aria-label="Open menu"
-          className="lx-tab flex-1 flex flex-col items-center justify-center gap-1 pt-2.5 pb-1.5 min-h-[58px]"
-          style={{ WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation', background: 'none', border: 'none', cursor: 'pointer' }}
-        >
-          <svg className="w-[22px] h-[22px]" viewBox="0 0 24 24" fill="none" stroke="rgba(247,242,230,0.42)" strokeWidth={1.8} strokeLinecap="round">
-            <line x1="4" y1="7" x2="20" y2="7" /><line x1="4" y1="12" x2="20" y2="12" /><line x1="4" y1="17" x2="20" y2="17" />
-          </svg>
-          <span className="text-[10px] font-semibold tracking-wide" style={{ color: 'rgba(247,242,230,0.42)' }}>Menu</span>
-        </button>
+        <BottomTab item={BOTTOM_NAV[3]} onClick={closeMobile} />
       </nav>
 
       <MarketsPanel open={marketsOpen} onClose={() => setMarketsOpen(false)} />
