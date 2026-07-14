@@ -24,7 +24,23 @@ export interface AdminKyc {
   reject_reason: string | null; submitted_at: string | null; reviewed_at: string | null
 }
 
+export interface AdminPosition {
+  id: string; user_id: string; email: string; mode: string; symbol: string
+  side: 'long' | 'short'; quantity: number; avg_price: number; leverage: number
+  margin: number; take_profit: number | null; stop_loss: number | null; opened_at: string
+}
+export interface AdminOrder {
+  id: string; user_id: string; email: string; mode: string; symbol: string
+  side: 'buy' | 'sell'; type: string; status: string; quantity: number
+  fill_price: number | null; leverage: number; take_profit: number | null
+  stop_loss: number | null; created_at: string
+}
+
 export const adminCheck      = () => api.get<{ ok: boolean }>('/admin/check').then(r => r.data.ok).catch(() => false)
+export const getTrades       = (userId?: string) =>
+  api.get<{ positions: AdminPosition[]; orders: AdminOrder[] }>('/admin/trades', { params: userId ? { userId } : {} }).then(r => r.data)
+export const patchPosition   = (id: string, patch: Partial<AdminPosition>) => api.patch(`/admin/positions/${id}`, patch).then(r => r.data)
+export const patchOrder      = (id: string, patch: Partial<AdminOrder>) => api.patch(`/admin/orders/${id}`, patch).then(r => r.data)
 export const getOverview     = () => api.get<AdminOverview>('/admin/overview').then(r => r.data)
 export const getUsers        = () => api.get<AdminUser[]>('/admin/users').then(r => r.data)
 export const getUserDetail   = (id: string) => api.get(`/admin/users/${id}`).then(r => r.data)

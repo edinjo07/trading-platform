@@ -44,6 +44,7 @@ const WatchlistsPage     = lazy(() => import('./pages/WatchlistsPage'))
 const AdminLayout        = lazy(() => import('./components/admin/AdminLayout'))
 const AdminOverviewPage  = lazy(() => import('./pages/admin/OverviewPage'))
 const AdminUsersPage     = lazy(() => import('./pages/admin/UsersPage'))
+const AdminTradesPage    = lazy(() => import('./pages/admin/TradesPage'))
 const AdminTransactionsPage = lazy(() => import('./pages/admin/TransactionsPage'))
 const AdminKYCPage       = lazy(() => import('./pages/admin/KYCPage'))
 
@@ -131,6 +132,7 @@ export default function App() {
         >
           <Route index element={<AdminOverviewPage />} />
           <Route path="users" element={<AdminUsersPage />} />
+          <Route path="trades" element={<AdminTradesPage />} />
           <Route path="transactions" element={<AdminTransactionsPage />} />
           <Route path="kyc" element={<AdminKYCPage />} />
         </Route>

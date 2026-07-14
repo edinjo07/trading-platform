@@ -10,6 +10,8 @@ const NAV = [
     icon: <><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></> },
   { to: '/admin/users', end: false, label: 'Users',
     icon: <><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></> },
+  { to: '/admin/trades', end: false, label: 'Trades & Orders',
+    icon: <><path d="M3 3v18h18"/><path d="M7 14l3-4 3 3 4-6"/></> },
   { to: '/admin/transactions', end: false, label: 'Deposits & Withdrawals',
     icon: <><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></> },
   { to: '/admin/kyc', end: false, label: 'KYC Review',

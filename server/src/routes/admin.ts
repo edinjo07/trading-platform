@@ -131,4 +131,51 @@ router.post('/kyc/:userId/:action', async (req, res) => {
   } catch (e) { res.status(500).json({ error: e instanceof Error ? e.message : 'Failed' }) }
 })
 
+/** A user's open positions + order log (or recent across all if no userId). */
+router.get('/trades', async (req, res) => {
+  try {
+    const userId = String(req.query.userId || '')
+    let posQ = supabase.from('positions').select('*').order('opened_at', { ascending: false }).limit(200)
+    let ordQ = supabase.from('orders').select('*').order('created_at', { ascending: false }).limit(200)
+    if (userId) { posQ = posQ.eq('user_id', userId); ordQ = ordQ.eq('user_id', userId) }
+    const [{ data: positions }, { data: orders }] = await Promise.all([posQ, ordQ])
+    const users = await listAuthUsers()
+    const em = new Map(users.map(u => [u.id, u.email]))
+    res.json({
+      positions: (positions ?? []).map(p => ({ ...p, email: em.get(p.user_id) ?? '' })),
+      orders:    (orders ?? []).map(o => ({ ...o, email: em.get(o.user_id) ?? '' })),
+    })
+  } catch (e) { res.status(500).json({ error: e instanceof Error ? e.message : 'Failed' }) }
+})
+
+function pickPatch(body: Record<string, unknown>, allowed: string[]): Record<string, unknown> {
+  const p: Record<string, unknown> = {}
+  for (const k of allowed) if (k in body && body[k] !== undefined) p[k] = body[k]
+  return p
+}
+
+/** Edit an open position — entry price, open time, size, side, SL/TP. */
+router.patch('/positions/:id', async (req, res) => {
+  try {
+    const patch = pickPatch(req.body, ['symbol', 'side', 'quantity', 'avg_price', 'leverage', 'margin', 'take_profit', 'stop_loss', 'opened_at'])
+    if (patch.side && !['long', 'short'].includes(String(patch.side))) { res.status(400).json({ error: 'side must be long|short' }); return }
+    patch.updated_at = new Date().toISOString()
+    const { error } = await supabase.from('positions').update(patch).eq('id', req.params.id)
+    if (error) throw error
+    res.json({ ok: true })
+  } catch (e) { res.status(500).json({ error: e instanceof Error ? e.message : 'Failed' }) }
+})
+
+/** Edit an order log row — fill price, date, size, side, status, SL/TP. */
+router.patch('/orders/:id', async (req, res) => {
+  try {
+    const patch = pickPatch(req.body, ['symbol', 'side', 'quantity', 'fill_price', 'leverage', 'status', 'take_profit', 'stop_loss', 'created_at'])
+    if (patch.side && !['buy', 'sell'].includes(String(patch.side))) { res.status(400).json({ error: 'side must be buy|sell' }); return }
+    if (patch.status && !['filled', 'rejected'].includes(String(patch.status))) { res.status(400).json({ error: 'invalid status' }); return }
+    const { error } = await supabase.from('orders').update(patch).eq('id', req.params.id)
+    if (error) throw error
+    res.json({ ok: true })
+  } catch (e) { res.status(500).json({ error: e instanceof Error ? e.message : 'Failed' }) }
+})
+
 export default router
