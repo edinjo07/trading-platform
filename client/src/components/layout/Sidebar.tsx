@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { useAuthStore } from '../../store/authStore'
 import { useKYCStore } from '../../store/kycStore'
+import { adminCheck } from '../../api/admin'
 import { BrandMark } from '../ui/BrandMark'
 import {
   LayoutDashboard, TrendingUp, Bot, Briefcase, ClipboardList,
@@ -67,6 +68,8 @@ export default function Sidebar({ mobileOpen, onClose, onOpenMarkets }: SidebarP
   const [collapsed, setCollapsed] = useState(false)
   const [discoverOpen, setDiscoverOpen] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
+  const [isAdmin, setIsAdmin] = useState(false)
+  React.useEffect(() => { adminCheck().then(setIsAdmin).catch(() => {}) }, [])
   const profileRef = React.useRef<HTMLDivElement>(null)
   const { record: kycRecord, start: startKyc } = useKYCStore()
   const kycStatus = kycRecord.status
@@ -328,6 +331,20 @@ export default function Sidebar({ mobileOpen, onClose, onOpenMarkets }: SidebarP
                 </button>
               )
             })}
+
+            {/* Superadmin — only rendered for allowlisted accounts */}
+            {isAdmin && (
+              <button
+                onClick={() => { navigate('/admin'); setProfileOpen(false); onClose() }}
+                className="w-full flex items-center gap-3 px-4 py-2.5 text-left transition-all"
+                style={{ color: '#f2b84b', borderBottom: '1px solid rgba(247,242,230,0.04)' }}
+                onMouseEnter={e => (e.currentTarget.style.background = 'rgba(242,184,75,0.08)')}
+                onMouseLeave={e => (e.currentTarget.style.background = '')}
+              >
+                <ShieldCheck size={14} strokeWidth={2} style={{ flexShrink: 0 }} />
+                <span style={{ fontSize: 13, fontWeight: 700 }}>Admin Panel</span>
+              </button>
+            )}
 
             {/* Mode switcher */}
             <div className="px-4 py-3" style={{ borderTop: '1px solid rgba(247,242,230,0.07)' }}>

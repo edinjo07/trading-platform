@@ -141,6 +141,12 @@ router.post('/deposit', authenticate, async (req: AuthRequest, res: Response) =>
     metadata: { currency, amount: depositAmount },
   })
 
+  // Ledger entry for the admin (fire-and-forget; no-op if table not migrated)
+  supabase.from('transactions').insert({
+    user_id: userId, type: 'deposit', amount: depositAmount, currency,
+    method: 'demo', status: 'completed', details: { mode: 'demo' },
+  }).then(() => {}, () => {})
+
   return res.json({ cash_balance: (updated as Record<string, unknown>).cash_balance })
 })
 
@@ -200,6 +206,12 @@ router.post('/withdraw', authenticate, async (req: AuthRequest, res: Response) =
     message: `Your withdrawal of ${amt.toFixed(2)} ${currency} has been processed.`,
     metadata: { currency, amount: amt },
   })
+
+  // Ledger entry for the admin queue (fire-and-forget; no-op if table not migrated)
+  supabase.from('transactions').insert({
+    user_id: userId, type: 'withdrawal', amount: amt, currency,
+    method: 'demo', status: 'pending', details: { mode: 'demo' },
+  }).then(() => {}, () => {})
 
   return res.json({ cash_balance: (updated as { cash_balance: number }[])[0].cash_balance })
 })
