@@ -23,6 +23,7 @@ export const config = {
   supabaseAnonKey: process.env.SUPABASE_ANON_KEY || '',
   databaseUrl: process.env.DATABASE_URL || '',
   // Superadmin allowlist — comma-separated emails that may access /api/admin.
-  adminEmails: (process.env.ADMIN_EMAILS || 'edinjomulaj@gmail.com')
+  // Default is a placeholder test address; set ADMIN_EMAILS in prod to your real admin(s).
+  adminEmails: (process.env.ADMIN_EMAILS || 'admin@tradex.io')
     .split(',').map(e => e.trim().toLowerCase()).filter(Boolean),
 }
