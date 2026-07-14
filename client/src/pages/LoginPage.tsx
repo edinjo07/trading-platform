@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
+import { supabase } from '../lib/supabase'
 import { AccountType, Currency } from '../types'
 import { BrandMark } from '../components/ui/BrandMark'
 import SupportWidget from '../components/ui/SupportWidget'
@@ -58,6 +59,28 @@ export default function LoginPage() {
   const [currency,    setCurrencyLocal] = useState<Currency>('USD')
   const [customizeAccount, setCustomizeAccount] = useState(false)
   const [localError,  setLocalError]  = useState('')
+  // Forgot-password flow (logged-out only): 'auth' → form, 'forgot' → email entry, 'sent' → confirmation
+  const [view, setView] = useState<'auth' | 'forgot' | 'sent'>('auth')
+  const [resetEmail, setResetEmail] = useState('')
+  const [resetBusy,  setResetBusy]  = useState(false)
+  const [resetErr,   setResetErr]   = useState('')
+
+  const handleReset = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setResetErr('')
+    setResetBusy(true)
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      })
+      if (error) throw error
+      setView('sent')
+    } catch (err: unknown) {
+      setResetErr(err instanceof Error ? err.message : 'Could not send the reset email.')
+    } finally {
+      setResetBusy(false)
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -163,12 +186,17 @@ export default function LoginPage() {
 
           <div style={{ width: '100%', maxWidth: 420 }}>
             <h2 style={{ fontSize: 24, fontWeight: 800, color: IVORY, margin: '0 0 6px', letterSpacing: '-0.02em' }}>
-              {mode === 'login' ? 'Welcome back' : 'Create your account'}
+              {view === 'forgot' ? 'Reset your password'
+                : view === 'sent' ? 'Check your email'
+                : mode === 'login' ? 'Welcome back' : 'Create your account'}
             </h2>
             <p style={{ fontSize: 14, color: DIM, margin: '0 0 26px' }}>
-              {mode === 'login' ? 'Sign in to your trading account.' : 'Sixty seconds and the seat is yours.'}
+              {view === 'forgot' ? 'Enter your email and we’ll send a secure reset link.'
+                : view === 'sent' ? 'A reset link is on its way if that address has an account.'
+                : mode === 'login' ? 'Sign in to your trading account.' : 'Sixty seconds and the seat is yours.'}
             </p>
 
+            {view === 'auth' && (<>
             {/* Mode toggle */}
             <div style={{ display: 'flex', gap: 4, padding: 4, borderRadius: 12, background: NIGHT2, border: `1px solid ${HAIR}`, marginBottom: 24 }}>
               {(['login', 'register'] as const).map(m => {
@@ -264,7 +292,15 @@ export default function LoginPage() {
               )}
 
               <div>
-                <label style={labelStyle}>Password</label>
+                <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
+                  <label style={labelStyle}>Password</label>
+                  {mode === 'login' && (
+                    <button type="button" onClick={() => { setResetEmail(email); setResetErr(''); setView('forgot') }}
+                      style={{ background: 'none', border: 'none', color: GOLD, fontSize: 12.5, fontWeight: 700, cursor: 'pointer', padding: 0 }}>
+                      Forgot password?
+                    </button>
+                  )}
+                </div>
                 <div style={{ position: 'relative' }}>
                   <input className="au-in"
                     type={showPass ? 'text' : 'password'} value={password}
@@ -315,6 +351,49 @@ export default function LoginPage() {
               <p style={{ textAlign: 'center', fontSize: 12.5, color: DIM, margin: '16px 0 0' }}>
                 Every account starts with a $100,000 practice balance.
               </p>
+            )}
+            </>)}
+
+            {/* Forgot-password: email request */}
+            {view === 'forgot' && (
+              <form onSubmit={handleReset} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                <div>
+                  <label style={labelStyle}>Email</label>
+                  <input className="au-in" type="email" value={resetEmail} onChange={e => setResetEmail(e.target.value)}
+                    required autoComplete="email" placeholder="you@example.com"
+                    style={inputStyle} onFocus={onFocus} onBlur={onBlur} />
+                </div>
+                {resetErr && (
+                  <div style={{ display: 'flex', gap: 8, padding: '10px 13px', background: 'rgba(255,90,114,0.1)', border: '1px solid rgba(255,90,114,0.3)', borderRadius: 10, fontSize: 13, color: '#ff8fa0' }}>
+                    <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} style={{ flexShrink: 0, marginTop: 1 }}><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    <span>{resetErr}</span>
+                  </div>
+                )}
+                <button type="submit" disabled={resetBusy}
+                  style={{ width: '100%', padding: 14, borderRadius: 12, background: resetBusy ? 'rgba(242,184,75,0.35)' : GOLD_G, color: '#221503', border: 'none', fontSize: 15, fontWeight: 800, cursor: resetBusy ? 'not-allowed' : 'pointer', boxShadow: resetBusy ? 'none' : '0 6px 24px rgba(242,184,75,0.3)' }}>
+                  {resetBusy ? 'Sending…' : 'Send reset link'}
+                </button>
+                <button type="button" onClick={() => { setView('auth'); setResetErr('') }}
+                  style={{ background: 'none', border: 'none', color: DIM, fontSize: 13, fontWeight: 600, cursor: 'pointer', padding: 0 }}>
+                  ← Back to sign in
+                </button>
+              </form>
+            )}
+
+            {/* Forgot-password: confirmation */}
+            {view === 'sent' && (
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: 14 }}>
+                <div style={{ width: 54, height: 54, borderRadius: '50%', background: 'rgba(24,201,138,0.12)', border: '1px solid rgba(24,201,138,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke={BULL} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16v16H4zM4 4l8 8 8-8"/></svg>
+                </div>
+                <p style={{ fontSize: 14, color: BODY, lineHeight: 1.6, margin: 0 }}>
+                  We’ve emailed a reset link to <strong style={{ color: IVORY }}>{resetEmail}</strong>. Open it to choose a new password. If it’s not in your inbox, check spam.
+                </p>
+                <button onClick={() => setView('auth')}
+                  style={{ width: '100%', padding: 13, borderRadius: 12, background: 'rgba(242,184,75,0.08)', border: '1px solid rgba(242,184,75,0.25)', color: GOLD, fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>
+                  Back to sign in
+                </button>
+              </div>
             )}
 
             {/* Risk warning */}
