@@ -10,6 +10,7 @@ import positionsRoutes from './routes/positions'
 import analyticsRoutes from './routes/analytics'
 import newsRoutes      from './routes/news'
 import adminRoutes     from './routes/admin'
+import statementRoutes from './routes/statement'
 import accountsRoutes  from './routes/accounts'
 import botsRoutes      from './routes/bots'
 import leaderboardRoutes from './routes/leaderboard'
@@ -42,6 +43,7 @@ app.use('/api/leaderboard', leaderboardRoutes)
 app.use('/api/notifications', notificationsRoutes)
 app.use('/api/kyc',         kycRoutes)
 app.use('/api/admin',       adminRoutes)
+app.use('/api/statement',   statementRoutes)
 
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString(), env: config.nodeEnv })

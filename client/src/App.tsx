@@ -22,6 +22,7 @@ const ScamsPublicPage    = lazy(() => import('./pages/ScamsPublicPage'))
 const DashboardPage      = lazy(() => import('./pages/DashboardPage'))
 const TradingPage        = lazy(() => import('./pages/TradingPage'))
 const PortfolioPage      = lazy(() => import('./pages/PortfolioPage'))
+const StatementsPage     = lazy(() => import('./pages/StatementsPage'))
 const OrdersPage         = lazy(() => import('./pages/OrdersPage'))
 const ScannerPage        = lazy(() => import('./pages/ScannerPage'))
 const AnalyticsPage      = lazy(() => import('./pages/AnalyticsPage'))
@@ -104,6 +105,7 @@ export default function App() {
           <Route path="trade" element={<TradingPage />} />
           <Route path="portfolio" element={<PortfolioPage />} />
           <Route path="orders" element={<OrdersPage />} />
+          <Route path="statements" element={<StatementsPage />} />
           <Route path="scanner" element={<ScannerPage />} />
           <Route path="analytics" element={<AnalyticsPage />} />
           <Route path="leaderboard" element={<LeaderboardPage />} />

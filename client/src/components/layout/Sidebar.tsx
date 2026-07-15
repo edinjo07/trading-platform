@@ -9,7 +9,7 @@ import {
   BarChart3, ScanLine, Bell, Trophy, ArrowDownToLine, ArrowUpFromLine,
   Globe, Calendar, Calculator, Tv2, BookOpen, ShieldAlert,
   User, CreditCard, Shield, Settings2, BadgeCheck, LogOut,
-  ChevronLeft, ChevronRight, ChevronDown, X, ShieldCheck,
+  ChevronLeft, ChevronRight, ChevronDown, X, ShieldCheck, FileText,
 } from '../ui/Icons'
 
 // ─── Nav config ───────────────────────────────────────────────────────────────
@@ -28,6 +28,7 @@ const NAV_GROUPS = [
       { path: '/dashboard/portfolio', end: false, trade: false, label: 'Portfolio',  icon: Briefcase,     color: '#f6b24a' },
       { path: '/dashboard/orders',    end: false, trade: false, label: 'Orders',     icon: ClipboardList, color: '#4f8cff' },
       { path: '/dashboard/analytics', end: false, trade: false, label: 'Analytics',  icon: BarChart3,     color: '#e879f9' },
+      { path: '/dashboard/statements', end: false, trade: false, label: 'Statements', icon: FileText,     color: '#f6b24a' },
     ],
   },
   {
