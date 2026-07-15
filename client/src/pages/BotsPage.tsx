@@ -5,6 +5,14 @@ import {
   Bot, BotStrategy, BotLog, BotEquityPoint, SymbolSentiment, getNewsSentiment,
   NewsImpact, getNewsImpact,
 } from '../api/bots'
+import { useToastStore } from '../store/toastStore'
+
+/** Pull a human-readable message out of an axios/unknown error. */
+function errMsg(e: unknown): string {
+  return (e as { response?: { data?: { error?: string } }; message?: string }).response?.data?.error
+    ?? (e as { message?: string }).message
+    ?? 'Something went wrong'
+}
 
 // ─── Design tokens ────────────────────────────────────────────────────────────
 
@@ -972,7 +980,7 @@ export default function BotsPage() {
       setBots(b => b.map(x => x.id === bot.id ? updated : x))
       if (selected?.id === bot.id) setSelected(updated)
     } catch (e: unknown) {
-      alert((e as { response?: { data?: { error?: string } }; message?: string }).response?.data?.error ?? (e as { message?: string }).message)
+      useToastStore.getState().addToast({ title: 'Action failed', message: errMsg(e), variant: 'error' })
     } finally { setActionId(null) }
   }
   async function handleStop(bot: Bot) {
@@ -982,7 +990,7 @@ export default function BotsPage() {
       setBots(b => b.map(x => x.id === bot.id ? updated : x))
       if (selected?.id === bot.id) setSelected(updated)
     } catch (e: unknown) {
-      alert((e as { response?: { data?: { error?: string } }; message?: string }).response?.data?.error ?? (e as { message?: string }).message)
+      useToastStore.getState().addToast({ title: 'Action failed', message: errMsg(e), variant: 'error' })
     } finally { setActionId(null) }
   }
   async function handleDelete(bot: Bot) {
@@ -993,7 +1001,7 @@ export default function BotsPage() {
       setBots(b => b.filter(x => x.id !== bot.id))
       if (selected?.id === bot.id) { setSelected(null); selectedIdRef.current = null; setMobileView('list') }
     } catch (e: unknown) {
-      alert((e as { response?: { data?: { error?: string } }; message?: string }).response?.data?.error ?? (e as { message?: string }).message)
+      useToastStore.getState().addToast({ title: 'Action failed', message: errMsg(e), variant: 'error' })
     } finally { setActionId(null) }
   }
   async function selectBot(bot: Bot) {
