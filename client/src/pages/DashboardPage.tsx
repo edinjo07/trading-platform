@@ -229,8 +229,10 @@ export default function DashboardPage() {
   const navigate = useNavigate()
   const { user, setAccountMode, setCurrency } = useAuthStore()
   const { tickers, portfolio, orders, loadPortfolio, loadOrders, closePosition, setSelectedSymbol } = useTradingStore()
-  const { alerts } = useAlertsStore()
+  const { alerts, fetchAlerts } = useAlertsStore()
   const currency = user?.currency ?? 'USD'
+
+  useEffect(() => { fetchAlerts() }, [fetchAlerts])
 
   const [closingId,        setClosingId]        = useState<string | null>(null)
   const [moversTab,        setMoversTab]        = useState<'risers' | 'fallers'>('risers')

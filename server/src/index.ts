@@ -7,6 +7,7 @@ import { initWebSocket } from './websocket/wsServer'
 import { startSLMonitor } from './services/slMonitor'
 import { startLimitMonitor } from './services/limitOrderMonitor'
 import { startMarginMonitor } from './services/marginMonitor'
+import { startAlertMonitor } from './services/alertMonitor'
 import { startKycMonitor } from './services/kycService'
 import { resumeRunningBots } from './services/botEngine'
 
@@ -33,6 +34,7 @@ initWebSocket(server)
 startSLMonitor()
 startLimitMonitor()
 startMarginMonitor()
+startAlertMonitor()
 startKycMonitor()
 // Re-arm bots the DB still marks active (survive redeploys). Slight delay so the
 // price simulation/feeds are warm before bots seed history and tick.

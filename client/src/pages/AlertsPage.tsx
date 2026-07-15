@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useAlertsStore, AlertCondition, PriceAlert } from '../store/alertsStore'
 import { useTradingStore } from '../store/tradingStore'
 import { formatPrice } from '../utils/formatters'
@@ -74,13 +74,15 @@ function CreateSheet({ onClose }: { onClose: () => void }) {
     color: S.text1, fontSize: 14, outline: 'none', boxSizing: 'border-box',
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [saving, setSaving] = useState(false)
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!selected) return
     const p = parseFloat(targetPrice)
     if (!p || p <= 0) return
-    addAlert({ symbol: selected.symbol, condition, targetPrice: p, note, currentPrice })
-    onClose()
+    setSaving(true)
+    try { await addAlert({ symbol: selected.symbol, condition, targetPrice: p, note, currentPrice }); onClose() }
+    finally { setSaving(false) }
   }
 
   return (
@@ -176,9 +178,9 @@ function CreateSheet({ onClose }: { onClose: () => void }) {
                 onChange={e => setNote(e.target.value)} style={inputStyle} />
             </div>
 
-            <button type="submit" disabled={!selected || !targetPrice}
-              style={{ width: '100%', padding: 16, borderRadius: 14, background: (!selected || !targetPrice) ? 'var(--t-accent-s)' : S.accent, color: (!selected || !targetPrice) ? S.text3 : '#fff', fontSize: 16, fontWeight: 800, border: 'none', cursor: (!selected || !targetPrice) ? 'not-allowed' : 'pointer', marginTop: 4 }}>
-              Set Alert
+            <button type="submit" disabled={!selected || !targetPrice || saving}
+              style={{ width: '100%', padding: 16, borderRadius: 14, background: (!selected || !targetPrice) ? 'var(--t-accent-s)' : S.accent, color: (!selected || !targetPrice) ? S.text3 : '#fff', fontSize: 16, fontWeight: 800, border: 'none', cursor: (!selected || !targetPrice || saving) ? 'not-allowed' : 'pointer', marginTop: 4, opacity: saving ? 0.7 : 1 }}>
+              {saving ? 'Setting…' : 'Set Alert'}
             </button>
           </form>
         </div>
@@ -255,8 +257,15 @@ function AlertCard({ alert, onDelete, onDismiss }: { alert: PriceAlert; onDelete
 
 // ── Main page ─────────────────────────────────────────────────────────────────
 export default function AlertsPage() {
-  const { alerts, dismissAlert, deleteAlert } = useAlertsStore()
+  const { alerts, dismissAlert, deleteAlert, fetchAlerts } = useAlertsStore()
   const [showCreate, setShowCreate] = useState(false)
+
+  // Server owns alert state now — load on mount and poll so triggered alerts surface.
+  useEffect(() => {
+    fetchAlerts()
+    const t = setInterval(fetchAlerts, 15_000)
+    return () => clearInterval(t)
+  }, [fetchAlerts])
   const [filter, setFilter] = useState<'all' | 'active' | 'triggered' | 'dismissed'>('all')
   const [notifPerm, setNotifPerm] = useState<NotificationPermission>(
     typeof Notification !== 'undefined' ? Notification.permission : 'denied')

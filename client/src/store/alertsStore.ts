@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { listAlerts, createAlert, dismissAlertApi, deleteAlertApi } from '../api/alerts'
 
 export type AlertCondition = 'above' | 'below'
 export type AlertStatus = 'active' | 'triggered' | 'dismissed'
@@ -18,60 +18,46 @@ export interface PriceAlert {
 
 interface AlertsState {
   alerts: PriceAlert[]
-  addAlert: (alert: Omit<PriceAlert, 'id' | 'createdAt' | 'status'>) => void
+  loaded: boolean
+  fetchAlerts: () => Promise<void>
+  addAlert: (input: { symbol: string; condition: AlertCondition; targetPrice: number; note: string; currentPrice?: number }) => Promise<void>
   dismissAlert: (id: string) => void
   deleteAlert: (id: string) => void
+  // Kept for API compatibility with tradingStore. Alerts are now evaluated
+  // server-side (see server/services/alertMonitor.ts), so this never triggers.
   checkAlerts: (tickers: Record<string, { price: number }>) => PriceAlert[]
 }
 
-export const useAlertsStore = create<AlertsState>()(
-  persist(
-    (set, get) => ({
-      alerts: [],
+export const useAlertsStore = create<AlertsState>()((set) => ({
+  alerts: [],
+  loaded: false,
 
-      addAlert: (newAlert) => {
-        const alert: PriceAlert = {
-          ...newAlert,
-          id: `alert-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-          createdAt: new Date().toISOString(),
-          status: 'active',
-        }
-        set(s => ({ alerts: [alert, ...s.alerts] }))
-      },
+  fetchAlerts: async () => {
+    try {
+      const alerts = await listAlerts()
+      set({ alerts, loaded: true })
+    } catch {
+      set({ loaded: true })
+    }
+  },
 
-      dismissAlert: (id) => {
-        set(s => ({
-          alerts: s.alerts.map(a => a.id === id ? { ...a, status: 'dismissed' } : a),
-        }))
-      },
+  addAlert: async (input) => {
+    const alert = await createAlert({
+      symbol: input.symbol, condition: input.condition,
+      targetPrice: input.targetPrice, note: input.note ?? '',
+    })
+    set(s => ({ alerts: [alert, ...s.alerts] }))
+  },
 
-      deleteAlert: (id) => {
-        set(s => ({ alerts: s.alerts.filter(a => a.id !== id) }))
-      },
+  dismissAlert: (id) => {
+    set(s => ({ alerts: s.alerts.map(a => a.id === id ? { ...a, status: 'dismissed' } : a) }))
+    dismissAlertApi(id).catch(() => {})
+  },
 
-      // Call this from useWebSocket or a polling effect; returns newly-triggered alerts
-      checkAlerts: (tickers) => {
-        const justTriggered: PriceAlert[] = []
-        set(s => ({
-          alerts: s.alerts.map(a => {
-            if (a.status !== 'active') return a
-            const ticker = tickers[a.symbol]
-            if (!ticker) return a
-            const price = ticker.price
-            const hit =
-              (a.condition === 'above' && price >= a.targetPrice) ||
-              (a.condition === 'below' && price <= a.targetPrice)
-            if (hit) {
-              const triggered = { ...a, status: 'triggered' as AlertStatus, triggeredAt: new Date().toISOString(), currentPrice: price }
-              justTriggered.push(triggered)
-              return triggered
-            }
-            return { ...a, currentPrice: price }
-          }),
-        }))
-        return justTriggered
-      },
-    }),
-    { name: 'tradex-alerts' }
-  )
-)
+  deleteAlert: (id) => {
+    set(s => ({ alerts: s.alerts.filter(a => a.id !== id) }))
+    deleteAlertApi(id).catch(() => {})
+  },
+
+  checkAlerts: () => [],
+}))
