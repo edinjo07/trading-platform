@@ -53,56 +53,101 @@ const PRINT_CSS = `
 }
 `
 
+// preset date ranges
+type Preset = { key: string; label: string; range: () => [Date, Date] }
+const PRESETS: Preset[] = [
+  { key: 'last30', label: 'Last 30 days', range: () => [new Date(Date.now() - 30 * 864e5), new Date()] },
+  { key: 'thisMonth', label: 'This month', range: () => { const n = new Date(); return [new Date(n.getFullYear(), n.getMonth(), 1), n] } },
+  { key: 'lastMonth', label: 'Last month', range: () => { const n = new Date(); return [new Date(n.getFullYear(), n.getMonth() - 1, 1), new Date(n.getFullYear(), n.getMonth(), 0)] } },
+  { key: 'thisYear', label: 'This year', range: () => { const n = new Date(); return [new Date(n.getFullYear(), 0, 1), n] } },
+]
+const CURRENCIES = ['USD', 'EUR', 'GBP']
+
 export default function StatementsPage() {
   const today = new Date()
   const monthAgo = new Date(today.getTime() - 30 * 864e5)
   const [from, setFrom] = useState(toInput(monthAgo))
   const [to, setTo] = useState(toInput(today))
+  const [currency, setCurrency] = useState(localStorage.getItem('account_currency') || 'USD')
+  const [preset, setPreset] = useState('last30')
   const [data, setData] = useState<StatementData | null>(null)
   const [loading, setLoading] = useState(false)
   const [err, setErr] = useState('')
 
-  const load = async () => {
+  const applyPreset = (p: Preset) => {
+    const [f, t] = p.range()
+    setFrom(toInput(f)); setTo(toInput(t)); setPreset(p.key)
+  }
+
+  const load = async (f = from, t = to, c = currency) => {
     setLoading(true); setErr('')
-    try { setData(await getStatement(from, to)) }
+    try { setData(await getStatement(f, t, c)) }
     catch (e: any) { setErr(e?.response?.data?.error || 'Failed to generate statement'); setData(null) }
     finally { setLoading(false) }
   }
   useEffect(() => { load() }, []) // initial default-range statement
 
-  const cur = data?.client.currency || 'USD'
+  const cur = data?.client.currency || currency
 
   return (
     <div style={{ padding: 'clamp(14px, 3vw, 28px)', maxWidth: 980, margin: '0 auto' }}>
       <style>{PRINT_CSS}</style>
 
       {/* ── Controls ─────────────────────────────────────────────────────────── */}
-      <div className="stmt-noprint" style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end', gap: 14, marginBottom: 20 }}>
-        <div style={{ marginRight: 'auto' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
-            <FileText size={22} color="#f2b84b" strokeWidth={1.9} />
-            <h1 style={{ fontSize: 20, fontWeight: 800, color: 'var(--t-ink, #f7f2e6)', margin: 0 }}>Trading Statements</h1>
+      <div className="stmt-noprint" style={{ marginBottom: 20 }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 12, marginBottom: 14 }}>
+          <div style={{ marginRight: 'auto' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
+              <FileText size={22} color="#f2b84b" strokeWidth={1.9} />
+              <h1 style={{ fontSize: 20, fontWeight: 800, color: 'var(--t-ink, #f7f2e6)', margin: 0 }}>Trading Statements</h1>
+            </div>
+            <p style={{ fontSize: 12.5, color: 'var(--t-dim, #8d7d6a)', margin: '5px 0 0' }}>Live account · pick a period and download a PDF.</p>
           </div>
-          <p style={{ fontSize: 12.5, color: 'var(--t-dim, #8d7d6a)', margin: '5px 0 0' }}>Live account · pick a period and download a PDF.</p>
+          <button onClick={() => window.print()} disabled={!data}
+            style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '10px 18px', borderRadius: 9, border: 'none', background: 'linear-gradient(120deg,#f9d98c,#f2b84b 45%,#dd9c2f)', color: '#221503', fontWeight: 800, fontSize: 13, cursor: data ? 'pointer' : 'not-allowed', opacity: data ? 1 : 0.5 }}>
+            <Printer size={15} strokeWidth={2} /> Download PDF
+          </button>
         </div>
-        <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 11, color: 'var(--t-dim, #8d7d6a)', fontWeight: 600 }}>
-          From
-          <input type="date" value={from} max={to} onChange={e => setFrom(e.target.value)}
-            style={{ padding: '9px 11px', borderRadius: 9, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(242,184,75,0.2)', color: 'var(--t-ink,#f7f2e6)', colorScheme: 'dark', fontSize: 13 }} />
-        </label>
-        <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 11, color: 'var(--t-dim, #8d7d6a)', fontWeight: 600 }}>
-          To
-          <input type="date" value={to} min={from} max={toInput(today)} onChange={e => setTo(e.target.value)}
-            style={{ padding: '9px 11px', borderRadius: 9, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(242,184,75,0.2)', color: 'var(--t-ink,#f7f2e6)', colorScheme: 'dark', fontSize: 13 }} />
-        </label>
-        <button onClick={load} disabled={loading}
-          style={{ padding: '10px 18px', borderRadius: 9, border: '1px solid rgba(242,184,75,0.3)', background: 'rgba(242,184,75,0.12)', color: '#f2b84b', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
-          {loading ? 'Generating…' : 'Generate'}
-        </button>
-        <button onClick={() => window.print()} disabled={!data}
-          style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '10px 18px', borderRadius: 9, border: 'none', background: 'linear-gradient(120deg,#f9d98c,#f2b84b 45%,#dd9c2f)', color: '#221503', fontWeight: 800, fontSize: 13, cursor: data ? 'pointer' : 'not-allowed', opacity: data ? 1 : 0.5 }}>
-          <Printer size={15} strokeWidth={2} /> Download PDF
-        </button>
+
+        {/* preset range chips */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7, marginBottom: 12 }}>
+          {PRESETS.map(p => {
+            const on = preset === p.key
+            return (
+              <button key={p.key} onClick={() => applyPreset(p)}
+                style={{ padding: '6px 13px', borderRadius: 999, fontSize: 12, fontWeight: 700, cursor: 'pointer',
+                  background: on ? 'rgba(242,184,75,0.14)' : 'rgba(255,255,255,0.03)', color: on ? '#f2b84b' : 'var(--t-dim,#8d7d6a)',
+                  border: `1px solid ${on ? 'rgba(242,184,75,0.4)' : 'rgba(247,242,230,0.1)'}` }}>
+                {p.label}
+              </button>
+            )
+          })}
+        </div>
+
+        {/* date + currency + generate */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end', gap: 12 }}>
+          <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 11, color: 'var(--t-dim, #8d7d6a)', fontWeight: 600 }}>
+            From
+            <input type="date" value={from} max={to} onChange={e => { setFrom(e.target.value); setPreset('custom') }}
+              style={{ padding: '9px 11px', borderRadius: 9, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(242,184,75,0.2)', color: 'var(--t-ink,#f7f2e6)', colorScheme: 'dark', fontSize: 13 }} />
+          </label>
+          <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 11, color: 'var(--t-dim, #8d7d6a)', fontWeight: 600 }}>
+            To
+            <input type="date" value={to} min={from} max={toInput(today)} onChange={e => { setTo(e.target.value); setPreset('custom') }}
+              style={{ padding: '9px 11px', borderRadius: 9, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(242,184,75,0.2)', color: 'var(--t-ink,#f7f2e6)', colorScheme: 'dark', fontSize: 13 }} />
+          </label>
+          <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 11, color: 'var(--t-dim, #8d7d6a)', fontWeight: 600 }}>
+            Currency
+            <select value={currency} onChange={e => setCurrency(e.target.value)}
+              style={{ padding: '9px 11px', borderRadius: 9, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(242,184,75,0.2)', color: 'var(--t-ink,#f7f2e6)', colorScheme: 'dark', fontSize: 13, cursor: 'pointer' }}>
+              {CURRENCIES.map(c => <option key={c} value={c} style={{ color: '#111' }}>{c}</option>)}
+            </select>
+          </label>
+          <button onClick={() => load()} disabled={loading}
+            style={{ padding: '10px 18px', borderRadius: 9, border: '1px solid rgba(242,184,75,0.3)', background: 'rgba(242,184,75,0.12)', color: '#f2b84b', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
+            {loading ? 'Generating…' : 'Generate'}
+          </button>
+        </div>
       </div>
 
       {err && <div className="stmt-noprint" style={{ padding: 14, borderRadius: 10, background: 'rgba(255,90,114,0.1)', border: '1px solid rgba(255,90,114,0.3)', color: '#ff8fa0', fontSize: 13, marginBottom: 16 }}>{err}</div>}

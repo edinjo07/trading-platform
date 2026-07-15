@@ -29,5 +29,5 @@ export interface StatementData {
 }
 
 /** Fetch a real-account trading statement for a date range (YYYY-MM-DD). */
-export const getStatement = (from: string, to: string) =>
-  api.get<StatementData>('/statement', { params: { from, to } }).then(r => r.data)
+export const getStatement = (from: string, to: string, currency?: string) =>
+  api.get<StatementData>('/statement', { params: { from, to, ...(currency ? { currency } : {}) } }).then(r => r.data)

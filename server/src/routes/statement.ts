@@ -25,8 +25,10 @@ router.get('/', authenticate, async (req: AuthRequest, res: Response) => {
     const email  = req.user!.email || ''
     const mode   = 'real' // statements are issued for the live account only
 
+    const qCur = String(req.query.currency || '')
     const hdrCur = req.headers['x-account-currency']
-    const currency = typeof hdrCur === 'string' && ['USD', 'EUR', 'GBP'].includes(hdrCur) ? hdrCur : 'USD'
+    const currency = ['USD', 'EUR', 'GBP'].includes(qCur) ? qCur
+      : (typeof hdrCur === 'string' && ['USD', 'EUR', 'GBP'].includes(hdrCur) ? hdrCur : 'USD')
     const rate = fxRate(currency)
 
     // ── Date range (whole days, inclusive) ──────────────────────────────────
